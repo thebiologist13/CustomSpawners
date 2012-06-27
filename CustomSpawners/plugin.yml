@@ -1,0 +1,158 @@
+name: CustomSpawners
+version: 0.0.1
+author: thebiologist13
+description: Make any block a simulated mob spawner and configure it's properties.
+main: com.github.thebiologist13.CustomSpawners
+commands:
+    customspawner:
+        description: The main command of CustomSpawners. Other commands branch off this one.
+        usage: /customspawner
+        aliases: [cs, cspawner]
+        permission: customspawners.customspawner
+        permission-message: You do not have permission to use the customspawner command.
+permissions:
+    customspawners.*:
+        description: Allows the user/group to use all of CustomSpawners' features.
+        default: false
+        children:
+            customspawners.help: true
+            customspawners.listnear: true
+            customspawners.listall: true
+            customspawners.listnear.hidden: true
+            customspawners.listall.hidden: true
+            customspawners.create: true
+            customspawners.remove: true
+            customspawners.select: true
+            customspawners.limitoverride: true
+            customspawners.setactive: true
+            customspawners.setinactive: true
+            customspawners.sethidden: true
+            customspawners.setunhidden: true
+            customspawners.setmaxlight: true
+            customspawners.setminlight: true
+            customspawners.setmaxmobs: true
+            customspawners.setmobsperspawn: true
+            customspawners.setmaxdistance: true
+            customspawners.setmindistance: true
+            customspawners.setlocation: true
+            customspawners.setradius: true
+            customspawners.setrate: true
+            customspawners.setredstone: true
+            customspawners.settype: true
+            customspawners.reloadspawners: true
+            customspawners.info: true
+            customspawners.info.hidden: true
+    customspawners.infocommands:
+        description: Allows the user/group to use the informational commands of CustomSpawners (except for hidden ones).
+        default: false
+        children:
+            customspawners.help: true
+            customspawners.listnear: true
+            customspawners.listall: true
+            customspawners.select: true
+            customspawners.info: true
+    customspawners.propertycommands:
+        description: Allows the user/group to use the spawner property commands of CustomSpawners.
+        default: false
+        children:
+            customspawners.help: true
+            customspawners.create: true
+            customspawners.remove: true
+            customspawners.select: true
+            customspawners.limitoverride: true
+            customspawners.setactive: true
+            customspawners.setinactive: true
+            customspawners.sethidden: true
+            customspawners.setunhidden: true
+            customspawners.setmaxlight: true
+            customspawners.setminlight: true
+            customspawners.setmaxmobs: true
+            customspawners.setmobsperspawn: true
+            customspawners.setmaxdistance: true
+            customspawners.setmindistance: true
+            customspawners.setlocation: true
+            customspawners.setradius: true
+            customspawners.setrate: true
+            customspawners.setredstone: true
+            customspawners.settype: true
+    customspawners.help:
+        description: Allows the user/group to use the "/customspawner" and "/customspawner help" command. Does not cover all sub-commands. Use customspawners.* for that.
+        default: true
+    customspawners.listnear:
+        description: Allows the user/group to use the "/customspawner listnear" command.
+        default: true
+    customspawners.listall:
+        description: Allows the user/group to use the "/customspawner listall" command.
+        default: true
+    customspawners.listnear.hidden:
+        description: Allows the user/group to use the "/customspawner listnear" command. Also allows then to see nearby hidden spawners.
+        default: false
+    customspawners.listall.hidden:
+        description: Allows the user/group to use the "/customspawner listnear" command. Also allows them to see hidden spawners.
+        default: false
+    customspawners.create:
+        description: Allows the user/group to create spawners.
+        default: false
+    customspawners.remove:
+        description: Allows the user/group to remove spawners.
+        default: false
+    customspawners.select:
+        description: Allows the user/group to select spawners.
+        default: true
+    customspawners.limitoverride:
+        description: Allows the user/group to ignore the spawner property limits from config.
+        default: false
+    customspawners.setactive:
+        description: Allows the user/group to set spawners active.
+        default: false
+    customspawners.setinactive:
+        description: Allows the user/group to set spawners inactive.
+        default: false
+    customspawners.sethidden:
+        description: Allows the user/group to set spawners hidden
+        default: false
+    customspawners.setunhidden:
+        description: Allows the user/group to set spawners unhidden.
+        default: false
+    customspawners.setmaxlight:
+        description: Allows the user/group to set the maximum light level a spawner can spawn at.
+        default: false
+    customspawners.setminlight:
+        description: Allows the user/group to set the minimum light level a spawner can spawn at.
+        default: false
+    customspawners.setmaxmobs:
+        description: Allows the user/group to set the maximum amount a mobs a single spawner can spawn.
+        default: false
+    customspawners.setmobsperspawn:
+        description: Allows the user/group to set the mobs a spawner with spawn each time.
+        default: false
+    customspawners.setmaxdistance:
+        description: Allows the user/group to set the maximum distance players can be from a spawner.
+        default: false
+    customspawners.setmindistance:
+        description: Allows the user/group to set the minimum distance players can be from a spawner.
+        default: false
+    customspawners.setlocation:
+        description: Allows the user/group to set a new location for a spawner.
+        default: false
+    customspawners.setradius:
+        description: Allows the user/group to set the spawn radius of a spawner.
+        default: false
+    customspawners.setrate:
+        description: Allows the user/group to set the spawn rate of a spawner.
+        default: false
+    customspawners.setredstone:
+        description: Allows the user/group to set whether a spawner only works when triggered by redstone.
+        default: false
+    customspawners.settype:
+        description: Allows the user/group to set the type of mob a spawner spawns.
+        default: false
+    customspawners.info:
+        description: Allows the user/group to see info about a spawner.
+        default: true
+    customspawners.info.hidden:
+        description: Allows the user/group to see info about a spawner (including hidden ones).
+        default: false
+    customspawners.reloadspawners:
+        description: Allows the user/group to reload spawners from file.
+        default: false
