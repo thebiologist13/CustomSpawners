@@ -42,6 +42,7 @@ permissions:
             customspawners.reloadspawners: true
             customspawners.info: true
             customspawners.info.hidden: true
+            customspawners.reloadspawners: true
     customspawners.infocommands:
         description: Allows the user/group to use the informational commands of CustomSpawners (except for hidden ones).
         default: false

@@ -7,17 +7,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import com.github.thebiologist13.CustomSpawners;
 
 public class PlayerLogoutEvent implements Listener {
-	
-	private CustomSpawners plugin;
-	
-	public PlayerLogoutEvent(CustomSpawners plugin) {
-		this.plugin = plugin;
-	}
-	
+
 	@EventHandler
 	public void onPlayerLogout(PlayerQuitEvent ev) {
-		if(plugin.selection.containsKey(ev.getPlayer())) {
-			plugin.selection.remove(ev.getPlayer());
+		if(CustomSpawners.spawnerSelection.containsKey(ev.getPlayer())) {
+			CustomSpawners.spawnerSelection.remove(ev.getPlayer());
+		}
+		
+		if(CustomSpawners.entitySelection.containsKey(ev.getPlayer())) {
+			CustomSpawners.entitySelection.remove(ev.getPlayer());
 		}
 	}
 }

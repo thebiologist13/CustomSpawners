@@ -13,20 +13,14 @@ import com.github.thebiologist13.Spawner;
 
 public class MobDeathEvent implements Listener {
 	
-	private CustomSpawners plugin;
-	
-	public MobDeathEvent(CustomSpawners plugin) {
-		this.plugin = plugin;
-	}
-	
 	@EventHandler
 	public void onMobDeath(EntityDeathEvent ev) {
 		LivingEntity entity = ev.getEntity();
 		EntityType type = ev.getEntityType();
 		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
 		
-		for(Spawner s : plugin.spawners) {
-			if(s.type.equals(type)) {
+		for(Spawner s : CustomSpawners.spawners) {
+			if(s.getTypeData().equals(type)) { //TODO Modify this
 				validSpawners.add(s);
 			}
 		}

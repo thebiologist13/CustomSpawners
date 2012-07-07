@@ -1,94 +1,97 @@
-# CustomSpawners Configuration
-# By thebiologist13
+# # # # # # # # # # # # # # # # #
+#  CustomSpawners Configuration #
+#       By thebiologist13       #
+# # # # # # # # # # # # # # # # #
 
 spawners:
 
-# Default Spawner Properties
-# These properties are just what is given to a spawner
-# when it is created; they can be changed at any time.
+    # Default Spawner Properties
+    # These properties are just what is given to a spawner
+    # when it is created; they can be changed at any time.
     
-# Type of mob to spawn. This is also the default mob to 
-# spawn if the plugin cannot read a spawner save file.
-# Note that zombie pigmen are "pigzombie" and ocelots are "ozelot". 
+    # Type of mob to spawn. This is also the default mob to 
+    # spawn if the plugin cannot read a spawner save file.
+    # Note that zombie pigmen are "pigzombie" and ocelots are 
+    # "ozelot". 
     type: pig
     
-# Radius of area a spawner can spawn in.
+    # Radius of area a spawner can spawn in.
     radius: 16
     
-# If a spawner block needs to be powered to spawn mobs.
+    # If a spawner block needs to be powered to spawn mobs.
     redstoneTriggered: false
     
-# Maximum distance a player can be from a spawner for
-# it to spawn.
+    # Maximum distance a player can be from a spawner for
+    # it to spawn.
     maxPlayerDistance: 32
     
-# Minimum distance a player can be from a spawner for
-# it to spawn.
+    # Minimum distance a player can be from a spawner for
+    # it to spawn.
     minPlayerDistance: 0
     
-# Should the spawner actually spawn when created?
+    # Should the spawner actually spawn when created?
     active: false
     
-# Maximum light level on a spawner for
-# it to be able to spawn. (put value 0-15)
+    # Maximum light level on a spawner for
+    # it to be able to spawn. (put value 0-15)
     maxLightLevel: 7
     
-# Minimum light level on a spawner for
-# it to be able to spawn. (put value 0-15)
+    # Minimum light level on a spawner for
+    # it to be able to spawn. (put value 0-15)
     minLightLevel: 0
     
-# Should the spawner be "hidden" from players 
-# when they use spawner listing commands if they
-# do not have permission?
+    # Should the spawner be "hidden" from players 
+    # when they use spawner listing commands if they
+    # do not have permission?
     hidden: false
     
-# What should the rate (in server ticks: 20 ticks/second)
-# that the spawner spawns mobs at?
+    # What should the rate (in server ticks: 20 ticks/second)
+    # that the spawner spawns mobs at?
     rate: 120
     
-# How many mobs should be spawned each time?
+    # How many mobs should be spawned each time?
     mobsPerSpawn: 2
     
-# What should the maximum amount of mobs that a spawner
-# have spawned at one time?
+    # What should the maximum amount of mobs that a spawner
+    # have spawned at one time?
     maxMobs: 64
     
     
     
-# Spawner limits
-# Limits of values for spawner properties. 
-# These can be overridden in permissions.
+    # Spawner limits
+    # Limits of values for spawner properties. 
+    # These can be overridden in permissions.
     
-# Radius limit (max)
+    # Radius limit (max)
     radiusLimit: 128
     
-# MaxPlayerDistance maximum value
+    # MaxPlayerDistance maximum value
     playerDistanceLimit: 128
     
-# Rate limit (minimum amount of ticks)
+    # Rate limit (minimum amount of ticks)
     rateLimit: 10
     
-# Mobs per spawn limit
+    # Mobs per spawn limit
     mobsPerSpawnLimit: 16
     
-# Maximum mobs limit
+    # Maximum mobs limit
     maxMobsLimit: 256
     
     
     
-# Miscellaneous Spawner Options
+    # Miscellaneous Spawner Options
     
-# Should spawned mobs be killed when the
-# plugin is disabled, reloaded, or 
-# /customspawners reload is used. 
-# This saves time saving and loading spawners.
+    # Should spawned mobs be killed when the
+    # plugin is disabled, reloaded, or 
+    # /customspawners reload is used. 
+    # This saves time saving and loading spawners.
     killOnReload: false
     
 mobs:
 
-# Which mob types for spawners should be 
-# unavailable on the server?
-# Set false to disable.
+    # Which mob types for spawners should be 
+    # unavailable on the server?
+    # Set false to disable.
     pig: true
     cow: true
     sheep: true
@@ -96,6 +99,8 @@ mobs:
     wolf: true
     ozelot: true
     squid: true
+    villager: true
+    spiderjockey: true
     zombie: true
     skeleton: true
     creeper: true
@@ -112,8 +117,13 @@ mobs:
     blaze: false
     
 players:
-# Maximum distance a player can be from a block
-# to set that block as a spawner. May be limited
-# by power of server, but at least 100 blocks always.
+    # Maximum distance a player can be from a block
+    # to set that block as a spawner. May be limited
+    # by power of server, but at least 100 blocks always.
     maxDistance: 50
+    
+    # Maximum distance a player can be from a spawner
+    # to consider it "nearby". This is for the listnear
+    # command.
+    maxNear: 25
     
