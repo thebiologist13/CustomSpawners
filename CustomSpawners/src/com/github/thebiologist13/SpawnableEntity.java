@@ -72,6 +72,10 @@ public class SpawnableEntity {
 	public void setEffects(ArrayList<PotionEffect> effects) {
 		this.effects = effects;
 	}
+	
+	public void addPoitionEffect(PotionEffect effect) {
+		effects.add(effect);
+	}
 
 	public double getXVelocity() {
 		return xVelocity;

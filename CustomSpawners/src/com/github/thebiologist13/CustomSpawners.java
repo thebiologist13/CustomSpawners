@@ -15,6 +15,8 @@ import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -44,8 +46,6 @@ public class CustomSpawners extends JavaPlugin {
 	//YAML file variable
 	private File configFile;
 	
-	
-	
 	public void onEnable() {
 		
 		//Config
@@ -58,6 +58,9 @@ public class CustomSpawners extends JavaPlugin {
 		//Listeners
 		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
 		getServer().getPluginManager().registerEvents(new MobDeathEvent(), this);
+		
+		//Load entities from file
+		loadEntities();
 		
 		//Load spawners from files
 		loadSpawners();
@@ -96,6 +99,8 @@ public class CustomSpawners extends JavaPlugin {
 	
 	public void onDisable() {
 		
+		//Saving Entities
+		saveEntities();
 		//Saving spawners
 		saveSpawners();
 		
@@ -230,7 +235,6 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Loads spawners from file
-	@SuppressWarnings("unused")
 	public void loadSpawners() {
 		log.info("Loading spawners from directory " + getDataFolder().getPath() + "\\Spawners");
 		File sDir = new File(getDataFolder() + "\\Spawners");
@@ -256,8 +260,17 @@ public class CustomSpawners extends JavaPlugin {
 				boolean hidden = yaml.getBoolean("hidden");
 				int mobsPerSpawn = yaml.getInt("mobsPerSpawn"); 
 				int maxMobs = yaml.getInt("maxMobs"); 
-				List<?> mobIds = yaml.getList("mobs"); 
+				List<?> mobs = yaml.getList("mobs"); 
 				int rate = yaml.getInt("rate");
+				boolean usingSpawnArea = yaml.getBoolean("useSpawnArea");
+				
+				//Convert Raw yaml list of mobs to ArrayList<Integer>
+				ArrayList<Integer> mobIDs = new ArrayList<Integer>();
+				for(Object o : mobs) {
+					if(o instanceof Integer) {
+						mobIDs.add((Integer) o);
+					}
+				}
 				
 				//Location
 				String locWorld = yaml.getString("location.world");
@@ -266,10 +279,57 @@ public class CustomSpawners extends JavaPlugin {
 				int locZ = yaml.getInt("location.z");
 				Location loc = new Location(getServer().getWorld(locWorld), locX, locY, locZ);
 				
-				//Mob type
-				List<?> listType = yaml.getList("type");
+				//Spawn Area Points
+				Location[] areaPoints = new Location[2];
 				
-				//TODO Set Props Here
+				//Point 1
+				String p1World = yaml.getString("p1.world");
+				int p1x = yaml.getInt("p1.x");
+				int p1y = yaml.getInt("p1.y");
+				int p1z = yaml.getInt("p1.z");
+				Location p1 = new Location(getServer().getWorld(p1World), p1x, p1y, p1z);
+				
+				//Point 2
+				String p2World = yaml.getString("p2.world");
+				int p2x = yaml.getInt("p2.x");
+				int p2y = yaml.getInt("p2.y");
+				int p2z = yaml.getInt("p2.z");
+				Location p2 = new Location(getServer().getWorld(p2World), p2x, p2y, p2z);
+				
+				areaPoints[0] = p1;
+				areaPoints[1] = p2;
+				
+				//Mob types
+				List<?> listType = yaml.getList("type");
+				HashMap<Integer, SpawnableEntity> entities = new HashMap<Integer, SpawnableEntity>();
+				SpawnableEntity baseEntity;
+				for(Object o : listType) {
+					if(o instanceof Integer) {
+						int entityID = (Integer) o;
+						SpawnableEntity se = getEntityById(entityID);
+						entities.put(entityID, se);
+					}
+				}
+				baseEntity = entities.get(0); //TODO make sure this will always be the first value
+				
+				Spawner s = new Spawner(baseEntity, loc, name, id, getServer());
+				s.setRadius(radius);
+				s.setRedstoneTriggered(redstoneTriggered);
+				s.setMaxPlayerDistance(maxPlayerDistance);
+				s.setMinPlayerDistance(minPlayerDistance);
+				s.setActive(active);
+				s.setMaxLightLevel(maxLightLevel);
+				s.setMinLightLevel(minLightLevel);
+				s.setHidden(hidden);
+				s.setMobsPerSpawn(mobsPerSpawn);
+				s.setMaxMobs(maxMobs);
+				s.setMobsFromIDs(mobIDs);
+				s.setRate(rate);
+				s.setUseSpawnArea(usingSpawnArea);
+				s.setAreaPoints(areaPoints);
+				s.setTypeData(entities);
+				
+				spawners.add(s);
 			}
 		}
 		
@@ -333,15 +393,18 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("minLight", s.getMinLightLevel());
 			yaml.set("mobsPerSpawn", s.getMobsPerSpawn());
 			yaml.set("maxMobs", s.getMaxMobs());
-			yaml.set("spawnerX", s.getLoc().getBlockX());
-			yaml.set("spawnerY", s.getLoc().getBlockY());
-			yaml.set("spawnerZ", s.getLoc().getBlockZ());
-			yaml.set("p1x", areaPoints[0].getBlockX());
-			yaml.set("p1y", areaPoints[0].getBlockY());
-			yaml.set("p1z", areaPoints[0].getBlockZ());
-			yaml.set("p2x", areaPoints[1].getBlockX());
-			yaml.set("p2y", areaPoints[1].getBlockY());
-			yaml.set("p2z", areaPoints[1].getBlockZ());
+			yaml.set("location.world", s.getLoc().getWorld().getName());
+			yaml.set("location.x", s.getLoc().getBlockX());
+			yaml.set("location.y", s.getLoc().getBlockY());
+			yaml.set("location.z", s.getLoc().getBlockZ());
+			yaml.set("p1.world", areaPoints[0].getWorld());
+			yaml.set("p1.x", areaPoints[0].getBlockX());
+			yaml.set("p1.y", areaPoints[0].getBlockY());
+			yaml.set("p1.z", areaPoints[0].getBlockZ());
+			yaml.set("p2.world", areaPoints[1].getWorld().getName());
+			yaml.set("p2.x", areaPoints[1].getBlockX());
+			yaml.set("p2.y", areaPoints[1].getBlockY());
+			yaml.set("p2.z", areaPoints[1].getBlockZ());
 			yaml.set("rate", s.getRate());
 			yaml.set("mobs", mobIDs);
 			
@@ -373,8 +436,8 @@ public class CustomSpawners extends JavaPlugin {
 				
 				int id = yaml.getInt("id");
 				String name = yaml.getString("name");
-				String type = yaml.getString("type"); //TODO remember spider jockey's special case
-				List<?> effects = yaml.getList("effects"); //TODO also special
+				String type = yaml.getString("type"); //TODO Spider jockeys are saved as spiders with isJockey() true.
+				List<?> effectsString = yaml.getList("effects"); //TODO also special
 				double xVelocity = yaml.getDouble("xVelocity"); //TODO velocities are ALSO special
 				double yVelocity = yaml.getDouble("yVelocity");
 				double zVelocity = yaml.getDouble("zVelocity");
@@ -392,6 +455,16 @@ public class CustomSpawners extends JavaPlugin {
 				String catType = yaml.getString("catType"); //TODO Another special case
 				int slimeSize = yaml.getInt("slimeSize");
 				String color = yaml.getString("color"); //TODO Another special case
+				
+				//PotionEffect handling
+				ArrayList<PotionEffect> effects = new ArrayList<PotionEffect>();
+				for(Object o : effectsString) {
+					if(o instanceof String) {
+						String effectName = String.valueOf(o);
+						PotionEffectType effectType = PotionEffectType.getByName(effectName);
+						//TODO Create effect here and add it to list
+					}
+				}
 				
 				//TODO Set Props Here
 			}
@@ -421,7 +494,12 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("id", e.getId());
 			yaml.set("name", e.getName());
 			yaml.set("type", e.getType());
-			yaml.set("effects", e.getEffects());
+			
+			//Effects
+			for(int i = 0; i < e.getEffects().size(); i++) {
+				
+			}
+			
 			yaml.set("xVelocity", e.getXVelocity());
 			yaml.set("yVelocity", e.getYVelocity());
 			yaml.set("zVelocity", e.getZVelocity());

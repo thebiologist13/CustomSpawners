@@ -210,6 +210,14 @@ public class Spawner {
 	public void setAreaPoints(Location[] areaPoints) {
 		this.areaPoints = areaPoints;
 	}
+	
+	public void changeAreaPoint(int index, Location value) {
+		if(index != 0 || index != 1) {
+			return;
+		}
+		
+		areaPoints[index] = value;
+	}
 
 	public int getRate() {
 		return rate;
@@ -221,6 +229,16 @@ public class Spawner {
 
 	public ArrayList<Integer> getMobs() {
 		return mobs;
+	}
+	
+	public void setMobsFromEntities(ArrayList<LivingEntity> mobs) {
+		for(LivingEntity le : mobs) {
+			this.mobs.add(le.getEntityId());
+		}
+	}
+	
+	public void setMobsFromIDs(ArrayList<Integer> mobs) {
+		this.mobs = mobs;
 	}
 
 	//Change the name
