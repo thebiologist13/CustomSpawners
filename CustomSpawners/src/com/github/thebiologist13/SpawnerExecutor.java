@@ -23,10 +23,7 @@ public class SpawnerExecutor implements CommandExecutor {
 	 * I put each sub-command's code in a 
 	 * separate class.
 	 */
-	
-	final String GENERAL_ERROR = ChatColor.RED + "An error has occured with this command. Did you type everything right?";
-	final String GENERAL_ERROR_NO_COLOR = "An error has occured with this command. Did you type everything right?";
-	
+
 	private CustomSpawners plugin;
 	
 	private Logger log;
@@ -35,12 +32,13 @@ public class SpawnerExecutor implements CommandExecutor {
 	
 	public SpawnerExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
-		log = plugin.log;
+		this.log = plugin.log;
 	}
 	
+	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
-		if(arg1.getName().equalsIgnoreCase("customspawner")) {
+		if(arg1.getName().equalsIgnoreCase("spawners")) {
 			
 			//How many arguments
 			int argumentLength = arg3.length;

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.material.MaterialData;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
 public class SpawnableEntity {
@@ -22,7 +21,7 @@ public class SpawnableEntity {
 	
 	//Basic Data
 	private EntityType type = null;
-	private ArrayList<PotionEffect> effects = new ArrayList<PotionEffect>();
+	private ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
 	private double xVelocity = 0;
 	private double yVelocity = 0;
 	private double zVelocity = 0;
@@ -38,15 +37,16 @@ public class SpawnableEntity {
 	private boolean isCharged = false;
 	private boolean isJockey = false;
 	private boolean isTamed = false;
-	private boolean angryWolf = false;
+	private boolean angry = false;
 	private boolean isSitting = false;
 	private String catType = "";
 	private int slimeSize = 1;
 	private String color = "";
 	
 	//Initialize a SpawnableEntity
-	public SpawnableEntity(EntityType type) {
+	public SpawnableEntity(EntityType type, int id) {
 		this.type = type;
+		this.id = id;
 	}
 
 	public String getName() {
@@ -65,15 +65,15 @@ public class SpawnableEntity {
 		this.type = type;
 	}
 
-	public ArrayList<PotionEffect> getEffects() {
+	public ArrayList<EntityPotionEffect> getEffects() {
 		return effects;
 	}
 
-	public void setEffects(ArrayList<PotionEffect> effects) {
+	public void setEffects(ArrayList<EntityPotionEffect> effects) {
 		this.effects = effects;
 	}
 	
-	public void addPoitionEffect(PotionEffect effect) {
+	public void addPoitionEffect(EntityPotionEffect effect) {
 		effects.add(effect);
 	}
 
@@ -157,12 +157,12 @@ public class SpawnableEntity {
 		this.isTamed = isTamed;
 	}
 
-	public boolean isAngryWolf() {
-		return angryWolf;
+	public boolean isAngry() {
+		return angry;
 	}
 
-	public void setAngryWolf(boolean angryWolf) {
-		this.angryWolf = angryWolf;
+	public void setAngry(boolean angry) {
+		this.angry = angry;
 	}
 
 	public boolean isSitting() {
@@ -215,6 +215,9 @@ public class SpawnableEntity {
 
 	public void setVelocity(Vector velocity) {
 		this.velocity = velocity;
+		this.xVelocity = velocity.getX();
+		this.yVelocity = velocity.getY();
+		this.zVelocity = velocity.getZ();
 	}
 
 	public int getAir() {

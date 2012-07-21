@@ -4,19 +4,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.potion.PotionEffectType;
 
-public class EntityPotionEffect extends ConfigurationSerialization {
+@SerializableAs("Effect")
+public class EntityPotionEffect implements ConfigurationSerializable {
 
 	private PotionEffectType type = PotionEffectType.REGENERATION;
 	private int duration = 30;
 	private int amplifier = 1;
-	
-	public EntityPotionEffect(Class<? extends ConfigurationSerializable> clazz) {
-		super(clazz);
-	}
 
+	public EntityPotionEffect(PotionEffectType type, int duration, int amplifier) {
+		this.type = type;
+		this.duration = duration;
+		this.amplifier = amplifier;
+	}
+	
+	@Override
 	public Map<String, Object> serialize() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("effect", type.getName());
@@ -24,7 +28,16 @@ public class EntityPotionEffect extends ConfigurationSerialization {
 		map.put("amplifier", amplifier);
 		return map;
 	}
-
+	
+	//DESERIALIZE
+	public static EntityPotionEffect deserialize(Map<String, Object> map) {
+		String name = (String) map.get("effect");
+		int dur = (Integer) map.get("duration");
+		int amp = (Integer) map.get("amplifier");
+		
+		return new EntityPotionEffect(PotionEffectType.getByName(name), dur, amp);
+	}
+	
 	public PotionEffectType getType() {
 		return type;
 	}

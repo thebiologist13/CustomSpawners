@@ -14,11 +14,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 
 import com.github.thebiologist13.listeners.MobDeathEvent;
 import com.github.thebiologist13.listeners.PlayerLogoutEvent;
@@ -48,12 +51,20 @@ public class CustomSpawners extends JavaPlugin {
 	
 	public void onEnable() {
 		
+		//Serialization
+		ConfigurationSerialization.registerClass(EntityPotionEffect.class, "Effect");
+		
 		//Config
 		config = getCustomConfig();
 		
 		//Commands
+		//TODO Note: to check if a creature is valid, use instanceof Creature or EntityType.isSpawnable()
 		SpawnerExecutor se = new SpawnerExecutor(this);
-		getCommand("customspawner").setExecutor(se);
+		CustomSpawnersExecutor cse = new CustomSpawnersExecutor(this);
+		EntitiesExecutor ee = new EntitiesExecutor(this);
+		getCommand("customspawners").setExecutor(cse);
+		getCommand("spawners").setExecutor(se);
+		getCommand("entities").setExecutor(ee);
 		
 		//Listeners
 		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
@@ -199,6 +210,16 @@ public class CustomSpawners extends JavaPlugin {
 		return null;
 	}
 	
+	//Gets a SpawnableEntity by name
+	public SpawnableEntity getEntityByName(String name) {
+		for(SpawnableEntity e : entities) {
+			if(e.getName().equalsIgnoreCase(name)) {
+				return e;
+			}
+		}
+		return null;
+	}
+	
 	//Checks if an spawner ID is valid
 	public boolean isValidEntity(int id) {
 		for(SpawnableEntity e : entities) {
@@ -209,9 +230,49 @@ public class CustomSpawners extends JavaPlugin {
 		return false;
 	}
 	
+	//Checks if an spawner name is valid
+	public boolean isValidEntity(String name) {
+		for(SpawnableEntity e : entities) {
+			if(e.getName().equalsIgnoreCase(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	//Gets all spawners as a array
 	public SpawnableEntity[] getEntities() {
 		return (SpawnableEntity[]) entities.toArray();
+	}
+	
+	//Next available spawner ID
+	public int getNextSpawnerId() {
+		return spawners.size();
+	}
+	
+	//Next available entity id
+	public int getNextEntityId() {
+		return entities.size();
+	}
+	
+	//Convenience method for accurately testing if a string can be parsed to an integer.
+	public boolean isInteger(String what) {
+		try {
+			Integer.parseInt(what);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
+	}
+	
+	//Convenience method for accurately testing if a string can be parsed to an double.
+	public boolean isDouble(String what) {
+		try {
+			Double.parseDouble(what);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
 	}
 	
 	//Resets selections if a spawner is removed
@@ -310,7 +371,7 @@ public class CustomSpawners extends JavaPlugin {
 						entities.put(entityID, se);
 					}
 				}
-				baseEntity = entities.get(0); //TODO make sure this will always be the first value
+				baseEntity = entities.get(0);
 				
 				Spawner s = new Spawner(baseEntity, loc, name, id, getServer());
 				s.setRadius(radius);
@@ -420,7 +481,6 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Load entities from file
-	@SuppressWarnings("unused")
 	public void loadEntities() {
 		log.info("Loading entities from directory " + getDataFolder().getPath() + "\\Entities");
 		File sDir = new File(getDataFolder() + "\\Entities");
@@ -436,37 +496,58 @@ public class CustomSpawners extends JavaPlugin {
 				
 				int id = yaml.getInt("id");
 				String name = yaml.getString("name");
-				String type = yaml.getString("type"); //TODO Spider jockeys are saved as spiders with isJockey() true.
-				List<?> effectsString = yaml.getList("effects"); //TODO also special
-				double xVelocity = yaml.getDouble("xVelocity"); //TODO velocities are ALSO special
+				String strType = yaml.getString("type");
+				List<?> rawEffects = yaml.getList("effects");
+				double xVelocity = yaml.getDouble("xVelocity");
 				double yVelocity = yaml.getDouble("yVelocity");
 				double zVelocity = yaml.getDouble("zVelocity");
 				int age = yaml.getInt("age");
 				int health = yaml.getInt("health");
 				int air = yaml.getInt("air");
-				String profession = yaml.getString("profession"); //TODO Another special case
-				String endermanBlock = yaml.getString("endermanBlock"); //TODO Another special case
+				String strProfession = yaml.getString("profession");
+				int endermanBlockId = yaml.getInt("endermanBlock");
 				boolean isSaddled = yaml.getBoolean("saddled");
 				boolean isCharged = yaml.getBoolean("charged");
 				boolean isJockey = yaml.getBoolean("jockey");
 				boolean isTamed = yaml.getBoolean("tame");
-				boolean angryWolf = yaml.getBoolean("angry");
+				boolean angry = yaml.getBoolean("angry");
 				boolean isSitting = yaml.getBoolean("sitting"); 
-				String catType = yaml.getString("catType"); //TODO Another special case
+				String catType = yaml.getString("catType");
 				int slimeSize = yaml.getInt("slimeSize");
-				String color = yaml.getString("color"); //TODO Another special case
+				String color = yaml.getString("color");
 				
 				//PotionEffect handling
-				ArrayList<PotionEffect> effects = new ArrayList<PotionEffect>();
-				for(Object o : effectsString) {
-					if(o instanceof String) {
-						String effectName = String.valueOf(o);
-						PotionEffectType effectType = PotionEffectType.getByName(effectName);
-						//TODO Create effect here and add it to list
-					}
+				ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
+				for(Object o : rawEffects) {
+					effects.add((EntityPotionEffect) o);
 				}
 				
-				//TODO Set Props Here
+				EntityType type = EntityType.fromName(strType);
+				
+				Vector velocity = new Vector(xVelocity, yVelocity, zVelocity);
+				
+				Villager.Profession profession = Villager.Profession.valueOf(strProfession);
+				
+				MaterialData endermanBlock = new MaterialData(endermanBlockId);
+				
+				SpawnableEntity e = new SpawnableEntity(type, id);
+				e.setName(name);
+				e.setEffects(effects);
+				e.setVelocity(velocity);
+				e.setAge(age);
+				e.setHealth(health);
+				e.setAir(air);
+				e.setProfession(profession);
+				e.setEndermanBlock(endermanBlock);
+				e.setSaddled(isSaddled);
+				e.setCharged(isCharged);
+				e.setJockey(isJockey);
+				e.setTamed(isTamed);
+				e.setAngry(angry);
+				e.setSitting(isSitting);
+				e.setCatType(catType);
+				e.setSlimeSize(slimeSize);
+				e.setColor(color);
 			}
 		}
 		
@@ -494,12 +575,7 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("id", e.getId());
 			yaml.set("name", e.getName());
 			yaml.set("type", e.getType());
-			
-			//Effects
-			for(int i = 0; i < e.getEffects().size(); i++) {
-				
-			}
-			
+			yaml.set("effects", e.getEffects());
 			yaml.set("xVelocity", e.getXVelocity());
 			yaml.set("yVelocity", e.getYVelocity());
 			yaml.set("zVelocity", e.getZVelocity());
@@ -507,12 +583,12 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("health", e.getHealth());
 			yaml.set("air", e.getAir());
 			yaml.set("profession", e.getProfession().toString());
-			yaml.set("endermanBlock", e.getEndermanBlock().toString());
+			yaml.set("endermanBlock", e.getEndermanBlock().toItemStack().getTypeId());
 			yaml.set("saddled", e.isSaddled());
 			yaml.set("charged", e.isCharged());
 			yaml.set("jockey", e.isJockey());
 			yaml.set("tame", e.isTamed());
-			yaml.set("angry", e.isAngryWolf());
+			yaml.set("angry", e.isAngry());
 			yaml.set("sitting", e.isSitting());
 			yaml.set("catType", e.getCatType());
 			yaml.set("slimeSize", e.getSlimeSize());

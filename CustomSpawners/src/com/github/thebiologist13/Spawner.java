@@ -11,11 +11,14 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Slime;
@@ -520,6 +523,23 @@ public class Spawner {
 		return false;
 	}
 	
+	//Check if players are nearby
+	private Player[] getNearbyPlayers(Location source, double max) {
+		ArrayList<Player> players = new ArrayList<Player>();
+		for(Player p : server.getOnlinePlayers()) {
+			//Finds distance between spawner and player is 3D space.
+			double distance = Math.sqrt(
+					Math.pow((p.getLocation().getX() - source.getX()), 2) + // x coordinate
+					Math.pow((p.getLocation().getY() - source.getY()), 2) + // y coordinate
+					Math.pow((p.getLocation().getZ() - source.getZ()), 2)   // z coordinate
+					);
+			if(distance <= max) {
+				players.add(p);
+			}
+		}
+		return (Player[]) players.toArray();
+	}
+	
 	//Generate random double for location's parts within radius
 	private double randomGenRad() {
 		Random rand = new Random();
@@ -549,9 +569,10 @@ public class Spawner {
 	}
 	
 	//Assigns properties to a LivingEntity
-	private void assignMobProps(LivingEntity entity, SpawnableEntity data) {
-		for(PotionEffect p : data.getEffects()) {
-			entity.addPotionEffect(p, true);
+	private void assignMobProps(LivingEntity entity, SpawnableEntity data) { //TODO add argoed support for iron golems and pigmen
+		for(EntityPotionEffect p : data.getEffects()) {
+			PotionEffect ef = new PotionEffect(p.getType(), p.getDuration(), p.getAmplifier());
+			entity.addPotionEffect(ef, true);
 		}
 		entity.setVelocity(data.getVelocity());
 		entity.setHealth(data.getHealth());
@@ -571,7 +592,7 @@ public class Spawner {
 				s.setColor(color);
 			} else if(animal instanceof Wolf) {
 				Wolf w = (Wolf) animal;
-				w.setAngry(data.isAngryWolf());
+				w.setAngry(data.isAngry());
 				w.setTamed(data.isTamed());
 				if(data.isTamed()) {
 					w.setSitting(data.isSitting());
@@ -605,6 +626,26 @@ public class Spawner {
 			} else if(monster instanceof MagmaCube) {
 				MagmaCube m = (MagmaCube) monster;
 				m.setSize(data.getSlimeSize());
+			} else if(monster instanceof PigZombie) {
+				PigZombie p = (PigZombie) monster;
+				if(data.isAngry()) {
+					p.setAngry(true);
+				}
+			}
+		} else if(entity instanceof Golem) {
+			Golem golem = (Golem) entity;
+			
+			if(golem instanceof IronGolem) { //TODO may or may not work
+				IronGolem i = (IronGolem) golem;
+				if(data.isAngry()) {
+					Player[] players = server.getOnlinePlayers();
+					int index = (int) Math.round(Math.rint(players.length - 1));
+					Player[] nearPlayers = getNearbyPlayers(i.getLocation(), 16);
+					if(nearPlayers != null) {
+						i.setPlayerCreated(false);
+						i.damage(0, nearPlayers[index]);
+					}
+				}
 			}
 		}
 	}
