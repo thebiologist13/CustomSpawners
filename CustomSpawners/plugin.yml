@@ -31,7 +31,16 @@ permissions:
         default: true
     customspawners.reloadspawners:
         description: Allows the user/group to reload spawners from file.
-        default: false
+        default: op
+    customspawners.spawners.activateall:
+        description: Allows the user/group to activate all spawners.
+        default: op
+    customspawners.spawners.deactivateall:
+        description: Allows the user/group to deactivate all spawners.
+        default: op
+    customspawners.spawners.forcespawn:
+        description: Allows the user/group to force a spawner to spawn an entity.
+        default: op
     customspawners.spawners.listnear:
         description: Allows the user/group to use the "/customspawner listnear" command.
         default: true
@@ -40,70 +49,155 @@ permissions:
         default: true
     customspawners.spawners.listnear.hidden:
         description: Allows the user/group to use the "/customspawner listnear" command. Also allows then to see nearby hidden spawners.
-        default: false
+        default: op
     customspawners.spawners.listall.hidden:
         description: Allows the user/group to use the "/customspawner listnear" command. Also allows them to see hidden spawners.
-        default: false
+        default: op
     customspawners.spawners.create:
         description: Allows the user/group to create spawners.
-        default: false
+        default: op
     customspawners.spawners.remove:
         description: Allows the user/group to remove spawners.
-        default: false
+        default: op
     customspawners.spawners.select:
         description: Allows the user/group to select spawners.
         default: true
     customspawners.spawners.limitoverride:
         description: Allows the user/group to ignore the spawner property limits from config.
-        default: false
+        default: op
     customspawners.spawners.setactive:
         description: Allows the user/group to set spawners active.
-        default: false
+        default: op
     customspawners.spawners.setinactive:
         description: Allows the user/group to set spawners inactive.
-        default: false
+        default: op
     customspawners.spawners.sethidden:
         description: Allows the user/group to set spawners hidden
-        default: false
+        default: op
     customspawners.spawners.setunhidden:
         description: Allows the user/group to set spawners unhidden.
-        default: false
+        default: op
     customspawners.spawners.setmaxlight:
         description: Allows the user/group to set the maximum light level a spawner can spawn at.
-        default: false
+        default: op
     customspawners.spawners.setminlight:
         description: Allows the user/group to set the minimum light level a spawner can spawn at.
-        default: false
+        default: op
     customspawners.spawners.setmaxmobs:
         description: Allows the user/group to set the maximum amount a mobs a single spawner can spawn.
-        default: false
+        default: op
     customspawners.spawners.setmobsperspawn:
         description: Allows the user/group to set the mobs a spawner with spawn each time.
-        default: false
+        default: op
     customspawners.spawners.setmaxdistance:
         description: Allows the user/group to set the maximum distance players can be from a spawner.
-        default: false
+        default: op
     customspawners.spawners.setmindistance:
         description: Allows the user/group to set the minimum distance players can be from a spawner.
-        default: false
+        default: op
     customspawners.spawners.setlocation:
         description: Allows the user/group to set a new location for a spawner.
-        default: false
+        default: op
     customspawners.spawners.setradius:
         description: Allows the user/group to set the spawn radius of a spawner.
-        default: false
+        default: op
     customspawners.spawners.setrate:
         description: Allows the user/group to set the spawn rate of a spawner.
-        default: false
+        default: op
     customspawners.spawners.setredstone:
         description: Allows the user/group to set whether a spawner only works when triggered by redstone.
-        default: false
+        default: op
+    customspawners.spawners.addtype:
+        description: Allows the user/group to add a type of mob a spawner creates.
+        default: op
     customspawners.spawners.settype:
         description: Allows the user/group to set the type of mob a spawner spawns.
-        default: false
+        default: op
     customspawners.spawners.info:
         description: Allows the user/group to see info about a spawner.
         default: true
     customspawners.spawners.info.hidden:
         description: Allows the user/group to see info about a spawner (including hidden ones).
-        default: false
+        default: op
+    customspawners.spawners.setname:
+        description: Allows the user/group to set the name of a spawner.
+        default: op
+    customspawners.entities.create:
+        description: Allows the user/group to create a spawnable entity.
+        default: op
+    customspawners.entities.select:
+        description: Allows the user/group to select a spawnable entity.
+        default: op
+    customspawners.entities.remove:
+        description: Allows the user/group to remove a spawnable entity.
+        default: op
+    customspawners.entities.info:
+        description: Allows the user/group to see info about a spawnable entity.
+        default: op
+    customspawners.entities.setname:
+        description: Allows the user/group to set the name of a entity.
+        default: op
+    customspawners.entities.settype:
+        description: Allows the user/group to set entity type of an entity.
+        default: op
+    customspawners.entities.seteffect:
+        description: Allows the user/group to set potion effect of an entity.
+        default: op
+    customspawners.entities.addeffect:
+        description: Allows the user/group to set entity type of an entity.
+        default: op
+    customspawners.entities.setage:
+        description: Allows the user/group to set the age of an entity.
+        default: op
+    customspawners.entities.setair:
+        description: Allows the user/group to set the air of an entity.
+        default: op
+    customspawners.entities.setangry:
+        description: Allows the user/group to set if an entity is angry.
+        default: op
+    customspawners.entities.setcattype:
+        description: Allows the user/group to set the cat type.
+        default: op
+    customspawners.entities.setcharged:
+        description: Allows the user/group to set the entity charged.
+        default: op
+    customspawners.entities.cleareffects:
+        description: Allows the user/group to clear potion effects on an entity.
+        default: op
+    customspawners.entities.setcolor:
+        description: Allows the user/group to set the color.
+        default: op
+    customspawners.entities.setenderblock:
+        description: Allows the user/group to set the block an enderman is holding.
+        default: op
+    customspawners.entities.sethealth:
+        description: Allows the user/group to set the health of an entity.
+        default: op
+    customspawners.entities.info:
+        description: Allows the user/group to get entity info.
+        default: op
+    customspawners.entities.setjockey:
+        description: Allows the user/group to set if a spider is a jockey.
+        default: op
+    customspawners.entities.setprofession:
+        description: Allows the user/group to set the villager profession.
+        default: op
+    customspawners.entities.setsaddled:
+        description: Allows the user/group to set a pig saddled.
+        default: op
+    customspawners.entities.settype:
+        description: Allows the user/group to set the base type of an entity.
+        default: op
+    customspawners.entities.setsitting:
+        description: Allows the user/group to set a entity sitting.
+        default: op
+    customspawners.entities.setslimesize:
+        description: Allows the user/group to set the size of slimes and magma cubes.
+        default: op
+    customspawners.entities.settamed:
+        description: Allows the user/group to set an entity tamed.
+        default: op
+    customspawners.entities.setvelocity:
+        description: Allows the user/group to set the velocity of an entity.
+        default: op
+        

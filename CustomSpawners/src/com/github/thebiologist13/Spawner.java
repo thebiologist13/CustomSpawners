@@ -110,6 +110,10 @@ public class Spawner {
 		typeData.put(data.getId(), data);
 	}
 
+	public SpawnableEntity[] getEntitiesAsArray() {
+		return (SpawnableEntity[]) typeData.values().toArray();
+	}
+	
 	public boolean isActive() {
 		return active;
 	}
@@ -228,6 +232,7 @@ public class Spawner {
 
 	public void setRate(int rate) {
 		this.rate = rate;
+		this.ticksLeft = rate;
 	}
 
 	public ArrayList<Integer> getMobs() {
@@ -569,18 +574,48 @@ public class Spawner {
 	}
 	
 	//Assigns properties to a LivingEntity
-	private void assignMobProps(LivingEntity entity, SpawnableEntity data) { //TODO add argoed support for iron golems and pigmen
+	private void assignMobProps(LivingEntity entity, SpawnableEntity data) {
 		for(EntityPotionEffect p : data.getEffects()) {
 			PotionEffect ef = new PotionEffect(p.getType(), p.getDuration(), p.getAmplifier());
 			entity.addPotionEffect(ef, true);
 		}
 		entity.setVelocity(data.getVelocity());
-		entity.setHealth(data.getHealth());
-		entity.setRemainingAir(data.getAir());
+		
+		//Health handling
+		if(data.getHealth() == -2) {
+			entity.setHealth(1);
+		} else if(data.getHealth() == -1) {
+			entity.setHealth(entity.getMaxHealth());
+		} else {
+			if(data.getHealth() > entity.getMaxHealth()) {
+				entity.setHealth(entity.getMaxHealth());
+			} else if(data.getHealth() < 0) {
+				entity.setHealth(0);
+			} else {
+				entity.setHealth(data.getHealth());
+			}
+		}
+		
+		//Air handling
+		if(data.getAir() == -2) {
+			entity.setRemainingAir(0);
+		} else if(data.getAir() == -1) {
+			entity.setRemainingAir(entity.getMaximumAir());
+		} else {
+			entity.setRemainingAir(data.getAir());
+		}
 		
 		if(entity instanceof Animals) {
 			Animals animal = (Animals) entity;
-			animal.setAge(data.getAge());
+			
+			//Age handling
+			if(data.getAir() == -2) {
+				animal.setBaby();
+			} else if(data.getAir() == -1) {
+				animal.setAdult();
+			} else {
+				animal.setAge(data.getAge());
+			}
 			
 			//Setting animal specific properties
 			if(animal instanceof Pig) {
@@ -601,8 +636,8 @@ public class Spawner {
 				Ocelot o = (Ocelot) animal;
 				o.setTamed(data.isTamed());
 				if(data.isTamed()) {
-					Ocelot.Type type = Ocelot.Type.valueOf(data.getCatType());
-					o.setCatType(type);
+					Ocelot.Type catType = Ocelot.Type.valueOf(data.getCatType());
+					o.setCatType(catType);
 					o.setSitting(data.isSitting());
 				}
 			}

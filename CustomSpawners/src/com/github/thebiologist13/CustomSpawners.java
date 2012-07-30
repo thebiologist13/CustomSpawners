@@ -408,6 +408,7 @@ public class CustomSpawners extends JavaPlugin {
 		log.info("Saving spawners...");
 		log.info(String.valueOf(spawners.size()) + " spawners to save.");
 		boolean killOnReload = config.getBoolean("spawners.killOnReload", false);
+		int index = 0;
 		
 		for(Spawner s : spawners) {
 			log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + getDataFolder() + "\\Spawners\\" + String.valueOf(s.getId()) + ".yml");
@@ -471,10 +472,13 @@ public class CustomSpawners extends JavaPlugin {
 			
 			try {
 				yaml.save(saveFile);
+				spawners.remove(index);
 			} catch (IOException e) {
 				e.printStackTrace();
 				log.severe("Failed to save spawner " + String.valueOf(s.getId()) + "!");
 			}
+			
+			index++;
 		}
 		
 		log.info("Save complete!");
@@ -564,6 +568,7 @@ public class CustomSpawners extends JavaPlugin {
 	public void saveEntities() {
 		log.info("Saving entities...");
 		log.info(String.valueOf(spawners.size()) + " entities to save.");
+		int index = 0;
 		
 		for(SpawnableEntity e : entities) {
 			log.info("Saving entity " + String.valueOf(e.getId()) + " to " + getDataFolder() + "\\Entities\\" + String.valueOf(e.getId()) + ".yml");
@@ -596,10 +601,13 @@ public class CustomSpawners extends JavaPlugin {
 			
 			try {
 				yaml.save(saveFile);
+				entities.remove(index);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 				log.severe("Failed to save entity " + String.valueOf(e.getId()) + "!");
 			}
+			
+			index++;
 		}
 		
 		log.info("Save complete!");

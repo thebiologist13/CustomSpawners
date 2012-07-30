@@ -7,27 +7,23 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.github.thebiologist13.commands.HelpCommand;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.*;
 
 public class CustomSpawnersExecutor implements CommandExecutor {
 
-	private CustomSpawners plugin = null;
+	//private CustomSpawners plugin = null;
 	
 	private Logger log = null;
 	
 	private HelpCommand hc = null;
-	private ReloadSpawnersCommand rc = null;
+	private ReloadDataCommand rc = null;
 	
 	public CustomSpawnersExecutor(CustomSpawners plugin) {
-		this.plugin = plugin;
+		//this.plugin = plugin;
 		this.log = plugin.log;
 		
 		hc = new HelpCommand(plugin);
-		rc = new ReloadSpawnersCommand(plugin);
-		
-		SpawnerCommand.registerCommand("help", hc);
-		SpawnerCommand.registerCommand("reloadspawners", rc);
+		rc = new ReloadDataCommand(plugin);
 	}
 
 	@Override
@@ -41,20 +37,46 @@ public class CustomSpawnersExecutor implements CommandExecutor {
 		
 		if(arg1.getName().equalsIgnoreCase("customspawners")) {
 			
-			switch(arg3.length) {
-			case 0:
-				return SpawnerCommand.runCommand("help", arg0, arg1, arg2, arg3);
-			case 1:
-				if(arg3[0].equalsIgnoreCase("help")) {
-					return SpawnerCommand.runCommand("help", arg0, arg1, arg2, arg3);
-				} else if(arg3[0].equalsIgnoreCase("reloadspawners")) {
-					return SpawnerCommand.runCommand("reloadspawners", arg0, arg1, arg2, arg3);
-				}
-			case 2:
-				return SpawnerCommand.runCommand("help", arg0, arg1, arg2, arg3);
-			default:
-				if(p == null) {
+			try {
+				if(arg3.length == 0) {
 					
+					hc.run(arg0, arg1, arg2, arg3);
+					return true;
+					
+				} else if(arg3.length == 1) {
+					
+					if(arg3[0].equalsIgnoreCase("help")) {
+						hc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("reload")) {
+						rc.run(arg0, arg1, arg2, arg3);
+						return true;
+					}
+					
+				} else if(arg3.length == 2) {
+					
+					if(arg3[0].equalsIgnoreCase("help")) {
+						hc.run(arg0, arg1, arg2, arg3);
+						return true;
+					}
+					
+				} else {
+					if(arg0 instanceof Player) {
+						p = (Player) arg0;
+						p.sendMessage(SpawnerCommand.GENERAL_ERROR);
+					} else {
+						log.info("An error has occured with this command. Did you type everything right?");
+					}
+					return false;
+				}
+				
+				return false;
+			} catch(Exception e) {
+				if(arg0 instanceof Player) {
+					p = (Player) arg0;
+					p.sendMessage(SpawnerCommand.GENERAL_ERROR);
+				} else {
+					log.info("An error has occured with this command. Did you type everything right?");
 				}
 			}
 			

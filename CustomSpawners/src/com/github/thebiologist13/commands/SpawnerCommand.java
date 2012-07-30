@@ -1,13 +1,10 @@
 package com.github.thebiologist13.commands;
 
-import java.util.HashMap;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class SpawnerCommand {
+public abstract class SpawnerCommand {
 	
 	/*
 	 * Note:
@@ -28,7 +25,8 @@ public class SpawnerCommand {
 	public final static String LESS_ARGS = ChatColor.RED + "Not enough arguments.";
 	public final static String MORE_ARGS = ChatColor.RED + "Too many arguments.";
 	public final static String INVALID_ENTITY = ChatColor.RED + "Can not parse entity type. Using default entity from conifg.";
-	public final static String NOT_ALLOWED_ENTITY = ChatColor.RED + "This is not an allowed entity. Using default entity from config.";
+	public final static String ENTITY_NONEXISTANT = ChatColor.RED + "There is no spawnable entity with this name or ID.";
+	public final static String NOT_ALLOWED_ENTITY = ChatColor.RED + "This is not an allowed entity.";
 	public final static String INVALID_BLOCK = ChatColor.RED + "You must be looking a a block.";
 	public final static String NEEDS_SELECTION = ChatColor.RED + "To use this command without defining an ID, you must have a spawner selected.";
 	public final static String MUST_BE_BOOLEAN = ChatColor.RED + "You must enter a boolean value (true or false).";
@@ -36,8 +34,9 @@ public class SpawnerCommand {
 	public final static String SPECIFY_NUMBER = ChatColor.RED + "You must specify a number for this command.";
 	public final static String GENERAL_ERROR = ChatColor.RED + "An error has occured with this command. Did you type everything right?";
 	public final static String NO_PERMISSION = ChatColor.RED + "You do not have permission!";
+	public final static String NOT_COMMAND = ChatColor.RED + "That is not a command for CustomSpawners.";
 	
-	public static HashMap<String, CommandExecutor> commands = new HashMap<String, CommandExecutor>();
+	/*public static HashMap<String, CommandExecutor> commands = new HashMap<String, CommandExecutor>();
 	
 	public static void registerCommand(String name, CommandExecutor executor) {
 		commands.put(name.toLowerCase(), executor);
@@ -62,5 +61,7 @@ public class SpawnerCommand {
 		} else {
 			return false;
 		}
-	}
+	}*/
+	
+	public abstract void run(CommandSender arg0, Command arg1, String arg2, String[] arg3);
 }

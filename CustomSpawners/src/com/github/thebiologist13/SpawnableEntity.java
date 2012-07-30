@@ -27,7 +27,7 @@ public class SpawnableEntity {
 	private double zVelocity = 0;
 	private Vector velocity = new Vector(xVelocity, yVelocity, zVelocity);
 	private int age = 0;
-	private int health = 0;
+	private int health = 1;
 	private int air = 0;
 	
 	//Specific Data
@@ -228,4 +228,7 @@ public class SpawnableEntity {
 		this.air = air;
 	}
 	
+	public void remove() {
+		this.id = -1;
+	}
 }

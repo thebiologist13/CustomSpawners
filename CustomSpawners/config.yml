@@ -9,12 +9,6 @@ spawners:
     # These properties are just what is given to a spawner
     # when it is created; they can be changed at any time.
     
-    # Type of mob to spawn. This is also the default mob to 
-    # spawn if the plugin cannot read a spawner save file.
-    # Note that zombie pigmen are "pigzombie" and ocelots are 
-    # "ozelot". 
-    type: pig
-    
     # Radius of area a spawner can spawn in.
     radius: 16
     
@@ -86,18 +80,79 @@ spawners:
     # /customspawners reload is used. 
     # This saves time saving and loading spawners.
     killOnReload: false
+
+entities:
     
+    # Default Entity Properties
+    # These properties are just what is given to an entity
+    # when it is created; they can be changed at any time.
+    
+    # Base type of mob. Note that zombie pigmen are 
+    # "pigzombie" and ocelots are "ozelot".
+    type: pig
+    
+    # Starting age of an entity. Make this an integer
+    # or use "BABY" for a baby animal or "ADULT" for 
+    # an adult animal.
+    age: ADULT
+    
+    # Starting health of an entity. Make this an integer
+    # but keep in mind every increment of 1 is 1/2 a heart.
+    # Use "MINIMUM" for a mob with minimum health (1/2 heart)
+    # and "MAXIMUM" for the mob's maximum amount of health.
+    health: MAXIMUM
+    
+    # Starting air for an entity. Useful if the spawner is deep
+    # under water/lava. Use "MINIMUM" for no air and "MAXIMUM"
+    # for a full bubble meter for that mob.
+    air: MAXIMUM
+    
+    # Starting profession of a villager. Allowed values are
+    # "BLACKSMITH", "BUTCHER", "FARMER", "LIBRARIAN", and
+    # "PRIEST".
+    profession: FARMER
+    
+    # Block ID an enderman will be holding. Not all blocks will
+    # work. Default is grass.
+    endermanBlock: 2
+    
+    # Boolean values for some properties. The name should be
+    # self-explanatory.
+    isSaddled: false
+    isCharged: false
+    isJockey: false
+    isTamed: false
+    isAngry: false
+    isSitting: false
+    
+    # Default type of cat an ocelot is. Allowed values are
+    # "BLACK_CAT", "RED_CAT", and "SIAMESE_CAT". Use "NONE"
+    # for a wild ocelot.
+    catType: NONE
+    
+    # Size of slimes and magma cubes. Use an integer value
+    # from 1 to 256. Keep in mind the largest natural slimes
+    # are only a 4 in size!
+    slimeSize: 1
+    
+    # Color of sheep when spawned. Allowed values are "BLACK",
+    # "BLUE", "BROWN", "CYAN", "GREY", "GREEN", "LIGHT_BLUE",
+    # "LIME", "MAGENTA", "ORANGE", "PINK", "PURPLE", "RED",
+    # "SILVER", "WHITE", and "YELLOW".
+    color: WHITE 
+     
 mobs:
 
-    # Which mob types for spawners should be 
+    # Which mob types for entities should be 
     # unavailable on the server?
     # Set false to disable.
     pig: true
     cow: true
+    mushroom_cow: true
     sheep: true
     chicken: true
     wolf: true
-    ozelot: true
+    ocelot: true
     squid: true
     villager: true
     spiderjockey: true
@@ -106,15 +161,17 @@ mobs:
     creeper: true
     spider: true
     enderman: true
-    enderdragon: false
+    ender_dragon: false
     giant: false
     silverfish: true
-    cavespider: true
+    cave_spider: true
     slime: true
-    magmacube: true
-    pigzombie: true
+    magma_cube: true
+    pig_zombie: true
     ghast: false
     blaze: false
+    iron_golem: true
+    snowman: true
     
 players:
     # Maximum distance a player can be from a block
