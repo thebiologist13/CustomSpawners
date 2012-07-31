@@ -379,12 +379,13 @@ public class SpawnerExecutor implements CommandExecutor {
 				if(arg0 instanceof Player) {
 					p = (Player) arg0;
 					p.sendMessage(SpawnerCommand.GENERAL_ERROR);
+					e.printStackTrace();
 				} else {
 					log.info("An error has occured with this command. Did you type everything right?");
 				}
 			}
 			
-			return false;
+			return true;
 		}
 		return false;
 	}

@@ -1,11 +1,8 @@
 package com.github.thebiologist13.commands.spawners;
 
-import java.util.List;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -59,7 +56,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 					
 					Spawner s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 					plugin.log.info("Removing mobs spawned by spawner with ID " + String.valueOf(s.getId()) + "...");
-					removeMobs(s);
+					plugin.removeMobs(s);
 					
 					return;
 					
@@ -98,7 +95,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 						Spawner s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
 						p.sendMessage(ChatColor.GREEN + "Removing mobs spawned by spawner with ID " + ChatColor.GOLD +
 								String.valueOf(s.getId()) + ChatColor.GREEN + "...");
-						removeMobs(s);
+						plugin.removeMobs(s);
 						
 						return;
 						
@@ -122,7 +119,8 @@ public class RemoveMobsCommand extends SpawnerCommand {
 						Spawner s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 						p.sendMessage(ChatColor.GREEN + "Removing mobs spawned by spawner with ID " + ChatColor.GOLD +
 								String.valueOf(s.getId()) + ChatColor.GREEN + "...");
-						removeMobs(s);
+						
+						plugin.removeMobs(s);
 						
 						return;
 						
@@ -142,33 +140,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 	
 	private void removeAllMobs() {
 		for(Spawner s : CustomSpawners.spawners) {
-			
-			String worldName = s.getLoc().getWorld().getName();
-			List<LivingEntity> entities = plugin.getServer().getWorld(worldName).getLivingEntities();
-			
-			for(Integer i : s.getMobs()) {
-				for(LivingEntity e : entities) {
-					if(e.getEntityId() == i) {
-						e.remove();
-						s.getMobs().remove(i);
-					}
-				}
-			}
-		}
-	}
-	
-	private void removeMobs(Spawner s) {
-
-		String worldName = s.getLoc().getWorld().getName();
-		List<LivingEntity> entities = plugin.getServer().getWorld(worldName).getLivingEntities();
-		
-		for(Integer i : s.getMobs()) {
-			for(LivingEntity e : entities) {
-				if(e.getEntityId() == i) {
-					e.remove();
-					s.getMobs().remove(i);
-				}
-			}
+			plugin.removeMobs(s);
 		}
 	}
 }

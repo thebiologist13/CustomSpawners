@@ -40,6 +40,7 @@ public class EntitiesExecutor implements CommandExecutor {
 	private EntitySlimeSizeCommand ssc = null;
 	private EntityTamedCommand tac = null;
 	private EntityVelocityCommand vec = null;
+	private EntityListAllCommand lac = null;
 	
 	public EntitiesExecutor(CustomSpawners plugin) {
 		//this.plugin = plugin;
@@ -69,6 +70,7 @@ public class EntitiesExecutor implements CommandExecutor {
 		ssc = new EntitySlimeSizeCommand(plugin);
 		tac = new EntityTamedCommand(plugin);
 		vec = new EntityVelocityCommand(plugin);
+		lac = new EntityListAllCommand(plugin);
 	}
 
 	@Override
@@ -87,6 +89,15 @@ public class EntitiesExecutor implements CommandExecutor {
 					
 					if(arg3[0].equalsIgnoreCase("remove")) {
 						rec.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("info")) {
+						ifc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("cleareffects")) {
+						cec.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("listall")) {
+						lac.run(arg0, arg1, arg2, arg3);
 						return true;
 					}
 					
@@ -177,9 +188,6 @@ public class EntitiesExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("setcharged")) {
 						chc.run(arg0, arg1, arg2, arg3);
 						return true;
-					} else if(arg3[0].equalsIgnoreCase("cleareffects")) {
-						cec.run(arg0, arg1, arg2, arg3);
-						return true;
 					} else if(arg3[0].equalsIgnoreCase("setcolor")) {
 						coc.run(arg0, arg1, arg2, arg3);
 						return true;
@@ -256,11 +264,12 @@ public class EntitiesExecutor implements CommandExecutor {
 				if(arg0 instanceof Player) {
 					p = (Player) arg0;
 					p.sendMessage(SpawnerCommand.GENERAL_ERROR);
+					e.printStackTrace();
 				} else {
 					log.info("An error has occured with this command. Did you type everything right?");
 				}
 			}
-			return false;
+			return true;
 		}
 		return false;
 	}

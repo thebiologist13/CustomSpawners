@@ -89,7 +89,7 @@ public class EntityAddEffectCommand extends SpawnerCommand {
 					return;
 				}
 
-				effect = new EntityPotionEffect(effectType, amplifier, duration);
+				effect = new EntityPotionEffect(effectType, duration, amplifier);
 				
 			} else if(arg3.length == 4) {
 				p.sendMessage(NEEDS_SELECTION);
@@ -145,7 +145,7 @@ public class EntityAddEffectCommand extends SpawnerCommand {
 					return;
 				}
 
-				effect = new EntityPotionEffect(effectType, amplifier, duration);
+				effect = new EntityPotionEffect(effectType, duration, amplifier);
 				
 			} else {
 				p.sendMessage(GENERAL_ERROR);

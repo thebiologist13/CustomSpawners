@@ -1,5 +1,7 @@
 package com.github.thebiologist13.commands.entities;
 
+import java.util.ArrayList;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -48,7 +50,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
 
-			//If the player wants to perform command on a specific spawner
+			//If the player wants to perform command on a specific entity
 			} else if(arg3.length == 2) {
 
 				if(!plugin.isInteger(arg3[1])) {
@@ -56,7 +58,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 					return;
 				}
 
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+				if(!plugin.isValidEntity(Integer.parseInt(arg3[1]))) {
 					p.sendMessage(NO_ID);
 					return;
 				}
@@ -72,13 +74,17 @@ public class EntityInfoCommand extends SpawnerCommand {
 			}
 
 			String effectMessage = ""; 
-			EntityPotionEffect[] effects = (EntityPotionEffect[]) s.getEffects().toArray();
-			for(int i = 0; i < effects.length; i++) {
+			ArrayList<EntityPotionEffect> effects = s.getEffects();
+			for(int i = 0; i < effects.size(); i++) {
 				if(i == 0) {
-					effectMessage += effects[i].getType().getName() + effects[i].getAmplifier();
+					effectMessage += effects.get(i).getType().getName() + " " + effects.get(i).getAmplifier();
 				} else {
-					effectMessage += ", " + effects[i].getType().getName() + effects[i].getAmplifier();
+					effectMessage += ", " + effects.get(i).getType().getName() + " " + effects.get(i).getAmplifier();
 				}
+			}
+			
+			if(effectMessage.isEmpty()) {
+				effectMessage = "No effects.";
 			}
 			
 			String header = ChatColor.GREEN + "Information on entity with ID " + ChatColor.GOLD + String.valueOf(s.getId());
@@ -93,7 +99,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 					header + ChatColor.GREEN + ": ",
 					"",
 					ChatColor.GOLD + "Type: " + s.getType().getName(),
-					ChatColor.GOLD + "Effects" + effectMessage,
+					ChatColor.GOLD + "Effects: " + effectMessage,
 					ChatColor.GOLD + "X Velocity: " + s.getXVelocity(),
 					ChatColor.GOLD + "Y Velocity: " + s.getYVelocity(),
 					ChatColor.GOLD + "Z Velocity: " + s.getZVelocity(),

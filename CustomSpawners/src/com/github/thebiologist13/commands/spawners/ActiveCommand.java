@@ -72,12 +72,8 @@ public class ActiveCommand extends SpawnerCommand {
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "Set the spawner with ID " + ChatColor.GOLD + String.valueOf(s.getId()) + 
 					ChatColor.GREEN + " to be " + ChatColor.GOLD + "active" + ChatColor.GREEN + "!");
-		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
-		}
-		
-		if(p.hasPermission("customspawners.spawners.setinactive") && arg3[0].equalsIgnoreCase("setinactive")) {
+			
+		} else if(p.hasPermission("customspawners.spawners.setinactive") && arg3[0].equalsIgnoreCase("setinactive")) {
 			//Set inactive for selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				

@@ -1,5 +1,7 @@
 package com.github.thebiologist13.commands.spawners;
 
+import java.util.ArrayList;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -77,19 +79,23 @@ public class InfoCommand extends SpawnerCommand {
 			} else {
 				
 				String typesMessage = "";
-				SpawnableEntity[] types = s.getEntitiesAsArray();
-				for(int i = 0; i < types.length; i++) {
+				ArrayList<SpawnableEntity> types = new ArrayList<SpawnableEntity>();
+				for(SpawnableEntity e : s.getTypeData().values()) {
+					types.add(e);
+				}
+				
+				for(int i = 0; i < types.size(); i++) {
 					if(i == 0) {
-						if(types[i].getName().isEmpty()) {
-							typesMessage += types[i].getId();
+						if(types.get(i).getName().isEmpty()) {
+							typesMessage += types.get(i).getId();
 						} else {
-							typesMessage += types[i].getId() + " (" + types[i].getName() + ")";
+							typesMessage += types.get(i).getId() + " (" + types.get(i).getName() + ")";
 						}
 					} else {
-						if(types[i].getName().isEmpty()) {
-							typesMessage += ", " + types[i].getId();
+						if(types.get(i).getName().isEmpty()) {
+							typesMessage += ", " + types.get(i).getId();
 						} else {
-							typesMessage += ", " + types[i].getId() + " (" + types[i].getName() + ")";
+							typesMessage += ", " + types.get(i).getId() + " (" + types.get(i).getName() + ")";
 						}
 					}
 				}

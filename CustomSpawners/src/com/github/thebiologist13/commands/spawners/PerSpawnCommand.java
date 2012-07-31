@@ -91,7 +91,7 @@ public class PerSpawnCommand extends SpawnerCommand {
 			}
 			
 			if(mobsPerSpawn > plugin.getCustomConfig().getDouble("spawners.mobsPerSpawnLimit", 128) || mobsPerSpawn < 0) {
-				if(!p.hasPermission("customspawners.limitoverride")) {
+				if(!p.hasPermission("customspawners.spawners.limitoverride")) {
 					p.sendMessage(INVALID_VALUES);
 					return;
 				}

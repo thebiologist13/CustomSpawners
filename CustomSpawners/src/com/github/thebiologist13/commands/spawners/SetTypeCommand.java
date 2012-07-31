@@ -104,9 +104,15 @@ public class SetTypeCommand extends SpawnerCommand {
 			s.setTypeData(typeAsMap);
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "Successfully changed entity type of spawner with ID " + 
-					ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD +
-					type.getType().getName() + ChatColor.GREEN + "!");
+			if(s.getName().isEmpty()) {
+				p.sendMessage(ChatColor.GREEN + "Successfully changed entity type of spawner with ID " + 
+						ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD +
+						type.getType().getName() + ChatColor.GREEN + "!");
+			} else {
+				p.sendMessage(ChatColor.GREEN + "Successfully changed entity type of spawner with ID " + 
+						ChatColor.GOLD + String.valueOf(s.getId()) + " (" + s.getName() + ") " + ChatColor.GREEN + " to " + ChatColor.GOLD +
+						type.getType().getName() + ChatColor.GREEN + "!");
+			}
 			
 		} else {
 			p.sendMessage(NO_PERMISSION);

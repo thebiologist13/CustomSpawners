@@ -96,13 +96,8 @@ public class LightLevelCommand extends SpawnerCommand {
 			p.sendMessage(ChatColor.GREEN + "Set the maximum light level of spawner with ID " + ChatColor.GOLD +
 					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(maxLight) + 
 					ChatColor.GREEN + "!");
-		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
-		}
-		
-		//Permissions
-		if(p.hasPermission("customspawners.spawners.setminlight") && arg3[0].equalsIgnoreCase("setminlight")) {
+			
+		} else if(p.hasPermission("customspawners.spawners.setminlight") && arg3[0].equalsIgnoreCase("setminlight")) {
 
 			int minLight = -1;
 			

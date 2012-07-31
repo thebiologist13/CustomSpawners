@@ -71,6 +71,9 @@ public class Spawner {
 		this.loc = loc;
 		this.server = server;
 		typeData.put(type.getId(), type);
+		
+		areaPoints[0] = loc;
+		areaPoints[1] = loc;
 	}
 	
 	public Spawner(SpawnableEntity type, Location loc, String name, int id, Server server) {
@@ -79,6 +82,9 @@ public class Spawner {
 		this.loc = loc;
 		this.server = server;
 		typeData.put(type.getId(), type);
+		
+		areaPoints[0] = loc;
+		areaPoints[1] = loc;
 	}
 	
 	public int getId() {
@@ -108,10 +114,6 @@ public class Spawner {
 	
 	public void addTypeData(SpawnableEntity data) {
 		typeData.put(data.getId(), data);
-	}
-
-	public SpawnableEntity[] getEntitiesAsArray() {
-		return (SpawnableEntity[]) typeData.values().toArray();
 	}
 	
 	public boolean isActive() {
@@ -239,10 +241,8 @@ public class Spawner {
 		return mobs;
 	}
 	
-	public void setMobsFromEntities(ArrayList<LivingEntity> mobs) {
-		for(LivingEntity le : mobs) {
-			this.mobs.add(le.getEntityId());
-		}
+	public void setMobs(ArrayList<Integer> mobs) {
+		this.mobs = mobs;
 	}
 	
 	public void setMobsFromIDs(ArrayList<Integer> mobs) {
@@ -364,12 +364,14 @@ public class Spawner {
 					if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty() && acceptableLight) {
 						SpawnableEntity type = randType();
 						LivingEntity le = loc.getWorld().spawnCreature(spawnLoc, type.getType());
-						assignMobProps(le, type);
-						if(type.isJockey()) {
-							makeJockey(le);
+						if(le != null) {
+							assignMobProps(le, type);
+							if(type.isJockey()) {
+								makeJockey(le);
+							}
+							mobs.add(le.getEntityId());
+							spawned = true;
 						}
-						mobs.add(le.getEntityId());
-						spawned = true;
 					}
 					
 					tries++;
@@ -425,12 +427,14 @@ public class Spawner {
 				if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty()) {
 					SpawnableEntity type = randType();
 					LivingEntity le = loc.getWorld().spawnCreature(spawnLoc, type.getType());
-					assignMobProps(le, type);
-					if(type.isJockey()) {
-						makeJockey(le);
+					if(le != null) {
+						assignMobProps(le, type);
+						if(type.isJockey()) {
+							makeJockey(le);
+						}
+						mobs.add(le.getEntityId());
+						spawned = true;
 					}
-					mobs.add(le.getEntityId());
-					spawned = true;
 				}
 				
 				tries++;
@@ -484,28 +488,19 @@ public class Spawner {
 				 */
 				if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty()) {
 					LivingEntity le = loc.getWorld().spawnCreature(spawnLoc, entity.getType());
-					assignMobProps(le, entity);
-					if(entity.isJockey()) {
-						makeJockey(le);
+					if(le != null) {
+						assignMobProps(le, entity);
+						if(entity.isJockey()) {
+							makeJockey(le);
+						}
+						mobs.add(le.getEntityId());
+						spawned = true;
 					}
-					mobs.add(le.getEntityId());
-					spawned = true;
 				}
 				
 				tries++;
 			}
 		}
-	}
-	
-	//Called when a mob dies
-	public boolean onMobDeath(LivingEntity entity) {
-		for(int i = 0; i < mobs.size(); i++) {
-			if(mobs.get(i) == entity.getEntityId()) {
-				mobs.remove(i);
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/*
@@ -515,7 +510,7 @@ public class Spawner {
 	//Check if players are nearby
 	private boolean isPlayerNearby() {
 		for(Player p : server.getOnlinePlayers()) {
-			//Finds distance between spawner and player is 3D space.
+			//Finds distance between spawner and player in 3D space.
 			double distance = Math.sqrt(
 					Math.pow((p.getLocation().getX() - loc.getX()), 2) + // x coordinate
 					Math.pow((p.getLocation().getY() - loc.getY()), 2) + // y coordinate
@@ -569,8 +564,14 @@ public class Spawner {
 	
 	private SpawnableEntity randType() {
 		Random rand = new Random();
-		int index = rand.nextInt(typeData.size() - 1);
-		return typeData.get(index);
+		int index = rand.nextInt(typeData.size());
+		int count = 0;
+		for(SpawnableEntity e : typeData.values()) {
+			if(count == index) {
+				return e;
+			}
+		}
+		return null;
 	}
 	
 	//Assigns properties to a LivingEntity

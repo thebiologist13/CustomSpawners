@@ -32,7 +32,11 @@ public class ReloadDataCommand extends SpawnerCommand {
 		
 		if(p == null) {
 			if(arg3.length == 1) {
-				reloadData();
+				try {
+					plugin.reloadData();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				log.info("Spawners and Entities reloaded.");
 			} else {
 				log.info(MORE_ARGS);
@@ -40,7 +44,11 @@ public class ReloadDataCommand extends SpawnerCommand {
 		} else {
 			if(p.hasPermission(RELOAD_PERM)) {
 				if(arg3.length == 1) {
-					reloadData();
+					try {
+						plugin.reloadData();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 					p.sendMessage(ChatColor.GREEN + "Spawners and Entities reloaded.");
 				} else {
 					log.info(MORE_ARGS);
@@ -49,12 +57,5 @@ public class ReloadDataCommand extends SpawnerCommand {
 				p.sendMessage(NO_PERMISSION);
 			}
 		}
-	}
-	
-	private void reloadData() {
-		plugin.saveEntities();
-		plugin.saveSpawners();
-		plugin.loadEntities();
-		plugin.loadSpawners();
 	}
 }

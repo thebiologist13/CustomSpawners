@@ -92,7 +92,7 @@ public class SetRateCommand extends SpawnerCommand {
 			}
 			
 			if(rate < plugin.getCustomConfig().getDouble("spawners.rateLimit", 128) || rate < 0) {
-				if(!p.hasPermission("customspawners.limitoverride")) {
+				if(!p.hasPermission("customspawners.spawners.limitoverride")) {
 					p.sendMessage(INVALID_VALUES);
 					return;
 				}

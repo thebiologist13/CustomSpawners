@@ -46,14 +46,14 @@ public class EntityClearEffectsCommand extends SpawnerCommand {
 		p = (Player) arg0;
 
 		if(p.hasPermission(perm)) {
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
+			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 
 				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
 				
-			} else if(arg3.length == 2) {
+			} else if(arg3.length == 1) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
-			} else if(arg3.length == 3) {
+			} else if(arg3.length == 2) {
 
 				int id = 0;
 

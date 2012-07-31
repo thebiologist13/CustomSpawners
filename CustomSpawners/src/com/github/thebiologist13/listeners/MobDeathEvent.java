@@ -9,9 +9,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
 
 public class MobDeathEvent implements Listener {
+	
+	private CustomSpawners plugin = null;
+	
+	public MobDeathEvent(CustomSpawners plugin) {
+		this.plugin = plugin;
+	}
 	
 	@EventHandler
 	public void onMobDeath(EntityDeathEvent ev) {
@@ -20,14 +27,16 @@ public class MobDeathEvent implements Listener {
 		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
 		
 		for(Spawner s : CustomSpawners.spawners) {
-			if(s.getTypeData().equals(type)) { //TODO Modify this
-				validSpawners.add(s);
+			for(SpawnableEntity e : s.getTypeData().values()) {
+				if(e.getType().equals(type)) {
+					validSpawners.add(s);
+					break;
+				}
 			}
 		}
 		
-		for(Spawner s : validSpawners) {
-			boolean match = s.onMobDeath(entity);
-			if(match) {break;}
-		}
+		plugin.removeMob(entity, validSpawners);
+		
 	}
+	
 }

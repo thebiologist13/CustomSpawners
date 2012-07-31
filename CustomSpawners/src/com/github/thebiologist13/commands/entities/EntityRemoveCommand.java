@@ -72,6 +72,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			
 			//Remove the entity by calling the remove() method
 			plugin.getEntityById(removeId).remove();
+			plugin.removeDataFile(removeId, false);
 			
 			for(Player p1 : CustomSpawners.entitySelection.keySet()) {
 				if(CustomSpawners.entitySelection.containsKey(p1)) {

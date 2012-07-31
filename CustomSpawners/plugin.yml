@@ -1,28 +1,92 @@
 name: CustomSpawners
-version: 0.0.1
+version: 0.0.2
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
 commands:
     customspawners:
         description: The main command of CustomSpawners. Other commands branch off this one.
-        usage: This command is used by: /customspawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
+        usage: This command is used by /customspawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
         aliases: [cs, csplugin]
         permission: customspawners.customspawners
         permission-message: You do not have permission to use the customspawner command.
     spawners:
         description: This command executes spawner-related functions.
-        usage: This command is used by: /spawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
+        usage: This command is used by /spawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
         aliases: [css, csspawners]
         permission: customspawners.spawners
         permission-message: You do not have permission to use the spawners command.
     entities:
         description: This command executes entity-related functions.
-        usage: This command is used by: /entities [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
+        usage: This command is used by /entities [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
         aliases: [cse, csentities]
         permission: customspawners.entities
         permission-message: You do not have permission to use the entities command.
 permissions:
+    customspawners.*:
+        description: Gives access to all of CustomSpawners' features.
+        default: op
+        children:
+            customspawners.customspawners: true
+            customspawners.help: true
+            customspawners.reloadspawners: true
+            customspawners.spawners.activateall: true
+            customspawners.spawners.deactivateall: true
+            customspawners.spawners.forcespawn: true
+            customspawners.spawners.listnear: true
+            customspawners.spawners.listall: true
+            customspawners.spawners.listnear.hidden: true
+            customspawners.spawners.listall.hidden: true
+            customspawners.spawners.create: true
+            customspawners.spawners.remove: true
+            customspawners.spawners.select: true
+            customspawners.spawners.limitoverride: true
+            customspawners.spawners.setactive: true
+            customspawners.spawners.setinactive: true
+            customspawners.spawners.sethidden: true
+            customspawners.spawners.setunhidden: true
+            customspawners.spawners.setmaxlight: true
+            customspawners.spawners.setminlight: true
+            customspawners.spawners.setmaxmobs: true
+            customspawners.spawners.setmobsperspawn: true
+            customspawners.spawners.setmaxdistance: true
+            customspawners.spawners.setmindistance: true
+            customspawners.spawners.setlocation: true
+            customspawners.spawners.setradius: true
+            customspawners.spawners.setrate: true
+            customspawners.spawners.setredstone: true
+            customspawners.spawners.addtype: true
+            customspawners.spawners.settype: true
+            customspawners.spawners.info: true
+            customspawners.spawners.info.hidden: true
+            customspawners.spawners.setname: true
+            customspawners.entities.create: true
+            customspawners.entities.select: true
+            customspawners.entities.remove: true
+            customspawners.entities.info: true
+            customspawners.entities.setname: true
+            customspawners.entities.settype: true
+            customspawners.entities.seteffect: true
+            customspawners.entities.addeffect: true
+            customspawners.entities.setage: true
+            customspawners.entities.setair: true
+            customspawners.entities.setangry: true
+            customspawners.entities.setcattype: true
+            customspawners.entities.setcharged: true
+            customspawners.entities.cleareffects: true
+            customspawners.entities.setcolor: true
+            customspawners.entities.setenderblock: true
+            customspawners.entities.sethealth: true
+            customspawners.entities.info: true
+            customspawners.entities.setjockey: true
+            customspawners.entities.setprofession: true
+            customspawners.entities.setsaddled: true
+            customspawners.entities.settype: true
+            customspawners.entities.setsitting: true
+            customspawners.entities.setslimesize: true
+            customspawners.entities.settamed: true
+            customspawners.entities.setvelocity: true
+            customspawners.entities.listall: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawner" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -200,4 +264,6 @@ permissions:
     customspawners.entities.setvelocity:
         description: Allows the user/group to set the velocity of an entity.
         default: op
-        
+    customspawners.entities.listall:
+        description: Allows the user/group to see a list of all entities.
+        default: true

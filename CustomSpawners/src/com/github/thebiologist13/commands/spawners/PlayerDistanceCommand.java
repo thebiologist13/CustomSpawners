@@ -85,7 +85,7 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			}
 			
 			if(maxDist > plugin.getCustomConfig().getDouble("spawners.playerDistanceLimit", 128) || maxDist < 0) {
-				if(!p.hasPermission("customspawners.limitoverride")) {
+				if(!p.hasPermission("customspawners.spawners.limitoverride")) {
 					p.sendMessage(INVALID_VALUES);
 					return;
 				}
@@ -98,13 +98,7 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			p.sendMessage(ChatColor.GREEN + "Set the maximum player distance of spawner with ID " + ChatColor.GOLD +
 					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(maxDist) + 
 					ChatColor.GREEN + "!");
-		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
-		}
-		
-		//Permissions
-		if(p.hasPermission("customspawners.spawners.setmindistance") && arg3[0].equalsIgnoreCase("setmindistance")) {
+		} else if(p.hasPermission("customspawners.spawners.setmindistance") && arg3[0].equalsIgnoreCase("setmindistance")) {
 
 			int minDist = -1;
 			

@@ -71,6 +71,7 @@ public class RemoveCommand extends SpawnerCommand {
 			
 			//Remove the spawner by calling the remove() method
 			plugin.getSpawnerById(removeId).remove();
+			plugin.removeDataFile(removeId, true);
 			
 			for(Player p1 : CustomSpawners.spawnerSelection.keySet()) {
 				if(CustomSpawners.spawnerSelection.containsKey(p1)) {

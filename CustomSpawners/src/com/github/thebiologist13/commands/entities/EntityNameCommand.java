@@ -38,7 +38,7 @@ public class EntityNameCommand extends SpawnerCommand {
 		if(p.hasPermission("customspawners.entities.setname")) {
 
 			//If the player wants to rename the selected spawner
-			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
+			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
 				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
 				
