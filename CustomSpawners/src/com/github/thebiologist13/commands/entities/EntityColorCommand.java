@@ -54,16 +54,24 @@ public class EntityColorCommand extends SpawnerCommand {
 				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
 				
 				DyeColor[] colors = DyeColor.values();
+				boolean match = false;
 				
 				for(DyeColor d : colors) {
 					if(arg3[1].equalsIgnoreCase(d.toString())) {
 						color = d.toString();
+						match = true;
+						break;
 					} else if(arg3[1].equalsIgnoreCase("lightblue")) {
 						color = DyeColor.LIGHT_BLUE.toString();
-					} else {
-						p.sendMessage(INVALID_COLOR);
-						return;
+						match = true;
+						break;
 					}
+					
+				}
+				
+				if(!match) {
+					p.sendMessage(INVALID_COLOR);
+					return;
 				}
 				
 			} else if(arg3.length == 2) {
@@ -90,16 +98,24 @@ public class EntityColorCommand extends SpawnerCommand {
 				s = plugin.getEntityById(id);
 				
 				DyeColor[] colors = DyeColor.values();
+				boolean match = false;
 				
 				for(DyeColor d : colors) {
-					if(arg3[1].equalsIgnoreCase(d.toString())) {
+					if(arg3[2].equalsIgnoreCase(d.toString())) {
 						color = d.toString();
-					} else if(arg3[1].equalsIgnoreCase("lightblue")) {
+						match = true;
+						break;
+					} else if(arg3[2].equalsIgnoreCase("lightblue")) {
 						color = DyeColor.LIGHT_BLUE.toString();
-					} else {
-						p.sendMessage(INVALID_COLOR);
-						return;
+						match = true;
+						break;
 					}
+					
+				}
+				
+				if(!match) {
+					p.sendMessage(INVALID_COLOR);
+					return;
 				}
 				
 			} else {
