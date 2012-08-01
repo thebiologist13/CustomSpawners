@@ -689,7 +689,7 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Autosaves everything
-	public void autosaveAll() {
+	public synchronized void autosaveAll() {
 		
 		if(config.getBoolean("data.broadcastAutosave")) {
 			getServer().broadcastMessage(ChatColor.GOLD + config.getString("data.broadcastMessage"));
@@ -715,7 +715,7 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Autosaves a spawner
-	public void autosave(Spawner s) {
+	public synchronized void autosave(Spawner s) {
 
 		File saveFile = new File(getDataFolder() + "\\Spawners\\" + String.valueOf(s.getId()) + ".yml");
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
@@ -777,7 +777,7 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Autosaves an entity
-	public void autosave(SpawnableEntity e) {
+	public synchronized void autosave(SpawnableEntity e) {
 		
 		File saveFile = new File(getDataFolder() + "\\Entities\\" + String.valueOf(e.getId()) + ".yml");
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);

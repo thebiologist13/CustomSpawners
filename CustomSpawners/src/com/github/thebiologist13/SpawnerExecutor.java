@@ -388,7 +388,7 @@ public class SpawnerExecutor implements CommandExecutor {
 				}
 			}
 			
-			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCommand")) {
+			if(config.getBoolean("data.autosave", true) && config.getBoolean("data.saveOnCommand", false)) {
 				plugin.autosaveAll();
 			}
 			

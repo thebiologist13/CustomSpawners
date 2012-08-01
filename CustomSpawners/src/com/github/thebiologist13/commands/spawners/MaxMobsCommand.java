@@ -57,6 +57,7 @@ public class MaxMobsCommand extends SpawnerCommand {
 			} else if(arg3.length == 2) {
 				
 				p.sendMessage(NEEDS_SELECTION);
+				return;
 				
 			//If the player wants to set the max mobs of a spawner by ID
 			} else if(arg3.length == 3) {
