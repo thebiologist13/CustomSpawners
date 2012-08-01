@@ -566,11 +566,15 @@ public class Spawner {
 		Random rand = new Random();
 		int index = rand.nextInt(typeData.size());
 		int count = 0;
+		
 		for(SpawnableEntity e : typeData.values()) {
 			if(count == index) {
 				return e;
+			} else {
+				count++;
 			}
 		}
+		
 		return null;
 	}
 	
