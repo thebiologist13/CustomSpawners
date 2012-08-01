@@ -150,6 +150,10 @@ public class EntityCreateCommand extends SpawnerCommand {
 			
 			CustomSpawners.entities.add(entity);
 			
+			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
+				plugin.autosave(entity);
+			}
+			
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "Sucessfully created a spawnable entity with ID " + ChatColor.GOLD 
 					+ String.valueOf(entity.getId()) + ChatColor.GREEN + "!");

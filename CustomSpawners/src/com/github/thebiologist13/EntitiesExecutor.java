@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.commands.SpawnerCommand;
@@ -12,7 +13,9 @@ import com.github.thebiologist13.commands.entities.*;
 
 public class EntitiesExecutor implements CommandExecutor {
 
-	//private CustomSpawners plugin = null;
+	private CustomSpawners plugin = null;
+	
+	private FileConfiguration config = null;
 	
 	private Logger log = null;
 	
@@ -43,8 +46,9 @@ public class EntitiesExecutor implements CommandExecutor {
 	private EntityListAllCommand lac = null;
 	
 	public EntitiesExecutor(CustomSpawners plugin) {
-		//this.plugin = plugin;
+		this.plugin = plugin;
 		this.log = plugin.log;
+		this.config = plugin.getCustomConfig();
 		
 		aec = new EntityAddEffectCommand(plugin);
 		agc = new EntityAgeCommand(plugin);
@@ -269,6 +273,11 @@ public class EntitiesExecutor implements CommandExecutor {
 					log.info("An error has occured with this command. Did you type everything right?");
 				}
 			}
+			
+			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCommand")) {
+				plugin.autosaveAll();
+			}
+			
 			return true;
 		}
 		return false;

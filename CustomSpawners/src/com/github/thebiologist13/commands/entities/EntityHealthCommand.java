@@ -49,12 +49,12 @@ public class EntityHealthCommand extends SpawnerCommand {
 				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
 				
 				if(arg3[1].equalsIgnoreCase("MAXIMUM")) {
-					s.setAge(-1);
+					s.setHealth(-1);
 				} else if(arg3[1].equalsIgnoreCase("MINIMUM")) {
-					s.setAge(-2);
+					s.setHealth(-2);
 				} else {
 					if(plugin.isInteger(arg3[1])) {
-						s.setAge(Integer.parseInt(arg3[1]));
+						s.setHealth(Integer.parseInt(arg3[1]));
 					} else {
 						p.sendMessage(ChatColor.RED + "Health value must be an integer, \"MAXIMUM\", or \"MINIMUM\".");
 						return;
@@ -90,12 +90,12 @@ public class EntityHealthCommand extends SpawnerCommand {
 				s = plugin.getEntityById(id);
 				
 				if(arg3[1].equalsIgnoreCase("MAXIMUM")) {
-					s.setAge(-1);
+					s.setHealth(-1);
 				} else if(arg3[1].equalsIgnoreCase("MINIMUM")) {
-					s.setAge(-2);
+					s.setHealth(-2);
 				} else {
 					if(plugin.isInteger(arg3[1])) {
-						s.setAge(Integer.parseInt(arg3[1]));
+						s.setHealth(Integer.parseInt(arg3[1]));
 					} else {
 						p.sendMessage(ChatColor.RED + "Health value must be an integer, \"MAXIMUM\", or \"MINIMUM\".");
 						return;

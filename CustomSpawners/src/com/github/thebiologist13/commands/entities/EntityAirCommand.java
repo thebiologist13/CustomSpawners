@@ -49,12 +49,12 @@ public class EntityAirCommand extends SpawnerCommand {
 				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
 				
 				if(arg3[1].equalsIgnoreCase("MAXIMUM")) {
-					s.setAge(-1);
+					s.setAir(-1);
 				} else if(arg3[1].equalsIgnoreCase("MINIMUM")) {
-					s.setAge(-2);
+					s.setAir(-2);
 				} else {
 					if(plugin.isInteger(arg3[1])) {
-						s.setAge(Integer.parseInt(arg3[1]));
+						s.setAir(Integer.parseInt(arg3[1]));
 					} else {
 						p.sendMessage(ChatColor.RED + "Air value must be an integer, \"MAXIMUM\", or \"MINIMUM\".");
 						return;
@@ -90,12 +90,12 @@ public class EntityAirCommand extends SpawnerCommand {
 				s = plugin.getEntityById(id);
 				
 				if(arg3[1].equalsIgnoreCase("MAXIMUM")) {
-					s.setAge(-1);
+					s.setAir(-1);
 				} else if(arg3[1].equalsIgnoreCase("MINIMUM")) {
-					s.setAge(-2);
+					s.setAir(-2);
 				} else {
 					if(plugin.isInteger(arg3[1])) {
-						s.setAge(Integer.parseInt(arg3[1]));
+						s.setAir(Integer.parseInt(arg3[1]));
 					} else {
 						p.sendMessage(ChatColor.RED + "Air value must be an integer, \"MAXIMUM\", or \"MINIMUM\".");
 						return;

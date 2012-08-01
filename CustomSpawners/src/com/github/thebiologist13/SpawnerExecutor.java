@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.commands.SpawnerCommand;
@@ -15,6 +16,8 @@ import com.github.thebiologist13.commands.spawners.*;
 public class SpawnerExecutor implements CommandExecutor {
 
 	private CustomSpawners plugin;
+	
+	private FileConfiguration config = null;
 	
 	private Logger log;
 	
@@ -383,6 +386,10 @@ public class SpawnerExecutor implements CommandExecutor {
 				} else {
 					log.info("An error has occured with this command. Did you type everything right?");
 				}
+			}
+			
+			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCommand")) {
+				plugin.autosaveAll();
 			}
 			
 			return true;

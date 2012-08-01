@@ -183,4 +183,39 @@ players:
     # to consider it "nearby". This is for the listnear
     # command.
     maxNear: 25
+
+data:
+    
+    # Would you like to turn the autosave feature on?
+    # Spawners and entities are normally saved when the
+    # plugin is disabled, but any other way of closing 
+    # the server could cause a loss of data without
+    # some of the autosave features enabled.
+    autosave: true
+    
+    # Different times to autosave. 
+    
+    # Create a file when a spawner or entity is created?
+    saveOnCreate: true
+    
+    # Save when any CustomSpawners command is issued.
+    saveOnCommand: false
+    
+    # Save at an interval in time?
+    saveOnClock: true
+    
+    # Interval in minutes between saves. This only applies
+    # if saveOnClock is true. Note that having lots of
+    # spawners and entities then having a short interval
+    # here could cause lag.
+    interval: 10
+    
+    # Broadcast a save message to the server when saving?
+    broadcastAutosave: true
+    
+    # Broadcast Message for start of save.
+    broadcastMessage: CustomSpawners is saving spawners and entities! Expect some lag!
+    
+    # Broadcast Message for end of save.
+    broadcastMessageEnd: Done saving spawners and entities.
     

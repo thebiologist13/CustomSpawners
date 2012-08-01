@@ -111,6 +111,23 @@ public class CustomSpawners extends JavaPlugin {
 			
 		}, 20, 1);
 		
+		//Autosave Thread
+		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnClock")) {
+			
+			int interval = config.getInt("data.interval") * 1200;
+			
+			getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+				@Override
+				public void run() {
+					
+					autosaveAll();
+					
+				}
+				
+			}, 0, interval);
+		}
+		
 		//Enable message
 		log.info("CustomSpawners by thebiologist13 has been enabled!");
 	}
@@ -139,6 +156,7 @@ public class CustomSpawners extends JavaPlugin {
 		        configFile.getParentFile().mkdirs();
 		        copy(getResource("config.yml"), configFile);
 		    }
+		    
 		}
 		
 		config = YamlConfiguration.loadConfiguration(configFile);
@@ -147,8 +165,10 @@ public class CustomSpawners extends JavaPlugin {
 		InputStream defConfigStream = this.getResource("config.yml");
 		if (defConfigStream != null) {
 		    YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+		    config.options().copyDefaults(true);
 		    config.setDefaults(defConfig);
 		}
+		
 	}
 	
 	public FileConfiguration getCustomConfig() {
@@ -627,6 +647,7 @@ public class CustomSpawners extends JavaPlugin {
 		log.info("Save complete!");
 	}
 	
+	//Removes a spawner or entity's data file
 	public void removeDataFile(int id, boolean isSpawner) {
 		File file = null;
 		
@@ -645,6 +666,7 @@ public class CustomSpawners extends JavaPlugin {
 		}
 	}
 	
+	//Reloads
 	public void reloadData() throws Exception {
 		saveEntities();
 		saveSpawners();
@@ -652,18 +674,148 @@ public class CustomSpawners extends JavaPlugin {
 		loadSpawners();
 	}
 	
+	//Clears the spawners list
 	public void clearSpawners() {
 		synchronized(this) {
 			spawners.clear();
 		}
 	}
 	
+	//Clears the entities list
 	public void clearEntities() {
 		synchronized(this) {
 			entities.clear();
 		}
 	}
 	
+	//Autosaves everything
+	public void autosaveAll() {
+		
+		if(config.getBoolean("data.broadcastAutosave")) {
+			getServer().broadcastMessage(ChatColor.GOLD + config.getString("data.broadcastMessage"));
+		}
+		
+		for(SpawnableEntity e : entities) {
+
+			autosave(e);
+			
+		}
+		
+
+		for(Spawner s : spawners) {
+			
+			autosave(s);
+			
+		}
+		
+		if(config.getBoolean("data.broadcastAutosave")) {
+			getServer().broadcastMessage(ChatColor.GREEN + config.getString("data.broadcastMessageEnd"));
+		}
+		
+	}
+	
+	//Autosaves a spawner
+	public void autosave(Spawner s) {
+
+		File saveFile = new File(getDataFolder() + "\\Spawners\\" + String.valueOf(s.getId()) + ".yml");
+		FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
+		
+		List<Integer> mobIDs = new ArrayList<Integer>();
+		for(Integer e : s.getMobs()) {
+			mobIDs.add(e);
+		}
+		
+		List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
+		for(Integer i : s.getTypeData().keySet()) {
+			spawnableEntityIDs.add(i);
+		}
+		
+		Location[] areaPoints = s.getAreaPoints();
+		
+		if(yaml.getList("mobs") == null) {
+			yaml.set("mobs", null);
+		}
+		
+		yaml.options().header("DO NOT MODIFY THIS FILE!");
+		
+		yaml.set("id", s.getId());
+		yaml.set("name", s.getName());
+		yaml.set("spawnableEntities", spawnableEntityIDs);
+		yaml.set("active", s.isActive());
+		yaml.set("hidden", s.isHidden());
+		yaml.set("radius", s.getRadius());
+		yaml.set("useSpawnArea", s.isUsingSpawnArea());
+		yaml.set("redstoneTriggered", s.isRedstoneTriggered());
+		yaml.set("maxDistance", s.getMaxPlayerDistance());
+		yaml.set("minDistance", s.getMinPlayerDistance());
+		yaml.set("maxLight", s.getMaxLightLevel());
+		yaml.set("minLight", s.getMinLightLevel());
+		yaml.set("mobsPerSpawn", s.getMobsPerSpawn());
+		yaml.set("maxMobs", s.getMaxMobs());
+		yaml.set("location.world", s.getLoc().getWorld().getName());
+		yaml.set("location.x", s.getLoc().getBlockX());
+		yaml.set("location.y", s.getLoc().getBlockY());
+		yaml.set("location.z", s.getLoc().getBlockZ());
+		yaml.set("p1.world", areaPoints[0].getWorld().getName());
+		yaml.set("p1.x", areaPoints[0].getBlockX());
+		yaml.set("p1.y", areaPoints[0].getBlockY());
+		yaml.set("p1.z", areaPoints[0].getBlockZ());
+		yaml.set("p2.world", areaPoints[1].getWorld().getName());
+		yaml.set("p2.x", areaPoints[1].getBlockX());
+		yaml.set("p2.y", areaPoints[1].getBlockY());
+		yaml.set("p2.z", areaPoints[1].getBlockZ());
+		yaml.set("rate", s.getRate());
+		yaml.set("mobs", mobIDs);
+		
+		try {
+			yaml.save(saveFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.severe("Failed to save spawner " + String.valueOf(s.getId()) + "!");
+		}
+			
+	}
+	
+	//Autosaves an entity
+	public void autosave(SpawnableEntity e) {
+		
+		File saveFile = new File(getDataFolder() + "\\Entities\\" + String.valueOf(e.getId()) + ".yml");
+		FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
+		
+		yaml.options().header("DO NOT MODIFY THIS FILE!");
+		
+		yaml.set("id", e.getId());
+		yaml.set("name", e.getName());
+		yaml.set("type", e.getType().getName());
+		yaml.set("effects", e.getEffects());
+		yaml.set("xVelocity", e.getXVelocity());
+		yaml.set("yVelocity", e.getYVelocity());
+		yaml.set("zVelocity", e.getZVelocity());
+		yaml.set("age", e.getAge());
+		yaml.set("health", e.getHealth());
+		yaml.set("air", e.getAir());
+		yaml.set("profession", e.getProfession().toString());
+		yaml.set("endermanBlock", e.getEndermanBlock().toItemStack().getTypeId());
+		yaml.set("saddled", e.isSaddled());
+		yaml.set("charged", e.isCharged());
+		yaml.set("jockey", e.isJockey());
+		yaml.set("tame", e.isTamed());
+		yaml.set("angry", e.isAngry());
+		yaml.set("sitting", e.isSitting());
+		yaml.set("catType", e.getCatType());
+		yaml.set("slimeSize", e.getSlimeSize());
+		yaml.set("color", e.getColor());
+		
+		try {
+			yaml.save(saveFile);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			log.severe("Failed to save entity " + String.valueOf(e.getId()) + "!");
+		}
+		
+	}
+	
+	//Removes mobs spawned by a certain spawner
 	public synchronized void removeMobs(final Spawner s) { //Called in the removemobs command
 		Iterator<Integer> mobs = s.getMobs().iterator();
 
@@ -687,6 +839,7 @@ public class CustomSpawners extends JavaPlugin {
 		
 	}
 	
+	//Removes a spawner from a mob list when it dies
 	public synchronized void removeMob(final LivingEntity l, final ArrayList<Spawner> validSpawners) { //Called when an entity dies. l is the dead entity.
 		int entityId = l.getEntityId();
 		Iterator<Spawner> spawnerItr = validSpawners.iterator();

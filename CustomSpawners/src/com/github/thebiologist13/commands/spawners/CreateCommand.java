@@ -44,7 +44,7 @@ public class CreateCommand extends SpawnerCommand {
 		//Permission check
 		if(p.hasPermission("customspawners.spawners.create")) {
 			//Try to get the target block after scanning the distance from config
-			target = p.getTargetBlock(null, plugin.getConfig().getInt("players.maxDistance", 50));
+			target = p.getTargetBlock(null, config.getInt("players.maxDistance", 50));
 			
 			//If no target block was found
 			if(target == null) {
@@ -84,6 +84,10 @@ public class CreateCommand extends SpawnerCommand {
 			spawner.setMaxMobs(config.getInt("spawners.maxMobs", 64));
 			
 			CustomSpawners.spawners.add(spawner);
+			
+			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
+				plugin.autosave(spawner);
+			}
 			
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getName() + ChatColor.GREEN + 
