@@ -45,6 +45,9 @@ public class SpawnerExecutor implements CommandExecutor {
 	private SetRateCommand srac = null;
 	private SetRedstoneCommand srec = null;
 	private InfoCommand ic = null;
+	private PositionCommand pc = null;
+	private SpawnAreaCommand sac = null;
+	private PassiveCommand pac = null;
 	
 	public SpawnerExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
@@ -72,6 +75,9 @@ public class SpawnerExecutor implements CommandExecutor {
 		srec = new SetRedstoneCommand(plugin);
 		ic = new InfoCommand(plugin);
 		ac = new ActiveCommand(plugin);
+		pc = new PositionCommand(plugin);
+		sac = new SpawnAreaCommand(plugin);
+		pac = new PassiveCommand(plugin);
 	}
 	
 	@Override
@@ -158,6 +164,16 @@ public class SpawnerExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("removemobs")) {
 
 						rmc.run(arg0, arg1, arg2, arg3);
+						return true;
+
+					} else if(arg3[0].equalsIgnoreCase("pos1")) {
+
+						pc.run(arg0, arg1, arg2, arg3);
+						return true;
+
+					} else if(arg3[0].equalsIgnoreCase("pos2")) {
+
+						pc.run(arg0, arg1, arg2, arg3);
 						return true;
 
 					}
@@ -283,6 +299,16 @@ public class SpawnerExecutor implements CommandExecutor {
 						nac.run(arg0, arg1, arg2, arg3);
 						return true;
 
+					} else if(arg3[0].equalsIgnoreCase("setspawnarea")) {
+
+						sac.run(arg0, arg1, arg2, arg3);
+						return true;
+
+					} else if(arg3[0].equalsIgnoreCase("setpassive")) {
+
+						pac.run(arg0, arg1, arg2, arg3);
+						return true;
+
 					}
 
 				/*
@@ -365,6 +391,16 @@ public class SpawnerExecutor implements CommandExecutor {
 						nac.run(arg0, arg1, arg2, arg3);
 						return true;
 
+					} else if(arg3[0].equalsIgnoreCase("setspawnarea")) {
+
+						sac.run(arg0, arg1, arg2, arg3);
+						return true;
+
+					} else if(arg3[0].equalsIgnoreCase("setpassive")) {
+
+						pac.run(arg0, arg1, arg2, arg3);
+						return true;
+
 					}
 					
 				} else {
@@ -374,7 +410,7 @@ public class SpawnerExecutor implements CommandExecutor {
 					} else {
 						log.info("An error has occured with this command. Did you type everything right?");
 					}
-					return false;
+					return true;
 				}
 				
 				return false;

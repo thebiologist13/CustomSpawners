@@ -90,7 +90,7 @@ public class CreateCommand extends SpawnerCommand {
 			}
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getName() + ChatColor.GREEN + 
+			p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getType().getName() + ChatColor.GREEN + 
 					" spawner with ID " + ChatColor.GOLD + String.valueOf(spawner.getId()) + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);

@@ -47,6 +47,7 @@ public class Spawner {
 	private byte minLightLevel = -1; //Minimum light level
 	private int mobsPerSpawn = 0; //Amount of mobs to spawn per time
 	private int maxMobs = -1; //Maximum amount of mobs it will spawn
+	private boolean passiveMobs = false; //If hostile mobs start out passive
 	
 	//Location variables
 	private Location loc = null; //Location of the spawner
@@ -249,9 +250,12 @@ public class Spawner {
 		this.mobs = mobs;
 	}
 
-	//Change the name
-	public void changeName(String newName) {
-		this.name = newName;
+	public boolean isPassive() {
+		return passiveMobs;
+	}
+
+	public void setPassive(boolean passiveMobs) {
+		this.passiveMobs = passiveMobs;
 	}
 	
 	/*

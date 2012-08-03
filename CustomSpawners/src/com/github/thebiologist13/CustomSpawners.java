@@ -24,8 +24,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 
+import com.github.thebiologist13.listeners.InteractEvent;
 import com.github.thebiologist13.listeners.MobDeathEvent;
 import com.github.thebiologist13.listeners.PlayerLogoutEvent;
+import com.github.thebiologist13.listeners.PlayerTargetEvent;
+import com.github.thebiologist13.listeners.ProvokeMobEvent;
 
 public class CustomSpawners extends JavaPlugin {
 	
@@ -44,6 +47,17 @@ public class CustomSpawners extends JavaPlugin {
 	//Selected entities for players
 	public static HashMap<Player, Integer> entitySelection = new HashMap<Player, Integer>();
 	
+	//Player selection area Point 1
+	public static HashMap<Player, Location> selectionPointOne = new HashMap<Player, Location>();
+	
+	//Player selection area Point 2
+	public static HashMap<Player, Location> selectionPointTwo = new HashMap<Player, Location>();
+	
+	//Argroed mobs
+	public static ArrayList<Integer> angryMobs = new ArrayList<Integer>();
+	
+	public static SpawnableEntity defaultEntity = null;
+	
 	//YAML variable
 	private FileConfiguration config;
 	
@@ -58,6 +72,10 @@ public class CustomSpawners extends JavaPlugin {
 		//Config
 		config = getCustomConfig();
 		
+		//Default Entity
+		defaultEntity = new SpawnableEntity(EntityType.fromName(config.getString("entities.type")), -2);
+		defaultEntity.setName("Default");
+		
 		//Commands
 		//TODO Note: to check if a creature is valid, use instanceof Creature or EntityType.isSpawnable()
 		SpawnerExecutor se = new SpawnerExecutor(this);
@@ -69,7 +87,10 @@ public class CustomSpawners extends JavaPlugin {
 		
 		//Listeners
 		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
+		getServer().getPluginManager().registerEvents(new ProvokeMobEvent(), this);
+		getServer().getPluginManager().registerEvents(new PlayerTargetEvent(), this);
 		getServer().getPluginManager().registerEvents(new MobDeathEvent(this), this);
+		getServer().getPluginManager().registerEvents(new InteractEvent(this), this);
 		
 		//Load entities from file
 		loadEntities();
@@ -77,41 +98,92 @@ public class CustomSpawners extends JavaPlugin {
 		//Load spawners from files
 		loadSpawners();
 		
-		//Spawning Thread
+		/*
+		 * Spawning Thread
+		 * Removes spawners and entities with ID of -1
+		 * ID of -2 on entity is default entity
+		 */
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
 			public void run() {
-				for(int i = 0; i < spawners.size(); i++) {
-					
-					Spawner s = spawners.get(i);
-					
-					if(s.getId() == -1) {
-						if(spawnerSelection.containsValue(s.getId())) {
-							resetSpawnerSelections(s.getId());
+				try {
+					for(int i = 0; i < spawners.size(); i++) {
+						
+						Spawner s = spawners.get(i);
+						
+						if(s.getId() == -1) {
+							if(spawnerSelection.containsValue(s.getId())) {
+								resetSpawnerSelections(s.getId());
+							}
+							spawners.remove(i);
+							continue;
 						}
-						spawners.remove(i);
-						continue;
+						s.tick();
 					}
-					s.tick();
-				}
+					
+					for(int i = 0; i < entities.size(); i++) {
+						
+						SpawnableEntity e = entities.get(i);
+						
+						if(e.getId() == -1) {
+							if(entitySelection.containsValue(e.getId())) {
+								resetEntitySelections(e.getId());
+							}
+							entities.remove(i); //TODO this threw a ArrayIndexOutOfBoundsException?
+							continue;
+						}
+						
+					}
+					
+				} catch(Exception e) {}
 				
-				for(int i = 0; i < entities.size(); i++) {
-					
-					SpawnableEntity e = entities.get(i);
-					
-					if(e.getId() == -1) {
-						if(entitySelection.containsValue(e.getId())) {
-							resetEntitySelections(e.getId());
-						}
-						entities.remove(i);
-						continue;
-					}
-				}
 			}
 			
 		}, 20, 1);
 		
-		//Autosave Thread
+		/*
+		 * Entity Removal Check Thread
+		 * This thread verifies that all spawned mobs still exist. For example, if a mob
+		 * despawned, it will be removed.
+		 */
+		
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Iterator<Spawner> spawnerItr = spawners.iterator();
+					while(spawnerItr.hasNext()) {
+						Spawner s = spawnerItr.next();
+						Iterator<Integer> mobItr = s.getMobs().iterator();
+						List<LivingEntity> entityList = s.getLoc().getWorld().getLivingEntities();
+						ArrayList<Integer> entityIdList = new ArrayList<Integer>();
+						
+						for(LivingEntity l : entityList) {
+							entityIdList.add(l.getEntityId());
+						}			
+						
+						while(mobItr.hasNext()) {
+							int mobId = mobItr.next();
+							
+							if(!entityIdList.contains(mobId)) {
+								mobItr.remove();
+							}
+							
+						}
+						
+					}
+					
+				} catch(Exception e) {}
+				
+			}
+			
+		}, 20, 100);
+		
+		/*
+		 * Autosave Thread
+		 * This thread manages autosaving
+		 */
 		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnClock")) {
 			
 			int interval = config.getInt("data.interval") * 1200;
@@ -121,11 +193,13 @@ public class CustomSpawners extends JavaPlugin {
 				@Override
 				public void run() {
 					
-					autosaveAll();
+					try {
+						autosaveAll();
+					} catch(Exception e) {}
 					
 				}
 				
-			}, 0, interval);
+			}, 20, interval);
 		}
 		
 		//Enable message
@@ -277,12 +351,42 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Next available spawner ID
 	public int getNextSpawnerId() {
-		return spawners.size();
+		int returnId = 0;
+		boolean taken = true;
+		
+		Iterator<Spawner> spawnerItr = spawners.iterator();
+		while(spawnerItr.hasNext() && taken) {
+			Spawner s = spawnerItr.next();
+			
+			if(s.getId() == returnId) {
+				taken = true;
+				returnId++;
+			} else {
+				taken = false;
+			}
+		}
+		
+		return returnId;
 	}
 	
 	//Next available entity id
 	public int getNextEntityId() {
-		return entities.size();
+		int returnId = 0;
+		boolean taken = true;
+		
+		Iterator<SpawnableEntity> entityItr = entities.iterator();
+		while(entityItr.hasNext() && taken) {
+			SpawnableEntity s = entityItr.next();
+			
+			if(s.getId() == returnId) {
+				taken = true;
+				returnId++;
+			} else {
+				taken = false;
+			}
+		}
+		
+		return returnId;
 	}
 	
 	//Convenience method for accurately testing if a string can be parsed to an integer.
@@ -327,8 +431,8 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Loads spawners from file
 	public void loadSpawners() {
-		log.info("Loading spawners from directory " + getDataFolder().getPath() + "\\Spawners");
-		File sDir = new File(getDataFolder() + "\\Spawners");
+		log.info("Loading spawners from directory " + getDataFolder().getPath() + File.separator + "Spawners");
+		File sDir = new File(getDataFolder() + File.separator + "Spawners");
 		if(!sDir.exists()) {
 			sDir.mkdirs();
 		}
@@ -354,6 +458,7 @@ public class CustomSpawners extends JavaPlugin {
 				List<?> mobs = yaml.getList("mobs"); 
 				int rate = yaml.getInt("rate");
 				boolean usingSpawnArea = yaml.getBoolean("useSpawnArea");
+				boolean passiveMobs = yaml.getBoolean("passiveMobs"); 
 				
 				//Convert Raw yaml list of mobs to ArrayList<Integer>
 				ArrayList<Integer> mobIDs = new ArrayList<Integer>();
@@ -423,6 +528,7 @@ public class CustomSpawners extends JavaPlugin {
 				s.setUseSpawnArea(usingSpawnArea);
 				s.setAreaPoints(areaPoints);
 				s.setTypeData(entities);
+				s.setPassive(passiveMobs);
 				
 				spawners.add(s);
 			}
@@ -444,8 +550,9 @@ public class CustomSpawners extends JavaPlugin {
 		boolean killOnReload = config.getBoolean("spawners.killOnReload", false);
 		
 		for(Spawner s : spawners) {
-			log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + getDataFolder() + "\\Spawners\\" + String.valueOf(s.getId()) + ".yml");
-			File saveFile = new File(getDataFolder() + "\\Spawners\\" + String.valueOf(s.getId()) + ".yml");
+			log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + getDataFolder() + File.separator + "Spawners" + 
+					File.separator + String.valueOf(s.getId()) + ".yml");
+			File saveFile = new File(getDataFolder() + File.separator + "Spawners" + File.separator + String.valueOf(s.getId()) + ".yml");
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 			
 			if(killOnReload) {
@@ -506,6 +613,7 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("p2.z", areaPoints[1].getBlockZ());
 			yaml.set("rate", s.getRate());
 			yaml.set("mobs", mobIDs);
+			yaml.set("passiveMobs", s.isPassive());
 			
 			try {
 				yaml.save(saveFile);
@@ -521,8 +629,8 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Load entities from file
 	public void loadEntities() {
-		log.info("Loading entities from directory " + getDataFolder().getPath() + "\\Entities");
-		File sDir = new File(getDataFolder() + "\\Entities");
+		log.info("Loading entities from directory " + getDataFolder().getPath() + File.separator + "Entities");
+		File sDir = new File(getDataFolder() + File.separator + "Entities");
 		if(!sDir.exists()) {
 			sDir.mkdirs();
 		}
@@ -607,8 +715,9 @@ public class CustomSpawners extends JavaPlugin {
 		log.info(String.valueOf(spawners.size()) + " entities to save.");
 		
 		for(SpawnableEntity e : entities) {
-			log.info("Saving entity " + String.valueOf(e.getId()) + " to " + getDataFolder() + "\\Entities\\" + String.valueOf(e.getId()) + ".yml");
-			File saveFile = new File(getDataFolder() + "\\Entities\\" + String.valueOf(e.getId()) + ".yml");
+			log.info("Saving entity " + String.valueOf(e.getId()) + " to " + getDataFolder() + File.separator + "Entities" + 
+					File.separator + String.valueOf(e.getId()) + ".yml");
+			File saveFile = new File(getDataFolder() + File.separator + "Entities" + File.separator + String.valueOf(e.getId()) + ".yml");
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 			
 			yaml.options().header("DO NOT MODIFY THIS FILE!");
@@ -652,13 +761,13 @@ public class CustomSpawners extends JavaPlugin {
 		File file = null;
 		
 		if(isSpawner) {
-			file = new File(getDataFolder() + "\\Spawners\\" + id + ".yml");
+			file = new File(getDataFolder() + File.pathSeparator + "Spawners" + File.pathSeparator + id + ".yml");
 			if(!file.exists()) {
 				return;
 			}
 			file.delete();
 		} else {
-			file = new File(getDataFolder() + "\\Entities\\" + id + ".yml");
+			file = new File(getDataFolder() + File.pathSeparator + "Entities" + File.pathSeparator + id + ".yml");
 			if(!file.exists()) {
 				return;
 			}
@@ -717,7 +826,7 @@ public class CustomSpawners extends JavaPlugin {
 	//Autosaves a spawner
 	public synchronized void autosave(Spawner s) {
 
-		File saveFile = new File(getDataFolder() + "\\Spawners\\" + String.valueOf(s.getId()) + ".yml");
+		File saveFile = new File(getDataFolder() + File.separator + "Spawners" + File.separator + String.valueOf(s.getId()) + ".yml");
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 		
 		List<Integer> mobIDs = new ArrayList<Integer>();
@@ -766,6 +875,7 @@ public class CustomSpawners extends JavaPlugin {
 		yaml.set("p2.z", areaPoints[1].getBlockZ());
 		yaml.set("rate", s.getRate());
 		yaml.set("mobs", mobIDs);
+		yaml.set("passiveMobs", s.isPassive());
 		
 		try {
 			yaml.save(saveFile);
@@ -779,7 +889,7 @@ public class CustomSpawners extends JavaPlugin {
 	//Autosaves an entity
 	public synchronized void autosave(SpawnableEntity e) {
 		
-		File saveFile = new File(getDataFolder() + "\\Entities\\" + String.valueOf(e.getId()) + ".yml");
+		File saveFile = new File(getDataFolder() + File.separator + "Entities" + File.separator + String.valueOf(e.getId()) + ".yml");
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 		
 		yaml.options().header("DO NOT MODIFY THIS FILE!");
@@ -829,6 +939,9 @@ public class CustomSpawners extends JavaPlugin {
 				int entityId = l.getEntityId();
 
 				if(spawnerMobId == entityId) {
+					if(l.getPassenger() != null) {
+						l.getPassenger().remove();
+					}
 					l.remove();
 					mobs.remove();
 				}

@@ -67,7 +67,7 @@ public class CustomSpawnersExecutor implements CommandExecutor {
 					} else {
 						log.info("An error has occured with this command. Did you type everything right?");
 					}
-					return false;
+					return true;
 				}
 				
 				return false;

@@ -1,5 +1,5 @@
 name: CustomSpawners
-version: 0.0.2e
+version: 0.0.3
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
@@ -60,6 +60,9 @@ permissions:
             customspawners.spawners.info: true
             customspawners.spawners.info.hidden: true
             customspawners.spawners.setname: true
+            customspawners.spawners.setspawnarea: true
+            customspawners.spawners.position: true
+            customspawners.spawners.setpassive: true
             customspawners.entities.create: true
             customspawners.entities.select: true
             customspawners.entities.remove: true
@@ -185,6 +188,15 @@ permissions:
         default: op
     customspawners.spawners.setname:
         description: Allows the user/group to set the name of a spawner.
+        default: op
+    customspawners.spawners.setspawnarea:
+        description: Allows the user/group to set the spawn area of a spawner..
+        default: op
+    customspawners.spawners.position:
+        description: Allows the user/group to set spawn area positions.
+        default: op
+    customspawners.spawners.setpassive:
+        description: Allows the user/group to set the mobs created by a spawner passive.
         default: op
     customspawners.entities.create:
         description: Allows the user/group to create a spawnable entity.

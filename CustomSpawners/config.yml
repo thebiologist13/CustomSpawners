@@ -50,6 +50,9 @@ spawners:
     # have spawned at one time?
     maxMobs: 64
     
+    # Should mobs created by spawners be passive until provoked?
+    passive: false
+    
     
     
     # Spawner limits
@@ -148,7 +151,7 @@ mobs:
     # Set false to disable.
     pig: true
     cow: true
-    mushroom_cow: true
+    mushroomcow: true
     sheep: true
     chicken: true
     wolf: true
@@ -161,16 +164,16 @@ mobs:
     creeper: true
     spider: true
     enderman: true
-    ender_dragon: false
+    enderdragon: false
     giant: false
     silverfish: true
-    cave_spider: true
+    cavespider: true
     slime: true
-    magma_cube: true
-    pig_zombie: true
+    magmacube: true
+    pigzombie: true
     ghast: false
     blaze: false
-    iron_golem: true
+    irongolem: true
     snowman: true
     
 players:
@@ -183,6 +186,9 @@ players:
     # to consider it "nearby". This is for the listnear
     # command.
     maxNear: 25
+
+    # Item ID to use for selecting spawn area positions.
+    selectionId: 269
 
 data:
     

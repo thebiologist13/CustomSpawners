@@ -1,11 +1,16 @@
 package com.github.thebiologist13.commands.entities;
 
+import java.util.HashMap;
+import java.util.Iterator;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.SpawnableEntity;
+import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class EntityRemoveCommand extends SpawnerCommand {
@@ -82,6 +87,19 @@ public class EntityRemoveCommand extends SpawnerCommand {
 						}
 					}
 					CustomSpawners.entitySelection.remove(p1);
+				}
+			}
+			
+			Iterator<Spawner> spawnerItr = CustomSpawners.spawners.iterator();
+			while(spawnerItr.hasNext()) {
+				Spawner s = spawnerItr.next();
+				
+				if(s.getTypeData().containsKey(removeId)) {
+					HashMap<Integer, SpawnableEntity> defaultEntity = new HashMap<Integer, SpawnableEntity>();
+					defaultEntity.put(CustomSpawners.defaultEntity.getId(), CustomSpawners.defaultEntity);
+					s.setTypeData(defaultEntity);
+					
+					p.sendMessage(ChatColor.GOLD + "The spawner with ID " + s.getId() + " has been set to the default entity due to removal.");
 				}
 			}
 			

@@ -93,12 +93,18 @@ public class EntityInfoCommand extends SpawnerCommand {
 				header += " (" + s.getName() + ")";
 			}
 			
+			String nameOfType = s.getType().getName();
+			
+			if(s.getType().getName().equals("Spider") && s.isJockey()) {
+				nameOfType = "Spider Jockey";
+			}
+			
 			//Send info
 			String[] message = {
 					"",
 					header + ChatColor.GREEN + ": ",
 					"",
-					ChatColor.GOLD + "Type: " + s.getType().getName(),
+					ChatColor.GOLD + "Type: " + nameOfType,
 					ChatColor.GOLD + "Effects: " + effectMessage,
 					ChatColor.GOLD + "X Velocity: " + s.getXVelocity(),
 					ChatColor.GOLD + "Y Velocity: " + s.getYVelocity(),

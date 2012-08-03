@@ -1,5 +1,7 @@
 package com.github.thebiologist13.commands.entities;
 
+import java.util.logging.Logger;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,14 +21,15 @@ public class EntityCreateCommand extends SpawnerCommand {
 	
 	private CustomSpawners plugin = null;
 	
-	//private Logger log = null;
+	@SuppressWarnings("unused")
+	private Logger log = null;
 	
 	private FileConfiguration config = null;
 	
 	public EntityCreateCommand(CustomSpawners plugin) {
 		this.plugin = plugin;
 		config = plugin.getCustomConfig();
-		//log = plugin.log;
+		log = plugin.log;
 	}
 	
 	@Override
@@ -51,7 +54,9 @@ public class EntityCreateCommand extends SpawnerCommand {
 			
 			boolean createJockey = false;
 			
-			if(arg3[1].equalsIgnoreCase("spiderjockey") || arg3[1].equalsIgnoreCase("skeletonjockey")) {
+			String entityType = arg3[1];
+			
+			if(entityType.equalsIgnoreCase("spiderjockey") || entityType.equalsIgnoreCase("skeletonjockey")) {
 				
 				if(!config.getBoolean("mobs.spiderjockey")) {
 					p.sendMessage(NOT_ALLOWED_ENTITY);
@@ -60,7 +65,63 @@ public class EntityCreateCommand extends SpawnerCommand {
 				
 				type = EntityType.SPIDER;
 				createJockey = true;
+				
+			} else if(entityType.equalsIgnoreCase("irongolem")) {
+				
+				if(!config.getBoolean("mobs.irongolem")) {
+					p.sendMessage(NOT_ALLOWED_ENTITY);
+					return;
+				}
+				
+				type = EntityType.IRON_GOLEM;
+				
+			} else if(entityType.equalsIgnoreCase("mooshroom")) {
+				
+				if(!config.getBoolean("mobs.mushroomcow")) {
+					p.sendMessage(NOT_ALLOWED_ENTITY);
+					return;
+				}
+				
+				type = EntityType.MUSHROOM_COW;
+				
+			} else if(entityType.equalsIgnoreCase("zombiepigman")) {
+				
+				if(!config.getBoolean("mobs.pigzombie")) {
+					p.sendMessage(NOT_ALLOWED_ENTITY);
+					return;
+				}
+				
+				type = EntityType.PIG_ZOMBIE;
+				
+			} else if(entityType.equalsIgnoreCase("magmacube") || entityType.equalsIgnoreCase("fireslime") || entityType.equalsIgnoreCase("firecube")) {
+				
+				if(!config.getBoolean("mobs.magmacube")) {
+					p.sendMessage(NOT_ALLOWED_ENTITY);
+					return;
+				}
+				
+				type = EntityType.MAGMA_CUBE;
+				
+			} else if(entityType.equalsIgnoreCase("snowman") || entityType.equalsIgnoreCase("snowgolem")) {
+				
+				if(!config.getBoolean("mobs.snowman")) {
+					p.sendMessage(NOT_ALLOWED_ENTITY);
+					return;
+				}
+				
+				type = EntityType.SNOWMAN;
+				
+			} else if(entityType.equalsIgnoreCase("ocelot") || entityType.equalsIgnoreCase("ozelot")) {
+				
+				if(!config.getBoolean("mobs.ocelot")) {
+					p.sendMessage(NOT_ALLOWED_ENTITY);
+					return;
+				}
+				
+				type = EntityType.OCELOT;
+				
 			} else {
+				
 				//Try to parse an entity type from input. Null if invalid.
 				type = EntityType.fromName(arg3[1]);
 				
