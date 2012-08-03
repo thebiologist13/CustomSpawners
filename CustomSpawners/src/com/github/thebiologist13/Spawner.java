@@ -10,6 +10,7 @@ import org.bukkit.Server;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Golem;
 import org.bukkit.entity.IronGolem;
@@ -367,14 +368,18 @@ public class Spawner {
 					 */
 					if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty() && acceptableLight) {
 						SpawnableEntity type = randType();
-						LivingEntity le = loc.getWorld().spawnCreature(spawnLoc, type.getType());
-						if(le != null) {
-							assignMobProps(le, type);
-							if(type.isJockey()) {
-								makeJockey(le);
+						Entity e = loc.getWorld().spawnEntity(spawnLoc, type.getType());
+						if(e != null) {
+							if(e instanceof LivingEntity) {
+								LivingEntity le = (LivingEntity) e;
+								
+								assignMobProps(le, type);
+								if(type.isJockey()) {
+									makeJockey(le);
+								}
+								mobs.add(le.getEntityId());
+								spawned = true;
 							}
-							mobs.add(le.getEntityId());
-							spawned = true;
 						}
 					}
 					
@@ -430,14 +435,18 @@ public class Spawner {
 				 */
 				if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty()) {
 					SpawnableEntity type = randType();
-					LivingEntity le = loc.getWorld().spawnCreature(spawnLoc, type.getType());
-					if(le != null) {
-						assignMobProps(le, type);
-						if(type.isJockey()) {
-							makeJockey(le);
+					Entity e = loc.getWorld().spawnEntity(spawnLoc, type.getType());
+					if(e != null) {
+						if(e instanceof LivingEntity) {
+							LivingEntity le = (LivingEntity) e;
+							
+							assignMobProps(le, type);
+							if(type.isJockey()) {
+								makeJockey(le);
+							}
+							mobs.add(le.getEntityId());
+							spawned = true;
 						}
-						mobs.add(le.getEntityId());
-						spawned = true;
 					}
 				}
 				
@@ -491,14 +500,18 @@ public class Spawner {
 				 * spawn the creature and add it to the list of mobs, then set this mob spawned
 				 */
 				if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty()) {
-					LivingEntity le = loc.getWorld().spawnCreature(spawnLoc, entity.getType());
-					if(le != null) {
-						assignMobProps(le, entity);
-						if(entity.isJockey()) {
-							makeJockey(le);
+					Entity e = loc.getWorld().spawnEntity(spawnLoc, entity.getType());
+					if(e != null) {
+						if(e instanceof LivingEntity) {
+							LivingEntity le = (LivingEntity) e;
+							
+							assignMobProps(le, entity);
+							if(entity.isJockey()) {
+								makeJockey(le);
+							}
+							mobs.add(le.getEntityId());
+							spawned = true;
 						}
-						mobs.add(le.getEntityId());
-						spawned = true;
 					}
 				}
 				
@@ -699,7 +712,7 @@ public class Spawner {
 		if(spider instanceof Spider) {
 			Spider s = (Spider) spider;
 			Location spiderLoc = s.getLocation();
-			LivingEntity skele = spiderLoc.getWorld().spawnCreature(spiderLoc, EntityType.SKELETON);
+			Entity skele = spiderLoc.getWorld().spawnEntity(spiderLoc, EntityType.SKELETON);
 			s.setPassenger(skele);
 		} else {
 			return;
