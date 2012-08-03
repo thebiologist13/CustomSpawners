@@ -974,5 +974,14 @@ public class CustomSpawners extends JavaPlugin {
 		}
 		
 	}
+
+	public Spawner getSpawnerByName(String name) {
+		for(Spawner e : spawners) {
+			if(e.getName().equalsIgnoreCase(name)) {
+				return e;
+			}
+		}
+		return null;
+	}
 	
 }

@@ -77,8 +77,14 @@ public class EntityNameCommand extends SpawnerCommand {
 
 			}
 
-			//Remove the spawner by calling the remove() method
-			s.setName(name);
+			//Remove the name
+			SpawnableEntity e = plugin.getEntityByName(name);
+			if(e == null) {
+				s.setName(name);
+			} else {
+				p.sendMessage(ChatColor.RED + "That name is already taken for an entity.");
+				return;
+			}
 
 			//Send success message
 			p.sendMessage(ChatColor.GREEN + "Successfully set the name of entity with ID " + ChatColor.GOLD +

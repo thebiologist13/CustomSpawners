@@ -631,9 +631,9 @@ public class Spawner {
 			Animals animal = (Animals) entity;
 			
 			//Age handling
-			if(data.getAir() == -2) {
+			if(data.getAge() == -2) {
 				animal.setBaby();
-			} else if(data.getAir() == -1) {
+			} else if(data.getAge() == -1) {
 				animal.setAdult();
 			} else {
 				animal.setAge(data.getAge());

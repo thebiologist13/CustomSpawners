@@ -78,7 +78,13 @@ public class NameCommand extends SpawnerCommand {
 			}
 
 			//Remove the spawner by calling the remove() method
-			s.setName(name);
+			Spawner s1 = plugin.getSpawnerByName(name);
+			if(s1 == null) {
+				s.setName(name);
+			} else {
+				p.sendMessage(ChatColor.RED + "That name is already taken for a spawner.");
+				return;
+			}
 
 			//Send success message
 			p.sendMessage(ChatColor.GREEN + "Successfully set the name of spawner with ID " + ChatColor.GOLD +
