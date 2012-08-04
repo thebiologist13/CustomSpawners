@@ -19,6 +19,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -53,7 +54,7 @@ public class CustomSpawners extends JavaPlugin {
 	//Player selection area Point 2
 	public static HashMap<Player, Location> selectionPointTwo = new HashMap<Player, Location>();
 	
-	//Argroed mobs
+	//Angry mobs
 	public static ArrayList<Integer> angryMobs = new ArrayList<Integer>();
 	
 	public static SpawnableEntity defaultEntity = null;
@@ -106,36 +107,33 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
 			public void run() {
-				try {
-					for(int i = 0; i < spawners.size(); i++) {
-						
-						Spawner s = spawners.get(i);
-						
-						if(s.getId() == -1) {
-							if(spawnerSelection.containsValue(s.getId())) {
-								resetSpawnerSelections(s.getId());
-							}
-							spawners.remove(i);
-							continue;
+				for(int i = 0; i < spawners.size(); i++) {
+					
+					Spawner s = spawners.get(i);
+					
+					if(s.getId() == -1) {
+						if(spawnerSelection.containsValue(s.getId())) {
+							resetSpawnerSelections(s.getId());
 						}
-						s.tick();
+						spawners.remove(i);
+						continue;
+					}
+					s.tick();
+				}
+				
+				for(int i = 0; i < entities.size(); i++) {
+					
+					SpawnableEntity e = entities.get(i);
+					
+					if(e.getId() == -1) {
+						if(entitySelection.containsValue(e.getId())) {
+							resetEntitySelections(e.getId());
+						}
+						entities.remove(i); //TODO this threw a ArrayIndexOutOfBoundsException?
+						continue;
 					}
 					
-					for(int i = 0; i < entities.size(); i++) {
-						
-						SpawnableEntity e = entities.get(i);
-						
-						if(e.getId() == -1) {
-							if(entitySelection.containsValue(e.getId())) {
-								resetEntitySelections(e.getId());
-							}
-							entities.remove(i); //TODO this threw a ArrayIndexOutOfBoundsException?
-							continue;
-						}
-						
-					}
-					
-				} catch(Exception e) {}
+				}
 				
 			}
 			
@@ -151,34 +149,31 @@ public class CustomSpawners extends JavaPlugin {
 
 			@Override
 			public void run() {
-				try {
-					Iterator<Spawner> spawnerItr = spawners.iterator();
-					while(spawnerItr.hasNext()) {
-						Spawner s = spawnerItr.next();
-						Iterator<Integer> mobItr = s.getMobs().iterator();
-						List<LivingEntity> entityList = s.getLoc().getWorld().getLivingEntities();
-						ArrayList<Integer> entityIdList = new ArrayList<Integer>();
+				Iterator<Spawner> spawnerItr = spawners.iterator();
+				while(spawnerItr.hasNext()) {
+					Spawner s = spawnerItr.next();
+					Iterator<Integer> mobItr = s.getMobs().iterator();
+					Iterator<LivingEntity> entityItr = s.getLoc().getWorld().getLivingEntities().iterator();
+					ArrayList<Integer> entityIdList = new ArrayList<Integer>();
+					
+					while(entityItr.hasNext()) {
+						entityIdList.add(entityItr.next().getEntityId());
+					}
+					
+					while(mobItr.hasNext()) {
+						int mobId = mobItr.next();
 						
-						for(LivingEntity l : entityList) {
-							entityIdList.add(l.getEntityId());
-						}			
-						
-						while(mobItr.hasNext()) {
-							int mobId = mobItr.next();
-							
-							if(!entityIdList.contains(mobId)) {
-								mobItr.remove();
-							}
-							
+						if(!entityIdList.contains(mobId)) {
+							mobItr.remove();
 						}
 						
 					}
 					
-				} catch(Exception e) {}
+				}
 				
 			}
 			
-		}, 20, 100);
+		}, 20, 20);
 		
 		/*
 		 * Autosave Thread
@@ -193,9 +188,7 @@ public class CustomSpawners extends JavaPlugin {
 				@Override
 				public void run() {
 					
-					try {
-						autosaveAll();
-					} catch(Exception e) {}
+					autosaveAll();
 					
 				}
 				
@@ -317,6 +310,16 @@ public class CustomSpawners extends JavaPlugin {
 	//Gets a SpawnableEntity by name
 	public SpawnableEntity getEntityByName(String name) {
 		for(SpawnableEntity e : entities) {
+			if(e.getName().equalsIgnoreCase(name)) {
+				return e;
+			}
+		}
+		return null;
+	}
+	
+	//Gets a Spawner by name
+	public Spawner getSpawnerByName(String name) {
+		for(Spawner e : spawners) {
 			if(e.getName().equalsIgnoreCase(name)) {
 				return e;
 			}
@@ -568,8 +571,9 @@ public class CustomSpawners extends JavaPlugin {
 			}
 			
 			List<Integer> mobIDs = new ArrayList<Integer>();
-			for(Integer e : s.getMobs()) {
-				mobIDs.add(e);
+			Iterator<Integer> mobItr = s.getMobs().iterator();
+			while(mobItr.hasNext()) {
+				mobIDs.add(mobItr.next());
 			}
 			
 			List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
@@ -948,18 +952,29 @@ public class CustomSpawners extends JavaPlugin {
 				
 			}
 			
+			Iterator<Integer> angryMobItr = CustomSpawners.angryMobs.iterator();
+			while(angryMobItr.hasNext()) {
+				int angryMob = angryMobItr.next();
+				
+				if(angryMob == spawnerMobId) {
+					angryMobItr.remove();
+					break;
+				}
+				
+			}
+			
 		}
 		
 	}
 	
 	//Removes a spawner from a mob list when it dies
-	public synchronized void removeMob(final LivingEntity l, final ArrayList<Spawner> validSpawners) { //Called when an entity dies. l is the dead entity.
-		int entityId = l.getEntityId();
+	public synchronized void removeMob(final Entity e, final ArrayList<Spawner> validSpawners) { //Called when an entity dies. l is the dead entity.
+		int entityId = e.getEntityId();
 		Iterator<Spawner> spawnerItr = validSpawners.iterator();
 
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
-
+			
 			Iterator<Integer> mobs = s.getMobs().iterator();
 
 			while(mobs.hasNext()) {
@@ -973,15 +988,17 @@ public class CustomSpawners extends JavaPlugin {
 			
 		}
 		
-	}
-
-	public Spawner getSpawnerByName(String name) {
-		for(Spawner e : spawners) {
-			if(e.getName().equalsIgnoreCase(name)) {
-				return e;
+		Iterator<Integer> angryMobItr = CustomSpawners.angryMobs.iterator();
+		while(angryMobItr.hasNext()) {
+			int angryMob = angryMobItr.next();
+			
+			if(angryMob == entityId) {
+				angryMobItr.remove();
+				break;
 			}
+			
 		}
-		return null;
+		
 	}
 	
 }

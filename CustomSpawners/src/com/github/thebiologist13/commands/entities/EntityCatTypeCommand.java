@@ -50,16 +50,18 @@ public class EntityCatTypeCommand extends SpawnerCommand {
 
 				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
 				
-				if(arg3[1].equalsIgnoreCase("NONE")) {
+				String value = arg3[1];
+				
+				if(value.equalsIgnoreCase("NONE")|| value.equalsIgnoreCase("WILD")) {
 					type = "WILD_OCELOT";
-				} else if(arg3[1].equalsIgnoreCase("RED_CAT") || arg3[1].equalsIgnoreCase("RED")) {
+				} else if(value.equalsIgnoreCase("RED_CAT") || value.equalsIgnoreCase("RED")|| value.equalsIgnoreCase("REDCAT")) {
 					type = "RED_CAT";
-				} else if(arg3[1].equalsIgnoreCase("BLACK_CAT") || arg3[1].equalsIgnoreCase("BLACK")) {
+				} else if(value.equalsIgnoreCase("BLACK_CAT") || value.equalsIgnoreCase("BLACK")|| value.equalsIgnoreCase("BLACKCAT")) {
 					type = "BLACK_CAT";
-				} else if(arg3[1].equalsIgnoreCase("SIAMESE_CAT") || arg3[1].equalsIgnoreCase("SIAMESE")) {
+				} else if(value.equalsIgnoreCase("SIAMESE_CAT") || value.equalsIgnoreCase("SIAMESE")|| value.equalsIgnoreCase("SIAMESECAT")) {
 					type = "SIAMESE_CAT";
 				} else {
-					p.sendMessage(ChatColor.RED + arg3[1] + " is not a valid cat type.");
+					p.sendMessage(ChatColor.RED + value + " is not a valid cat type.");
 					return;
 				}
 				
@@ -86,16 +88,18 @@ public class EntityCatTypeCommand extends SpawnerCommand {
 
 				s = plugin.getEntityById(id);
 				
-				if(arg3[2].equalsIgnoreCase("NONE")) {
+				String value = arg3[2];
+				
+				if(value.equalsIgnoreCase("NONE")|| value.equalsIgnoreCase("WILD")) {
 					type = "WILD_OCELOT";
-				} else if(arg3[2].equalsIgnoreCase("RED_CAT") || arg3[2].equalsIgnoreCase("RED")) {
+				} else if(value.equalsIgnoreCase("RED_CAT") || value.equalsIgnoreCase("RED")|| value.equalsIgnoreCase("REDCAT")) {
 					type = "RED_CAT";
-				} else if(arg3[2].equalsIgnoreCase("BLACK_CAT") || arg3[2].equalsIgnoreCase("BLACK")) {
+				} else if(value.equalsIgnoreCase("BLACK_CAT") || value.equalsIgnoreCase("BLACK")|| value.equalsIgnoreCase("BLACKCAT")) {
 					type = "BLACK_CAT";
-				} else if(arg3[2].equalsIgnoreCase("SIAMESE_CAT") || arg3[2].equalsIgnoreCase("SIAMESE")) {
+				} else if(value.equalsIgnoreCase("SIAMESE_CAT") || value.equalsIgnoreCase("SIAMESE")|| value.equalsIgnoreCase("SIAMESECAT")) {
 					type = "SIAMESE_CAT";
 				} else {
-					p.sendMessage(ChatColor.RED + arg3[2] + " is not a valid cat type.");
+					p.sendMessage(ChatColor.RED + value + " is not a valid cat type.");
 					return;
 				}
 				

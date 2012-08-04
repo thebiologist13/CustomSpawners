@@ -1,12 +1,10 @@
 package com.github.thebiologist13.listeners;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 
@@ -22,9 +20,9 @@ public class MobDeathEvent implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler
 	public void onMobDeath(EntityDeathEvent ev) {
-		LivingEntity entity = ev.getEntity();
+		Entity entity = ev.getEntity();
 		EntityType type = ev.getEntityType();
 		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
 		
@@ -39,15 +37,6 @@ public class MobDeathEvent implements Listener {
 		
 		plugin.removeMob(entity, validSpawners);
 		
-		Iterator<Integer> angryMobItr = CustomSpawners.angryMobs.iterator();
-		while(angryMobItr.hasNext()) {
-			int angryMob = angryMobItr.next();
-			
-			if(angryMob == entity.getEntityId()) {
-				angryMobItr.remove();
-				break;
-			}
-		}
 	}
 	
 }

@@ -541,7 +541,7 @@ public class Spawner {
 	}
 	
 	//Check if players are nearby
-	private Player[] getNearbyPlayers(Location source, double max) {
+	private ArrayList<Player> getNearbyPlayers(Location source, double max) {
 		ArrayList<Player> players = new ArrayList<Player>();
 		for(Player p : server.getOnlinePlayers()) {
 			//Finds distance between spawner and player is 3D space.
@@ -554,7 +554,7 @@ public class Spawner {
 				players.add(p);
 			}
 		}
-		return (Player[]) players.toArray();
+		return players;
 	}
 	
 	//Generate random double for location's parts within radius
@@ -652,7 +652,15 @@ public class Spawner {
 				w.setAngry(data.isAngry());
 				w.setTamed(data.isTamed());
 				if(data.isTamed()) {
+					
+					ArrayList<Player> nearPlayers = getNearbyPlayers(w.getLocation(), 16);
+					int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
+					if(nearPlayers != null) {
+						w.setOwner(nearPlayers.get(index));
+					}
+					
 					w.setSitting(data.isSitting());
+					
 				}
 			} else if(animal instanceof Ocelot) {
 				Ocelot o = (Ocelot) animal;
@@ -660,7 +668,15 @@ public class Spawner {
 				if(data.isTamed()) {
 					Ocelot.Type catType = Ocelot.Type.valueOf(data.getCatType());
 					o.setCatType(catType);
+					
+					ArrayList<Player> nearPlayers = getNearbyPlayers(o.getLocation(), 16);
+					int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
+					if(nearPlayers != null) {
+						o.setOwner(nearPlayers.get(index));
+					}
+					
 					o.setSitting(data.isSitting());
+					
 				}
 			}
 		} else if(entity instanceof Villager) {
@@ -695,12 +711,12 @@ public class Spawner {
 			if(golem instanceof IronGolem) { //TODO may or may not work
 				IronGolem i = (IronGolem) golem;
 				if(data.isAngry()) {
-					Player[] players = server.getOnlinePlayers();
-					int index = (int) Math.round(Math.rint(players.length - 1));
-					Player[] nearPlayers = getNearbyPlayers(i.getLocation(), 16);
+					ArrayList<Player> nearPlayers = getNearbyPlayers(i.getLocation(), 16);
+					int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
 					if(nearPlayers != null) {
 						i.setPlayerCreated(false);
-						i.damage(0, nearPlayers[index]);
+						i.damage(0, nearPlayers.get(index));
+						i.setTarget(nearPlayers.get(index));
 					}
 				}
 			}
