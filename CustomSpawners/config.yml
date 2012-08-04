@@ -50,9 +50,6 @@ spawners:
     # have spawned at one time?
     maxMobs: 64
     
-    # Should mobs created by spawners be passive until provoked?
-    passive: false
-    
     
     
     # Spawner limits
@@ -143,6 +140,9 @@ entities:
     # "LIME", "MAGENTA", "ORANGE", "PINK", "PURPLE", "RED",
     # "SILVER", "WHITE", and "YELLOW".
     color: WHITE 
+     
+    # Should entities be passive until provoked?
+    passive: false
      
 mobs:
 

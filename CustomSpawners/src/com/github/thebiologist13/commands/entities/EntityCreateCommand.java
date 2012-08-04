@@ -204,6 +204,7 @@ public class EntityCreateCommand extends SpawnerCommand {
 			entity.setSlimeSize(config.getInt("entities.slimeSize", 1));
 			String color = config.getString("entities.color", "WHITE");
 			entity.setColor(color);
+			entity.setPassive(config.getBoolean("entities.passive", false));
 			
 			if(createJockey) {
 				entity.setJockey(true);
