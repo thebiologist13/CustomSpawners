@@ -19,7 +19,7 @@ public abstract class SpawnerCommand {
 	 */
 	
 	//Strings for errors
-	public final static String NO_CONSOLE = ChatColor.RED + "This command can only be used in-game";
+	public final static String NO_CONSOLE = "This command can only be used in-game";
 	public final static String NO_ID = ChatColor.RED + "ID does not exist.";
 	public final static String ID_NOT_NUMBER = ChatColor.RED + "IDs must be a number.";
 	public final static String LESS_ARGS = ChatColor.RED + "Not enough arguments.";

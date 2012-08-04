@@ -279,3 +279,6 @@ permissions:
     customspawners.entities.listall:
         description: Allows the user/group to see a list of all entities.
         default: true
+    customspawners.entities.setfireticks:
+        description: Allows the user/group to set how long a spawned entity is on fire.
+        default: op

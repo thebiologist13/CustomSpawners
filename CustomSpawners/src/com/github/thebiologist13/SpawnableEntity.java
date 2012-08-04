@@ -29,6 +29,8 @@ public class SpawnableEntity {
 	private int age = 0;
 	private int health = 1;
 	private int air = 0;
+	private boolean passive = false;
+	private int fireTicks = 0;
 	
 	//Specific Data
 	private Villager.Profession villagerProfession = null;
@@ -42,7 +44,6 @@ public class SpawnableEntity {
 	private String catType = "";
 	private int slimeSize = 1;
 	private String color = "";
-	private boolean passive = false;
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
@@ -239,5 +240,13 @@ public class SpawnableEntity {
 
 	public void setPassive(boolean passive) {
 		this.passive = passive;
+	}
+
+	public int getFireTicks() {
+		return fireTicks;
+	}
+
+	public void setFireTicks(int fireTicks) {
+		this.fireTicks = fireTicks;
 	}
 }

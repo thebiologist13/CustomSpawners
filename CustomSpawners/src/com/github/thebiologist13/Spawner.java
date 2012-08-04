@@ -641,6 +641,8 @@ public class Spawner {
 			entity.setRemainingAir(data.getAir());
 		}
 		
+		entity.setFireTicks(data.getFireTicks());
+		
 		if(entity instanceof Animals) {
 			Animals animal = (Animals) entity;
 			
