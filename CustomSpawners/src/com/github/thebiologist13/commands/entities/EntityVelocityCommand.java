@@ -106,9 +106,9 @@ public class EntityVelocityCommand extends SpawnerCommand {
 					return;
 				}
 				
-				x = Integer.parseInt(xVal);
-				y = Integer.parseInt(yVal);
-				z = Integer.parseInt(zVal);
+				x = Double.parseDouble(xVal);
+				y = Double.parseDouble(yVal);
+				z = Double.parseDouble(zVal);
 				
 			} else {
 				p.sendMessage(GENERAL_ERROR);

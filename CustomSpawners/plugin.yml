@@ -90,6 +90,7 @@ permissions:
             customspawners.entities.settamed: true
             customspawners.entities.setvelocity: true
             customspawners.entities.listall: true
+            customspawners.entities.setfireticks: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawner" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
