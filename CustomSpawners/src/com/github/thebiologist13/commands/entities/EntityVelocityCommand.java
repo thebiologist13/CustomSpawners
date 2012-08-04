@@ -34,9 +34,9 @@ public class EntityVelocityCommand extends SpawnerCommand {
 		//Entity
 		SpawnableEntity s = null;
 		//Vector components
-		int x = 0;
-		int y = 0;
-		int z = 0;
+		double x = 0;
+		double y = 0;
+		double z = 0;
 		//Permissions
 		String perm = "customspawners.entities.setvelocity";
 		
@@ -62,14 +62,14 @@ public class EntityVelocityCommand extends SpawnerCommand {
 				String yVal = arg3[1].substring(firstCommaIndex + 1, secondCommaIndex);
 				String zVal = arg3[1].substring(secondCommaIndex + 1, arg3[1].length());
 				
-				if(!plugin.isDouble(xVal) ||!plugin.isDouble(yVal) || !plugin.isDouble(zVal)) {
+				if(!plugin.isDouble(xVal) || !plugin.isDouble(yVal) || !plugin.isDouble(zVal)) {
 					p.sendMessage(COMMAND_FORMAT);
 					return;
 				}
 				
-				x = Integer.parseInt(xVal);
-				y = Integer.parseInt(yVal);
-				z = Integer.parseInt(zVal);
+				x = Double.parseDouble(xVal);
+				y = Double.parseDouble(yVal);
+				z = Double.parseDouble(zVal);
 				
 			} else if(arg3.length == 2) {
 				p.sendMessage(NEEDS_SELECTION);
