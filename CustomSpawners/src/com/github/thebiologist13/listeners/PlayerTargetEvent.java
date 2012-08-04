@@ -16,7 +16,7 @@ import com.github.thebiologist13.Spawner;
 
 public class PlayerTargetEvent implements Listener {
 	
-	private ArrayList<Integer> preCheckedMobs = new ArrayList<Integer>();
+	private static ArrayList<Integer> preCheckedMobs = new ArrayList<Integer>();
 	
 	@EventHandler
 	public void onPlayerTarget(EntityTargetEvent ev) {
@@ -81,6 +81,10 @@ public class PlayerTargetEvent implements Listener {
 			ev.setCancelled(true);
 		}
 		
+	}
+
+	public static ArrayList<Integer> getPreCheckedMobs() {
+		return preCheckedMobs;
 	}
 	
 }

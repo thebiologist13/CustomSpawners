@@ -46,6 +46,7 @@ public class ProvokeMobEvent implements Listener {
 		
 		for(Spawner s : validSpawners) {
 			Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
+			Iterator<Integer> preChecks = PlayerTargetEvent.getPreCheckedMobs().iterator();
 			
 			while(passiveMobItr.hasNext()) {
 				int currentMob = passiveMobItr.next();
@@ -53,6 +54,17 @@ public class ProvokeMobEvent implements Listener {
 				if(currentMob == entityId) {
 					match = true;
 					passiveMobItr.remove();
+					break;
+				}
+
+			}
+			
+			while(preChecks.hasNext()) {
+				int currentMob = preChecks.next();
+				
+				if(currentMob == entityId) {
+					match = true;
+					preChecks.remove();
 					break;
 				}
 

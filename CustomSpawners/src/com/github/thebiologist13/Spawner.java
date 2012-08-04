@@ -321,7 +321,7 @@ public class Spawner {
 			//Loop to spawn until the mobs per spawn is reached
 			for(int i = 0; i < mobsPerSpawn; i++) {
 				//Break the loop if the spawn limit is reached
-				if(mobs.size() == maxMobs) {
+				if(mobs.size() + passiveMobs.size() == maxMobs) {
 					break;
 				}
 				
