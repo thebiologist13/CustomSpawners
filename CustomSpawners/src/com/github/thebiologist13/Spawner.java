@@ -48,7 +48,6 @@ public class Spawner {
 	private byte minLightLevel = -1; //Minimum light level
 	private int mobsPerSpawn = 0; //Amount of mobs to spawn per time
 	private int maxMobs = -1; //Maximum amount of mobs it will spawn
-	private boolean passiveMobs = false; //If hostile mobs start out passive
 	
 	//Location variables
 	private Location loc = null; //Location of the spawner
@@ -60,6 +59,7 @@ public class Spawner {
 	
 	//List of mobs
 	private ArrayList<Integer> mobs = new ArrayList<Integer>(); //Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
+	private ArrayList<Integer> passiveMobs = new ArrayList<Integer>(); //List of currently passive mobs from a spawner. When provoked, they are moved to "mobs"
 	
 	//Other
 	private Server server = null; //Used to get online players
@@ -243,26 +243,26 @@ public class Spawner {
 		return mobs;
 	}
 	
-	public void setMobs(ArrayList<Integer> mobs) {
-		this.mobs = mobs;
-	}
-	
 	public void setMobsFromIDs(ArrayList<Integer> mobs) {
 		this.mobs = mobs;
 	}
-
-	public boolean isPassive() {
+	
+	public void addMob(int mobId) {
+		mobs.add(mobId);
+	}
+	
+	public ArrayList<Integer> getPassiveMobs() {
 		return passiveMobs;
 	}
 
-	public void setPassive(boolean passiveMobs) {
+	public void setPassiveMobs(ArrayList<Integer> passiveMobs) {
 		this.passiveMobs = passiveMobs;
 	}
 	
 	/*
 	 * Methods for spawning, timing, etc.
 	 */
-	
+
 	//Tick the spawn rate down and spawn mobs if it is time to spawn. Return the ticks left.
 	public int tick() {
 		if(active && !(rate <= 0)) {
@@ -377,7 +377,12 @@ public class Spawner {
 								if(type.isJockey()) {
 									makeJockey(le);
 								}
-								mobs.add(le.getEntityId());
+								
+								if(type.isPassive()) {
+									passiveMobs.add(le.getEntityId());
+								} else {
+									mobs.add(le.getEntityId());
+								}
 								spawned = true;
 							}
 						}
@@ -444,7 +449,12 @@ public class Spawner {
 							if(type.isJockey()) {
 								makeJockey(le);
 							}
-							mobs.add(le.getEntityId());
+							
+							if(type.isPassive()) {
+								passiveMobs.add(le.getEntityId());
+							} else {
+								mobs.add(le.getEntityId());
+							}
 							spawned = true;
 						}
 					}
@@ -509,7 +519,11 @@ public class Spawner {
 							if(entity.isJockey()) {
 								makeJockey(le);
 							}
-							mobs.add(le.getEntityId());
+							if(entity.isPassive()) {
+								passiveMobs.add(le.getEntityId());
+							} else {
+								mobs.add(le.getEntityId());
+							}
 							spawned = true;
 						}
 					}
@@ -708,7 +722,7 @@ public class Spawner {
 		} else if(entity instanceof Golem) {
 			Golem golem = (Golem) entity;
 			
-			if(golem instanceof IronGolem) { //TODO may or may not work
+			if(golem instanceof IronGolem) {
 				IronGolem i = (IronGolem) golem;
 				if(data.isAngry()) {
 					ArrayList<Player> nearPlayers = getNearbyPlayers(i.getLocation(), 16);

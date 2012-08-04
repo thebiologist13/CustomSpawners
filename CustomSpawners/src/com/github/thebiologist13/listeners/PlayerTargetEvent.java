@@ -36,16 +36,6 @@ public class PlayerTargetEvent implements Listener {
 		if(target == null) {return;}
 		
 		if(!(target instanceof Player)) {return;}
-
-		//First check if it has been been provoked (smallest list)
-		Iterator<Integer> angryMobItr = CustomSpawners.angryMobs.iterator();
-		while(angryMobItr.hasNext()) {
-			int angryId = angryMobItr.next();
-			
-			if(entityId == angryId) {
-				return;
-			}
-		}
 		
 		//Then see if it has been checked previously (small list)
 		for(Integer i : preCheckedMobs) {
@@ -59,20 +49,19 @@ public class PlayerTargetEvent implements Listener {
 		if(!match) {
 			//The following "for" loops are just to find out if the mob trying to target was from a spawner.
 			for(Spawner s : CustomSpawners.spawners) {
-				if(s.isPassive()) {
-					for(SpawnableEntity e : s.getTypeData().values()) {
-						if(e.getType().equals(type)) {
-							validSpawners.add(s);
-						}
+				for(SpawnableEntity e : s.getTypeData().values()) {
+					if(e.getType().equals(type)) {
+						validSpawners.add(s);
+						break;
 					}
 				}
 			}
 			
 			for(Spawner s : validSpawners) {
-				Iterator<Integer> mobItr = s.getMobs().iterator();
+				Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
 				
-				while(mobItr.hasNext()) {
-					int currentMob = mobItr.next();
+				while(passiveMobItr.hasNext()) {
+					int currentMob = passiveMobItr.next();
 					
 					if(currentMob == entityId) {
 						match = true;

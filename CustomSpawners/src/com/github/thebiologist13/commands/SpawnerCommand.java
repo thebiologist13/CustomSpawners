@@ -28,7 +28,7 @@ public abstract class SpawnerCommand {
 	public final static String ENTITY_NONEXISTANT = ChatColor.RED + "There is no spawnable entity with this name or ID.";
 	public final static String NOT_ALLOWED_ENTITY = ChatColor.RED + "This is not an allowed entity.";
 	public final static String INVALID_BLOCK = ChatColor.RED + "You must be looking a a block.";
-	public final static String NEEDS_SELECTION = ChatColor.RED + "To use this command without defining an ID, you must have a spawner selected.";
+	public final static String NEEDS_SELECTION = ChatColor.RED + "To use this command without defining an ID, you must have something selected.";
 	public final static String MUST_BE_BOOLEAN = ChatColor.RED + "You must enter a boolean value (true or false).";
 	public final static String INVALID_VALUES = ChatColor.RED + "You have entered invalid values for this command. It may be too big/small or be negative.";
 	public final static String SPECIFY_NUMBER = ChatColor.RED + "You must specify a number for this command.";

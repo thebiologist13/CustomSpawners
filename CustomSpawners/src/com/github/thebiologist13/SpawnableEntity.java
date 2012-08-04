@@ -42,6 +42,7 @@ public class SpawnableEntity {
 	private String catType = "";
 	private int slimeSize = 1;
 	private String color = "";
+	private boolean passive = false;
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
@@ -230,5 +231,13 @@ public class SpawnableEntity {
 	
 	public void remove() {
 		this.id = -1;
+	}
+	
+	public boolean isPassive() {
+		return passive;
+	}
+
+	public void setPassive(boolean passive) {
+		this.passive = passive;
 	}
 }

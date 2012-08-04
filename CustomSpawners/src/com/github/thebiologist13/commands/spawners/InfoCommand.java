@@ -122,7 +122,6 @@ public class InfoCommand extends SpawnerCommand {
 						ChatColor.GOLD + "Maximum Distance: " + String.valueOf(s.getMaxPlayerDistance()),
 						ChatColor.GOLD + "Minimum Distance: " + String.valueOf(s.getMinPlayerDistance()),
 						ChatColor.GOLD + "Redstone Triggered: " + String.valueOf(s.isRedstoneTriggered()),
-						ChatColor.GOLD + "Passive Mobs: " + String.valueOf(s.isPassive()),
 						ChatColor.GOLD + "Uses Spawn Area: " + String.valueOf(s.isUsingSpawnArea()),
 						ChatColor.GOLD + "Spawn Area Locations: ",
 						ChatColor.GOLD + "  Point 1 - (" + s.getAreaPoints()[0].getBlockX() + "," +

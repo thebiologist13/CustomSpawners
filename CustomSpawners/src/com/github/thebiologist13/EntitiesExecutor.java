@@ -44,6 +44,7 @@ public class EntitiesExecutor implements CommandExecutor {
 	private EntityTamedCommand tac = null;
 	private EntityVelocityCommand vec = null;
 	private EntityListAllCommand lac = null;
+	private EntityPassiveCommand pac = null;
 	
 	public EntitiesExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
@@ -75,6 +76,7 @@ public class EntitiesExecutor implements CommandExecutor {
 		tac = new EntityTamedCommand(plugin);
 		vec = new EntityVelocityCommand(plugin);
 		lac = new EntityListAllCommand(plugin);
+		pac = new EntityPassiveCommand(plugin);
 	}
 
 	@Override
@@ -173,6 +175,9 @@ public class EntitiesExecutor implements CommandExecutor {
 					}  else if(arg3[0].equalsIgnoreCase("setvelocity") || arg3[0].equalsIgnoreCase("setvector")) {
 						vec.run(arg0, arg1, arg2, arg3);
 						return true;
+					} else if(arg3[0].equalsIgnoreCase("setpassive")) {
+						pac.run(arg0, arg1, arg2, arg3);
+						return true;
 					}
 					
 				} else if(arg3.length == 3) {
@@ -230,6 +235,9 @@ public class EntitiesExecutor implements CommandExecutor {
 						return true;
 					}  else if(arg3[0].equalsIgnoreCase("setvelocity") || arg3[0].equalsIgnoreCase("setvector")) {
 						vec.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setpassive")) {
+						pac.run(arg0, arg1, arg2, arg3);
 						return true;
 					}
 					

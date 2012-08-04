@@ -62,7 +62,7 @@ permissions:
             customspawners.spawners.setname: true
             customspawners.spawners.setspawnarea: true
             customspawners.spawners.position: true
-            customspawners.spawners.setpassive: true
+            customspawners.entities.setpassive: true
             customspawners.entities.create: true
             customspawners.entities.select: true
             customspawners.entities.remove: true
@@ -195,8 +195,8 @@ permissions:
     customspawners.spawners.position:
         description: Allows the user/group to set spawn area positions.
         default: op
-    customspawners.spawners.setpassive:
-        description: Allows the user/group to set the mobs created by a spawner passive.
+    customspawners.entities.setpassive:
+        description: Allows the user/group to set the mobs passive.
         default: op
     customspawners.entities.create:
         description: Allows the user/group to create a spawnable entity.

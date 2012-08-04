@@ -122,7 +122,8 @@ public class EntityInfoCommand extends SpawnerCommand {
 					ChatColor.GOLD + "Angry: " + s.isAngry(),
 					ChatColor.GOLD + "Cat Type: " + s.getCatType(),
 					ChatColor.GOLD + "Slime Size: " + s.getSlimeSize(),
-					ChatColor.GOLD + "Color: " + s.getColor()
+					ChatColor.GOLD + "Color: " + s.getColor(),
+					ChatColor.GOLD + "Passive: " + String.valueOf(s.isPassive())
 			};
 
 			p.sendMessage(message);
