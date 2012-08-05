@@ -48,7 +48,7 @@ public class PositionCommand extends SpawnerCommand {
 			
 			l = p.getLocation();
 			
-			CustomSpawners.selectionPointOne.put(p, l);
+			CustomSpawners.selectionPointTwo.put(p, l);
 			
 			p.sendMessage(ChatColor.GREEN + "Set spawn area selection point two to: " + ChatColor.GOLD + "(" +
 					l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + ")" + ChatColor.GREEN + ".");

@@ -30,7 +30,7 @@ public class InteractEvent implements Listener {
 		//Action
 		Action a = ev.getAction();
 		
-		if(!a.equals(Action.LEFT_CLICK_BLOCK) || !a.equals(Action.RIGHT_CLICK_BLOCK)) {return;}
+		if(!(a.equals(Action.LEFT_CLICK_BLOCK) || a.equals(Action.RIGHT_CLICK_BLOCK))) {return;}
 		
 		//Block
 		Location l = ev.getClickedBlock().getLocation();
