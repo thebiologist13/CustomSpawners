@@ -32,6 +32,8 @@ public class InteractEvent implements Listener {
 		
 		if(!(a.equals(Action.LEFT_CLICK_BLOCK) || a.equals(Action.RIGHT_CLICK_BLOCK))) {return;}
 		
+		if(item == null) {return;}
+		
 		//Block
 		Location l = ev.getClickedBlock().getLocation();
 		//Perms

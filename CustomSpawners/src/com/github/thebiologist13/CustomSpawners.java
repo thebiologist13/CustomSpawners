@@ -214,7 +214,7 @@ public class CustomSpawners extends JavaPlugin {
 		//Saving spawners
 		saveSpawners();
 		
-		//Stop Task
+		//Stop Tasks
 		getServer().getScheduler().cancelTasks(this);
 		
 		//Disable message
@@ -364,16 +364,32 @@ public class CustomSpawners extends JavaPlugin {
 	public int getNextSpawnerId() {
 		int returnId = 0;
 		boolean taken = true;
+		ArrayList<Integer> spawnerIDs = new ArrayList<Integer>();
 		
 		Iterator<Spawner> spawnerItr = spawners.iterator();
-		while(spawnerItr.hasNext() && taken) {
+		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			
-			if(s.getId() == returnId) {
-				taken = true;
+			spawnerIDs.add(s.getId());
+		}
+		
+		while(taken) {
+			
+			if(spawnerIDs.size() == 0) {
+				return 0;
+			}
+			
+			for(Integer i : spawnerIDs) {
+				if(returnId == i) {
+					taken = true;
+					break;
+				} else {
+					taken = false;
+				}
+			}
+			
+			if(taken) {
 				returnId++;
-			} else {
-				taken = false;
 			}
 		}
 		
@@ -384,16 +400,32 @@ public class CustomSpawners extends JavaPlugin {
 	public int getNextEntityId() {
 		int returnId = 0;
 		boolean taken = true;
+		ArrayList<Integer> entityIDs = new ArrayList<Integer>();
 		
 		Iterator<SpawnableEntity> entityItr = entities.iterator();
-		while(entityItr.hasNext() && taken) {
+		while(entityItr.hasNext()) {
 			SpawnableEntity s = entityItr.next();
 			
-			if(s.getId() == returnId) {
-				taken = true;
+			entityIDs.add(s.getId());
+		}
+		
+		while(taken) {
+			
+			if(entityIDs.size() == 0) {
+				return 0;
+			}
+			
+			for(Integer i : entityIDs) {
+				if(returnId == i) {
+					taken = true;
+					break;
+				} else {
+					taken = false;
+				}
+			}
+			
+			if(taken) {
 				returnId++;
-			} else {
-				taken = false;
 			}
 		}
 		
