@@ -79,7 +79,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			plugin.getEntityById(removeId).remove();
 			plugin.removeDataFile(removeId, false);
 			
-			for(Player p1 : CustomSpawners.entitySelection.keySet()) {
+			/*for(Player p1 : CustomSpawners.entitySelection.keySet()) {
 				if(CustomSpawners.entitySelection.containsKey(p1)) {
 					if(p1.isOnline()) {
 						if(p1 != p) {
@@ -88,7 +88,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 					}
 					CustomSpawners.entitySelection.remove(p1);
 				}
-			}
+			}*/
 			
 			Iterator<Spawner> spawnerItr = CustomSpawners.spawners.iterator();
 			while(spawnerItr.hasNext()) {

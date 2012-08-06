@@ -73,7 +73,7 @@ public class RemoveCommand extends SpawnerCommand {
 			plugin.getSpawnerById(removeId).remove();
 			plugin.removeDataFile(removeId, true);
 			
-			for(Player p1 : CustomSpawners.spawnerSelection.keySet()) {
+			/*for(Player p1 : CustomSpawners.spawnerSelection.keySet()) {
 				if(CustomSpawners.spawnerSelection.containsKey(p1)) {
 					if(p1.isOnline()) {
 						if(p1 != p) {
@@ -82,7 +82,7 @@ public class RemoveCommand extends SpawnerCommand {
 					}
 					CustomSpawners.spawnerSelection.remove(p1);
 				}
-			}
+			}*/
 			
 			//Send success message
 			p.sendMessage(ChatColor.GREEN + "Successfully removed spawner with ID " + ChatColor.GOLD +

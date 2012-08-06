@@ -104,7 +104,7 @@ public class CustomSpawners extends JavaPlugin {
 		 */
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
-			public void run() {
+			public synchronized void run() {
 				for(int i = 0; i < spawners.size(); i++) {
 					
 					Spawner s = spawners.get(i);
@@ -146,7 +146,7 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
 			@Override
-			public void run() {
+			public synchronized void run() {
 				Iterator<Spawner> spawnerItr = spawners.iterator();
 				while(spawnerItr.hasNext()) {
 					Spawner s = spawnerItr.next();
@@ -194,7 +194,7 @@ public class CustomSpawners extends JavaPlugin {
 			getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
 				@Override
-				public void run() {
+				public synchronized void run() {
 					
 					autosaveAll();
 					
