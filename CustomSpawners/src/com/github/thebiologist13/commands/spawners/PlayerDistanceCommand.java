@@ -39,7 +39,7 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			//If the player wants to perform command with a selection.
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 				if(!plugin.isInteger(arg3[1])) {
 					p.sendMessage(SPECIFY_NUMBER);
@@ -57,17 +57,12 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			//If the player wants to perform command on a specific spawner
 			} else if(arg3.length == 3) {
 				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 				if(!plugin.isInteger(arg3[2])) {
 					p.sendMessage(SPECIFY_NUMBER);
@@ -96,7 +91,7 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "Set the maximum player distance of spawner with ID " + ChatColor.GOLD +
-					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(maxDist) + 
+					plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(maxDist) + 
 					ChatColor.GREEN + "!");
 		} else if(p.hasPermission("customspawners.spawners.setmindistance") && arg3[0].equalsIgnoreCase("setmindistance")) {
 
@@ -105,7 +100,7 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			//If the player wants to perform command with a selection.
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 				if(!plugin.isInteger(arg3[1])) {
 					p.sendMessage(SPECIFY_NUMBER);
@@ -122,18 +117,13 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			
 			//If the player wants to perform command on a specific spawner
 			} else if(arg3.length == 3) {
-				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 				if(!plugin.isInteger(arg3[2])) {
 					p.sendMessage(SPECIFY_NUMBER);
@@ -165,7 +155,7 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "Set the minimum player distance of spawner with ID " + ChatColor.GOLD +
-					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(minDist) + 
+					plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(minDist) + 
 					ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);

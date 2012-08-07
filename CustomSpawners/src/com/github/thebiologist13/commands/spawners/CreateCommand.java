@@ -53,10 +53,10 @@ public class CreateCommand extends SpawnerCommand {
 			}
 			
 			//Try to parse an entity type from input. Null if invalid.
-			if(plugin.isInteger(arg3[1])) {
-				type = plugin.getEntityById(Integer.parseInt(arg3[1]));
-			} else {
-				type = plugin.getEntityByName(arg3[1]);
+			type = plugin.getEntity(arg3[1]);
+			
+			if(type == null) {
+				p.sendMessage(NO_ID);
 			}
 			
 			if(type == null) {
@@ -83,15 +83,21 @@ public class CreateCommand extends SpawnerCommand {
 			spawner.setMobsPerSpawn(config.getInt("spawners.mobsPerSpawn", 2));
 			spawner.setMaxMobs(config.getInt("spawners.maxMobs", 64));
 			
-			CustomSpawners.spawners.add(spawner);
+			CustomSpawners.spawners.put(id, spawner);
 			
 			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
 				plugin.autosave(spawner);
 			}
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getType().getName() + ChatColor.GREEN + 
-					" spawner with ID " + ChatColor.GOLD + String.valueOf(spawner.getId()) + ChatColor.GREEN + "!");
+			if(type.getName().isEmpty()) {
+				p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getType().getName() + ChatColor.GREEN + 
+						" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
+			} else {
+				p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getName() + ChatColor.GREEN + 
+						" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
+			}
+			
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

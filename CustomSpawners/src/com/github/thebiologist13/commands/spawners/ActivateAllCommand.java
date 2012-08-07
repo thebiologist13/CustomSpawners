@@ -43,7 +43,7 @@ public class ActivateAllCommand extends SpawnerCommand {
 	}
 	
 	private void activateSpawners() {
-		for(Spawner s : CustomSpawners.spawners) {
+		for(Spawner s : CustomSpawners.spawners.values()) {
 			s.setActive(true);
 		}
 	}

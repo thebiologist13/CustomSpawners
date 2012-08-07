@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class SelectCommand extends SpawnerCommand {
@@ -19,8 +20,8 @@ public class SelectCommand extends SpawnerCommand {
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player
 		Player p = null;
-		//ID to select
-		int selectionId = -1;
+		//Spawner to select
+		Spawner s = null;
 		
 		//Make sure a player issued command
 		if(!(arg0 instanceof Player)) {
@@ -32,11 +33,6 @@ public class SelectCommand extends SpawnerCommand {
 		
 		//Permission check
 		if(p.hasPermission("customspawners.spawners.select")) {
-			//If the entered value is not a number
-			if(!plugin.isInteger(arg3[1]) && !arg3[1].equalsIgnoreCase("NONE")) {
-				p.sendMessage(ID_NOT_NUMBER);
-				return;
-			}
 			
 			if(arg3[1].equalsIgnoreCase("NONE")) {
 				CustomSpawners.spawnerSelection.remove(p);
@@ -45,20 +41,19 @@ public class SelectCommand extends SpawnerCommand {
 			}
 			
 			//Assign selectionId if a number
-			selectionId = Integer.parseInt(arg3[1]);
-			
-			//If selectionId isn't the ID of any spawners
-			if(!plugin.isValidSpawner(selectionId)) {
+			s = plugin.getSpawner(arg3[1]);
+
+			if(s == null) {
 				p.sendMessage(NO_ID);
 				return;
-			} 
+			}
 			
 			//Put selectionId as Player's selected spawner
-			CustomSpawners.spawnerSelection.put(p, selectionId);
+			CustomSpawners.spawnerSelection.put(p, s.getId());
 			
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "You have selected spawner " + ChatColor.GOLD + 
-					selectionId + ChatColor.GREEN + ".");
+					plugin.getFriendlyName(s) + ChatColor.GREEN + ".");
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

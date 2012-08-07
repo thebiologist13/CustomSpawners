@@ -1,6 +1,7 @@
 package com.github.thebiologist13.listeners;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -25,8 +26,11 @@ public class MobDeathEvent implements Listener {
 		Entity entity = ev.getEntity();
 		EntityType type = ev.getEntityType();
 		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
+		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
 		
-		for(Spawner s : CustomSpawners.spawners) {
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			
 			for(SpawnableEntity e : s.getTypeData().values()) {
 				if(e.getType().equals(type)) {
 					validSpawners.add(s);

@@ -38,6 +38,8 @@ public class SetRedstoneCommand extends SpawnerCommand {
 			//Set redstone powered of selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				
 				if(arg3[1].equalsIgnoreCase("true") || arg3[1].equalsIgnoreCase("false")) {
 					if(arg3[1].equals("true")) {
 						redstone = true;
@@ -48,8 +50,6 @@ public class SetRedstoneCommand extends SpawnerCommand {
 					return;
 				}
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
-				
 			//Arguments entered for selection, but there is none
 			} else if(arg3.length == 2) {
 				
@@ -58,6 +58,13 @@ public class SetRedstoneCommand extends SpawnerCommand {
 				
 			//Set redstone powered of specific spawner
 			} else if(arg3.length == 3) {
+
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
+					p.sendMessage(NO_ID);
+					return;
+				}
 				
 				if(arg3[2].equalsIgnoreCase("true") || arg3[2].equalsIgnoreCase("false")) {
 					if(arg3[2].equals("true")) {
@@ -68,18 +75,6 @@ public class SetRedstoneCommand extends SpawnerCommand {
 					p.sendMessage(MUST_BE_BOOLEAN);
 					return;
 				}
-				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 			//General error
 			} else {
@@ -94,7 +89,7 @@ public class SetRedstoneCommand extends SpawnerCommand {
 			
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "Successfully set the redstone triggered value of spawner with ID " + 
-					ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD +
+					ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD +
 					String.valueOf(redstone) + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);

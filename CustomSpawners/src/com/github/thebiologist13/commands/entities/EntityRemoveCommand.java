@@ -25,8 +25,8 @@ public class EntityRemoveCommand extends SpawnerCommand {
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player
 		Player p = null;
-		//ID of entity to remove
-		int removeId = -1;
+		//SpawnableEntity to remove
+		SpawnableEntity e = null;
 		
 		//Check that sender is a player
 		if(!(arg0 instanceof Player)) {
@@ -42,7 +42,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			//If the player wants to remove the selected entity
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 				
-				removeId = CustomSpawners.entitySelection.get(p);
+				e = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 			
 			//When the arg3 length is 1, but no entity is selected.
 			} else if(arg3.length == 1){
@@ -53,16 +53,10 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			//If the player want to remove a entity with a specified ID
 			} else if(arg3.length == 2) {
 				
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				removeId = Integer.parseInt(arg3[1]);
+				e = plugin.getEntity(arg3[1]);
 				
 				//Check if the ID entered is the ID of a entity
-				if(!plugin.isValidEntity(removeId)) {
+				if(e == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
@@ -75,26 +69,15 @@ public class EntityRemoveCommand extends SpawnerCommand {
 				
 			}
 			
-			//Remove the entity by calling the remove() method
-			plugin.getEntityById(removeId).remove();
-			plugin.removeDataFile(removeId, false);
+			//Remove the entity
+			plugin.removeEntity(e);
+			plugin.removeDataFile(e.getId(), false);
 			
-			/*for(Player p1 : CustomSpawners.entitySelection.keySet()) {
-				if(CustomSpawners.entitySelection.containsKey(p1)) {
-					if(p1.isOnline()) {
-						if(p1 != p) {
-							p1.sendMessage(ChatColor.GOLD + "Your selected entity has been removed by another player.");
-						}
-					}
-					CustomSpawners.entitySelection.remove(p1);
-				}
-			}*/
-			
-			Iterator<Spawner> spawnerItr = CustomSpawners.spawners.iterator();
+			Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
 			while(spawnerItr.hasNext()) {
 				Spawner s = spawnerItr.next();
 				
-				if(s.getTypeData().containsKey(removeId)) {
+				if(s.getTypeData().containsKey(e.getId())) {
 					HashMap<Integer, SpawnableEntity> defaultEntity = new HashMap<Integer, SpawnableEntity>();
 					defaultEntity.put(CustomSpawners.defaultEntity.getId(), CustomSpawners.defaultEntity);
 					s.setTypeData(defaultEntity);
@@ -104,8 +87,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			}
 			
 			//Send success message
-			p.sendMessage(ChatColor.GREEN + "Successfully removed entity with ID " + ChatColor.GOLD +
-					String.valueOf(removeId) + ChatColor.GREEN + "!");
+			p.sendMessage(ChatColor.GREEN + "Successfully removed entity with ID " + ChatColor.GOLD + e.getId() + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

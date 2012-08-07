@@ -49,7 +49,7 @@ public class EntityProfessionCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
+				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				if(arg3[1].equalsIgnoreCase("BLACKSMITH")) {
 					type = "BLACKSMITH";
@@ -71,23 +71,12 @@ public class EntityProfessionCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				int id = 0;
-
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-
-				id = Integer.parseInt(arg3[1]);
-
-				//Check if the ID entered is the ID of a entity
-				if(!plugin.isValidEntity(id)) {
+				s = plugin.getEntity(arg3[1]);
+				
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				s = plugin.getEntityById(id);
 				
 				if(arg3[2].equalsIgnoreCase("BLACKSMITH")) {
 					type = "BLACKSMITH";
@@ -115,7 +104,7 @@ public class EntityProfessionCommand extends SpawnerCommand {
 
 			//Success
 			p.sendMessage(ChatColor.GREEN + "Successfully set the profession of spawnable entity with ID " 
-					+ ChatColor.GOLD + s.getId() + ChatColor.GREEN + " to " + ChatColor.GOLD 
+					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD 
 					+ type + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);

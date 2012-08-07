@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -37,22 +39,22 @@ public class CustomSpawners extends JavaPlugin {
 	public Logger log = Logger.getLogger("Minecraft");
 	
 	//All the spawners in the server.
-	public static ArrayList<Spawner> spawners = new ArrayList<Spawner>();
+	public static ConcurrentHashMap<Integer, Spawner> spawners = new ConcurrentHashMap<Integer, Spawner>();
 	
 	//All of the entity types on the server
-	public static ArrayList<SpawnableEntity> entities = new ArrayList<SpawnableEntity>();
+	public static ConcurrentHashMap<Integer, SpawnableEntity> entities = new ConcurrentHashMap<Integer, SpawnableEntity>();
 	
 	//Selected spawners for players
-	public static HashMap<Player, Integer> spawnerSelection = new HashMap<Player, Integer>();
+	public static ConcurrentHashMap<Player, Integer> spawnerSelection = new ConcurrentHashMap<Player, Integer>();
 	
 	//Selected entities for players
-	public static HashMap<Player, Integer> entitySelection = new HashMap<Player, Integer>();
+	public static ConcurrentHashMap<Player, Integer> entitySelection = new ConcurrentHashMap<Player, Integer>();
 	
 	//Player selection area Point 1
-	public static HashMap<Player, Location> selectionPointOne = new HashMap<Player, Location>();
+	public static ConcurrentHashMap<Player, Location> selectionPointOne = new ConcurrentHashMap<Player, Location>();
 	
 	//Player selection area Point 2
-	public static HashMap<Player, Location> selectionPointTwo = new HashMap<Player, Location>();
+	public static ConcurrentHashMap<Player, Location> selectionPointTwo = new ConcurrentHashMap<Player, Location>();
 	
 	//Default Entity to use
 	public static SpawnableEntity defaultEntity = null;
@@ -99,38 +101,16 @@ public class CustomSpawners extends JavaPlugin {
 		
 		/*
 		 * Spawning Thread
-		 * Removes spawners and entities with ID of -1
-		 * ID of -2 on entity is default entity
 		 */
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
-			public synchronized void run() {
-				for(int i = 0; i < spawners.size(); i++) {
-					
-					Spawner s = spawners.get(i);
-					
-					if(s.getId() == -1) {
-						if(spawnerSelection.containsValue(s.getId())) {
-							resetSpawnerSelections(s.getId());
-						}
-						spawners.remove(i);
-						continue;
-					}
-					s.tick();
-				}
+			public void run() {
 				
-				for(int i = 0; i < entities.size(); i++) {
-					
-					SpawnableEntity e = entities.get(i);
-					
-					if(e.getId() == -1) {
-						if(entitySelection.containsValue(e.getId())) {
-							resetEntitySelections(e.getId());
-						}
-						entities.remove(i); //TODO this threw a ArrayIndexOutOfBoundsException?
-						continue;
-					}
-					
+				Iterator<Spawner> spawnerItr = spawners.values().iterator();
+				
+				while(spawnerItr.hasNext()) {
+					Spawner s = spawnerItr.next();
+					s.tick();
 				}
 				
 			}
@@ -146,37 +126,42 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
 			@Override
-			public synchronized void run() {
-				Iterator<Spawner> spawnerItr = spawners.iterator();
-				while(spawnerItr.hasNext()) {
-					Spawner s = spawnerItr.next();
-					Iterator<Integer> mobItr = s.getMobs().iterator();
-					Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
-					Iterator<LivingEntity> entityItr = s.getLoc().getWorld().getLivingEntities().iterator();
-					ArrayList<Integer> entityIdList = new ArrayList<Integer>();
-					
-					while(entityItr.hasNext()) {
-						entityIdList.add(entityItr.next().getEntityId());
-					}
-					
-					while(mobItr.hasNext()) {
-						int mobId = mobItr.next();
+			public void run() {
+				try {
+					Iterator<Spawner> spawnerItr = spawners.values().iterator();
+					while(spawnerItr.hasNext()) {
+						Spawner s = spawnerItr.next();
+						Iterator<Integer> mobItr = s.getMobs().iterator();
+						Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
+						Iterator<LivingEntity> entityItr = s.getLoc().getWorld().getLivingEntities().iterator();
+						ArrayList<Integer> entityIdList = new ArrayList<Integer>();
 						
-						if(!entityIdList.contains(mobId)) {
-							mobItr.remove();
+						while(entityItr.hasNext()) {
+							entityIdList.add(entityItr.next().getEntityId());
+						}
+						
+						while(mobItr.hasNext()) {
+							int mobId = mobItr.next();
+							
+							if(!entityIdList.contains(mobId)) {
+								mobItr.remove();
+							}
+							
+						}
+						
+						while(passiveMobItr.hasNext()) {
+							int mobId = passiveMobItr.next();
+							
+							if(!entityIdList.contains(mobId)) {
+								passiveMobItr.remove();
+							}
+							
 						}
 						
 					}
 					
-					while(passiveMobItr.hasNext()) {
-						int mobId = passiveMobItr.next();
-						
-						if(!entityIdList.contains(mobId)) {
-							passiveMobItr.remove();
-						}
-						
-					}
-					
+				} catch(ConcurrentModificationException e) {
+					return;
 				}
 				
 			}
@@ -194,7 +179,7 @@ public class CustomSpawners extends JavaPlugin {
 			getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
 				@Override
-				public synchronized void run() {
+				public void run() {
 					
 					autosaveAll();
 					
@@ -280,84 +265,72 @@ public class CustomSpawners extends JavaPlugin {
 		}
 	}
 	
-	//Gets a spawner by ID number
-	public Spawner getSpawnerById(int id) {
-		for(Spawner s : spawners) {
-			if(s.getId() == id) {
-				return s;
+	//Gets a spawner
+	public Spawner getSpawner(String ref) {
+		if(this.isInteger(ref)) {
+			int id = Integer.parseInt(ref);
+			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
+			
+			while(spawnerItr.hasNext()) {
+				int currentId = spawnerItr.next();
+				
+				if(currentId == id) {
+					return spawners.get(id);
+				}
+			}
+		} else {
+			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
+			
+			while(spawnerItr.hasNext()) {
+				Integer id = spawnerItr.next();
+				Spawner s = spawners.get(id);
+				String name = s.getName();
+				
+				if(name == null) {
+					return null;
+				}
+				
+				if(name.equalsIgnoreCase(ref)) {
+					return s;
+				}
 			}
 		}
+		
 		return null;
 	}
 	
-	//Checks if an spawner ID is valid
-	public boolean isValidSpawner(int id) {
-		for(Spawner s : spawners) {
-			if(s.getId() == id) {
-				return true;
+	//Gets an entity
+	public SpawnableEntity getEntity(String ref) {
+		if(this.isInteger(ref)) {
+			int id = Integer.parseInt(ref);
+			Iterator<Integer> entityItr = entities.keySet().iterator();
+			
+			while(entityItr.hasNext()) {
+				int currentId = entityItr.next();
+				
+				if(currentId == id) {
+					return entities.get(id);
+				}
+			}
+		} else {
+			Iterator<Integer> entityItr = entities.keySet().iterator();
+			
+			while(entityItr.hasNext()) {
+				Integer id = entityItr.next();
+				SpawnableEntity s = entities.get(id);
+				String name = s.getName();
+				
+				if(name == null) {
+					return null;
+				}
+				
+				if(name.equalsIgnoreCase(ref)) {
+					return s;
+				}
 			}
 		}
-		return false;
-	}
-	
-	//Gets all spawners as a array
-	public Spawner[] getSpawners() {
-		return (Spawner[]) spawners.toArray();
-	}
-	
-	//Gets a SpawnableEntity by ID number
-	public SpawnableEntity getEntityById(int id) {
-		for(SpawnableEntity e : entities) {
-			if(e.getId() == id) {
-				return e;
-			}
-		}
+		
 		return null;
-	}
-	
-	//Gets a SpawnableEntity by name
-	public SpawnableEntity getEntityByName(String name) {
-		for(SpawnableEntity e : entities) {
-			if(e.getName().equalsIgnoreCase(name)) {
-				return e;
-			}
-		}
-		return null;
-	}
-	
-	//Gets a Spawner by name
-	public Spawner getSpawnerByName(String name) {
-		for(Spawner e : spawners) {
-			if(e.getName().equalsIgnoreCase(name)) {
-				return e;
-			}
-		}
-		return null;
-	}
-	
-	//Checks if an spawner ID is valid
-	public boolean isValidEntity(int id) {
-		for(SpawnableEntity e : entities) {
-			if(e.getId() == id) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	//Checks if an spawner name is valid
-	public boolean isValidEntity(String name) {
-		for(SpawnableEntity e : entities) {
-			if(e.getName().equalsIgnoreCase(name)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	//Gets all spawners as a array
-	public SpawnableEntity[] getEntities() {
-		return (SpawnableEntity[]) entities.toArray();
 	}
 	
 	//Next available spawner ID
@@ -366,11 +339,9 @@ public class CustomSpawners extends JavaPlugin {
 		boolean taken = true;
 		ArrayList<Integer> spawnerIDs = new ArrayList<Integer>();
 		
-		Iterator<Spawner> spawnerItr = spawners.iterator();
+		Iterator<Integer> spawnerItr = spawners.keySet().iterator();
 		while(spawnerItr.hasNext()) {
-			Spawner s = spawnerItr.next();
-			
-			spawnerIDs.add(s.getId());
+			spawnerIDs.add(spawnerItr.next());
 		}
 		
 		while(taken) {
@@ -402,11 +373,9 @@ public class CustomSpawners extends JavaPlugin {
 		boolean taken = true;
 		ArrayList<Integer> entityIDs = new ArrayList<Integer>();
 		
-		Iterator<SpawnableEntity> entityItr = entities.iterator();
+		Iterator<Integer> entityItr = entities.keySet().iterator();
 		while(entityItr.hasNext()) {
-			SpawnableEntity s = entityItr.next();
-			
-			entityIDs.add(s.getId());
+			entityIDs.add(entityItr.next());
 		}
 		
 		while(taken) {
@@ -432,6 +401,22 @@ public class CustomSpawners extends JavaPlugin {
 		return returnId;
 	}
 	
+	//Remove a spawner
+	public void removeSpawner(Spawner s) {
+		if(spawners.containsValue(s)) {
+			spawners.remove(s.getId());
+			resetSpawnerSelections(s.getId());
+		}
+	}
+	
+	//Remove an entity
+	public void removeEntity(SpawnableEntity e) {
+		if(entities.containsValue(e)) {
+			entities.remove(e.getId());
+			resetEntitySelections(e.getId());
+		}
+	}
+	
 	//Convenience method for accurately testing if a string can be parsed to an integer.
 	public boolean isInteger(String what) {
 		try {
@@ -449,6 +434,24 @@ public class CustomSpawners extends JavaPlugin {
 			return true;
 		} catch(NumberFormatException e) {
 			return false;
+		}
+	}
+	
+	//Gets a string to represent the name of the spawner (String version of ID or name)
+	public String getFriendlyName(Spawner s) {
+		if(s.getName().isEmpty()) {
+			return String.valueOf(s.getId());
+		} else {
+			return s.getName();
+		}
+	}
+	
+	//Gets a string to represent the name of the entity (String version of ID or name)
+	public String getFriendlyName(SpawnableEntity e) {
+		if(e.getName().isEmpty()) {
+			return String.valueOf(e.getId());
+		} else {
+			return e.getName();
 		}
 	}
 	
@@ -552,7 +555,7 @@ public class CustomSpawners extends JavaPlugin {
 				for(Object o : listType) {
 					if(o instanceof Integer) {
 						int entityID = (Integer) o;
-						SpawnableEntity se = getEntityById(entityID);
+						SpawnableEntity se = getEntity(String.valueOf(entityID));
 						entities.put(entityID, se);
 					}
 				}
@@ -581,7 +584,7 @@ public class CustomSpawners extends JavaPlugin {
 				s.setAreaPoints(areaPoints);
 				s.setTypeData(entities);
 				
-				spawners.add(s);
+				spawners.put(id, s);
 			}
 		}
 		
@@ -599,8 +602,11 @@ public class CustomSpawners extends JavaPlugin {
 		log.info("Saving spawners...");
 		log.info(String.valueOf(spawners.size()) + " spawners to save.");
 		boolean killOnReload = config.getBoolean("spawners.killOnReload", false);
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
 		
-		for(Spawner s : spawners) {
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			
 			log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + getDataFolder() + File.separator + "Spawners" + 
 					File.separator + String.valueOf(s.getId()) + ".yml");
 			File saveFile = new File(getDataFolder() + File.separator + "Spawners" + File.separator + String.valueOf(s.getId()) + ".yml");
@@ -653,7 +659,7 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("hidden", s.isHidden());
 			yaml.set("radius", s.getRadius());
 			yaml.set("useSpawnArea", s.isUsingSpawnArea());
-			yaml.set("redstoneTriggered", s.isRedstoneTriggered());
+			yaml.set("redstone", s.isRedstoneTriggered());
 			yaml.set("maxDistance", s.getMaxPlayerDistance());
 			yaml.set("minDistance", s.getMinPlayerDistance());
 			yaml.set("maxLight", s.getMaxLightLevel());
@@ -685,7 +691,7 @@ public class CustomSpawners extends JavaPlugin {
 		}
 		
 		clearSpawners();
-		log.info("Save complete!");
+		log.info("Save complete!");	
 	}
 	
 	//Load entities from file
@@ -724,6 +730,7 @@ public class CustomSpawners extends JavaPlugin {
 				int slimeSize = yaml.getInt("slimeSize");
 				String color = yaml.getString("color");
 				boolean passive = yaml.getBoolean("passive"); 
+				int fireTicks = yaml.getInt("fireTicks");
 				
 				//PotionEffect handling
 				ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
@@ -758,8 +765,9 @@ public class CustomSpawners extends JavaPlugin {
 				e.setSlimeSize(slimeSize);
 				e.setColor(color);
 				e.setPassive(passive);
+				e.setFireTicks(fireTicks);
 				
-				entities.add(e);
+				entities.put(id, e);
 			}
 		}
 		
@@ -776,8 +784,11 @@ public class CustomSpawners extends JavaPlugin {
 	public void saveEntities() {
 		log.info("Saving entities...");
 		log.info(String.valueOf(spawners.size()) + " entities to save.");
+		Iterator<SpawnableEntity> entityItr = entities.values().iterator();
 		
-		for(SpawnableEntity e : entities) {
+		while(entityItr.hasNext()) {
+			SpawnableEntity e = entityItr.next();
+			
 			log.info("Saving entity " + String.valueOf(e.getId()) + " to " + getDataFolder() + File.separator + "Entities" + 
 					File.separator + String.valueOf(e.getId()) + ".yml");
 			File saveFile = new File(getDataFolder() + File.separator + "Entities" + File.separator + String.valueOf(e.getId()) + ".yml");
@@ -807,6 +818,7 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("slimeSize", e.getSlimeSize());
 			yaml.set("color", e.getColor());
 			yaml.set("passive", e.isPassive());
+			yaml.set("fireTicks", e.getFireTicks());
 			
 			try {
 				yaml.save(saveFile);
@@ -817,7 +829,7 @@ public class CustomSpawners extends JavaPlugin {
 		}
 		
 		clearEntities();
-		log.info("Save complete!");
+		log.info("Save complete!");	
 	}
 	
 	//Removes a spawner or entity's data file
@@ -868,17 +880,19 @@ public class CustomSpawners extends JavaPlugin {
 			getServer().broadcastMessage(ChatColor.GOLD + config.getString("data.broadcastMessage"));
 		}
 		
-		for(SpawnableEntity e : entities) {
-
-			autosave(e);
-			
-		}
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
+		Iterator<SpawnableEntity> entityItr = entities.values().iterator();
 		
-
-		for(Spawner s : spawners) {
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
 			
 			autosave(s);
+		}
+		
+		while(entityItr.hasNext()) {
+			SpawnableEntity e = entityItr.next();
 			
+			autosave(e);
 		}
 		
 		if(config.getBoolean("data.broadcastAutosave")) {
@@ -925,7 +939,7 @@ public class CustomSpawners extends JavaPlugin {
 		yaml.set("hidden", s.isHidden());
 		yaml.set("radius", s.getRadius());
 		yaml.set("useSpawnArea", s.isUsingSpawnArea());
-		yaml.set("redstoneTriggered", s.isRedstoneTriggered());
+		yaml.set("redstone", s.isRedstoneTriggered());
 		yaml.set("maxDistance", s.getMaxPlayerDistance());
 		yaml.set("minDistance", s.getMinPlayerDistance());
 		yaml.set("maxLight", s.getMaxLightLevel());
@@ -987,6 +1001,7 @@ public class CustomSpawners extends JavaPlugin {
 		yaml.set("slimeSize", e.getSlimeSize());
 		yaml.set("color", e.getColor());
 		yaml.set("passive", e.isPassive());
+		yaml.set("fireTicks", e.getFireTicks());
 		
 		try {
 			yaml.save(saveFile);

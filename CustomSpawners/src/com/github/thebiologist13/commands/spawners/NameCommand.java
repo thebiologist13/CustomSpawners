@@ -40,7 +40,7 @@ public class NameCommand extends SpawnerCommand {
 			//If the player wants to rename the selected spawner
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 				name = arg3[1];
 
@@ -53,19 +53,12 @@ public class NameCommand extends SpawnerCommand {
 				//If the player want to rename a spawner with a specified ID
 			} else if(arg3.length == 3) {
 
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				//Check if the ID entered is the ID of a spawner
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 				name = arg3[2];
 
@@ -76,9 +69,12 @@ public class NameCommand extends SpawnerCommand {
 				return;
 
 			}
-
-			//Remove the spawner by calling the remove() method
-			Spawner s1 = plugin.getSpawnerByName(name);
+			
+			//Send success message
+			p.sendMessage(ChatColor.GREEN + "Successfully set the name of spawner with ID " + ChatColor.GOLD +
+					plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+			
+			Spawner s1 = plugin.getSpawner(name);
 			if(s1 == null) {
 				s.setName(name);
 			} else {
@@ -86,9 +82,6 @@ public class NameCommand extends SpawnerCommand {
 				return;
 			}
 
-			//Send success message
-			p.sendMessage(ChatColor.GREEN + "Successfully set the name of spawner with ID " + ChatColor.GOLD +
-					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

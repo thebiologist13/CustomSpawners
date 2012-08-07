@@ -47,8 +47,13 @@ public class PlayerTargetEvent implements Listener {
 		
 		//If there isn't a match or return yet, check through all spawners for a match (large list)
 		if(!match) {
-			//The following "for" loops are just to find out if the mob trying to target was from a spawner.
-			for(Spawner s : CustomSpawners.spawners) {
+			
+			//The following loops are just to find out if the mob trying to target was from a spawner.
+			Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
+			
+			while(spawnerItr.hasNext()) {
+				Spawner s = spawnerItr.next();
+				
 				for(SpawnableEntity e : s.getTypeData().values()) {
 					if(e.getType().equals(type)) {
 						validSpawners.add(s);

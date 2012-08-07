@@ -42,7 +42,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 			//If the player wants to perform command with a selection.
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 
-				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
+				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 
 			//Arguments are for selection, but none is selected
 			} else if(arg3.length == 1) {
@@ -53,18 +53,13 @@ public class EntityInfoCommand extends SpawnerCommand {
 			//If the player wants to perform command on a specific entity
 			} else if(arg3.length == 2) {
 
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-
-				if(!plugin.isValidEntity(Integer.parseInt(arg3[1]))) {
+				s = plugin.getEntity(arg3[1]);
+				
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				s = plugin.getEntityById(Integer.parseInt(arg3[1]));
-
+				
 			//General error
 			} else {
 

@@ -37,7 +37,7 @@ public class ForceSpawnCommand extends SpawnerCommand {
 			//Player has selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//Player has no selection but has arguments for selection
 			} else if(arg3.length == 1) {
@@ -47,18 +47,13 @@ public class ForceSpawnCommand extends SpawnerCommand {
 				
 			//Defined ID
 			} else if(arg3.length == 2) {
-				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 			//General Error
 			} else {

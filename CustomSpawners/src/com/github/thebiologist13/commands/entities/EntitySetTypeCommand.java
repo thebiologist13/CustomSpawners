@@ -50,7 +50,7 @@ public class EntitySetTypeCommand extends SpawnerCommand {
 		if(p.hasPermission(setTypePerm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
+				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				String entityType = arg3[1];
 				
@@ -79,24 +79,13 @@ public class EntitySetTypeCommand extends SpawnerCommand {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
 			} else if(arg3.length == 3) {
-				
-				int id = 0;
-				
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				id = Integer.parseInt(arg3[1]);
-				
-				//Check if the ID entered is the ID of a entity
-				if(!plugin.isValidEntity(id)) {
+
+				s = plugin.getEntity(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getEntityById(id);
 				
 				String entityType = arg3[2];
 				

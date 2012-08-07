@@ -21,9 +21,6 @@ public class MaxMobsCommand extends SpawnerCommand {
 		//Player
 		Player p = null;
 		
-		//Spawner ID
-		int id = -1;
-		
 		//Spawner
 		Spawner s = null;
 		
@@ -44,7 +41,7 @@ public class MaxMobsCommand extends SpawnerCommand {
 			//If the player wants to set the max mobs of a selected spawner
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 				if(!plugin.isInteger(arg3[1])) {
 					p.sendMessage(SPECIFY_NUMBER);
@@ -62,19 +59,12 @@ public class MaxMobsCommand extends SpawnerCommand {
 			//If the player wants to set the max mobs of a spawner by ID
 			} else if(arg3.length == 3) {
 				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				id = Integer.parseInt(arg3[1]);
-				
-				if(!plugin.isValidSpawner(id)) {
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(id);
 				
 				if(!plugin.isInteger(arg3[2])) {
 					p.sendMessage(SPECIFY_NUMBER);
@@ -103,7 +93,7 @@ public class MaxMobsCommand extends SpawnerCommand {
 			
 			//Success message
 			p.sendMessage(ChatColor.GREEN + "Set the maximum mobs of the spawner with ID "+ ChatColor.GOLD + 
-					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(maxMobs) + 
+					plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(maxMobs) + 
 					ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);

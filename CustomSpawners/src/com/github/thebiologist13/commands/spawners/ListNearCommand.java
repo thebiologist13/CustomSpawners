@@ -32,7 +32,7 @@ public class ListNearCommand extends SpawnerCommand {
 
 		if(p.hasPermission("customspawners.spawners.listnear")) {
 			ArrayList<Spawner> nearbySpawners = new ArrayList<Spawner>();
-			for(Spawner s : CustomSpawners.spawners) {
+			for(Spawner s : CustomSpawners.spawners.values()) {
 				if(!p.hasPermission("customspawners.spawners.listnear.hidden")) {
 					if(s.getLoc().distance(p.getLocation()) < 25 && !s.isHidden()) { //TODO add config option for this nearby distance (the 25)
 						 nearbySpawners.add(s);

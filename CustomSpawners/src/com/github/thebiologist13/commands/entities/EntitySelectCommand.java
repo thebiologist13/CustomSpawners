@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class EntitySelectCommand extends SpawnerCommand {
@@ -33,11 +34,6 @@ public class EntitySelectCommand extends SpawnerCommand {
 		
 		//Permission check
 		if(p.hasPermission("customspawners.entities.select")) {
-			//If the entered value is not a number
-			if(!plugin.isInteger(arg3[1]) && !arg3[1].equalsIgnoreCase("NONE")) {
-				p.sendMessage(ID_NOT_NUMBER);
-				return;
-			}
 			
 			if(arg3[1].equalsIgnoreCase("NONE")) {
 				CustomSpawners.entitySelection.remove(p);
@@ -46,20 +42,20 @@ public class EntitySelectCommand extends SpawnerCommand {
 			}
 			
 			//Assign selectionId if a number
-			selectionId = Integer.parseInt(arg3[1]);
+			SpawnableEntity s = plugin.getEntity(arg3[1]);
 			
-			//If selectionId isn't the ID of any entities
-			if(!plugin.isValidEntity(selectionId)) {
+			if(s == null) {
 				p.sendMessage(NO_ID);
 				return;
-			} 
+			}
+			
+			selectionId = s.getId();
 			
 			//Put selectionId as Player's selected entities
 			CustomSpawners.entitySelection.put(p, selectionId);
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "You have selected entity " + ChatColor.GOLD + 
-					selectionId + ChatColor.GREEN + ".");
+			p.sendMessage(ChatColor.GREEN + "You have selected entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + ".");
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

@@ -39,7 +39,7 @@ public class ListAllCommand extends SpawnerCommand {
 				log.info(NO_SPAWNERS);
 			} else {
 				log.info("Spawners: ");
-				for(Spawner s : CustomSpawners.spawners) {
+				for(Spawner s : CustomSpawners.spawners.values()) {
 					if(!s.getName().isEmpty()) {
 						log.info(String.valueOf(s.getId()) + " with name " + s.getName() + " at location ("  
 								+ s.getLoc().getBlockX() + ", " + s.getLoc().getBlockY() + ", " + s.getLoc().getBlockZ() + ")");
@@ -53,7 +53,7 @@ public class ListAllCommand extends SpawnerCommand {
 			if(p.hasPermission("customspawners.spawners.listall")) {
 
 				ArrayList<Spawner> unhiddenSpawners = new ArrayList<Spawner>();
-				for(Spawner s : CustomSpawners.spawners) {
+				for(Spawner s : CustomSpawners.spawners.values()) {
 					if(!s.isHidden()) {
 						unhiddenSpawners.add(s);
 					}
@@ -64,7 +64,7 @@ public class ListAllCommand extends SpawnerCommand {
 						p.sendMessage(ChatColor.RED + NO_SPAWNERS);
 					} else {
 						p.sendMessage(ChatColor.GOLD + "Spawners: ");
-						for(Spawner s : CustomSpawners.spawners) {
+						for(Spawner s : CustomSpawners.spawners.values()) {
 							if(!s.getName().isEmpty()) {
 								p.sendMessage(ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + " with name " + ChatColor.GOLD + s.getName() + ChatColor.GREEN +
 										" at location (" + s.getLoc().getBlockX() + ", " + s.getLoc().getBlockY() + ", " + s.getLoc().getBlockZ() + ")");

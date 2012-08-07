@@ -34,8 +34,11 @@ public class ProvokeMobEvent implements Listener {
 		if(!(damager instanceof Player)) {return;}
 		
 		//If the mob was passive, move to normal mob list.
+		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
 		
-		for(Spawner s : CustomSpawners.spawners) {
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			
 			for(SpawnableEntity e : s.getTypeData().values()) {
 				if(e.getType().equals(type)) {
 					validSpawners.add(s);

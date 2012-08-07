@@ -38,7 +38,7 @@ public class EntityListAllCommand extends SpawnerCommand {
 				log.info(NO_ENTITIES);
 			} else {
 				log.info("Entities: ");
-				for(SpawnableEntity s : CustomSpawners.entities) {
+				for(SpawnableEntity s : CustomSpawners.entities.values()) {
 					if(!s.getName().isEmpty()) {
 						log.info(String.valueOf(s.getId()) + " with name " + s.getName());
 					} else {
@@ -52,7 +52,7 @@ public class EntityListAllCommand extends SpawnerCommand {
 					p.sendMessage(ChatColor.RED + NO_ENTITIES);
 				} else {
 					p.sendMessage(ChatColor.GOLD + "Entities: ");
-					for(SpawnableEntity s : CustomSpawners.entities) {
+					for(SpawnableEntity s : CustomSpawners.entities.values()) {
 						if(!s.getName().isEmpty()) {
 							p.sendMessage(ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + " with name " + ChatColor.GOLD + s.getName());
 						} else {

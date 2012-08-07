@@ -35,7 +35,7 @@ public class ActiveCommand extends SpawnerCommand {
 			//Set active for selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//Arguments entered for selection, but there is none
 			} else if(arg3.length == 1) {
@@ -46,17 +46,12 @@ public class ActiveCommand extends SpawnerCommand {
 			//Set redstone powered of specific spawner
 			} else if(arg3.length == 2) {
 				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 			//General error
 			} else {
@@ -77,7 +72,7 @@ public class ActiveCommand extends SpawnerCommand {
 			//Set inactive for selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//Arguments entered for selection, but there is none
 			} else if(arg3.length == 1) {
@@ -87,18 +82,13 @@ public class ActiveCommand extends SpawnerCommand {
 				
 			//Set inactive of specific spawner
 			} else if(arg3.length == 2) {
-				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 			//General error
 			} else {
@@ -112,7 +102,7 @@ public class ActiveCommand extends SpawnerCommand {
 			s.setActive(false);
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "Set the spawner with ID " + ChatColor.GOLD + String.valueOf(s.getId()) + 
+			p.sendMessage(ChatColor.GREEN + "Set the spawner with ID " + ChatColor.GOLD + plugin.getFriendlyName(s) + 
 					ChatColor.GREEN + " to be " + ChatColor.GOLD + "inactive" + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);

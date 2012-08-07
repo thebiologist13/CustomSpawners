@@ -48,30 +48,19 @@ public class EntityClearEffectsCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 
-				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
+				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 			} else if(arg3.length == 1) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
 			} else if(arg3.length == 2) {
 
-				int id = 0;
+				s = plugin.getEntity(arg3[1]);
 
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-
-				id = Integer.parseInt(arg3[1]);
-
-				//Check if the ID entered is the ID of a entity
-				if(!plugin.isValidEntity(id)) {
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				s = plugin.getEntityById(id);
 				
 			} else {
 				p.sendMessage(GENERAL_ERROR);
@@ -83,7 +72,7 @@ public class EntityClearEffectsCommand extends SpawnerCommand {
 
 			//Success
 			p.sendMessage(ChatColor.GREEN + "Successfully cleared the potion effects on spawnable entity with ID " 
-					+ ChatColor.GOLD + s.getId() + ChatColor.GREEN + "!");
+					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

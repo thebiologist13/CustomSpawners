@@ -40,7 +40,7 @@ public class EntityNameCommand extends SpawnerCommand {
 			//If the player wants to rename the selected spawner
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
+				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				name = arg3[1];
 
@@ -53,19 +53,12 @@ public class EntityNameCommand extends SpawnerCommand {
 				//If the player want to rename a spawner with a specified ID
 			} else if(arg3.length == 3) {
 
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				//Check if the ID entered is the ID of a spawner
-				if(!plugin.isValidEntity(Integer.parseInt(arg3[1]))) {
+				s = plugin.getEntity(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				s = plugin.getEntityById(Integer.parseInt(arg3[1]));
 				
 				name = arg3[2];
 
@@ -77,18 +70,19 @@ public class EntityNameCommand extends SpawnerCommand {
 
 			}
 
+			//Send success message
+			p.sendMessage(ChatColor.GREEN + "Successfully set the name of entity with ID " + ChatColor.GOLD +
+					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+			
 			//Remove the name
-			SpawnableEntity e = plugin.getEntityByName(name);
+			SpawnableEntity e = plugin.getEntity(name);
 			if(e == null) {
 				s.setName(name);
 			} else {
 				p.sendMessage(ChatColor.RED + "That name is already taken for an entity.");
 				return;
 			}
-
-			//Send success message
-			p.sendMessage(ChatColor.GREEN + "Successfully set the name of entity with ID " + ChatColor.GOLD +
-					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+			
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

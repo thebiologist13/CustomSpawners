@@ -53,7 +53,7 @@ public class EntityVelocityCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
+				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				int firstCommaIndex = arg3[1].indexOf(",");
 				int secondCommaIndex = arg3[1].indexOf(",", firstCommaIndex + 1);
@@ -76,23 +76,12 @@ public class EntityVelocityCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				int id = 0;
+				s = plugin.getEntity(arg3[1]);
 
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-
-				id = Integer.parseInt(arg3[1]);
-
-				//Check if the ID entered is the ID of a entity
-				if(!plugin.isValidEntity(id)) {
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				s = plugin.getEntityById(id);
 				
 				int firstCommaIndex = arg3[2].indexOf(",");
 				int secondCommaIndex = arg3[2].indexOf(",", firstCommaIndex + 1);

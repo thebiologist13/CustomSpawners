@@ -1,5 +1,7 @@
 package com.github.thebiologist13.commands.spawners;
 
+import java.util.logging.Logger;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,13 +15,18 @@ public class RemoveMobsCommand extends SpawnerCommand {
 	
 	private CustomSpawners plugin;
 	
+	private Logger log = null;
+	
 	public RemoveMobsCommand(CustomSpawners plugin) {
 		this.plugin = plugin;
+		this.log = plugin.log;
 	}
 	
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player
 		Player p = null;
+		//Spawner
+		Spawner s = null;
 		
 		//Cast the player
 		if(arg0 instanceof Player) {
@@ -31,31 +38,27 @@ public class RemoveMobsCommand extends SpawnerCommand {
 			if(arg3[0].equalsIgnoreCase("removeallmobs")) {
 				if(arg3.length == 1) {
 					
-					plugin.log.info("Removing all spawned mobs...");
+					log.info("Removing all spawned mobs...");
 					removeAllMobs();
 					return;
 					
 				} else {
 					
-					plugin.log.info("An error has occured with this command. Did you type everything right?");
+					log.info("An error has occured with this command. Did you type everything right?");
 					return;
 					
 				}
 			} else if(arg3[0].equalsIgnoreCase("removemobs")) {
 				if(arg3.length == 2){
-					
-					if(!plugin.isInteger(arg3[1])) {
-						plugin.log.info("IDs must be a number.");
+
+					s = plugin.getSpawner(arg3[1]);
+
+					if(s == null) {
+						log.info("Object with that name or ID does not exist.");
 						return;
 					}
 					
-					if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
-						plugin.log.info("Spawner ID does not exist.");
-						return;
-					}
-					
-					Spawner s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
-					plugin.log.info("Removing mobs spawned by spawner with ID " + String.valueOf(s.getId()) + "...");
+					plugin.log.info("Removing mobs spawned by spawner with ID " + plugin.getFriendlyName(s) + "...");
 					plugin.removeMobs(s);
 					
 					return;
@@ -92,9 +95,10 @@ public class RemoveMobsCommand extends SpawnerCommand {
 				if(p.hasPermission("customspawners.spawners.removemobs")) {
 					if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 						
-						Spawner s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+						s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+						
 						p.sendMessage(ChatColor.GREEN + "Removing mobs spawned by spawner with ID " + ChatColor.GOLD +
-								String.valueOf(s.getId()) + ChatColor.GREEN + "...");
+								plugin.getFriendlyName(s) + ChatColor.GREEN + "...");
 						plugin.removeMobs(s);
 						
 						return;
@@ -105,20 +109,16 @@ public class RemoveMobsCommand extends SpawnerCommand {
 						return;
 						
 					} else if(arg3.length == 2){
-						
-						if(!plugin.isInteger(arg3[1])) {
-							p.sendMessage(ID_NOT_NUMBER);
-							return;
-						}
-						
-						if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+
+						s = plugin.getSpawner(arg3[1]);
+
+						if(s == null) {
 							p.sendMessage(NO_ID);
 							return;
 						}
 						
-						Spawner s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 						p.sendMessage(ChatColor.GREEN + "Removing mobs spawned by spawner with ID " + ChatColor.GOLD +
-								String.valueOf(s.getId()) + ChatColor.GREEN + "...");
+								plugin.getFriendlyName(s) + ChatColor.GREEN + "...");
 						
 						plugin.removeMobs(s);
 						
@@ -139,7 +139,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 	}
 	
 	private void removeAllMobs() {
-		for(Spawner s : CustomSpawners.spawners) {
+		for(Spawner s : CustomSpawners.spawners.values()) {
 			plugin.removeMobs(s);
 		}
 	}

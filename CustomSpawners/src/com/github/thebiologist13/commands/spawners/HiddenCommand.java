@@ -35,7 +35,7 @@ public class HiddenCommand extends SpawnerCommand {
 			//Set hidden for selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//Arguments entered for selection, but there is none
 			} else if(arg3.length == 1) {
@@ -45,18 +45,13 @@ public class HiddenCommand extends SpawnerCommand {
 				
 			//Set hidden of specific spawner
 			} else if(arg3.length == 2) {
-				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 			//General error
 			} else {
@@ -70,7 +65,7 @@ public class HiddenCommand extends SpawnerCommand {
 			s.setHidden(true);
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "Set the spawner with ID " + ChatColor.GOLD + String.valueOf(s.getId()) + 
+			p.sendMessage(ChatColor.GREEN + "Set the spawner with ID " + ChatColor.GOLD + plugin.getFriendlyName(s) + 
 					ChatColor.GREEN + " to be " + ChatColor.GOLD + "hidden" + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);
@@ -81,7 +76,7 @@ public class HiddenCommand extends SpawnerCommand {
 			//Set unhidden for selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//Arguments entered for selection, but there is none
 			} else if(arg3.length == 1) {
@@ -92,17 +87,12 @@ public class HiddenCommand extends SpawnerCommand {
 			//Set unhidden of specific spawner
 			} else if(arg3.length == 2) {
 				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 			//General error
 			} else {
@@ -116,7 +106,7 @@ public class HiddenCommand extends SpawnerCommand {
 			s.setHidden(false);
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "Set the spawner with ID " + ChatColor.GOLD + String.valueOf(s.getId()) + 
+			p.sendMessage(ChatColor.GREEN + "Set the spawner with ID " + ChatColor.GOLD + plugin.getFriendlyName(s) + 
 					ChatColor.GREEN + " to be " + ChatColor.GOLD + "unhidden" + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);

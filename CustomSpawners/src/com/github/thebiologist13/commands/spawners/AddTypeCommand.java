@@ -41,18 +41,14 @@ public class AddTypeCommand extends SpawnerCommand {
 			//If they want to set the spawn type of a selected spawner
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				if(plugin.isInteger(arg3[1])) {
-					type = plugin.getEntityById(Integer.parseInt(arg3[1]));
-				} else {
-					type = plugin.getEntityByName(arg3[1]);
-				}
+				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				
+				type = plugin.getEntity(arg3[1]);
 				
 				if(type == null) {
 					p.sendMessage(ENTITY_NONEXISTANT);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(CustomSpawners.spawnerSelection.get(p));
 				
 			//Argument length is for a selected spawner, but none is selected
 			} else if(arg3.length == 2) {
@@ -63,28 +59,19 @@ public class AddTypeCommand extends SpawnerCommand {
 			//If they want to set spawn type by ID
 			} else if(arg3.length == 3) {
 			
-				if(plugin.isInteger(arg3[2])) {
-					type = plugin.getEntityById(Integer.parseInt(arg3[2]));
-				} else {
-					type = plugin.getEntityByName(arg3[2]);
-				}
+				type = plugin.getEntity(arg3[2]);
 				
 				if(type == null) {
 					p.sendMessage(ENTITY_NONEXISTANT);
 					return;
 				}
-				
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-				
-				if(!plugin.isValidSpawner(Integer.parseInt(arg3[1]))) {
+
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-				
-				s = plugin.getSpawnerById(Integer.parseInt(arg3[1]));
 				
 			//General error
 			} else {

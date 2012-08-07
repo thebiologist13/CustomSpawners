@@ -57,7 +57,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 4) {
 
-				s = plugin.getEntityById(CustomSpawners.entitySelection.get(p));
+				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				effectType = PotionEffectType.getByName(arg3[1]);
 				
@@ -97,24 +97,13 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 5) {
 
-				int id = 0;
-
-				//Check that the ID entered is a number
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(ID_NOT_NUMBER);
-					return;
-				}
-
-				id = Integer.parseInt(arg3[1]);
-
-				//Check if the ID entered is the ID of a entity
-				if(!plugin.isValidEntity(id)) {
+				s = plugin.getEntity(arg3[1]);
+				
+				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				s = plugin.getEntityById(id);
-
+				
 				effectType = PotionEffectType.getByName(arg3[2]);
 				
 				if(effectType == null) {
@@ -160,7 +149,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 
 			//Success
 			p.sendMessage(ChatColor.GREEN + "Successfully set the potion effect on spawnable entity with ID " 
-					+ ChatColor.GOLD + s.getId() + ChatColor.GREEN + " to " + ChatColor.GOLD 
+					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD 
 					+ effect.getType().getName() + " " + effect.getAmplifier() + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);
