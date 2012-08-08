@@ -2,6 +2,7 @@ package com.github.thebiologist13.listeners;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -16,7 +17,7 @@ import com.github.thebiologist13.Spawner;
 
 public class PlayerTargetEvent implements Listener {
 	
-	private static ArrayList<Integer> preCheckedMobs = new ArrayList<Integer>();
+	private static ConcurrentHashMap<Integer, SpawnableEntity> preCheckedMobs = new ConcurrentHashMap<Integer, SpawnableEntity>();
 	
 	@EventHandler
 	public void onPlayerTarget(EntityTargetEvent ev) {
@@ -38,7 +39,7 @@ public class PlayerTargetEvent implements Listener {
 		if(!(target instanceof Player)) {return;}
 		
 		//Then see if it has been checked previously (small list)
-		for(Integer i : preCheckedMobs) {
+		for(Integer i : preCheckedMobs.keySet()) {
 			if(entityId == i) {
 				match = true;
 				break;
@@ -63,14 +64,14 @@ public class PlayerTargetEvent implements Listener {
 			}
 			
 			for(Spawner s : validSpawners) {
-				Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
+				Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
 				
 				while(passiveMobItr.hasNext()) {
 					int currentMob = passiveMobItr.next();
 					
 					if(currentMob == entityId) {
 						match = true;
-						preCheckedMobs.add(currentMob);
+						preCheckedMobs.put(currentMob, s.getPassiveMobs().get(currentMob));
 						break;
 					}
 				}
@@ -88,7 +89,7 @@ public class PlayerTargetEvent implements Listener {
 		
 	}
 
-	public static ArrayList<Integer> getPreCheckedMobs() {
+	public static ConcurrentHashMap<Integer, SpawnableEntity> getPreCheckedMobs() {
 		return preCheckedMobs;
 	}
 	

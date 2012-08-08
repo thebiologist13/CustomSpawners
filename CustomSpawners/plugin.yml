@@ -1,5 +1,5 @@
 name: CustomSpawners
-version: 0.0.4
+version: 0.0.4b
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
@@ -282,4 +282,13 @@ permissions:
         default: true
     customspawners.entities.setfireticks:
         description: Allows the user/group to set how long a spawned entity is on fire.
+        default: op
+    customspawners.entities.blacklist:
+        description: Allows the user/group to set values on the damage blacklist.
+        default: op
+    customspawners.entities.whitelist:
+        description: Allows the user/group to set values on the damage whitelist.
+        default: op
+    customspawners.entities.itemlist:
+        description: Allows the user/group to set values on the item list.
         default: op

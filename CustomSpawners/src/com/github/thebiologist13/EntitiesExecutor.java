@@ -46,6 +46,9 @@ public class EntitiesExecutor implements CommandExecutor {
 	private EntityListAllCommand lac = null;
 	private EntityPassiveCommand pac = null;
 	private EntityFireTicksCommand ftc = null;
+	private EntityBlackListCommand blc = null;
+	private EntityWhiteListCommand wlc = null;
+	private EntityItemListCommand ilc = null;
 	
 	public EntitiesExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
@@ -79,6 +82,9 @@ public class EntitiesExecutor implements CommandExecutor {
 		lac = new EntityListAllCommand(plugin);
 		pac = new EntityPassiveCommand(plugin);
 		ftc = new EntityFireTicksCommand(plugin);
+		blc = new EntityBlackListCommand(plugin);
+		wlc = new EntityWhiteListCommand(plugin);
+		ilc = new EntityItemListCommand(plugin);
 	}
 
 	@Override
@@ -106,6 +112,15 @@ public class EntitiesExecutor implements CommandExecutor {
 						return true;
 					} else if(arg3[0].equalsIgnoreCase("listall")) {
 						lac.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("clearitems")) {
+						ilc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("clearblacklist")) {
+						blc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("clearwhitelist")) {
+						wlc.run(arg0, arg1, arg2, arg3);
 						return true;
 					}
 					
@@ -183,6 +198,30 @@ public class EntitiesExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("setfireticks")) {
 						ftc.run(arg0, arg1, arg2, arg3);
 						return true;
+					} else if(arg3[0].equalsIgnoreCase("addblacklistitem")) {
+						blc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("clearblacklist")) {
+						blc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setblacklist")) {
+						blc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("addwhitelistitem")) {
+						wlc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("clearwhitelist")) {
+						wlc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setwhitelist")) {
+						wlc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("additem")) {
+						ilc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("clearitems")) {
+						ilc.run(arg0, arg1, arg2, arg3);
+						return true;
 					}
 					
 				} else if(arg3.length == 3) {
@@ -246,6 +285,21 @@ public class EntitiesExecutor implements CommandExecutor {
 						return true;
 					} else if(arg3[0].equalsIgnoreCase("setfireticks")) {
 						ftc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("addblacklistitem")) {
+						blc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setblacklist")) {
+						blc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("addwhitelistitem")) {
+						wlc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setwhitelist")) {
+						wlc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("additem")) {
+						ilc.run(arg0, arg1, arg2, arg3);
 						return true;
 					}
 					

@@ -94,6 +94,36 @@ public class EntityInfoCommand extends SpawnerCommand {
 				nameOfType = "Spider Jockey";
 			}
 			
+			String blackListMsg = "";
+			ArrayList<String> blackList = s.getDamageBlacklist();
+			for(int i = 0; i < blackList.size(); i++) {
+				if(i == 0) {
+					blackListMsg += blackList.get(i);
+				} else {
+					blackListMsg += ", " + blackList.get(i);
+				}
+			}
+			
+			String whiteListMsg = "";
+			ArrayList<String> whiteList = s.getDamageWhitelist();
+			for(int i = 0; i < whiteList.size(); i++) {
+				if(i == 0) {
+					whiteListMsg += whiteList.get(i);
+				} else {
+					whiteListMsg += ", " + whiteList.get(i);
+				}
+			}
+			
+			String itemListMsg = "";
+			ArrayList<Integer> itemList = s.getItemDamageList();
+			for(int i = 0; i < itemList.size(); i++) {
+				if(i == 0) {
+					itemListMsg += itemList.get(i);
+				} else {
+					itemListMsg += ", " + itemList.get(i);
+				}
+			}
+			
 			//Send info
 			String[] message = {
 					"",
@@ -120,6 +150,11 @@ public class EntityInfoCommand extends SpawnerCommand {
 					ChatColor.GOLD + "Color: " + s.getColor(),
 					ChatColor.GOLD + "Passive: " + String.valueOf(s.isPassive()),
 					ChatColor.GOLD + "Fire Ticks: " + s.getFireTicks(),
+					ChatColor.GOLD + "Using Blacklist: " + s.isUsingBlacklist(),
+					ChatColor.GOLD + "Using Whitelist: " + s.isUsingWhitelist(),
+					ChatColor.GOLD + "Damage Blacklist: " + blackListMsg,
+					ChatColor.GOLD + "Damage Whitelist: " + whiteListMsg,
+					ChatColor.GOLD + "Damage Itemlist: " + itemListMsg,
 					ChatColor.GREEN + "Scroll Up for More Properties."
 			};
 

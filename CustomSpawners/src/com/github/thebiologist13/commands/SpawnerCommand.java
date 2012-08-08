@@ -25,6 +25,7 @@ public abstract class SpawnerCommand {
 	public final static String LESS_ARGS = ChatColor.RED + "Not enough arguments.";
 	public final static String MORE_ARGS = ChatColor.RED + "Too many arguments.";
 	public final static String INVALID_ENTITY = ChatColor.RED + "Can not parse entity type. Using default entity from conifg.";
+	public final static String INVALID_CAUSE = ChatColor.RED + "Could not parse damage type.";
 	public final static String ENTITY_NONEXISTANT = ChatColor.RED + "There is no spawnable entity with this name or ID.";
 	public final static String NOT_ALLOWED_ENTITY = ChatColor.RED + "This is not an allowed entity.";
 	public final static String INVALID_BLOCK = ChatColor.RED + "You must be looking a a block.";

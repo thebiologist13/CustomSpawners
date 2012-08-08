@@ -58,8 +58,10 @@ public class Spawner {
 	private int rate = -1; //Rate in how many ticks to spawn at
 	
 	//List of mobs
-	private ArrayList<Integer> mobs = new ArrayList<Integer>(); //Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
-	private ArrayList<Integer> passiveMobs = new ArrayList<Integer>(); //List of currently passive mobs from a spawner. When provoked, they are moved to "mobs"
+	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
+	private HashMap<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>(); 
+	//List of currently passive mobs from a spawner. When provoked, they are moved to "mobs"
+	private HashMap<Integer, SpawnableEntity> passiveMobs = new HashMap<Integer, SpawnableEntity>(); 
 	
 	//Other
 	private Server server = null; //Used to get online players
@@ -239,24 +241,28 @@ public class Spawner {
 		this.ticksLeft = rate;
 	}
 
-	public ArrayList<Integer> getMobs() {
+	public HashMap<Integer, SpawnableEntity> getMobs() {
 		return mobs;
 	}
 	
-	public void setMobsFromIDs(ArrayList<Integer> mobs) {
+	public void setMobs(HashMap<Integer, SpawnableEntity> mobs) {
 		this.mobs = mobs;
 	}
 	
-	public void addMob(int mobId) {
-		mobs.add(mobId);
+	public void addMob(int mobId, SpawnableEntity entity) {
+		mobs.put(id, entity);
 	}
 	
-	public ArrayList<Integer> getPassiveMobs() {
+	public HashMap<Integer, SpawnableEntity> getPassiveMobs() {
 		return passiveMobs;
 	}
 
-	public void setPassiveMobs(ArrayList<Integer> passiveMobs) {
+	public void setPassiveMobs(HashMap<Integer, SpawnableEntity> passiveMobs) {
 		this.passiveMobs = passiveMobs;
+	}
+	
+	public void addPassiveMob(int mobId, SpawnableEntity entity) {
+		passiveMobs.put(id, entity);
 	}
 	
 	/*
@@ -379,9 +385,9 @@ public class Spawner {
 								}
 								
 								if(type.isPassive()) {
-									passiveMobs.add(le.getEntityId());
+									passiveMobs.put(le.getEntityId(), type);
 								} else {
-									mobs.add(le.getEntityId());
+									mobs.put(le.getEntityId(), type);
 								}
 								spawned = true;
 							}
@@ -451,9 +457,9 @@ public class Spawner {
 							}
 							
 							if(type.isPassive()) {
-								passiveMobs.add(le.getEntityId());
+								passiveMobs.put(le.getEntityId(), type);
 							} else {
-								mobs.add(le.getEntityId());
+								mobs.put(le.getEntityId(), type);
 							}
 							spawned = true;
 						}
@@ -520,9 +526,9 @@ public class Spawner {
 								makeJockey(le);
 							}
 							if(entity.isPassive()) {
-								passiveMobs.add(le.getEntityId());
+								passiveMobs.put(le.getEntityId(), entity);
 							} else {
-								mobs.add(le.getEntityId());
+								mobs.put(le.getEntityId(), entity);
 							}
 							spawned = true;
 						}

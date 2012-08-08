@@ -28,10 +28,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 
 import com.github.thebiologist13.listeners.InteractEvent;
+import com.github.thebiologist13.listeners.MobCombustEvent;
+import com.github.thebiologist13.listeners.MobDamageEvent;
 import com.github.thebiologist13.listeners.MobDeathEvent;
 import com.github.thebiologist13.listeners.PlayerLogoutEvent;
 import com.github.thebiologist13.listeners.PlayerTargetEvent;
-import com.github.thebiologist13.listeners.ProvokeMobEvent;
+import com.github.thebiologist13.listeners.MobDamageByEntityEvent;
 
 public class CustomSpawners extends JavaPlugin {
 	
@@ -88,7 +90,9 @@ public class CustomSpawners extends JavaPlugin {
 		
 		//Listeners
 		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
-		getServer().getPluginManager().registerEvents(new ProvokeMobEvent(), this);
+		getServer().getPluginManager().registerEvents(new MobDamageEvent(), this);
+		getServer().getPluginManager().registerEvents(new MobCombustEvent(), this);
+		getServer().getPluginManager().registerEvents(new MobDamageByEntityEvent(), this);
 		getServer().getPluginManager().registerEvents(new PlayerTargetEvent(), this);
 		getServer().getPluginManager().registerEvents(new MobDeathEvent(this), this);
 		getServer().getPluginManager().registerEvents(new InteractEvent(this), this);
@@ -131,8 +135,8 @@ public class CustomSpawners extends JavaPlugin {
 					Iterator<Spawner> spawnerItr = spawners.values().iterator();
 					while(spawnerItr.hasNext()) {
 						Spawner s = spawnerItr.next();
-						Iterator<Integer> mobItr = s.getMobs().iterator();
-						Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
+						Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+						Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
 						Iterator<LivingEntity> entityItr = s.getLoc().getWorld().getLivingEntities().iterator();
 						ArrayList<Integer> entityIdList = new ArrayList<Integer>();
 						
@@ -507,10 +511,36 @@ public class CustomSpawners extends JavaPlugin {
 				boolean usingSpawnArea = yaml.getBoolean("useSpawnArea");
 				
 				//Convert Raw yaml list of mobs to ArrayList<Integer>
-				ArrayList<Integer> mobIDs = new ArrayList<Integer>();
-				for(Object o : mobs) {
-					if(o instanceof Integer) {
-						mobIDs.add((Integer) o);
+				Iterator<?> mobItr = mobs.iterator();
+				Iterator<?> passiveMobItr = passiveMobs.iterator();
+				HashMap<Integer, SpawnableEntity> mobsMap = new HashMap<Integer, SpawnableEntity>();
+				HashMap<Integer, SpawnableEntity> passiveMobsMap = new HashMap<Integer, SpawnableEntity>();
+				
+				while(mobItr.hasNext()) {
+					Object o = mobItr.next();
+					
+					if(o instanceof String) {
+						String pair = (String) o;
+						int key = Integer.parseInt(pair.substring(0, pair.indexOf("_")));
+						int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
+						
+						SpawnableEntity e = getEntity(String.valueOf(value));
+						
+						mobsMap.put(key, e);
+					}
+				}
+				
+				while(passiveMobItr.hasNext()) {
+					Object o = passiveMobItr.next();
+					
+					if(o instanceof String) {
+						String pair = (String) o;
+						int key = Integer.parseInt(pair.substring(0, pair.indexOf("_")));
+						int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
+						
+						SpawnableEntity e = getEntity(String.valueOf(value));
+						
+						passiveMobsMap.put(key, e);
 					}
 				}
 				
@@ -577,12 +607,12 @@ public class CustomSpawners extends JavaPlugin {
 				s.setHidden(hidden);
 				s.setMobsPerSpawn(mobsPerSpawn);
 				s.setMaxMobs(maxMobs);
-				s.setMobsFromIDs(mobIDs);
-				s.setPassiveMobs(passiveMobIDs);
 				s.setRate(rate);
 				s.setUseSpawnArea(usingSpawnArea);
 				s.setAreaPoints(areaPoints);
 				s.setTypeData(entities);
+				s.setMobs(mobsMap);
+				s.setPassiveMobs(passiveMobsMap);
 				
 				spawners.put(id, s);
 			}
@@ -612,10 +642,10 @@ public class CustomSpawners extends JavaPlugin {
 			File saveFile = new File(getDataFolder() + File.separator + "Spawners" + File.separator + String.valueOf(s.getId()) + ".yml");
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 			
-			ArrayList<Integer> allMobs = s.getMobs();
-			allMobs.addAll(s.getPassiveMobs());
+			HashMap<Integer, SpawnableEntity> allMobs = s.getMobs();
+			allMobs.putAll(s.getPassiveMobs());
 			if(killOnReload) {
-				for(Integer e : allMobs) {
+				for(Integer e : allMobs.keySet()) {
 					List<LivingEntity> entities = getServer().getWorld(s.getLoc().getWorld().getName()).getLivingEntities();
 					for(LivingEntity le : entities) {
 						if(le.getEntityId() == e) {
@@ -627,16 +657,24 @@ public class CustomSpawners extends JavaPlugin {
 				s.getPassiveMobs().clear();
 			}
 			
-			List<Integer> mobIDs = new ArrayList<Integer>();
-			Iterator<Integer> mobItr = s.getMobs().iterator();
+			List<String> mobIDs = new ArrayList<String>();
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 			while(mobItr.hasNext()) {
-				mobIDs.add(mobItr.next());
+				int mobId = mobItr.next();
+				int entityId = s.getMobs().get(mobId).getId();
+				String toYaml = mobId + "_" + entityId;
+				
+				mobIDs.add(toYaml);
 			}
 			
-			List<Integer> passiveMobIDs = new ArrayList<Integer>();
-			Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
+			List<String> passiveMobIDs = new ArrayList<String>();
+			Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
 			while(passiveMobItr.hasNext()) {
-				passiveMobIDs.add(passiveMobItr.next());
+				int passiveMobId = passiveMobItr.next();
+				int entityId = s.getPassiveMobs().get(passiveMobId).getId();
+				String toYaml = passiveMobId + "_" + entityId;
+				
+				passiveMobIDs.add(toYaml);
 			}
 			
 			List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
@@ -731,11 +769,37 @@ public class CustomSpawners extends JavaPlugin {
 				String color = yaml.getString("color");
 				boolean passive = yaml.getBoolean("passive"); 
 				int fireTicks = yaml.getInt("fireTicks");
+				List<?> blacklist = yaml.getList("blacklist");
+				List<?> whitelist = yaml.getList("whitelist");
+				List<?> itemlist = yaml.getList("itemlist");
+				boolean useBlack = yaml.getBoolean("useBlacklist");
+				boolean useWhite = yaml.getBoolean("useWhitelist");
 				
 				//PotionEffect handling
 				ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
 				for(Object o : rawEffects) {
 					effects.add((EntityPotionEffect) o);
+				}
+				
+				ArrayList<String> blacklistStrings = new ArrayList<String>();
+				for(Object o : blacklist) {
+					if(o instanceof String) {
+						blacklistStrings.add((String) o);
+					}
+				}
+				
+				ArrayList<String> whitelistStrings = new ArrayList<String>();
+				for(Object o : whitelist) {
+					if(o instanceof String) {
+						whitelistStrings.add((String) o);
+					}
+				}
+				
+				ArrayList<Integer> itemlistInts = new ArrayList<Integer>();
+				for(Object o : itemlist) {
+					if(o instanceof Integer) {
+						itemlistInts.add((Integer) o);
+					}
 				}
 				
 				EntityType type = EntityType.fromName(strType);
@@ -766,6 +830,11 @@ public class CustomSpawners extends JavaPlugin {
 				e.setColor(color);
 				e.setPassive(passive);
 				e.setFireTicks(fireTicks);
+				e.setDamageBlacklist(blacklistStrings);
+				e.setDamageWhitelist(whitelistStrings);
+				e.setItemDamageList(itemlistInts);
+				e.setUseBlacklist(useBlack);
+				e.setUseWhitelist(useWhite);
 				
 				entities.put(id, e);
 			}
@@ -819,6 +888,11 @@ public class CustomSpawners extends JavaPlugin {
 			yaml.set("color", e.getColor());
 			yaml.set("passive", e.isPassive());
 			yaml.set("fireTicks", e.getFireTicks());
+			yaml.set("blacklist", e.getDamageBlacklist());
+			yaml.set("whitelist", e.getDamageWhitelist());
+			yaml.set("itemlist", e.getItemDamageList());
+			yaml.set("useBlacklist", e.isUsingBlacklist());
+			yaml.set("useWhitelist", e.isUsingWhitelist());
 			
 			try {
 				yaml.save(saveFile);
@@ -907,16 +981,24 @@ public class CustomSpawners extends JavaPlugin {
 		File saveFile = new File(getDataFolder() + File.separator + "Spawners" + File.separator + String.valueOf(s.getId()) + ".yml");
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 		
-		List<Integer> mobIDs = new ArrayList<Integer>();
-		Iterator<Integer> mobItr = s.getMobs().iterator();
+		List<String> mobIDs = new ArrayList<String>();
+		Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 		while(mobItr.hasNext()) {
-			mobIDs.add(mobItr.next());
+			int mobId = mobItr.next();
+			int entityId = s.getMobs().get(mobId).getId();
+			String toYaml = mobId + "_" + entityId;
+			
+			mobIDs.add(toYaml);
 		}
 		
-		List<Integer> passiveMobIDs = new ArrayList<Integer>();
-		Iterator<Integer> passiveMobItr = s.getPassiveMobs().iterator();
+		List<String> passiveMobIDs = new ArrayList<String>();
+		Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
 		while(passiveMobItr.hasNext()) {
-			passiveMobIDs.add(passiveMobItr.next());
+			int passiveMobId = passiveMobItr.next();
+			int entityId = s.getPassiveMobs().get(passiveMobId).getId();
+			String toYaml = passiveMobId + "_" + entityId;
+			
+			passiveMobIDs.add(toYaml);
 		}
 		
 		List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
@@ -1002,6 +1084,11 @@ public class CustomSpawners extends JavaPlugin {
 		yaml.set("color", e.getColor());
 		yaml.set("passive", e.isPassive());
 		yaml.set("fireTicks", e.getFireTicks());
+		yaml.set("blacklist", e.getDamageBlacklist());
+		yaml.set("whitelist", e.getDamageWhitelist());
+		yaml.set("itemlist", e.getItemDamageList());
+		yaml.set("useBlacklist", e.isUsingBlacklist());
+		yaml.set("useWhitelist", e.isUsingWhitelist());
 		
 		try {
 			yaml.save(saveFile);
@@ -1014,8 +1101,8 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Removes mobs spawned by a certain spawner
 	public synchronized void removeMobs(final Spawner s) { //Called in the removemobs command
-		Iterator<Integer> mobs = s.getMobs().iterator();
-		Iterator<Integer> passiveMobs = s.getPassiveMobs().iterator();
+		Iterator<Integer> mobs = s.getMobs().keySet().iterator();
+		Iterator<Integer> passiveMobs = s.getPassiveMobs().keySet().iterator();
 
 		while(mobs.hasNext()) {
 			int spawnerMobId = mobs.next();
@@ -1069,8 +1156,8 @@ public class CustomSpawners extends JavaPlugin {
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			
-			Iterator<Integer> mobs = s.getMobs().iterator();
-			Iterator<Integer> passiveMobs = s.getPassiveMobs().iterator();
+			Iterator<Integer> mobs = s.getMobs().keySet().iterator();
+			Iterator<Integer> passiveMobs = s.getPassiveMobs().keySet().iterator();
 
 			while(mobs.hasNext()) {
 				int spawnerMobId = mobs.next();

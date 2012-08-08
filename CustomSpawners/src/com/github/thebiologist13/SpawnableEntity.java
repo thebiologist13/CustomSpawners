@@ -31,6 +31,11 @@ public class SpawnableEntity {
 	private int air = 0;
 	private boolean passive = false;
 	private int fireTicks = 0;
+	private ArrayList<String> damageWhitelist = new ArrayList<String>();
+	private ArrayList<String> damageBlacklist = new ArrayList<String>();
+	private ArrayList<Integer> itemDamage = new ArrayList<Integer>();
+	private boolean useWhitelist = false;
+	private boolean useBlacklist = true;
 	
 	//Specific Data
 	private Villager.Profession villagerProfession = null;
@@ -248,5 +253,70 @@ public class SpawnableEntity {
 
 	public void setFireTicks(int fireTicks) {
 		this.fireTicks = fireTicks;
+	}
+
+	public ArrayList<String> getDamageWhitelist() {
+		return damageWhitelist;
+	}
+
+	public void setDamageWhitelist(ArrayList<String> damageWhitelist) {
+		this.damageWhitelist = damageWhitelist;
+	}
+	
+	public void addDamageWhitelist(String damageType) {
+		damageWhitelist.add(damageType);
+	}
+
+	public ArrayList<String> getDamageBlacklist() {
+		return damageBlacklist;
+	}
+
+	public void setDamageBlacklist(ArrayList<String> damageBlacklist) {
+		this.damageBlacklist = damageBlacklist;
+	}
+	
+	public void addDamageBlacklist(String damageType) {
+		damageBlacklist.add(damageType);
+	}
+
+	public boolean isUsingWhitelist() {
+		return useWhitelist;
+	}
+
+	public void setUseWhitelist(boolean useWhitelist) {
+		this.useWhitelist = useWhitelist;
+		
+		if(useWhitelist) {
+			this.useBlacklist = false;
+		} else {
+			this.useBlacklist = true;
+		}
+		
+	}
+
+	public boolean isUsingBlacklist() {
+		return useBlacklist;
+	}
+
+	public void setUseBlacklist(boolean useBlacklist) {
+		this.useBlacklist = useBlacklist;
+		
+		if(useBlacklist) {
+			this.useWhitelist = false;
+		} else {
+			this.useWhitelist = true;
+		}
+	}
+
+	public ArrayList<Integer> getItemDamageList() {
+		return itemDamage;
+	}
+
+	public void setItemDamageList(ArrayList<Integer> itemDamage) {
+		this.itemDamage = itemDamage;
+	}
+	
+	public void addItemDamage(int value) {
+		itemDamage.add(value);
 	}
 }
