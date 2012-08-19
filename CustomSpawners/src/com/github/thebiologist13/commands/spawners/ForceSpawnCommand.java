@@ -10,13 +10,11 @@ import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class ForceSpawnCommand extends SpawnerCommand {
-	
-	private CustomSpawners plugin;
-	
+
 	public ForceSpawnCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
-	
+
 	//TODO Force the spawner to spawn using the force spawn method of a certain type.
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player

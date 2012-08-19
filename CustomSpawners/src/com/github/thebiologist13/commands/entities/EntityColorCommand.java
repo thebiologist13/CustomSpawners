@@ -1,7 +1,5 @@
 package com.github.thebiologist13.commands.entities;
 
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.command.Command;
@@ -14,15 +12,10 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class EntityColorCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
-	private Logger log = null;
-	
 	public EntityColorCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
-	
+
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 

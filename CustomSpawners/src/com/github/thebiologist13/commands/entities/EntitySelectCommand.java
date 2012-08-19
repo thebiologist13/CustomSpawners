@@ -11,10 +11,8 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class EntitySelectCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
 	public EntitySelectCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
 	
 	@Override

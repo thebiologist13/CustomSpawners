@@ -1,8 +1,6 @@
 package com.github.thebiologist13.commands.spawners;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,13 +12,8 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class ListAllCommand extends SpawnerCommand {
 
-	//private CustomSpawners plugin = null;
-	
-	private Logger log = null;
-	
 	public ListAllCommand(CustomSpawners plugin) {
-		//this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package com.github.thebiologist13.commands.entities;
 
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,13 +11,8 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class EntitySlimeSizeCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
-	private Logger log = null;
-	
 	public EntitySlimeSizeCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
 	
 	@Override

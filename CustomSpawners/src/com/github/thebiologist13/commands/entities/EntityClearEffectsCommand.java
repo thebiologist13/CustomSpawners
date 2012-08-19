@@ -1,8 +1,6 @@
 package com.github.thebiologist13.commands.entities;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,15 +13,10 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class EntityClearEffectsCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
-	private Logger log = null;
-	
 	public EntityClearEffectsCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
-	
+
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 

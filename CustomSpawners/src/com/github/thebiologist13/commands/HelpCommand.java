@@ -1,7 +1,5 @@
 package com.github.thebiologist13.commands;
 
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,14 +8,9 @@ import org.bukkit.entity.Player;
 import com.github.thebiologist13.CustomSpawners;
 
 public class HelpCommand extends SpawnerCommand {
-	
-	private CustomSpawners plugin = null;
-	
-	private Logger log = null;
-	
+
 	public HelpCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
 	
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {

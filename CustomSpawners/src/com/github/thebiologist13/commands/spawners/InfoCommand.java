@@ -14,12 +14,10 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class InfoCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin;
-	
 	public InfoCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
-	
+
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player
 		Player p = null;

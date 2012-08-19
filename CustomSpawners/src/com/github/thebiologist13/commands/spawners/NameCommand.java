@@ -11,12 +11,10 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class NameCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
 	public NameCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
-	
+
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player

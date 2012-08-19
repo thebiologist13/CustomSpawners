@@ -1,7 +1,5 @@
 package com.github.thebiologist13.commands;
 
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,21 +9,17 @@ import com.github.thebiologist13.CustomSpawners;
 
 public class ReloadDataCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
-	private Logger log = null;
-	
-	final String RELOAD_PERM = "customspawners.reload";
-	
 	public ReloadDataCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
-	
+
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 
 		Player p = null;
+		
+		final String RELOAD_PERM = "customspawners.reload";
+		
 		if(arg0 instanceof Player) {
 			p = (Player) arg0;
 		}

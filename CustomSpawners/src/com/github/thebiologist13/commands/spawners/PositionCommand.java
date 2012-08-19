@@ -1,7 +1,5 @@
 package com.github.thebiologist13.commands.spawners;
 
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -12,13 +10,11 @@ import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class PositionCommand extends SpawnerCommand {
-	
-	private Logger log = null;
-	
+
 	public PositionCommand(CustomSpawners plugin) {
-		this.log = plugin.log;
+		super(plugin);
 	}
-	
+
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player

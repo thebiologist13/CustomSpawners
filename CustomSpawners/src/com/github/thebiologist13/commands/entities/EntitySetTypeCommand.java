@@ -1,11 +1,8 @@
 package com.github.thebiologist13.commands.entities;
 
-import java.util.logging.Logger;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
@@ -15,18 +12,10 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class EntitySetTypeCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
-	private FileConfiguration config = null;
-	
-	private Logger log = null;
-	
 	public EntitySetTypeCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-		this.config = plugin.getCustomConfig();
+		super(plugin);
 	}
-	
+
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player

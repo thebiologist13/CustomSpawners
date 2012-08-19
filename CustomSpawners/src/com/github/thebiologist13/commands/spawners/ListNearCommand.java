@@ -13,10 +13,8 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class ListNearCommand extends SpawnerCommand {
 
-	private CustomSpawners plugin = null;
-	
 	public ListNearCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
 
 	@Override

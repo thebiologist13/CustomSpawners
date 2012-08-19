@@ -16,13 +16,11 @@ import com.github.thebiologist13.commands.SpawnerCommand;
 
 @SuppressWarnings("unused")
 public class SetTypeCommand extends SpawnerCommand {
-	
-	private CustomSpawners plugin;
-	
+
 	public SetTypeCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
-	
+
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player
 		Player p = null;

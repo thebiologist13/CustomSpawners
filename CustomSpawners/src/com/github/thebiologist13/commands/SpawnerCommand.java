@@ -42,7 +42,7 @@ public abstract class SpawnerCommand {
 	public final static String NO_PERMISSION = ChatColor.RED + "You do not have permission!";
 	public final static String NOT_COMMAND = ChatColor.RED + "That is not a command for CustomSpawners.";
 	
-	/*public CustomSpawners plugin = null;
+	public CustomSpawners plugin = null;
 	public Logger log = null;
 	public FileConfiguration config = null;
 	
@@ -50,7 +50,7 @@ public abstract class SpawnerCommand {
 		this.plugin = plugin;
 		this.log = plugin.log;
 		this.config = plugin.getCustomConfig();
-	}*/
+	}
 	
 	public abstract void run(CommandSender arg0, Command arg1, String arg2, String[] arg3);
 }

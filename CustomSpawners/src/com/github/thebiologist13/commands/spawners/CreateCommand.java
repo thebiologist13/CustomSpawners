@@ -4,7 +4,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -13,16 +12,11 @@ import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
 public class CreateCommand extends SpawnerCommand {
-	
-	private CustomSpawners plugin;
-	
-	private FileConfiguration config = null;
-	
+
 	public CreateCommand(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.config = plugin.getCustomConfig();
+		super(plugin);
 	}
-	
+
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player
 		Player p = null;
