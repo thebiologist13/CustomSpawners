@@ -44,7 +44,7 @@ public class EntityWhiteListCommand extends SpawnerCommand {
 		
 		if(p.hasPermission(whitelistPerm) && arg3[0].equalsIgnoreCase("addwhitelistitem")) {
 			
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
+			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
 				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
@@ -57,10 +57,10 @@ public class EntityWhiteListCommand extends SpawnerCommand {
 					return;
 				}
 				
-			} else if(arg3.length == 1) {
+			} else if(arg3.length == 2) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
-			} else if(arg3.length == 2) {
+			} else if(arg3.length == 3) {
 
 				s = plugin.getEntity(arg3[1]);
 
@@ -92,14 +92,14 @@ public class EntityWhiteListCommand extends SpawnerCommand {
 			
 		} else if(p.hasPermission(whitelistPerm) && arg3[0].equalsIgnoreCase("clearwhitelist")) {
 
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
+			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 
 				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
-			} else if(arg3.length == 2) {
+			} else if(arg3.length == 1) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
-			} else if(arg3.length == 3) {
+			} else if(arg3.length == 2) {
 
 				s = plugin.getEntity(arg3[1]);
 

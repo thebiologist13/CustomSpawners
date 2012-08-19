@@ -54,7 +54,8 @@ spawners:
     
     # Spawner limits
     # Limits of values for spawner properties. 
-    # These can be overridden in permissions.
+    # These can be overridden in permissions with
+    # customspawners.limitoverride
     
     # Radius limit (max)
     radiusLimit: 128
@@ -143,6 +144,18 @@ entities:
      
     # Should entities be passive until provoked?
     passive: false
+    
+    # Should damage blacklisting be enabled or disabled by default?
+    # Whitelist will be the opposite of this. If this value is true,
+    # entities will take all types of damage when created.
+    useBlacklist: true
+    
+    # Should entities use custom damage variables be default?
+    useCustomDamage: false
+    
+    # Default amount of damage to deal if the entity is using
+    # custom damage.
+    dealtDamage: 2 
      
 mobs:
 
@@ -175,6 +188,17 @@ mobs:
     blaze: false
     irongolem: true
     snowman: true
+    
+    egg: true
+    snowball: true
+    arrow: true
+    fallingblock: true
+    tnt: true
+    fireball: true
+    potion: true
+    item: true
+    enderpearl: true
+    endercrystal: true
     
 players:
     # Maximum distance a player can be from a block

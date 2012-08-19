@@ -92,7 +92,7 @@ public class SetRadiusCommand extends SpawnerCommand {
 			}
 			
 			if(rad > plugin.getCustomConfig().getDouble("spawners.radiusLimit", 128) || rad < 0) {
-				if(!p.hasPermission("customspawners.spawners.limitoverride")) {
+				if(!p.hasPermission("customspawners.limitoverride")) {
 					p.sendMessage(INVALID_VALUES);
 					return;
 				} else {

@@ -147,10 +147,12 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 			effects.add(effect);
 			s.setEffects(effects);
 
+			String time = plugin.convertTicksToTime(duration);
+			
 			//Success
 			p.sendMessage(ChatColor.GREEN + "Successfully set the potion effect on spawnable entity with ID " 
 					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD 
-					+ effect.getType().getName() + " " + effect.getAmplifier() + ChatColor.GREEN + "!");
+					+ effect.getType().getName() + " " + effect.getAmplifier() + "- " + time + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

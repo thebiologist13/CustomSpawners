@@ -22,7 +22,7 @@ public class HelpCommand extends SpawnerCommand {
 	
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		final String[] HELP_MESSAGE_1 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 1 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 1 of 9 * * *",
 				ChatColor.GOLD + "/customspawners help [page]" + ChatColor.GREEN + " -> Displays this message.", 
 				ChatColor.GOLD + "/customspawners" + ChatColor.GREEN + " -> Displays the plugin info.", 
 				ChatColor.GOLD + "/customspawners reloadspawners" + ChatColor.GREEN + " -> Reloads spawners from file.",
@@ -35,7 +35,7 @@ public class HelpCommand extends SpawnerCommand {
 		};
 		
 		final String[] HELP_MESSAGE_2 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 2 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 2 of 9 * * *",
 				ChatColor.GOLD + "/spawners listall" + ChatColor.GREEN + " -> Displays all spawners with IDs and locations.",
 				ChatColor.GOLD + "/spawners setactive [id]" + ChatColor.GREEN + " -> Makes a spawner active so it spawns.",
 				ChatColor.GOLD + "/spawners setinactive [id]" + ChatColor.GREEN + " -> Makes a spawner inactive so it doesn't spawn.",
@@ -48,7 +48,7 @@ public class HelpCommand extends SpawnerCommand {
 		};
 		
 		final String[] HELP_MESSAGE_3 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 3 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 3 of 9 * * *",
 				ChatColor.GOLD + "/spawners setmaxmobs [id] <max mobs>" + ChatColor.GREEN + " -> Sets the maximum mobs a spawner will spawn.",
 				ChatColor.GOLD + "/spawners setmobsperspawn [id] <mobs per spawn>" + ChatColor.GREEN + " -> Sets mobs spawned per rate.",
 				ChatColor.GOLD + "/spawners settype [id] <new type>" + ChatColor.GREEN + " -> Sets the type of mob to spawn.",
@@ -61,7 +61,7 @@ public class HelpCommand extends SpawnerCommand {
 		};
 		
 		final String[] HELP_MESSAGE_4 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 4 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 4 of 9 * * *",
 				ChatColor.GOLD + "/spawners setmaxdistance [id] <distance>" + ChatColor.GREEN + " -> Sets maximum distance a player can be.",
 				ChatColor.GOLD + "/spawners setmindistance [id] <distance>" + ChatColor.GREEN + " -> Sets minimum distance a player can be.",
 				ChatColor.GOLD + "/spawners forcespawn [id]" + ChatColor.GREEN + " -> Forces a spawner to spawn mobs regardless of conditions.",
@@ -74,7 +74,7 @@ public class HelpCommand extends SpawnerCommand {
 		};
 		
 		final String[] HELP_MESSAGE_5 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 5 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 5 of 9 * * *",
 				ChatColor.GOLD + "/entities create <type>" + ChatColor.GREEN + " -> Creates a new spawnable entity that can be customized.",
 				ChatColor.GOLD + "/entities remove [id]" + ChatColor.GREEN + " -> Removes a spawnable entity so it can't be used by spawners.",
 				ChatColor.GOLD + "/entities select <id>" + ChatColor.GREEN + " -> Selects an entity so the entity ID doesn't need to be entered every time.",
@@ -87,7 +87,7 @@ public class HelpCommand extends SpawnerCommand {
 		};
 		
 		final String[] HELP_MESSAGE_6 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 6 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 6 of 9 * * *",
 				ChatColor.GOLD + "/entities settype [id] <type>" + ChatColor.GREEN + " -> Sets the base entity type of a spawnable entity.",
 				ChatColor.GOLD + "/entities setname [id] <name>" + ChatColor.GREEN + " -> Names or renames the entity for easier selection.",
 				ChatColor.GOLD + "/entities setage [id] <age>" + ChatColor.GREEN + " -> Sets the age of a spawned entity.",
@@ -100,7 +100,7 @@ public class HelpCommand extends SpawnerCommand {
 		};
 		
 		final String[] HELP_MESSAGE_7 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 7 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 7 of 9 * * *",
 				ChatColor.GOLD + "/entities setenderblock [id] <blockID>" + ChatColor.GREEN + " -> Sets the block ID held by spawned endermen.",
 				ChatColor.GOLD + "/entities setsaddled [id] <true or false>" + ChatColor.GREEN + " -> Sets whether spawned pigs have saddles.",
 				ChatColor.GOLD + "/entities setcharged [id] <true or false>" + ChatColor.GREEN + " -> Sets whether spawned creepers are charged.",
@@ -113,9 +113,23 @@ public class HelpCommand extends SpawnerCommand {
 		};
 		
 		final String[] HELP_MESSAGE_8 = {
-				ChatColor.GREEN + "* * * CustomSpawners Help Page 7 of 8 * * *",
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 8 of 9 * * *",
 				ChatColor.GOLD + "/entities setslimesize [id] <size>" + ChatColor.GREEN + " -> Sets the size of spawned slimes.",
 				ChatColor.GOLD + "/entities setcolor [id] <color>" + ChatColor.GREEN + " -> Sets the color of spawned sheep.",
+				ChatColor.GOLD + "/entities setpassive [id] <true or false>" + ChatColor.GREEN + " -> Sets if the entity will be passive.",
+				ChatColor.GOLD + "/entities setblacklist [id] <true or false>" + ChatColor.GREEN + " -> Should it use a damage blacklist?",
+				ChatColor.GOLD + "/entities setwhitelist [id] <true or false>" + ChatColor.GREEN + " -> Should it use a damage whitelist?",
+				ChatColor.GOLD + "/entities addblacklistitem [id] <damage type>" + ChatColor.GREEN + " -> Add a damage typ to blacklist.",
+				ChatColor.GOLD + "/entities addwhitelistitem [id] <damage type>" + ChatColor.GREEN + " -> Add a damage typ to whitelist.",
+				ChatColor.GOLD + "/entities clearblacklist [id] " + ChatColor.GREEN + " -> Clears the damage blacklist.",
+				ChatColor.GOLD + "/entities clearwhitelist [id] " + ChatColor.GREEN + " -> Clears the damage whitelist.",
+				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
+		};
+		
+		final String[] HELP_MESSAGE_9 = {
+				ChatColor.GREEN + "* * * CustomSpawners Help Page 9 of 9 * * *",
+				ChatColor.GOLD + "/entities additem [id] <item ID>" + ChatColor.GREEN + " -> Add an item to the itemlist.",
+				ChatColor.GOLD + "/entities clearitems [id] " + ChatColor.GREEN + " -> Clears the itemlist.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
@@ -192,6 +206,8 @@ public class HelpCommand extends SpawnerCommand {
 						p.sendMessage(HELP_MESSAGE_7);
 					} else if(arg3[1].equalsIgnoreCase("8")) {
 						p.sendMessage(HELP_MESSAGE_8);
+					} else if(arg3[1].equalsIgnoreCase("9")) {
+						p.sendMessage(HELP_MESSAGE_9);
 					} else {
 						p.sendMessage(ChatColor.RED + "That is not a page of the help dialogue.");
 					}	

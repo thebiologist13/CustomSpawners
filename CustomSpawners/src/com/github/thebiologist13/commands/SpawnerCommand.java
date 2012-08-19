@@ -1,8 +1,13 @@
 package com.github.thebiologist13.commands;
 
+import java.util.logging.Logger;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import com.github.thebiologist13.CustomSpawners;
 
 public abstract class SpawnerCommand {
 	
@@ -37,31 +42,14 @@ public abstract class SpawnerCommand {
 	public final static String NO_PERMISSION = ChatColor.RED + "You do not have permission!";
 	public final static String NOT_COMMAND = ChatColor.RED + "That is not a command for CustomSpawners.";
 	
-	/*public static HashMap<String, CommandExecutor> commands = new HashMap<String, CommandExecutor>();
+	/*public CustomSpawners plugin = null;
+	public Logger log = null;
+	public FileConfiguration config = null;
 	
-	public static void registerCommand(String name, CommandExecutor executor) {
-		commands.put(name.toLowerCase(), executor);
-	}
-	
-	public static void unregisterCommand(String name) {
-		commands.remove(name.toLowerCase());
-	}
-	
-	public static CommandExecutor getExecutor(String name) {
-		return commands.get(name.toLowerCase());
-	}
-	
-	public static boolean hasCommand(String name) {
-		return commands.containsKey(name.toLowerCase());
-	}
-	
-	public static boolean runCommand(String name, CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		if(hasCommand(name)) {
-			CommandExecutor executor = getExecutor(name);
-			return executor.onCommand(arg0, arg1, arg2, arg3);
-		} else {
-			return false;
-		}
+	public SpawnerCommand(CustomSpawners plugin) {
+		this.plugin = plugin;
+		this.log = plugin.log;
+		this.config = plugin.getCustomConfig();
 	}*/
 	
 	public abstract void run(CommandSender arg0, Command arg1, String arg2, String[] arg3);

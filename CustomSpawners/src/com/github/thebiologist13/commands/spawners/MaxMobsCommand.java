@@ -82,7 +82,7 @@ public class MaxMobsCommand extends SpawnerCommand {
 			}
 			
 			if(maxMobs > plugin.getCustomConfig().getDouble("spawners.maxMobsLimit", 128) || maxMobs < 0) {
-				if(!p.hasPermission("customspawners.spawners.limitoverride")) {
+				if(!p.hasPermission("customspawners.limitoverride")) {
 					p.sendMessage(INVALID_VALUES);
 					return;
 				}

@@ -80,7 +80,7 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 			}
 			
 			if(maxDist > plugin.getCustomConfig().getDouble("spawners.playerDistanceLimit", 128) || maxDist < 0) {
-				if(!p.hasPermission("customspawners.spawners.limitoverride")) {
+				if(!p.hasPermission("customspawners.limitoverride")) {
 					p.sendMessage(INVALID_VALUES);
 					return;
 				}

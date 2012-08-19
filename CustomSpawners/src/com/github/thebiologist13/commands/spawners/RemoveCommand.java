@@ -66,7 +66,7 @@ public class RemoveCommand extends SpawnerCommand {
 			
 			//Remove the spawner by calling the remove() method
 			plugin.removeSpawner(s);
-			plugin.removeDataFile(s.getId(), true);
+			plugin.getFileManager().removeDataFile(s.getId(), true);
 			
 			//Send success message
 			p.sendMessage(ChatColor.GREEN + "Successfully removed spawner with ID " + ChatColor.GOLD + s.getId() + ChatColor.GREEN + "!");

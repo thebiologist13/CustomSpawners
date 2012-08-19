@@ -3,30 +3,16 @@ package com.github.thebiologist13;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Server;
-import org.bukkit.entity.Animals;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Enderman;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Golem;
-import org.bukkit.entity.IronGolem;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.MagmaCube;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Ocelot;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.Spider;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.Vector;
+
+import com.github.thebiologist13.listeners.DamageController;
 
 public class Spawner {
 	//Identification variables
@@ -59,9 +45,9 @@ public class Spawner {
 	
 	//List of mobs
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
-	private HashMap<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>(); 
+	private ConcurrentHashMap<Integer, SpawnableEntity> mobs = new ConcurrentHashMap<Integer, SpawnableEntity>(); 
 	//List of currently passive mobs from a spawner. When provoked, they are moved to "mobs"
-	private HashMap<Integer, SpawnableEntity> passiveMobs = new HashMap<Integer, SpawnableEntity>(); 
+	private ConcurrentHashMap<Integer, SpawnableEntity> passiveMobs = new ConcurrentHashMap<Integer, SpawnableEntity>(); 
 	
 	//Other
 	private Server server = null; //Used to get online players
@@ -241,11 +227,11 @@ public class Spawner {
 		this.ticksLeft = rate;
 	}
 
-	public HashMap<Integer, SpawnableEntity> getMobs() {
+	public ConcurrentHashMap<Integer, SpawnableEntity> getMobs() {
 		return mobs;
 	}
 	
-	public void setMobs(HashMap<Integer, SpawnableEntity> mobs) {
+	public void setMobs(ConcurrentHashMap<Integer, SpawnableEntity> mobs) {
 		this.mobs = mobs;
 	}
 	
@@ -253,16 +239,26 @@ public class Spawner {
 		mobs.put(id, entity);
 	}
 	
-	public HashMap<Integer, SpawnableEntity> getPassiveMobs() {
+	public void removeMob(int mobId) {
+		if(mobs.containsKey(mobId))
+			mobs.remove(mobId);
+	}
+	
+	public ConcurrentHashMap<Integer, SpawnableEntity> getPassiveMobs() {
 		return passiveMobs;
 	}
 
-	public void setPassiveMobs(HashMap<Integer, SpawnableEntity> passiveMobs) {
+	public void setPassiveMobs(ConcurrentHashMap<Integer, SpawnableEntity> passiveMobs) {
 		this.passiveMobs = passiveMobs;
 	}
 	
 	public void addPassiveMob(int mobId, SpawnableEntity entity) {
 		passiveMobs.put(id, entity);
+	}
+	
+	public void removePassiveMob(int mobId) {
+		if(passiveMobs.containsKey(mobId))
+			passiveMobs.remove(mobId);
 	}
 	
 	/*
@@ -303,16 +299,16 @@ public class Spawner {
 		double randX = 0;
 		double randY = 0;
 		double randZ = 0;
-		
+
 		//If the spawner is not active, return
 		if(!active) {
 			return;
 		}
-		
+
 		/*
 		 * This block checks if the conditions are met to spawn mobs
 		 */
-		if(redstoneTriggered && !loc.getBlock().isBlockPowered()) {
+		if(redstoneTriggered && (!loc.getBlock().isBlockIndirectlyPowered() || !loc.getBlock().isBlockPowered())) {
 			canSpawn = false;
 		} else if(!isPlayerNearby()) {
 			canSpawn = false;
@@ -321,7 +317,7 @@ public class Spawner {
 		} else if(mobs.size() >= maxMobs) {
 			canSpawn = false;
 		}
-		
+
 		//If we can spawn
 		if(canSpawn) {
 			//Loop to spawn until the mobs per spawn is reached
@@ -330,44 +326,44 @@ public class Spawner {
 				if(mobs.size() + passiveMobs.size() == maxMobs) {
 					break;
 				}
-				
+
 				//Has the mob been spawned?
 				boolean spawned = false;
-				
+
 				//Amount of times tried
 				int tries = 0;
-				
+
 				//As long as the mob has not been spawned, keep trying
 				while(!spawned && tries <= 512) {
-					
+
 					Location spawnLoc = null;
 					Location blockBelow = null;
 					Location blockAbove = null;
 					boolean acceptableLight = false;
 					byte light = 0;
-					
+
 					if(!useSpawnArea) {
 						//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
 						randX = randomGenRad()  + loc.getBlockX();
 						randY = Math.round(randomGenRad()) + loc.getBlockY();
 						randZ = randomGenRad() + loc.getBlockZ();
-						
+
 					} else {
 						//Generates a random location in the spawn area using randomGenRange().
 						randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
 						randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
 						randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
 					}
-					
+
 					spawnLoc = new Location(loc.getWorld(), randX, randY, randZ);
 					blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
 					blockAbove = new Location(loc.getWorld(), randX, randY + 1, randZ);
-					
+
 					light = spawnLoc.getBlock().getLightLevel();
 					if(light <= maxLightLevel && light >= minLightLevel) {
 						acceptableLight = true;
 					}
-					
+
 					/*
 					 * If the blocks are empty, it has something to stand on, and the light level is acceptable: 
 					 * spawn the creature and add it to the list of mobs, then set this mob spawned
@@ -378,12 +374,9 @@ public class Spawner {
 						if(e != null) {
 							if(e instanceof LivingEntity) {
 								LivingEntity le = (LivingEntity) e;
-								
+
 								assignMobProps(le, type);
-								if(type.isJockey()) {
-									makeJockey(le);
-								}
-								
+
 								if(type.isPassive()) {
 									passiveMobs.put(le.getEntityId(), type);
 								} else {
@@ -393,7 +386,7 @@ public class Spawner {
 							}
 						}
 					}
-					
+
 					tries++;
 				}
 			}
@@ -452,9 +445,6 @@ public class Spawner {
 							LivingEntity le = (LivingEntity) e;
 							
 							assignMobProps(le, type);
-							if(type.isJockey()) {
-								makeJockey(le);
-							}
 							
 							if(type.isPassive()) {
 								passiveMobs.put(le.getEntityId(), type);
@@ -522,9 +512,6 @@ public class Spawner {
 							LivingEntity le = (LivingEntity) e;
 							
 							assignMobProps(le, entity);
-							if(entity.isJockey()) {
-								makeJockey(le);
-							}
 							if(entity.isPassive()) {
 								passiveMobs.put(le.getEntityId(), entity);
 							} else {
@@ -616,12 +603,169 @@ public class Spawner {
 	}
 	
 	//Assigns properties to a LivingEntity
-	private void assignMobProps(LivingEntity entity, SpawnableEntity data) {
+	private void assignMobProps(Entity baseEntity, SpawnableEntity data) {
+		
+		baseEntity.setVelocity(data.getVelocity());
+		baseEntity.setFireTicks(data.getFireTicks());
+		
+		if(baseEntity instanceof LivingEntity) {
+			LivingEntity entity = (LivingEntity) baseEntity;
+			setBasicProps(entity, data);
+			
+			if(entity instanceof Animals) {
+				Animals animal = (Animals) entity;
+				
+				//Age handling
+				if(data.getAge() == -2) {
+					animal.setBaby();
+				} else if(data.getAge() == -1) {
+					animal.setAdult();
+				} else {
+					animal.setAge(data.getAge());
+				}
+				
+				//Setting animal specific properties
+				if(animal instanceof Pig) {
+					Pig p = (Pig) animal;
+					p.setSaddle(data.isSaddled());
+				} else if(animal instanceof Sheep) {
+					Sheep s = (Sheep) animal;
+					DyeColor color = DyeColor.valueOf(data.getColor());
+					s.setColor(color);
+				} else if(animal instanceof Wolf) {
+					Wolf w = (Wolf) animal;
+					w.setAngry(data.isAngry());
+					w.setTamed(data.isTamed());
+					if(data.isTamed()) {
+						
+						ArrayList<Player> nearPlayers = getNearbyPlayers(w.getLocation(), 16);
+						int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
+						if(nearPlayers != null) {
+							w.setOwner(nearPlayers.get(index));
+						}
+						
+						w.setSitting(data.isSitting());
+						
+					}
+				} else if(animal instanceof Ocelot) {
+					Ocelot o = (Ocelot) animal;
+					o.setTamed(data.isTamed());
+					if(data.isTamed()) {
+						Ocelot.Type catType = Ocelot.Type.valueOf(data.getCatType());
+						o.setCatType(catType);
+						
+						ArrayList<Player> nearPlayers = getNearbyPlayers(o.getLocation(), 16);
+						int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
+						if(nearPlayers != null) {
+							o.setOwner(nearPlayers.get(index));
+						}
+						
+						o.setSitting(data.isSitting());
+						
+					}
+				}
+			} else if(entity instanceof Villager) {
+				Villager v = (Villager) entity;
+				v.setAge(data.getAge());
+				v.setProfession(data.getProfession());
+			} else if(entity instanceof Monster) {
+				Monster monster = (Monster) entity;
+				
+				//Setting monster specific properties.
+				if(monster instanceof Enderman) {
+					Enderman e = (Enderman) monster;
+					e.setCarriedMaterial(data.getEndermanBlock());
+				} else if(monster instanceof Creeper) {
+					Creeper c = (Creeper) monster;
+					c.setPowered(data.isCharged());
+				} else if(monster instanceof Slime) {
+					Slime s = (Slime) monster;
+					s.setSize(data.getSlimeSize());
+				} else if(monster instanceof MagmaCube) {
+					MagmaCube m = (MagmaCube) monster;
+					m.setSize(data.getSlimeSize());
+				} else if(monster instanceof PigZombie) {
+					PigZombie p = (PigZombie) monster;
+					if(data.isAngry()) {
+						p.setAngry(true);
+					}
+				} else if(monster instanceof Spider) {
+					Spider s = (Spider) monster;
+					if(data.isJockey()) {
+						Skeleton skele = makeJockey(s);
+						setBasicProps(skele, data);
+					}
+				}
+			} else if(entity instanceof Golem) {
+				Golem golem = (Golem) entity;
+				
+				if(golem instanceof IronGolem) {
+					IronGolem i = (IronGolem) golem;
+					if(data.isAngry()) {
+						ArrayList<Player> nearPlayers = getNearbyPlayers(i.getLocation(), 16);
+						int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
+						if(nearPlayers != null) {
+							i.setPlayerCreated(false);
+							i.damage(0, nearPlayers.get(index));
+							i.setTarget(nearPlayers.get(index));
+						}
+					}
+				}
+			}
+			//TODO add things like ender pearl after here
+		} else if(baseEntity instanceof Projectile) {
+			Projectile pro = (Projectile) baseEntity;
+			
+			//Eventually add explosive arrows and such :D
+			
+			if(pro instanceof EnderPearl) {
+				EnderPearl e = (EnderPearl) pro;
+				ArrayList<Player> players = getNearbyPlayers(e.getLocation(), 16);
+				int index = (int) Math.round(randomGenRange(0, players.size()));
+				e.setShooter(players.get(index));
+			} else if(pro instanceof Fireball) {
+				Fireball f = (Fireball) pro;
+				f.setVelocity(new Vector(0, 0, 0));
+				f.setDirection(data.getVelocity());
+				setExplosiveProps(f, data);
+			} else if(pro instanceof SmallFireball) {
+				SmallFireball f = (SmallFireball) pro;
+				f.setVelocity(new Vector(0, 0, 0));
+				f.setDirection(data.getVelocity());
+				setExplosiveProps(f, data);
+			}
+			
+		} else if(baseEntity instanceof Explosive) {
+			
+			Explosive ex = (Explosive) baseEntity;
+			
+			if(ex instanceof TNTPrimed) {
+				TNTPrimed tnt = (TNTPrimed) ex;
+				tnt.setFuseTicks(data.getFuseTicks());
+				setExplosiveProps(tnt, data);
+			}
+			
+		}
+		
+		if(data.isUsingCustomDamage())
+			DamageController.damageModEntities.put(baseEntity.getEntityId(), data.getDamage());
+		
+	}
+	
+	//Makes a spider jockey
+	private Skeleton makeJockey(Spider spider) {
+		Location spiderLoc = spider.getLocation();
+		Entity skele = spiderLoc.getWorld().spawnEntity(spiderLoc, EntityType.SKELETON);
+		spider.setPassenger(skele);
+		return (Skeleton) skele;
+	}
+	
+	//Assigns some basic props
+	private void setBasicProps(LivingEntity entity, SpawnableEntity data) {
 		for(EntityPotionEffect p : data.getEffects()) {
 			PotionEffect ef = new PotionEffect(p.getType(), p.getDuration(), p.getAmplifier());
 			entity.addPotionEffect(ef, true);
 		}
-		entity.setVelocity(data.getVelocity());
 		
 		//Health handling
 		if(data.getHealth() == -2) {
@@ -631,6 +775,7 @@ public class Spawner {
 		} else {
 			if(data.getHealth() > entity.getMaxHealth()) {
 				entity.setHealth(entity.getMaxHealth());
+				DamageController.extraHealthEntities.put(entity.getEntityId(), data.getHealth() - entity.getMaxHealth());
 			} else if(data.getHealth() < 0) {
 				entity.setHealth(0);
 			} else {
@@ -647,113 +792,11 @@ public class Spawner {
 			entity.setRemainingAir(data.getAir());
 		}
 		
-		entity.setFireTicks(data.getFireTicks());
-		
-		if(entity instanceof Animals) {
-			Animals animal = (Animals) entity;
-			
-			//Age handling
-			if(data.getAge() == -2) {
-				animal.setBaby();
-			} else if(data.getAge() == -1) {
-				animal.setAdult();
-			} else {
-				animal.setAge(data.getAge());
-			}
-			
-			//Setting animal specific properties
-			if(animal instanceof Pig) {
-				Pig p = (Pig) animal;
-				p.setSaddle(data.isSaddled());
-			} else if(animal instanceof Sheep) {
-				Sheep s = (Sheep) animal;
-				DyeColor color = DyeColor.valueOf(data.getColor());
-				s.setColor(color);
-			} else if(animal instanceof Wolf) {
-				Wolf w = (Wolf) animal;
-				w.setAngry(data.isAngry());
-				w.setTamed(data.isTamed());
-				if(data.isTamed()) {
-					
-					ArrayList<Player> nearPlayers = getNearbyPlayers(w.getLocation(), 16);
-					int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
-					if(nearPlayers != null) {
-						w.setOwner(nearPlayers.get(index));
-					}
-					
-					w.setSitting(data.isSitting());
-					
-				}
-			} else if(animal instanceof Ocelot) {
-				Ocelot o = (Ocelot) animal;
-				o.setTamed(data.isTamed());
-				if(data.isTamed()) {
-					Ocelot.Type catType = Ocelot.Type.valueOf(data.getCatType());
-					o.setCatType(catType);
-					
-					ArrayList<Player> nearPlayers = getNearbyPlayers(o.getLocation(), 16);
-					int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
-					if(nearPlayers != null) {
-						o.setOwner(nearPlayers.get(index));
-					}
-					
-					o.setSitting(data.isSitting());
-					
-				}
-			}
-		} else if(entity instanceof Villager) {
-			Villager v = (Villager) entity;
-			v.setAge(data.getAge());
-			v.setProfession(data.getProfession());
-		} else if(entity instanceof Monster) {
-			Monster monster = (Monster) entity;
-			
-			//Setting monster specific properties.
-			if(monster instanceof Enderman) {
-				Enderman e = (Enderman) monster;
-				e.setCarriedMaterial(data.getEndermanBlock());
-			} else if(monster instanceof Creeper) {
-				Creeper c = (Creeper) monster;
-				c.setPowered(data.isCharged());
-			} else if(monster instanceof Slime) {
-				Slime s = (Slime) monster;
-				s.setSize(data.getSlimeSize());
-			} else if(monster instanceof MagmaCube) {
-				MagmaCube m = (MagmaCube) monster;
-				m.setSize(data.getSlimeSize());
-			} else if(monster instanceof PigZombie) {
-				PigZombie p = (PigZombie) monster;
-				if(data.isAngry()) {
-					p.setAngry(true);
-				}
-			}
-		} else if(entity instanceof Golem) {
-			Golem golem = (Golem) entity;
-			
-			if(golem instanceof IronGolem) {
-				IronGolem i = (IronGolem) golem;
-				if(data.isAngry()) {
-					ArrayList<Player> nearPlayers = getNearbyPlayers(i.getLocation(), 16);
-					int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
-					if(nearPlayers != null) {
-						i.setPlayerCreated(false);
-						i.damage(0, nearPlayers.get(index));
-						i.setTarget(nearPlayers.get(index));
-					}
-				}
-			}
-		}
 	}
 	
-	//Makes a spider jockey
-	private void makeJockey(LivingEntity spider) {
-		if(spider instanceof Spider) {
-			Spider s = (Spider) spider;
-			Location spiderLoc = s.getLocation();
-			Entity skele = spiderLoc.getWorld().spawnEntity(spiderLoc, EntityType.SKELETON);
-			s.setPassenger(skele);
-		} else {
-			return;
-		}
+	private void setExplosiveProps(Explosive e, SpawnableEntity data) {
+		e.setYield(data.getYield());
+		e.setIsIncendiary(data.isIncendiary());
 	}
+	
 }

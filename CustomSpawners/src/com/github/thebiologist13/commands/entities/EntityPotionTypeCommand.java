@@ -13,27 +13,22 @@ import com.github.thebiologist13.EntityPotionEffect;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
-public class EntityAddEffectCommand extends SpawnerCommand {
-
+public class EntityPotionTypeCommand extends SpawnerCommand {
+	
 	private CustomSpawners plugin = null;
 	
 	private Logger log = null;
 	
-	public EntityAddEffectCommand(CustomSpawners plugin) {
+	public EntityPotionTypeCommand(CustomSpawners plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
 	}
 	
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-
-		//Command Syntax = /customspawners addeffect [id] <type> <level> <duration in seconds>
-		//Array Index with selection           0             1      2              3
-		//Without selection                    0       1     2      3              4
-		
 		//Player
 		Player p = null;
-		//Entity
+		//SpawnableEntity
 		SpawnableEntity s = null;
 		//Effect
 		EntityPotionEffect effect = null;
@@ -43,16 +38,16 @@ public class EntityAddEffectCommand extends SpawnerCommand {
 		int amplifier = 0;
 		//Duration
 		int duration = 0;
-		//Permissions
-		String perm = "customspawners.entities.addeffect";
-
+		//Perms
+		String perm = "customspawners.entities.setpotiontype";
+		
 		if(!(arg0 instanceof Player)) {
 			log.info(NO_CONSOLE);
 			return;
 		}
-
+		
 		p = (Player) arg0;
-
+		
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 4) {
 
@@ -144,10 +139,11 @@ public class EntityAddEffectCommand extends SpawnerCommand {
 			//Carry out command
 			s.addPoitionEffect(effect);
 
+			//Formatting Duration
 			String time = plugin.convertTicksToTime(duration);
 			
 			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully added a potion effect to spawnable entity with ID " 
+			p.sendMessage(ChatColor.GREEN + "Successfully set the potion type of spawnable entity with ID " 
 					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "! Effect Details: " + ChatColor.GOLD 
 					+ effect.getType().getName() + " " + effect.getAmplifier() + " - " + time + ChatColor.GREEN + ".");
 		} else {

@@ -86,7 +86,7 @@ public class CreateCommand extends SpawnerCommand {
 			CustomSpawners.spawners.put(id, spawner);
 			
 			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
-				plugin.autosave(spawner);
+				plugin.getFileManager().autosave(spawner);
 			}
 			
 			//Success message

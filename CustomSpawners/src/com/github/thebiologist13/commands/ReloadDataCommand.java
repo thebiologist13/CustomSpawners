@@ -33,7 +33,7 @@ public class ReloadDataCommand extends SpawnerCommand {
 		if(p == null) {
 			if(arg3.length == 1) {
 				try {
-					plugin.reloadData();
+					plugin.getFileManager().reloadData();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -45,7 +45,7 @@ public class ReloadDataCommand extends SpawnerCommand {
 			if(p.hasPermission(RELOAD_PERM)) {
 				if(arg3.length == 1) {
 					try {
-						plugin.reloadData();
+						plugin.getFileManager().reloadData();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

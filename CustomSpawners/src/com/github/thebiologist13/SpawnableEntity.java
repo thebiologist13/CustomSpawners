@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.Vector;
 
@@ -34,8 +35,11 @@ public class SpawnableEntity {
 	private ArrayList<String> damageWhitelist = new ArrayList<String>();
 	private ArrayList<String> damageBlacklist = new ArrayList<String>();
 	private ArrayList<Integer> itemDamage = new ArrayList<Integer>();
+	private ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
 	private boolean useWhitelist = false;
 	private boolean useBlacklist = true;
+	private boolean useCustomDamage = false; //Check
+	private int damage = 3; //Check
 	
 	//Specific Data
 	private Villager.Profession villagerProfession = null;
@@ -49,11 +53,21 @@ public class SpawnableEntity {
 	private String catType = "";
 	private int slimeSize = 1;
 	private String color = "";
+	private EntityPotionEffect potionEffect = null; //Check
+	private int droppedExp = 0; //Check
+	private int fuseTicks = 80;
+	private float yield = 5.0f;
+	private boolean incendiary = false;
+	private ItemStack itemType = null;
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
 		this.type = type;
 		this.id = id;
+		
+		if(type.equals(EntityType.DROPPED_ITEM)) {
+			itemType = new ItemStack(1); //TODO make configurable
+		}
 	}
 
 	public String getName() {
@@ -319,4 +333,77 @@ public class SpawnableEntity {
 	public void addItemDamage(int value) {
 		itemDamage.add(value);
 	}
+
+	public boolean isUsingCustomDamage() {
+		return useCustomDamage;
+	}
+
+	public void setUsingCustomDamage(boolean useCustomDamage) {
+		this.useCustomDamage = useCustomDamage;
+	}
+
+	public int getDamage() {
+		return damage;
+	}
+
+	public void setDamage(int damage) {
+		this.damage = damage;
+	}
+
+	public EntityPotionEffect getPotionEffect() {
+		return potionEffect;
+	}
+
+	public void setPotionEffect(EntityPotionEffect potionEffect) {
+		this.potionEffect = potionEffect;
+	}
+
+	public int getDroppedExp() {
+		return droppedExp;
+	}
+
+	public void setDroppedExp(int droppedExp) {
+		this.droppedExp = droppedExp;
+	}
+
+	public int getFuseTicks() {
+		return fuseTicks;
+	}
+
+	public void setFuseTicks(int fuseTicks) {
+		this.fuseTicks = fuseTicks;
+	}
+
+	public float getYield() {
+		return yield;
+	}
+
+	public void setYield(float yield) {
+		this.yield = yield;
+	}
+
+	public boolean isIncendiary() {
+		return incendiary;
+	}
+
+	public void setIncendiary(boolean incendiary) {
+		this.incendiary = incendiary;
+	}
+
+	public ArrayList<ItemStack> getDrops() {
+		return drops;
+	}
+
+	public void setDrops(ArrayList<ItemStack> drops) {
+		this.drops = drops;
+	}
+
+	public ItemStack getItemType() {
+		return itemType;
+	}
+
+	public void setItemType(ItemStack itemType) {
+		this.itemType = itemType;
+	}
+
 }

@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -88,6 +89,14 @@ public class SpawnAreaCommand extends SpawnerCommand {
 			
 			if(CustomSpawners.selectionPointOne.containsKey(p) && 
 					CustomSpawners.selectionPointTwo.containsKey(p)) {
+				
+				World p1World = CustomSpawners.selectionPointOne.get(p).getWorld();
+				World p2World = CustomSpawners.selectionPointTwo.get(p).getWorld();
+				
+				if(!p1World.equals(p2World)) {
+					p.sendMessage(ChatColor.RED + "Spawn area selection points must be in the same world.");
+					return;
+				}
 				
 				Location[] areaPoints = new Location[2];
 				

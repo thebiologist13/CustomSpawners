@@ -345,7 +345,7 @@ public class EntitiesExecutor implements CommandExecutor {
 			}
 			
 			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCommand")) {
-				plugin.autosaveAll();
+				plugin.getFileManager().autosaveAll();
 			}
 			
 			return true;

@@ -1,5 +1,5 @@
 name: CustomSpawners
-version: 0.0.4b
+version: 0.0.5
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
@@ -30,6 +30,7 @@ permissions:
             customspawners.customspawners: true
             customspawners.help: true
             customspawners.reloadspawners: true
+            customspawners.limitoverride: true
             customspawners.spawners.activateall: true
             customspawners.spawners.deactivateall: true
             customspawners.spawners.forcespawn: true
@@ -40,7 +41,6 @@ permissions:
             customspawners.spawners.create: true
             customspawners.spawners.remove: true
             customspawners.spawners.select: true
-            customspawners.spawners.limitoverride: true
             customspawners.spawners.setactive: true
             customspawners.spawners.setinactive: true
             customspawners.spawners.sethidden: true

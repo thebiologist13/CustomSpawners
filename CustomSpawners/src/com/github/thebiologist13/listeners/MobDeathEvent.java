@@ -8,6 +8,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
@@ -27,12 +28,13 @@ public class MobDeathEvent implements Listener {
 		EntityType type = ev.getEntityType();
 		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
 		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
+		SpawnableEntity e = plugin.getEntityFromSpawner(entity);
 		
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			
-			for(SpawnableEntity e : s.getTypeData().values()) {
-				if(e.getType().equals(type)) {
+			for(SpawnableEntity e1 : s.getTypeData().values()) {
+				if(e1.getType().equals(type)) {
 					validSpawners.add(s);
 					break;
 				}
@@ -40,6 +42,14 @@ public class MobDeathEvent implements Listener {
 		}
 		
 		plugin.removeMob(entity, validSpawners);
+		
+		//Custom Drops
+		ev.getDrops().clear();
+		Iterator<ItemStack> itr = e.getDrops().iterator();
+		while(itr.hasNext()) ev.getDrops().add(itr.next());
+		
+		//Exp
+		ev.setDroppedExp(e.getDroppedExp());
 		
 	}
 	
