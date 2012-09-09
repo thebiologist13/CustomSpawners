@@ -50,6 +50,15 @@ public class EntitiesExecutor implements CommandExecutor {
 	private EntityWhiteListCommand wlc = null;
 	private EntityItemListCommand ilc = null;
 	
+	private EntityDamageCommand dac = null;
+	private EntityDropsCommand drc = null;
+	private EntityFuseCommand fuc = null;
+	private EntityIncendiaryCommand inc = null;
+	private EntityYieldCommand yic = null;
+	private EntityExpCommand edc = null;
+	private EntityItemTypeCommand itc = null;
+	private EntityPotionTypeCommand ptc = null;
+	
 	public EntitiesExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
@@ -85,6 +94,15 @@ public class EntitiesExecutor implements CommandExecutor {
 		blc = new EntityBlackListCommand(plugin);
 		wlc = new EntityWhiteListCommand(plugin);
 		ilc = new EntityItemListCommand(plugin);
+		
+		dac = new EntityDamageCommand(plugin);
+		drc = new EntityDropsCommand(plugin);
+		edc = new EntityExpCommand(plugin);
+		fuc = new EntityFuseCommand(plugin);
+		inc = new EntityIncendiaryCommand(plugin);
+		yic = new EntityYieldCommand(plugin);
+		itc = new EntityItemTypeCommand(plugin);
+		ptc = new EntityPotionTypeCommand(plugin);
 	}
 
 	@Override
@@ -121,6 +139,9 @@ public class EntitiesExecutor implements CommandExecutor {
 						return true;
 					} else if(arg3[0].equalsIgnoreCase("clearwhitelist")) {
 						wlc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("cleardrops")) {
+						drc.run(arg0, arg1, arg2, arg3);
 						return true;
 					}
 					
@@ -222,6 +243,33 @@ public class EntitiesExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("clearitems")) {
 						ilc.run(arg0, arg1, arg2, arg3);
 						return true;
+					} else if(arg3[0].equalsIgnoreCase("setcustomdamage")) {
+						dac.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setdamageamount")) {
+						dac.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("cleardrops")) {
+						drc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setusingdrops")) {
+						drc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setexp")) {
+						edc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setfuselength") || arg3[0].equalsIgnoreCase("setfuseticks")) {
+						fuc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setincendiary")) {
+						inc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setitemtype")) {
+						itc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setyield")) {
+						yic.run(arg0, arg1, arg2, arg3);
+						return true;
 					}
 					
 				} else if(arg3.length == 3) {
@@ -301,6 +349,36 @@ public class EntitiesExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("additem")) {
 						ilc.run(arg0, arg1, arg2, arg3);
 						return true;
+					} else if(arg3[0].equalsIgnoreCase("setcustomdamage")) {
+						dac.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setdamageamount")) {
+						dac.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("adddrop")) {
+						drc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setdrops")) {
+						drc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setusingdrops")) {
+						drc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setexp")) {
+						edc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setfuselength")) {
+						fuc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setincendiary")) {
+						inc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setitemtype")) {
+						itc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setyield")) {
+						yic.run(arg0, arg1, arg2, arg3);
+						return true;
 					}
 					
 				} else if(arg3.length == 4) {
@@ -311,6 +389,15 @@ public class EntitiesExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("seteffect")) {
 						sec.run(arg0, arg1, arg2, arg3);
 						return true;
+					} else if(arg3[0].equalsIgnoreCase("setpotiontype")) {
+						ptc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("adddrop")) {
+						drc.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setdrops")) {
+						drc.run(arg0, arg1, arg2, arg3);
+						return true;
 					}
 					
 				} else if(arg3.length == 5) {
@@ -320,6 +407,9 @@ public class EntitiesExecutor implements CommandExecutor {
 						return true;
 					} else if(arg3[0].equalsIgnoreCase("seteffect")) {
 						sec.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setpotiontype")) {
+						ptc.run(arg0, arg1, arg2, arg3);
 						return true;
 					}
 					

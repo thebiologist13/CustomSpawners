@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
@@ -23,7 +24,7 @@ public class EntityItemListCommand extends SpawnerCommand {
 		//SpawnableEntity
 		SpawnableEntity s = null;
 		//Item ID
-		int itemId = 0;
+		ItemStack item = null;
 		//Perms
 		String itemlistPerm = "customspawners.entitites.itemlist";
 
@@ -41,13 +42,7 @@ public class EntityItemListCommand extends SpawnerCommand {
 				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				String value = arg3[1];
-				
-				if(!plugin.isInteger(value)) {
-					p.sendMessage(SPECIFY_NUMBER);
-					return;
-				}
-				
-				itemId = Integer.parseInt(value);
+				item = plugin.getItemStack(value);
 				
 			} else if(arg3.length == 2) {
 				p.sendMessage(NEEDS_SELECTION);
@@ -62,13 +57,7 @@ public class EntityItemListCommand extends SpawnerCommand {
 				}
 				
 				String value = arg3[2];
-				
-				if(!plugin.isInteger(value)) {
-					p.sendMessage(SPECIFY_NUMBER);
-					return;
-				}
-				
-				itemId = Integer.parseInt(value);
+				item = plugin.getItemStack(value);
 				
 			} else {
 				p.sendMessage(GENERAL_ERROR);
@@ -76,10 +65,15 @@ public class EntityItemListCommand extends SpawnerCommand {
 			}
 			
 			//Set
-			s.addItemDamage(itemId);
+			if(item == null) {
+				p.sendMessage(INVALID_ITEM);
+				return;
+			}
+			
+			s.addItemDamage(item);
 			
 			//Success
-			p.sendMessage(ChatColor.GREEN + "Added item " + ChatColor.GOLD + String.valueOf(itemId) + ChatColor.GREEN + 
+			p.sendMessage(ChatColor.GREEN + "Added item " + ChatColor.GOLD + plugin.getItemName(item) + ChatColor.GREEN + 
 					" to itemlist for entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "!");
 			
 		} else if(p.hasPermission(itemlistPerm) && arg3[0].equalsIgnoreCase("clearitems")) {
@@ -106,7 +100,7 @@ public class EntityItemListCommand extends SpawnerCommand {
 			}
 			
 			//Clear
-			s.setItemDamageList(new ArrayList<Integer>());
+			s.setItemDamageList(new ArrayList<ItemStack>());
 			
 			//Success
 			p.sendMessage(ChatColor.GREEN + "Cleared itemlist for entity " +

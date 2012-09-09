@@ -20,41 +20,75 @@ public class SelectCommand extends SpawnerCommand {
 		Player p = null;
 		//Spawner to select
 		Spawner s = null;
+		//ID to select
+		int selectionId = -1;
+		
+		final String deselect = ChatColor.GREEN + "You have deselected your spawner.";
 		
 		//Make sure a player issued command
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
-			return;
+		if(arg0 instanceof Player) {
+			p = (Player) arg0;
 		} 
 		
-		p = (Player) arg0;
-		
-		//Permission check
-		if(p.hasPermission("customspawners.spawners.select")) {
-			
+		if(p == null) {
+
 			if(arg3[1].equalsIgnoreCase("NONE")) {
-				CustomSpawners.spawnerSelection.remove(p);
-				p.sendMessage(ChatColor.GREEN + "You have deselected your spawner.");
+				CustomSpawners.consoleSpawner = -1;
+				plugin.sendMessage(arg0, deselect);
 				return;
 			}
 			
 			//Assign selectionId if a number
 			s = plugin.getSpawner(arg3[1]);
-
+			
 			if(s == null) {
-				p.sendMessage(NO_ID);
+				plugin.sendMessage(arg0, NO_ID);
 				return;
 			}
 			
-			//Put selectionId as Player's selected spawner
-			CustomSpawners.spawnerSelection.put(p, s.getId());
+			selectionId = s.getId();
+			
+			//Put selectionId as selected entity
+			CustomSpawners.consoleSpawner = selectionId;
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "You have selected spawner " + ChatColor.GOLD + 
+			plugin.sendMessage(arg0, ChatColor.GREEN + "You have selected spawner " + ChatColor.GOLD + 
 					plugin.getFriendlyName(s) + ChatColor.GREEN + ".");
+			
 		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
+
+			//Permission check
+			if(p.hasPermission("customspawners.spawners.select")) {
+				
+				if(arg3[1].equalsIgnoreCase("NONE")) {
+					CustomSpawners.spawnerSelection.remove(p);
+					plugin.sendMessage(p, deselect);
+					return;
+				}
+				
+				//Assign selectionId if a number
+				s = plugin.getSpawner(arg3[1]);
+
+				if(s == null) {
+					plugin.sendMessage(p, NO_ID);
+					return;
+				}
+				
+				selectionId = s.getId();
+				
+				//Put selectionId as Player's selected spawner
+				CustomSpawners.consoleSpawner = selectionId;
+				
+				//Success message
+				plugin.sendMessage(p, ChatColor.GREEN + "You have selected spawner " + ChatColor.GOLD + 
+						plugin.getFriendlyName(s) + ChatColor.GREEN + ".");
+			} else {
+				plugin.sendMessage(p, NO_PERMISSION);
+				return;
+			}
+			
 		}
+		
 	}
+	
 }

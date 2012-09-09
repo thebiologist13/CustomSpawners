@@ -23,55 +23,92 @@ public class ForceSpawnCommand extends SpawnerCommand {
 		//Spawner
 		Spawner s = null;
 		
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
-			return;
+		if(arg0 instanceof Player) {
+			p = (Player) arg0;
 		}
 		
-		p = (Player) arg0;
-		
-		if(p.hasPermission("customspawners.spawners.forcespawn")) {
-			
+		if(p == null) {
+
 			//Player has selection
-			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
-				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
-				
-			//Player has no selection but has arguments for selection
+			if(CustomSpawners.consoleSpawner != -1 && arg3.length == 1) {
+
+				s = plugin.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
+
+				//Player has no selection but has arguments for selection
 			} else if(arg3.length == 1) {
-				
-				p.sendMessage(NEEDS_SELECTION);
+
+				plugin.sendMessage(arg0, NEEDS_SELECTION);
 				return;
-				
-			//Defined ID
+
+				//Defined ID
 			} else if(arg3.length == 2) {
 
 				s = plugin.getSpawner(arg3[1]);
 
 				if(s == null) {
-					p.sendMessage(NO_ID);
+					plugin.sendMessage(arg0, NO_ID);
 					return;
 				}
-				
-			//General Error
+
+				//General Error
 			} else {
-				
-				p.sendMessage(GENERAL_ERROR);
+
+				plugin.sendMessage(arg0, GENERAL_ERROR);
 				return;
-				
+
 			}
-			
-			if(s.isHidden() && !p.hasPermission("customspawners.forcespawn.hidden")) {
-				p.sendMessage(ChatColor.RED + "You are not allowed to force spawns for that spawner!");
-				return;
-			}
-			
+
 			//Run the spawn method
 			s.forceSpawn();
 			
 		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
+
+			if(p.hasPermission("customspawners.spawners.forcespawn")) {
+				
+				//Player has selection
+				if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
+					
+					s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+					
+				//Player has no selection but has arguments for selection
+				} else if(arg3.length == 1) {
+					
+					plugin.sendMessage(p, NEEDS_SELECTION);
+					return;
+					
+				//Defined ID
+				} else if(arg3.length == 2) {
+
+					s = plugin.getSpawner(arg3[1]);
+
+					if(s == null) {
+						plugin.sendMessage(p, NO_ID);
+						return;
+					}
+					
+				//General Error
+				} else {
+					
+					plugin.sendMessage(p, GENERAL_ERROR);
+					return;
+					
+				}
+				
+				if(s.isHidden() && !p.hasPermission("customspawners.forcespawn.hidden")) {
+					plugin.sendMessage(p, ChatColor.RED + "You are not allowed to force spawns for that spawner!");
+					return;
+				}
+				
+				//Run the spawn method
+				s.forceSpawn();
+				
+			} else {
+				plugin.sendMessage(p, NO_PERMISSION);
+				return;
+			}
+			
 		}
+		
 	}
+	
 }

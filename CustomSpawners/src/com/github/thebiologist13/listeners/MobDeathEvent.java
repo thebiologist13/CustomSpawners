@@ -43,13 +43,19 @@ public class MobDeathEvent implements Listener {
 		
 		plugin.removeMob(entity, validSpawners);
 		
-		//Custom Drops
-		ev.getDrops().clear();
-		Iterator<ItemStack> itr = e.getDrops().iterator();
-		while(itr.hasNext()) ev.getDrops().add(itr.next());
-		
-		//Exp
-		ev.setDroppedExp(e.getDroppedExp());
+		if(e != null) {
+
+			//Custom Drops
+			if(e.isUsingCustomDrops()) {
+				ev.getDrops().clear();
+				Iterator<ItemStack> itr = e.getDrops().iterator();
+				while(itr.hasNext()) ev.getDrops().add(itr.next());
+			}
+			
+			//Exp
+			ev.setDroppedExp(e.getDroppedExp());
+			
+		}
 		
 	}
 	

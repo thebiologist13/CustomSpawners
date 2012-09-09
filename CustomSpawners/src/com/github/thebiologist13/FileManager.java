@@ -16,6 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.Vector;
 
@@ -27,24 +28,36 @@ public class FileManager {
 	
 	private FileConfiguration config = null;
 	
+	private final int logLevel;
+	
 	public FileManager(CustomSpawners plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
 		this.config = plugin.getCustomConfig();
+		this.logLevel = config.getInt("data.logLevel", 2);
 	}
 	
 	//Loads spawners from file
 	public void loadSpawners() {
-		log.info("Loading spawners from directory " + plugin.getDataFolder().getPath() + File.separator + "Spawners");
+		
+		if(logLevel > 0)
+			log.info("Loading spawners from directory " + plugin.getDataFolder().getPath() + File.separator + "Spawners");
+		
 		File sDir = new File(plugin.getDataFolder() + File.separator + "Spawners");
 		if(!sDir.exists()) {
 			sDir.mkdirs();
 		}
 		File[] sFiles = sDir.listFiles();
-		log.info(String.valueOf(sFiles.length) + " total spawners.");
+		
+		if(logLevel > 1) 
+			log.info(String.valueOf(sFiles.length) + " total spawners.");
+		
 		for(File f : sFiles) {
 			if(f.getName().endsWith(".yml")) {
-				log.info("Loading " + f.getName());
+				
+				if(logLevel > 1) 
+					log.info("Loading " + f.getName());
+				
 				FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
 
 				int id = yaml.getInt("id");
@@ -186,7 +199,8 @@ public class FileManager {
 			}
 		}
 
-		log.info("Load Complete!");
+		if(logLevel > 0)
+			log.info("Load Complete!");
 	}
 
 	//Saves then loads spawners from file
@@ -197,16 +211,22 @@ public class FileManager {
 
 	//Saves spawners to file
 	public void saveSpawners() {
-		log.info("Saving spawners...");
-		log.info(String.valueOf(CustomSpawners.spawners.size()) + " spawners to save.");
+		if(logLevel > 0)
+			log.info("Saving spawners...");
+		
+		if(logLevel > 1)
+			log.info(String.valueOf(CustomSpawners.spawners.size()) + " spawners to save.");
+		
 		boolean killOnReload = config.getBoolean("spawners.killOnReload", false);
 		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
 
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
-
-			log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + plugin.getDataFolder() + File.separator + "Spawners" + 
-					File.separator + String.valueOf(s.getId()) + ".yml");
+			
+			if(logLevel > 1)
+				log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + plugin.getDataFolder() + File.separator + "Spawners" + 
+						File.separator + String.valueOf(s.getId()) + ".yml");
+			
 			File saveFile = new File(plugin.getDataFolder() + File.separator + "Spawners" + File.separator + String.valueOf(s.getId()) + ".yml");
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 
@@ -297,21 +317,31 @@ public class FileManager {
 		}
 
 		clearSpawners();
-		log.info("Save complete!");	
+		
+		if(logLevel > 0)
+			log.info("Save complete!");	
 	}
 
 	//Load entities from file
 	public void loadEntities() {
-		log.info("Loading entities from directory " + plugin.getDataFolder().getPath() + File.separator + "Entities");
+		if(logLevel > 0)
+			log.info("Loading entities from directory " + plugin.getDataFolder().getPath() + File.separator + "Entities");
+		
 		File sDir = new File(plugin.getDataFolder() + File.separator + "Entities");
 		if(!sDir.exists()) {
 			sDir.mkdirs();
 		}
 		File[] sFiles = sDir.listFiles();
-		log.info(String.valueOf(sFiles.length) + " total entities.");
+		
+		if(logLevel > 1)
+			log.info(String.valueOf(sFiles.length) + " total entities.");
+		
 		for(File f : sFiles) {
 			if(f.getName().endsWith(".yml")) {
-				log.info("Loading " + f.getName());
+				
+				if(logLevel > 1)
+					log.info("Loading " + f.getName());
+				
 				FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
 
 				int id = yaml.getInt("id");
@@ -337,11 +367,22 @@ public class FileManager {
 				String color = yaml.getString("color", config.getString("entities.color", "WHITE"));
 				boolean passive = yaml.getBoolean("passive", config.getBoolean("entities.passive", false)); 
 				int fireTicks = yaml.getInt("fireTicks", 0);
-				List<?> blacklist = yaml.getList("blacklist");
-				List<?> whitelist = yaml.getList("whitelist");
-				List<?> itemlist = yaml.getList("itemlist");
+				List<?> blacklist = yaml.getList("blacklist", new ArrayList<String>());
+				List<?> whitelist = yaml.getList("whitelist", new ArrayList<String>());
+				List<?> itemlist = yaml.getList("itemlist", new ArrayList<ItemStack>());
 				boolean useBlack = yaml.getBoolean("useBlacklist", config.getBoolean("entities.useBlacklist", true));
 				boolean useWhite = yaml.getBoolean("useWhitelist", !config.getBoolean("entities.useBlacklist", true));
+				List<?> dropList = yaml.getList("drops", new ArrayList<ItemStack>());
+				
+				boolean usingCustomDamage = yaml.getBoolean("useCustomDamage", config.getBoolean("entities.useCustomDamage", false));
+				int damage = yaml.getInt("damage", config.getInt("entities.dealtDamage", 2));
+				EntityPotionEffect effectType = (EntityPotionEffect) yaml.get("potionType", plugin.getPotion(config.getString("entities.potionType", "REGENERATION_1_0:0")));
+				int droppedExp = yaml.getInt("droppedExp", config.getInt("entities.experienceDropped", 1));
+				int fuseTicks = yaml.getInt("fuseTicks", config.getInt("entities.fuseTicks", 80));
+				float yield = (float) yaml.getDouble("yield", config.getDouble("entities.yield", 5.0d));
+				boolean incendiary = yaml.getBoolean("incendiary", config.getBoolean("entities.incendiary", false));
+				ItemStack itemType = yaml.getItemStack("itemType", plugin.getItemStack(config.getString("itemType", "1:0")));
+				boolean usingCustomDrops = yaml.getBoolean("useCustomDrops", config.getBoolean("entities.useCustomDrops", false));
 
 				//Make sure no values are null 
 				if(Integer.valueOf(id).equals(null)) {
@@ -371,11 +412,18 @@ public class FileManager {
 						whitelistStrings.add((String) o);
 					}
 				}
-
-				ArrayList<Integer> itemlistInts = new ArrayList<Integer>();
+				
+				ArrayList<ItemStack> itemlistStacks = new ArrayList<ItemStack>();
 				for(Object o : itemlist) {
-					if(o instanceof Integer) {
-						itemlistInts.add((Integer) o);
+					if(o instanceof ItemStack) {
+						itemlistStacks.add((ItemStack) o);
+					}
+				}
+				
+				ArrayList<ItemStack> dropListStacks = new ArrayList<ItemStack>();
+				for(Object o : dropList) {
+					if(o instanceof ItemStack) {
+						dropListStacks.add((ItemStack) o);
 					}
 				}
 
@@ -409,15 +457,26 @@ public class FileManager {
 				e.setFireTicks(fireTicks);
 				e.setDamageBlacklist(blacklistStrings);
 				e.setDamageWhitelist(whitelistStrings);
-				e.setItemDamageList(itemlistInts);
+				e.setItemDamageList(itemlistStacks);
 				e.setUseBlacklist(useBlack);
 				e.setUseWhitelist(useWhite);
+				e.setDrops(dropListStacks);
+				e.setUsingCustomDamage(usingCustomDamage);
+				e.setDamage(damage);
+				e.setPotionEffect(effectType);
+				e.setDroppedExp(droppedExp);
+				e.setFuseTicks(fuseTicks);
+				e.setYield(yield);
+				e.setIncendiary(incendiary);
+				e.setItemType(itemType);
+				e.setUsingCustomDrops(usingCustomDrops);
 
 				CustomSpawners.entities.put(id, e);
 			}
 		}
 
-		log.info("Load Complete!");
+		if(logLevel > 0)
+			log.info("Load Complete!");
 	}
 
 	//Reload entities from file
@@ -428,15 +487,21 @@ public class FileManager {
 
 	//Save entities to file
 	public void saveEntities() {
-		log.info("Saving entities...");
-		log.info(String.valueOf(CustomSpawners.entities.size()) + " entities to save.");
+		if(logLevel > 0)
+			log.info("Saving entities...");
+		
+		if(logLevel > 1)
+			log.info(String.valueOf(CustomSpawners.entities.size()) + " entities to save.");
+		
 		Iterator<SpawnableEntity> entityItr = CustomSpawners.entities.values().iterator();
 
 		while(entityItr.hasNext()) {
 			SpawnableEntity e = entityItr.next();
 
+			if(logLevel > 1)
 			log.info("Saving entity " + String.valueOf(e.getId()) + " to " + plugin.getDataFolder() + File.separator + "Entities" + 
 					File.separator + String.valueOf(e.getId()) + ".yml");
+			
 			File saveFile = new File(plugin.getDataFolder() + File.separator + "Entities" + File.separator + String.valueOf(e.getId()) + ".yml");
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(saveFile);
 
@@ -470,6 +535,16 @@ public class FileManager {
 			yaml.set("itemlist", e.getItemDamageList());
 			yaml.set("useBlacklist", e.isUsingBlacklist());
 			yaml.set("useWhitelist", e.isUsingWhitelist());
+			yaml.set("useCustomDamage", e.isUsingCustomDamage());
+			yaml.set("damage", e.getDamage());
+			yaml.set("potionType", e.getPotionEffect());
+			yaml.set("droppedExp", e.getDroppedExp());
+			yaml.set("fuseTicks", e.getFuseTicks());
+			yaml.set("yield", e.getYield());
+			yaml.set("incendiary", e.isIncendiary());
+			yaml.set("itemType", e.getItemType());
+			yaml.set("useCustomDrops", e.isUsingCustomDrops());
+			yaml.set("drops", e.getDrops());
 
 			try {
 				yaml.save(saveFile);
@@ -480,7 +555,9 @@ public class FileManager {
 		}
 
 		clearEntities();
-		log.info("Save complete!");	
+		
+		if(logLevel > 0)
+			log.info("Save complete!");	
 	}
 
 	//Removes a spawner or entity's data file
@@ -488,14 +565,16 @@ public class FileManager {
 		File file = null;
 
 		if(isSpawner) {
-			file = new File(plugin.getDataFolder() + File.pathSeparator + "Spawners" + File.pathSeparator + id + ".yml");
+			file = new File(plugin.getDataFolder() + File.separator + "Spawners" + File.separator + id + ".yml");
 			if(!file.exists()) {
+				plugin.printDebugMessage("Spawner File Does Not Exist. Path => " + plugin.getDataFolder() + File.pathSeparator + "Spawners" + File.pathSeparator + id + ".yml");
 				return;
 			}
 			file.delete();
 		} else {
-			file = new File(plugin.getDataFolder() + File.pathSeparator + "Entities" + File.pathSeparator + id + ".yml");
+			file = new File(plugin.getDataFolder() + File.separator + "Entities" + File.separator + id + ".yml");
 			if(!file.exists()) {
+				plugin.printDebugMessage("Entity File Does Not Exist. Path => " + plugin.getDataFolder() + File.pathSeparator + "Entities" + File.pathSeparator + id + ".yml");
 				return;
 			}
 			file.delete();
@@ -528,7 +607,7 @@ public class FileManager {
 	public synchronized void autosaveAll() {
 
 		if(config.getBoolean("data.broadcastAutosave")) {
-			plugin.getServer().broadcastMessage(ChatColor.GOLD + config.getString("data.broadcastMessage"));
+			plugin.getServer().broadcastMessage(ChatColor.GOLD + config.getString("data.broadcastMessage", ""));
 		}
 
 		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
@@ -547,7 +626,7 @@ public class FileManager {
 		}
 
 		if(config.getBoolean("data.broadcastAutosave")) {
-			plugin.getServer().broadcastMessage(ChatColor.GREEN + config.getString("data.broadcastMessageEnd"));
+			plugin.getServer().broadcastMessage(ChatColor.GREEN + config.getString("data.broadcastMessageEnd", ""));
 		}
 
 	}
@@ -666,6 +745,16 @@ public class FileManager {
 		yaml.set("itemlist", e.getItemDamageList());
 		yaml.set("useBlacklist", e.isUsingBlacklist());
 		yaml.set("useWhitelist", e.isUsingWhitelist());
+		yaml.set("useCustomDamage", e.isUsingCustomDamage());
+		yaml.set("damage", e.getDamage());
+		yaml.set("potionType", e.getPotionEffect());
+		yaml.set("droppedExp", e.getDroppedExp());
+		yaml.set("fuseTicks", e.getFuseTicks());
+		yaml.set("yield", e.getYield());
+		yaml.set("incendiary", e.isIncendiary());
+		yaml.set("itemType", e.getItemType());
+		yaml.set("useCustomDrops", e.isUsingCustomDrops());
+		yaml.set("drops", e.getDrops());
 
 		try {
 			yaml.save(saveFile);

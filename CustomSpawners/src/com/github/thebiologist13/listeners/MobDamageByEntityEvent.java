@@ -21,7 +21,7 @@ public class MobDamageByEntityEvent implements Listener {
 	@EventHandler
 	public void onMobDamage(EntityDamageByEntityEvent ev) {
 		//DamageController
-		DamageController dc = new DamageController();
+		DamageController dc = new DamageController(plugin);
 		//Damaged Entity
 		Entity damaged = ev.getEntity();
 		//Damager
@@ -29,7 +29,7 @@ public class MobDamageByEntityEvent implements Listener {
 
 		if(damaged instanceof Player) {
 			
-			dc.doDamage(ev, null);
+			ev.setDamage(dc.getModifiedDamage(ev));
 			
 		} else {
 
@@ -41,10 +41,10 @@ public class MobDamageByEntityEvent implements Listener {
 			if(damager instanceof Player) {
 				
 				if(e != null) {
-					dc.doDamage(ev, e);
+					ev.setDamage(dc.getModifiedDamage(ev));
 					if(s.getPassiveMobs().containsKey(damaged)) {
 						int id = damaged.getEntityId();
-						s.removePassiveMob(id); //TODO may throw CME
+						s.removePassiveMob(id);
 						s.addMob(id, e);
 					}
 				}
@@ -54,7 +54,7 @@ public class MobDamageByEntityEvent implements Listener {
 			} else {
 				
 				if(e != null) {
-					dc.doDamage(ev, e);
+					ev.setDamage(dc.getModifiedDamage(ev));
 				}
 				
 				return;

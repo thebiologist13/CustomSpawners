@@ -6,6 +6,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class SpawnableEntity {
@@ -34,12 +35,13 @@ public class SpawnableEntity {
 	private int fireTicks = 0;
 	private ArrayList<String> damageWhitelist = new ArrayList<String>();
 	private ArrayList<String> damageBlacklist = new ArrayList<String>();
-	private ArrayList<Integer> itemDamage = new ArrayList<Integer>();
+	private ArrayList<ItemStack> itemDamage = new ArrayList<ItemStack>(); 
 	private ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
+	private boolean useCustomDrops = false;
 	private boolean useWhitelist = false;
 	private boolean useBlacklist = true;
 	private boolean useCustomDamage = false; //Check
-	private int damage = 3; //Check
+	private int damage = 2; //Check
 	
 	//Specific Data
 	private Villager.Profession villagerProfession = null;
@@ -53,12 +55,13 @@ public class SpawnableEntity {
 	private String catType = "";
 	private int slimeSize = 1;
 	private String color = "";
-	private EntityPotionEffect potionEffect = null; //Check
+	//TODO add config defaults
+	private EntityPotionEffect potionEffect = new EntityPotionEffect(PotionEffectType.REGENERATION, 1, 0); //Check
 	private int droppedExp = 0; //Check
-	private int fuseTicks = 80;
-	private float yield = 5.0f;
-	private boolean incendiary = false;
-	private ItemStack itemType = null;
+	private int fuseTicks = 80; //Check
+	private float yield = 5.0f; //Check
+	private boolean incendiary = false; //Check
+	private ItemStack itemType = null; //Check
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
@@ -66,7 +69,7 @@ public class SpawnableEntity {
 		this.id = id;
 		
 		if(type.equals(EntityType.DROPPED_ITEM)) {
-			itemType = new ItemStack(1); //TODO make configurable
+			itemType = new ItemStack(1, 1, (short) 0);
 		}
 	}
 
@@ -322,15 +325,15 @@ public class SpawnableEntity {
 		}
 	}
 
-	public ArrayList<Integer> getItemDamageList() {
+	public ArrayList<ItemStack> getItemDamageList() {
 		return itemDamage;
 	}
 
-	public void setItemDamageList(ArrayList<Integer> itemDamage) {
+	public void setItemDamageList(ArrayList<ItemStack> itemDamage) {
 		this.itemDamage = itemDamage;
 	}
 	
-	public void addItemDamage(int value) {
+	public void addItemDamage(ItemStack value) {
 		itemDamage.add(value);
 	}
 
@@ -397,6 +400,10 @@ public class SpawnableEntity {
 	public void setDrops(ArrayList<ItemStack> drops) {
 		this.drops = drops;
 	}
+	
+	public void addDrop(ItemStack drop) {
+		drops.add(drop);
+	}
 
 	public ItemStack getItemType() {
 		return itemType;
@@ -404,6 +411,14 @@ public class SpawnableEntity {
 
 	public void setItemType(ItemStack itemType) {
 		this.itemType = itemType;
+	}
+
+	public boolean isUsingCustomDrops() {
+		return useCustomDrops;
+	}
+
+	public void setUsingCustomDrops(boolean useCustomDrops) {
+		this.useCustomDrops = useCustomDrops;
 	}
 
 }

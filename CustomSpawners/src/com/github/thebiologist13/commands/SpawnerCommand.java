@@ -41,6 +41,7 @@ public abstract class SpawnerCommand {
 	public final static String GENERAL_ERROR = ChatColor.RED + "An error has occured with this command. Did you type everything right?";
 	public final static String NO_PERMISSION = ChatColor.RED + "You do not have permission!";
 	public final static String NOT_COMMAND = ChatColor.RED + "That is not a command for CustomSpawners.";
+	public final static String INVALID_ITEM = ChatColor.RED + "That is not an item or is in the wrong format for item types. Use <Item ID>:<Item Damage>";
 	
 	public CustomSpawners plugin = null;
 	public Logger log = null;

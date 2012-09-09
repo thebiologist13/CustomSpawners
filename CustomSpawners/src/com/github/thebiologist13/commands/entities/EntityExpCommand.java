@@ -78,6 +78,9 @@ public class EntityExpCommand extends SpawnerCommand {
 			p.sendMessage(ChatColor.GREEN + "Successfully set the dropped experience of spawnable entity with ID " 
 					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD 
 					+ exp + ChatColor.GREEN + "!");
+		} else {
+			p.sendMessage(NO_PERMISSION);
+			return;
 		}
 		
 	}

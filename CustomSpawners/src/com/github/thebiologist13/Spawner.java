@@ -372,18 +372,15 @@ public class Spawner {
 						SpawnableEntity type = randType();
 						Entity e = loc.getWorld().spawnEntity(spawnLoc, type.getType());
 						if(e != null) {
-							if(e instanceof LivingEntity) {
-								LivingEntity le = (LivingEntity) e;
 
-								assignMobProps(le, type);
+							assignMobProps(e, type);
 
-								if(type.isPassive()) {
-									passiveMobs.put(le.getEntityId(), type);
-								} else {
-									mobs.put(le.getEntityId(), type);
-								}
-								spawned = true;
+							if(type.isPassive()) {
+								passiveMobs.put(e.getEntityId(), type);
+							} else {
+								mobs.put(e.getEntityId(), type);
 							}
+							spawned = true;
 						}
 					}
 
@@ -441,18 +438,15 @@ public class Spawner {
 					SpawnableEntity type = randType();
 					Entity e = loc.getWorld().spawnEntity(spawnLoc, type.getType());
 					if(e != null) {
-						if(e instanceof LivingEntity) {
-							LivingEntity le = (LivingEntity) e;
-							
-							assignMobProps(le, type);
-							
-							if(type.isPassive()) {
-								passiveMobs.put(le.getEntityId(), type);
-							} else {
-								mobs.put(le.getEntityId(), type);
-							}
-							spawned = true;
+
+						assignMobProps(e, type);
+
+						if(type.isPassive()) {
+							passiveMobs.put(e.getEntityId(), type);
+						} else {
+							mobs.put(e.getEntityId(), type);
 						}
+						spawned = true;
 					}
 				}
 				
@@ -508,17 +502,14 @@ public class Spawner {
 				if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty()) {
 					Entity e = loc.getWorld().spawnEntity(spawnLoc, entity.getType());
 					if(e != null) {
-						if(e instanceof LivingEntity) {
-							LivingEntity le = (LivingEntity) e;
-							
-							assignMobProps(le, entity);
-							if(entity.isPassive()) {
-								passiveMobs.put(le.getEntityId(), entity);
-							} else {
-								mobs.put(le.getEntityId(), entity);
-							}
-							spawned = true;
+
+						assignMobProps(e, entity);
+						if(entity.isPassive()) {
+							passiveMobs.put(e.getEntityId(), entity);
+						} else {
+							mobs.put(e.getEntityId(), entity);
 						}
+						spawned = true;
 					}
 				}
 				
@@ -612,17 +603,13 @@ public class Spawner {
 			LivingEntity entity = (LivingEntity) baseEntity;
 			setBasicProps(entity, data);
 			
+			if(entity instanceof Ageable) {
+				Ageable a = (Ageable) entity;
+				setAgeProps(a, data);
+			}
+			
 			if(entity instanceof Animals) {
 				Animals animal = (Animals) entity;
-				
-				//Age handling
-				if(data.getAge() == -2) {
-					animal.setBaby();
-				} else if(data.getAge() == -1) {
-					animal.setAdult();
-				} else {
-					animal.setAge(data.getAge());
-				}
 				
 				//Setting animal specific properties
 				if(animal instanceof Pig) {
@@ -725,14 +712,14 @@ public class Spawner {
 				e.setShooter(players.get(index));
 			} else if(pro instanceof Fireball) {
 				Fireball f = (Fireball) pro;
+				setExplosiveProps(f, data);
 				f.setVelocity(new Vector(0, 0, 0));
 				f.setDirection(data.getVelocity());
-				setExplosiveProps(f, data);
 			} else if(pro instanceof SmallFireball) {
 				SmallFireball f = (SmallFireball) pro;
+				setExplosiveProps(f, data);
 				f.setVelocity(new Vector(0, 0, 0));
 				f.setDirection(data.getVelocity());
-				setExplosiveProps(f, data);
 			}
 			
 		} else if(baseEntity instanceof Explosive) {
@@ -741,10 +728,14 @@ public class Spawner {
 			
 			if(ex instanceof TNTPrimed) {
 				TNTPrimed tnt = (TNTPrimed) ex;
-				tnt.setFuseTicks(data.getFuseTicks());
 				setExplosiveProps(tnt, data);
+				tnt.setFuseTicks(data.getFuseTicks());
 			}
 			
+		} else if(baseEntity instanceof Item) {
+			Item i = (Item) baseEntity;
+			
+			i.setItemStack(data.getItemType());
 		}
 		
 		if(data.isUsingCustomDamage())
@@ -794,9 +785,21 @@ public class Spawner {
 		
 	}
 	
+	//Explosive Properties
 	private void setExplosiveProps(Explosive e, SpawnableEntity data) {
 		e.setYield(data.getYield());
 		e.setIsIncendiary(data.isIncendiary());
+	}
+	
+	//Age properties
+	private void setAgeProps(Ageable a, SpawnableEntity data) {
+		if(data.getAge() == -2) {
+			a.setBaby();
+		} else if(data.getAge() == -1) {
+			a.setAdult();
+		} else {
+			a.setAge(data.getAge());
+		}
 	}
 	
 }

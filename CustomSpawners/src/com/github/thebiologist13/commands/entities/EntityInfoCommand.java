@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.EntityPotionEffect;
@@ -113,14 +115,19 @@ public class EntityInfoCommand extends SpawnerCommand {
 			}
 			
 			String itemListMsg = "";
-			ArrayList<Integer> itemList = s.getItemDamageList();
+			ArrayList<ItemStack> itemList = s.getItemDamageList();
 			for(int i = 0; i < itemList.size(); i++) {
+				ItemStack item = itemList.get(i);
 				if(i == 0) {
-					itemListMsg += itemList.get(i);
+					itemListMsg += item.getTypeId() + ":" + item.getDurability();
 				} else {
-					itemListMsg += ", " + itemList.get(i);
+					itemListMsg += ", " + item.getTypeId() + ":" + item.getDurability();
 				}
 			}
+			
+			EntityPotionEffect epe = s.getPotionEffect();
+			
+			String typeOfExpDrop = (s.getType().equals(EntityType.THROWN_EXP_BOTTLE)) ? "Experience Bottle Exp: " : "Mob Dropped Exp: ";
 			
 			//Send info
 			String[] message = {
@@ -153,6 +160,14 @@ public class EntityInfoCommand extends SpawnerCommand {
 					ChatColor.GOLD + "Damage Blacklist: " + blackListMsg,
 					ChatColor.GOLD + "Damage Whitelist: " + whiteListMsg,
 					ChatColor.GOLD + "Damage Itemlist: " + itemListMsg,
+					ChatColor.GOLD + "Using Custom Damage: " + s.isUsingCustomDamage(),
+					ChatColor.GOLD + "Damage Dealt: " + s.getDamage(),
+					ChatColor.GOLD + "Potion Type: " + epe.getType().getName() + " " + epe.getAmplifier() + " - " + plugin.convertTicksToTime(epe.getDuration()),
+					ChatColor.GOLD + typeOfExpDrop + s.getDroppedExp(),
+					ChatColor.GOLD + "Fuse Ticks: " + s.getFuseTicks(),
+					ChatColor.GOLD + "Explosive Yield: " + s.getYield(),
+					ChatColor.GOLD + "Incendiary: " + s.isIncendiary(),
+					ChatColor.GOLD + "Item Type: " + plugin.getItemName(s.getItemType()),
 					ChatColor.GREEN + "Scroll Up for More Properties."
 			};
 

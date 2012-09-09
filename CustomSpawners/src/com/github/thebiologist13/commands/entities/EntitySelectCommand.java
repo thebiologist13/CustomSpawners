@@ -22,20 +22,18 @@ public class EntitySelectCommand extends SpawnerCommand {
 		//ID to select
 		int selectionId = -1;
 		
+		final String deselect = ChatColor.GREEN + "You have deselected your entity.";
+		
 		//Make sure a player issued command
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
-			return;
+		if(arg0 instanceof Player) {
+			p = (Player) arg0;
 		} 
 		
-		p = (Player) arg0;
-		
-		//Permission check
-		if(p.hasPermission("customspawners.entities.select")) {
+		if(p == null) {
 			
 			if(arg3[1].equalsIgnoreCase("NONE")) {
-				CustomSpawners.entitySelection.remove(p);
-				p.sendMessage(ChatColor.GREEN + "You have deselected your entity.");
+				CustomSpawners.consoleEntity = -1;
+				plugin.sendMessage(arg0, deselect);
 				return;
 			}
 			
@@ -43,20 +41,49 @@ public class EntitySelectCommand extends SpawnerCommand {
 			SpawnableEntity s = plugin.getEntity(arg3[1]);
 			
 			if(s == null) {
-				p.sendMessage(NO_ID);
+				plugin.sendMessage(arg0, NO_ID);
 				return;
 			}
 			
 			selectionId = s.getId();
 			
-			//Put selectionId as Player's selected entities
-			CustomSpawners.entitySelection.put(p, selectionId);
+			//Put selectionId as selected entity
+			CustomSpawners.consoleEntity = selectionId;
 			
 			//Success message
-			p.sendMessage(ChatColor.GREEN + "You have selected entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + ".");
+			plugin.sendMessage(arg0, ChatColor.GREEN + "You have selected entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + ".");
+			
 		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
+
+			//Permission check
+			if(p.hasPermission("customspawners.entities.select")) {
+				
+				if(arg3[1].equalsIgnoreCase("NONE")) {
+					CustomSpawners.entitySelection.remove(p);
+					plugin.sendMessage(p, ChatColor.GREEN + "You have deselected your entity.");
+					return;
+				}
+				
+				//Assign selectionId if a number
+				SpawnableEntity s = plugin.getEntity(arg3[1]);
+				
+				if(s == null) {
+					plugin.sendMessage(p, NO_ID);
+					return;
+				}
+				
+				selectionId = s.getId();
+				
+				//Put selectionId as Player's selected entities
+				CustomSpawners.entitySelection.put(p, selectionId);
+				
+				//Success message
+				plugin.sendMessage(p, ChatColor.GREEN + "You have selected entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + ".");
+			} else {
+				plugin.sendMessage(p, NO_PERMISSION);
+				return;
+			}
+			
 		}
 		
 	}

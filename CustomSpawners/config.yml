@@ -156,7 +156,33 @@ entities:
     # Default amount of damage to deal if the entity is using
     # custom damage.
     dealtDamage: 2 
-     
+    
+    # Default potion effect for SplashPotion entities. Use the format
+    # <PotionType>_<Level>_<Minutes>:<Seconds>
+    potionType: REGENERATION_1_0:0
+    
+    # Default experience to drop in Exp Orbs from mobs or experience
+    # bottle entities. Going from level 1 to level 30 is 825exp
+    experienceDropped: 1
+    
+    # Ticks that the fuse on primed TNT entities should last. 20 ticks/second
+    fuseTicks: 80
+    
+    # Explosive yield. This is the radius of the affected area from fireball
+    # and TNT explosions. Does not apply to creepers (yet :D).
+    yield: 5.0
+    
+    # Incendiary explosives! If this is true, explosives will be incendiary
+    # (like ghast fireballs) when they explode!
+    incendiary: false
+    
+    # Item type for entities of type "DROPPED_ITEM" to be when spawned. Use the
+    # format <Item ID>:<Item Damage>. Default is stone.
+    itemType: 1:0
+    
+    # Should the entity use customized drops by default?
+    useCustomDrops: false
+    
 mobs:
 
     # Which mob types for entities should be 
@@ -188,7 +214,6 @@ mobs:
     blaze: false
     irongolem: true
     snowman: true
-    
     egg: true
     snowball: true
     arrow: true
@@ -248,4 +273,13 @@ data:
     
     # Broadcast Message for end of save.
     broadcastMessageEnd: Done saving spawners and entities.
+    
+    # How much info should be printed to the console?
+    # 0 is no saving/loading info, 1 is some saving/loading info,
+    # and 2 is all saving/loading info.
+    logLevel: 2
+    
+    # Developer Debug Mode
+    # Leave false unless you want endless console spam.
+    debug: false
     

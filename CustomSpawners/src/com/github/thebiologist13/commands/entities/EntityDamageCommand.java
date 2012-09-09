@@ -32,7 +32,7 @@ public class EntityDamageCommand extends SpawnerCommand {
 		
 		p = (Player) arg0;
 		
-		if(p.hasPermission(perm1) && arg1.getName().equalsIgnoreCase("setcustomdamage")) {
+		if(p.hasPermission(perm1) && arg3[0].equalsIgnoreCase("setcustomdamage")) {
 			
 			boolean value = false;
 			
@@ -82,7 +82,7 @@ public class EntityDamageCommand extends SpawnerCommand {
 			p.sendMessage(ChatColor.GREEN + "Successfully set entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + 
 					ChatColor.GREEN + "'s custom damage value to " + ChatColor.GOLD + String.valueOf(value) + ChatColor.GREEN + "!");
 			
-		} else if(p.hasPermission(perm2) && arg1.getName().equalsIgnoreCase("setdamageamount")) {
+		} else if(p.hasPermission(perm2) && arg3[0].equalsIgnoreCase("setdamageamount")) {
 			
 			final String MUST_BE_INTEGER = ChatColor.RED + "The damage dealt must be an integer.";
 			

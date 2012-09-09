@@ -9,12 +9,12 @@ import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
-public class EntityFuseCommand extends SpawnerCommand {
+public class EntityIncendiaryCommand extends SpawnerCommand {
 
-	public EntityFuseCommand(CustomSpawners plugin) {
+	public EntityIncendiaryCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
-	
+
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		//Player
@@ -22,62 +22,64 @@ public class EntityFuseCommand extends SpawnerCommand {
 		//SpawnableEntity
 		SpawnableEntity s = null;
 		//Perm
-		String perm = "customspawners.entities.setfuselength";
-		//Fuse tick length
-		int fuse = 0;
-
-		final String MUST_BE_INTEGER = ChatColor.RED + "The fuse length must be an integer.";
-
+		String perm = "customspawners.entities.setincendiary";
+		
 		if(!(arg0 instanceof Player)) {
 			log.info(NO_CONSOLE);
 			return;
 		}
-
+		
 		p = (Player) arg0;
-
+		
 		if(p.hasPermission(perm)) {
+
+			boolean value = false;
+			
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
-
+				
 				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
-
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(MUST_BE_INTEGER);
+				
+				if(arg3[1].equalsIgnoreCase("true") || arg3[1].equalsIgnoreCase("false")) {
+					if(arg3[1].equals("true")) {
+						value = true;
+					}
+				} else {
+					p.sendMessage(MUST_BE_BOOLEAN);
 					return;
 				}
-
-				fuse = Integer.parseInt(arg3[1]);
-
+				
 			} else if(arg3.length == 2) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
 			} else if(arg3.length == 3) {
-
+				
 				s = plugin.getEntity(arg3[1]);
-
+				
 				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
-
-				if(!plugin.isInteger(arg3[2])) {
-					p.sendMessage(MUST_BE_INTEGER);
+				
+				if(arg3[2].equalsIgnoreCase("true") || arg3[2].equalsIgnoreCase("false")) {
+					if(arg3[2].equals("true")) {
+						value = true;
+					}
+				} else {
+					p.sendMessage(MUST_BE_BOOLEAN);
 					return;
 				}
-
-				fuse = Integer.parseInt(arg3[2]);
-
+				
 			} else {
 				p.sendMessage(GENERAL_ERROR);
 				return;
 			}
-
-			//Set
-			s.setFuseTicks(fuse);
-
+			
+			//Carry out command
+			s.setIncendiary(value);
+			
 			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully set the length of fuse on spawnable entity with ID " 
-					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD 
-					+ plugin.convertTicksToTime(fuse) + ChatColor.GREEN + "!");
+			p.sendMessage(ChatColor.GREEN + "Successfully set entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + 
+					ChatColor.GREEN + "'s incendiary value to " + ChatColor.GOLD + String.valueOf(value) + ChatColor.GREEN + "!");
 		} else {
 			p.sendMessage(NO_PERMISSION);
 			return;

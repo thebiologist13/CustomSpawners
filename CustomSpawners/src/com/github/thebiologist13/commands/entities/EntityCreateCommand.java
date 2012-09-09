@@ -9,6 +9,7 @@ import org.bukkit.entity.Villager;
 import org.bukkit.material.MaterialData;
 
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.EntityPotionEffect;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
@@ -120,6 +121,9 @@ public class EntityCreateCommand extends SpawnerCommand {
 			MaterialData enderBlock = new MaterialData(config.getInt("entities.endermanBlock", 2));
 			entity.setEndermanBlock(enderBlock);
 			
+			String rawEffectType = config.getString("entities.potionType", "REGENERATION_1_0:0");
+			EntityPotionEffect effect = plugin.getPotion(rawEffectType);
+			
 			entity.setSaddled(config.getBoolean("entities.isSaddled", false));
 			entity.setCharged(config.getBoolean("entities.isCharged", false));
 			entity.setTamed(config.getBoolean("entities.isTamed", false));
@@ -134,6 +138,13 @@ public class EntityCreateCommand extends SpawnerCommand {
 			entity.setPassive(config.getBoolean("entities.passive", false));
 			entity.setUsingCustomDamage(config.getBoolean("entities.useCustomDamage", false));
 			entity.setDamage(config.getInt("entities.dealtDamage", 2));
+			entity.setPotionEffect(effect);
+			entity.setDroppedExp(config.getInt("entities.experienceDropped", 1));
+			entity.setFuseTicks(config.getInt("entities.fuseTicks", 80));
+			entity.setYield((float) config.getDouble("entities.yield", 5.0d));
+			entity.setIncendiary(config.getBoolean("entities.incendiary", false));
+			entity.setItemType(plugin.getItemStack(config.getString("entities.itemType", "1:0")));
+			entity.setUsingCustomDrops(config.getBoolean("entities.useCustomDrops", false));
 			
 			if(createJockey) {
 				entity.setJockey(true);

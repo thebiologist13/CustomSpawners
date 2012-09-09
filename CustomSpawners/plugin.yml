@@ -1,5 +1,5 @@
 name: CustomSpawners
-version: 0.0.5c
+version: 0.0.5
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
@@ -290,5 +290,41 @@ permissions:
         description: Allows the user/group to set values on the damage whitelist.
         default: op
     customspawners.entities.itemlist:
+        description: Allows the user/group to set values on the item list.
+        default: op
+    customspawners.entities.setcustomdamage:
+        description: Allows the user/group to set the entity to use custom damage values.
+        default: op
+    customspawners.entities.setdamageamount:
+        description: Allows the user/group to set the amount of damage dealt by an entity.
+        default: op
+    customspawners.entities.adddrop:
+        description: Allows the user/group to add a drop for an entity.
+        default: op
+    customspawners.entities.setdrop:
+        description: Allows the user/group to set the drops of an entity.
+        default: op
+    customspawners.entities.cleardrop:
+        description: Allows the user/group to clear the entity drops.
+        default: op
+    customspawners.entities.setusingdrops:
+        description: Allows the user/group to change whether the entity uses customized drops.
+        default: op
+    customspawners.entities.setpotiontype:
+        description: Allows the user/group to set values on the item list.
+        default: op
+    customspawners.entities.setexp:
+        description: Allows the user/group to set values on the item list.
+        default: op
+    customspawners.entities.setfuselength:
+        description: Allows the user/group to set values on the item list.
+        default: op
+    customspawners.entities.setyield:
+        description: Allows the user/group to set values on the item list.
+        default: op
+    customspawners.entities.setincendiary:
+        description: Allows the user/group to set values on the item list.
+        default: op
+    customspawners.entities.setitemtype:
         description: Allows the user/group to set values on the item list.
         default: op

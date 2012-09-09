@@ -13,25 +13,41 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.listeners.DamageController;
+import com.github.thebiologist13.listeners.ExpBottleHitEvent;
 import com.github.thebiologist13.listeners.InteractEvent;
 import com.github.thebiologist13.listeners.MobCombustEvent;
 import com.github.thebiologist13.listeners.MobDamageEvent;
 import com.github.thebiologist13.listeners.MobDeathEvent;
+import com.github.thebiologist13.listeners.MobExplodeEvent;
+import com.github.thebiologist13.listeners.MobRegenEvent;
 import com.github.thebiologist13.listeners.PlayerLogoutEvent;
 import com.github.thebiologist13.listeners.PlayerTargetEvent;
-import com.github.thebiologist13.listeners.MobDamageByEntityEvent;
+import com.github.thebiologist13.listeners.PotionHitEvent;
+import com.github.thebiologist13.listeners.ProjectileFireEvent;
 
 public class CustomSpawners extends JavaPlugin {
+	
+	/*
+	 * THE GREAT TODO LIST OF THINGS TODO!
+	 * * Make more console commands
+	 * * Fix explosive radius and velocity
+	 * * Spawn cycles
+	 * * Test new features
+	 */
 	
 	//Logger
 	public Logger log = Logger.getLogger("Minecraft");
@@ -47,6 +63,12 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Selected entities for players
 	public static ConcurrentHashMap<Player, Integer> entitySelection = new ConcurrentHashMap<Player, Integer>();
+	
+	//Selected spawner by console
+	public static int consoleSpawner = -1;
+	
+	//Selected entity by console
+	public static int consoleEntity = -1;
 	
 	//Player selection area Point 1
 	public static ConcurrentHashMap<Player, Location> selectionPointOne = new ConcurrentHashMap<Player, Location>();
@@ -66,6 +88,9 @@ public class CustomSpawners extends JavaPlugin {
 	//YAML file variable
 	private File configFile;
 	
+	//Debug
+	public static boolean debug = false;
+	
 	public void onEnable() {
 		
 		//Serialization
@@ -81,6 +106,9 @@ public class CustomSpawners extends JavaPlugin {
 		//FileManager assignment
 		fileManager = new FileManager(this);
 		
+		//Debug
+		debug = config.getBoolean("data.debug", false);
+		
 		//Commands
 		//TODO Note: to check if a creature is valid, use instanceof Creature or EntityType.isSpawnable()
 		//TODO Add other entities (tnt, fireball, etc.)
@@ -95,10 +123,15 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
 		getServer().getPluginManager().registerEvents(new MobDamageEvent(this), this);
 		getServer().getPluginManager().registerEvents(new MobCombustEvent(), this);
-		getServer().getPluginManager().registerEvents(new MobDamageByEntityEvent(this), this);
-		getServer().getPluginManager().registerEvents(new PlayerTargetEvent(), this);
+		//getServer().getPluginManager().registerEvents(new MobDamageByEntityEvent(this), this);
+		getServer().getPluginManager().registerEvents(new PlayerTargetEvent(this), this);
 		getServer().getPluginManager().registerEvents(new MobDeathEvent(this), this);
 		getServer().getPluginManager().registerEvents(new InteractEvent(this), this);
+		getServer().getPluginManager().registerEvents(new ExpBottleHitEvent(this), this);
+		getServer().getPluginManager().registerEvents(new MobExplodeEvent(this), this);
+		getServer().getPluginManager().registerEvents(new MobRegenEvent(this), this);
+		getServer().getPluginManager().registerEvents(new PotionHitEvent(this), this);
+		getServer().getPluginManager().registerEvents(new ProjectileFireEvent(this), this);
 		
 		//Load entities from file
 		fileManager.loadEntities();
@@ -483,6 +516,83 @@ public class CustomSpawners extends JavaPlugin {
 		return minutes + ":" + seconds;
 	}
 	
+	//Gets a ItemStack from string with id and damage value
+	public ItemStack getItemStack(String value) {
+		int id = 0;
+		short damage = 0;
+		
+		int index = value.indexOf(":") + 1;
+		
+		if(index == -1) {
+			String itemId = value.substring(0, index);
+			
+			if(!isInteger(itemId)) 
+				return null;
+			
+			id = Integer.parseInt(itemId);
+			
+			if(Material.getMaterial(id) == null)
+				return null;
+			
+		} else {
+			String itemId = value.substring(0, index);
+			String itemDamage = value.substring(index + 1, value.length());
+			
+			if(!isInteger(itemId) || !isInteger(itemDamage)) 
+				return null;
+			
+			id = Integer.parseInt(itemId);
+			damage = (short) Integer.parseInt(itemDamage);
+			
+			if(Material.getMaterial(id) == null)
+				return null;
+		}
+		
+		return new ItemStack(id, 1, damage);
+	}
+	
+	//Gets the proper name of an ItemStack
+	public String getItemName(ItemStack item) {
+		String name = "";
+		
+		if(item == null) {
+			return "AIR (0)";
+		}
+		
+		if(item.getType() != null) {
+			name += item.getType().toString() + " (" + item.getTypeId() + ")";
+		} else {
+			name += item.getTypeId();
+		}
+		
+		if(item.getDurability() != 0) {
+			name += ":" + item.getDurability();
+		}
+		
+		return name;
+	}
+	
+	//Gets an EntityPotionEffect from format <PotionEffectType>_<level>_<minutes>:<seconds>
+	public EntityPotionEffect getPotion(String value) {
+		int index1 = value.indexOf("_");
+		int index2 = value.indexOf("_", index1 + 1);
+		int index3 = value.indexOf(":");
+		if(index1 == -1 || index2 == -1 || index3 == -1) {
+			value = "REGENERATION_1_0:0";
+			index1 = value.indexOf("_");
+			index2 = value.indexOf("_", index1 + 1);
+			index3 = value.indexOf(":");
+		}
+		
+		PotionEffectType effectType = PotionEffectType.getByName(value.substring(0, index1));
+		int effectLevel = Integer.parseInt(value.substring(index1 + 1, index2));
+		int minutes = Integer.parseInt(value.substring(index2 + 1, index3));
+		int seconds = Integer.parseInt(value.substring(index3 + 1, value.length()));
+		int effectDuration = (minutes * 1200) + (seconds * 20);
+		
+		return new EntityPotionEffect(effectType, effectLevel, effectDuration);
+	}
+	
 	//Resets selections if a spawner is removed
 	public void resetSpawnerSelections(int id) {
 		for(Player p : spawnerSelection.keySet()) {
@@ -602,23 +712,16 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	public SpawnableEntity getEntityFromSpawner(Entity entity) {
-		EntityType type = entity.getType();
+		
+		if(entity == null) {
+			return null;
+		}
+		
 		int entityId = entity.getEntityId();
-		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
 		Iterator<Spawner> spawnerItr = spawners.values().iterator();
 		
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
-			
-			for(SpawnableEntity e : s.getTypeData().values()) {
-				if(e.getType().equals(type)) {
-					validSpawners.add(s);
-					break;
-				}
-			}
-		}
-		
-		for(Spawner s : validSpawners) {
 			Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
 			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 
@@ -688,6 +791,67 @@ public class CustomSpawners extends JavaPlugin {
 		}
 		
 		return null;
+		
+	}
+	
+	public void printDebugMessage(String message) {
+		if(debug) {
+			log.info("[CS_DEBUG] " + message);
+		}
+		
+	}
+	
+	public void printDebugMessage(String message, Class<?> clazz) {
+		if(debug) {
+			if(clazz != null) {
+				log.info("[CS_DEBUG] " + clazz.getName() + ": " + message);
+			} else {
+				log.info("[CS_DEBUG] " + message);
+			}
+			
+		}
+		
+	}
+	
+	public void sendMessage(CommandSender sender, String message) {
+		
+		if(sender == null) 
+			return;
+		
+		Player p = null;
+		
+		if(sender instanceof Player)
+			p = (Player) sender;
+		
+		if(p == null) {
+			message = ChatColor.stripColor(message);
+			log.info(message);
+		} else {
+			p.sendMessage(message);
+		}
+		
+	}
+	
+	public void sendMessage(CommandSender sender, String[] message) {
+		
+		if(sender == null) 
+			return;
+		
+		Player p = null;
+		
+		if(sender instanceof Player)
+			p = (Player) sender;
+		
+		if(p == null) {
+			
+			for(String s : message) {
+				s = ChatColor.stripColor(s);
+				log.info(s);
+			}
+			
+		} else {
+			p.sendMessage(message);
+		}
 		
 	}
 	
