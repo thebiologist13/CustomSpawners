@@ -90,15 +90,15 @@ public class FileManager {
 				int p2z = yaml.getInt("p2.z", 0);
 
 				//Make sure no values are null 
-				if(Integer.valueOf(id).equals(null)) {
+				if(Integer.valueOf(id) == null) {
 					log.info("Cannot load ID from spawner! Please check that " + f.getName() + " has a valid ID.");
 					return;
 				}
-				if(locWorld.equals(null)) {
+				if(locWorld == null) {
 					log.info("Cannot load world that spawner is from file " + f.getName() + "! Using default world. " + plugin.getServer().getWorlds().get(0).getName());
 					locWorld = plugin.getServer().getWorlds().get(0).getName();
 				}
-				if(p1World.equals(null) || p2World.equals(null)) {
+				if(p1World == null || p2World == null) {
 					log.info("Cannot load spawn area world locations in file " + f.getName() + "! Using default world. " + plugin.getServer().getWorlds().get(0).getName());
 					locWorld = plugin.getServer().getWorlds().get(0).getName();
 				}
@@ -385,12 +385,14 @@ public class FileManager {
 				boolean usingCustomDrops = yaml.getBoolean("useCustomDrops", config.getBoolean("entities.useCustomDrops", false));
 
 				//Make sure no values are null 
-				if(Integer.valueOf(id).equals(null)) {
+				if(Integer.valueOf(id) == null) {
 					log.info("Cannot load ID from entity! Please check that " + f.getName() + " has a valid ID.");
 					return;
 				}
-				if(strType.equals(null)) {
-					log.info("Cannot load type of entity in file " + f.getName() + "! Using default world. ");
+				
+				if(strType == null) {
+					log.info("Cannot load type of entity in file " + f.getName() + "! Using default type. ");
+					strType = "PIG";
 				}
 				
 				//PotionEffect handling
@@ -427,7 +429,7 @@ public class FileManager {
 					}
 				}
 
-				EntityType type = EntityType.fromName(strType);
+				EntityType type = plugin.parseEntityType(strType);
 
 				Vector velocity = new Vector(xVelocity, yVelocity, zVelocity);
 
@@ -509,7 +511,7 @@ public class FileManager {
 
 			yaml.set("id", e.getId());
 			yaml.set("name", e.getName());
-			yaml.set("type", e.getType().getName());
+			yaml.set("type", plugin.parseEntityName(e.getType()));
 			yaml.set("effects", e.getEffects());
 			yaml.set("xVelocity", e.getXVelocity());
 			yaml.set("yVelocity", e.getYVelocity());

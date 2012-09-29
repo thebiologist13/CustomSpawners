@@ -100,7 +100,7 @@ public class EntityDropsCommand extends SpawnerCommand {
 					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "! Item Details: " + ChatColor.GOLD 
 					+ plugin.getItemName(drop) + ChatColor.GREEN + ".");
 			
-		} else if(p.hasPermission(perm2) && arg3[0].equalsIgnoreCase("setdrop")) {
+		} else if(p.hasPermission(perm2) && arg3[0].equalsIgnoreCase("setdrops")) {
 			
 			ItemStack drop = null;
 			int amount = 1;

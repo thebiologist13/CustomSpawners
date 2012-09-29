@@ -111,12 +111,12 @@ public class EntitySetTypeCommand extends SpawnerCommand {
 			//Success
 			if(s.getName().isEmpty()) {
 				p.sendMessage(ChatColor.GREEN + "Successfully set the base entity type of spawnable entity with ID " 
-						+ ChatColor.GOLD + s.getId() + ChatColor.GREEN + " to " + ChatColor.GOLD + type.getName()
+						+ ChatColor.GOLD + s.getId() + ChatColor.GREEN + " to " + ChatColor.GOLD + plugin.parseEntityName(type)
 						+ ChatColor.GREEN + "!");
 			} else {
 				p.sendMessage(ChatColor.GREEN + "Successfully set the base entity type of spawnable entity with ID " 
 						+ ChatColor.GOLD + s.getId() + " (" + s.getName() + ") " + ChatColor.GREEN + " to " + ChatColor.GOLD
-						+ type.getName() + ChatColor.GREEN + "!");
+						+ plugin.parseEntityName(type) + ChatColor.GREEN + "!");
 			}
 			
 		} else {

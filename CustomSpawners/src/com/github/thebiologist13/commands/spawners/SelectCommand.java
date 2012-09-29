@@ -77,7 +77,7 @@ public class SelectCommand extends SpawnerCommand {
 				selectionId = s.getId();
 				
 				//Put selectionId as Player's selected spawner
-				CustomSpawners.consoleSpawner = selectionId;
+				CustomSpawners.spawnerSelection.put(p, selectionId);
 				
 				//Success message
 				plugin.sendMessage(p, ChatColor.GREEN + "You have selected spawner " + ChatColor.GOLD + 

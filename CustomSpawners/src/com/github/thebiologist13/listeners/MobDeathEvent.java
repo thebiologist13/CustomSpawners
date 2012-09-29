@@ -44,7 +44,8 @@ public class MobDeathEvent implements Listener {
 		plugin.removeMob(entity, validSpawners);
 		
 		if(e != null) {
-
+			
+			//TODO Make this work with exploding creepers
 			//Custom Drops
 			if(e.isUsingCustomDrops()) {
 				ev.getDrops().clear();

@@ -1,10 +1,8 @@
 package com.github.thebiologist13.listeners;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -27,12 +25,8 @@ public class DamageController {
 	//TODO any spawned entity with a damage mod MUST be added to this.
 	public static ConcurrentHashMap<Integer, Integer> damageModEntities = new ConcurrentHashMap<Integer, Integer>();
 	
-	/*
-	 * This HashMap contains the explosion radius of entity-induced explosions. 
-	 * This is used to calculate if an entity should take more or less damage
-	 * from explosions created by said entity.
-	 */
-	public static ConcurrentHashMap<Location, SpawnableEntity> customExplosives = new ConcurrentHashMap<Location, SpawnableEntity>();
+	//Map of entities that should be damaged by an explosion when it occurs.
+	//public static ConcurrentHashMap<Integer, Entity> explodingEntities = new ConcurrentHashMap<Integer, Entity>();
 	
 	private CustomSpawners plugin = null;
 	
@@ -174,7 +168,7 @@ public class DamageController {
 					return 0;
 				}
 			} else {
-				return 0;
+				return damage;
 			}
 			
 		//If what was damaged is not a SpawnableEntity
@@ -188,44 +182,25 @@ public class DamageController {
 	
 	private int getModDamage(EntityDamageEvent ev) {
 		
-		/*
-		 * Explosives are handled VERY SPECIFICALLY
-		 */
-		
 		if(ev instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 			int damagerId = eve.getDamager().getEntityId();
 			SpawnableEntity e = plugin.getEntityFromSpawner(eve.getDamager());
-			
-			if(e != null && eve.getCause().equals(DamageCause.ENTITY_EXPLOSION)) {
-				return 0;
+
+			if(e != null) {
+
+				if(ev.getCause().equals(DamageCause.ENTITY_EXPLOSION)) {
+					return 0;
+				}
+				
 			}
 			
 			if(damageModEntities.containsKey(damagerId)) {
 				return damageModEntities.get(damagerId);
 			}
 
-		} else {
-			if(ev.getCause().equals(DamageCause.BLOCK_EXPLOSION)) {
-				Iterator<Location> exLocItr = customExplosives.keySet().iterator();
-				//TODO Get the distance, see if close enough, damage appropriately
-				
-				while(exLocItr.hasNext()) {
-					Location loc = exLocItr.next();
-					SpawnableEntity ent = customExplosives.get(loc);
-					
-					if(loc.distance(ev.getEntity().getLocation()) <= ent.getYield()) {
-						exLocItr.remove();
-						return ent.getDamage();
-					}
-					
-				}
-				
-			}
-			
-			//return 0;
-		}
-		
+		} 
+
 		return ev.getDamage();
 		
 	}

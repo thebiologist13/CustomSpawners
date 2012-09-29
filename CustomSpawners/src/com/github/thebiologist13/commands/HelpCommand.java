@@ -14,6 +14,16 @@ public class HelpCommand extends SpawnerCommand {
 	}
 	
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+		
+		final String[] HELP_MESSAGE_0 = {
+				ChatColor.GREEN + "* * * CustomSpawners Help * * *",
+				ChatColor.GOLD + "Use /customspawners help [page #] to see a help page.",
+				ChatColor.GOLD + "Arguments in " + ChatColor.AQUA + "[] are optional" + ChatColor.GOLD + ", they are often to identify a",
+				ChatColor.GOLD + "object by ID number. Arguments in " + ChatColor.DARK_RED + "<> are required" + ChatColor.GOLD + ". They are",
+				ChatColor.GOLD + "usually the value to set.",
+				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
+		};
+		
 		final String[] HELP_MESSAGE_1 = {
 				ChatColor.GREEN + "* * * CustomSpawners Help Page 1 of 10 * * *",
 				ChatColor.GOLD + "/customspawners help [page]" + ChatColor.GREEN + " -> Displays this message.", 
@@ -125,10 +135,10 @@ public class HelpCommand extends SpawnerCommand {
 				ChatColor.GOLD + "/entities clearitems [id] " + ChatColor.GREEN + " -> Clears the itemlist.",
 				ChatColor.GOLD + "/entities adddrop [id] <item:damage> <amount>" + ChatColor.GREEN + " -> Add an item to the drops.",
 				ChatColor.GOLD + "/entities setdrop [id] <item:damage> <amount>" + ChatColor.GREEN + " -> Sets the mob's dropped item.",
-				ChatColor.GOLD + "/entities cleardrops [id] <item ID>" + ChatColor.GREEN + " -> Clears the drops.",
+				ChatColor.GOLD + "/entities cleardrops [id]" + ChatColor.GREEN + " -> Clears the drops.",
+				ChatColor.GOLD + "/entities setusingdrops [id] <true or false>" + ChatColor.GREEN + " -> Set a entity to use custom drops.",
 				ChatColor.GOLD + "/entities setcustomdamage [id] <true or false>" + ChatColor.GREEN + " -> Sets whether customized damage will be used.",
 				ChatColor.GOLD + "/entities setdamageamount [id] <amount>" + ChatColor.GREEN + " -> Sets the damage amount.",
-				ChatColor.GOLD + "/entities setexp [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
@@ -137,10 +147,9 @@ public class HelpCommand extends SpawnerCommand {
 				ChatColor.GOLD + "/entities setfuselength [id] <length>" + ChatColor.GREEN + " -> Sets how long the fuse on TNT is in ticks.",
 				ChatColor.GOLD + "/entities setincendiary [id] <true or false> " + ChatColor.GREEN + " -> Sets whether the explosive kills with fire.",
 				ChatColor.GOLD + "/entities setyield [id] <yeild>" + ChatColor.GREEN + " -> Sets the power of an explosive. Five is normal.",
-				ChatColor.GOLD + "/entities setdrop [id] <item:damage" + ChatColor.GREEN + " -> Clears the itemlist.",
-				ChatColor.GOLD + "/entities cleardrops [id] <item ID>" + ChatColor.GREEN + " -> Add an item to the itemlist.",
-				ChatColor.GOLD + "/entities setitemtype [id] <item:damage>" + ChatColor.GREEN + " -> Sets the type of item to be.",
+				ChatColor.GOLD + "/entities setitemtype [id] <item:damage>" + ChatColor.GREEN + " -> Sets the type of item or falling block to be.",
 				ChatColor.GOLD + "/entities setpotiontype [id] <effect>" + ChatColor.GREEN + " -> Sets the type of potion a potion entity is.",
+				ChatColor.GOLD + "/entities setexp [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
@@ -195,7 +204,7 @@ public class HelpCommand extends SpawnerCommand {
 				}
 			} else if(arg3.length == 1) {
 				if(p.hasPermission(HELP_PERM)) {
-					p.sendMessage(HELP_MESSAGE_1);
+					p.sendMessage(HELP_MESSAGE_0);
 				} else {
 					p.sendMessage(SpawnerCommand.NO_PERMISSION);
 				}

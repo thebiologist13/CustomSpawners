@@ -22,7 +22,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,8 +42,6 @@ public class CustomSpawners extends JavaPlugin {
 	
 	/*
 	 * THE GREAT TODO LIST OF THINGS TODO!
-	 * * Make more console commands
-	 * * Fix explosive radius and velocity
 	 * * Spawn cycles
 	 * * Test new features
 	 */
@@ -110,8 +107,6 @@ public class CustomSpawners extends JavaPlugin {
 		debug = config.getBoolean("data.debug", false);
 		
 		//Commands
-		//TODO Note: to check if a creature is valid, use instanceof Creature or EntityType.isSpawnable()
-		//TODO Add other entities (tnt, fireball, etc.)
 		SpawnerExecutor se = new SpawnerExecutor(this);
 		CustomSpawnersExecutor cse = new CustomSpawnersExecutor(this);
 		EntitiesExecutor ee = new EntitiesExecutor(this);
@@ -158,9 +153,10 @@ public class CustomSpawners extends JavaPlugin {
 		}, 20, 1);
 		
 		/*
-		 * Entity Removal Check Thread
-		 * This thread verifies that all spawned mobs still exist. For example, if a mob
-		 * despawned, it will be removed.
+		 * Removal Check Thread
+		 * This thread verifies that all spawned mobs still exist and removes used explosions. 
+		 * For example, if a mob despawned, it will be removed. Also, it clears the map of exploded entities
+		 * occationally.
 		 */
 		
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -173,7 +169,7 @@ public class CustomSpawners extends JavaPlugin {
 						Spawner s = spawnerItr.next();
 						Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 						Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
-						Iterator<LivingEntity> entityItr = s.getLoc().getWorld().getLivingEntities().iterator();
+						Iterator<Entity> entityItr = s.getLoc().getWorld().getEntities().iterator();
 						ArrayList<Integer> entityIdList = new ArrayList<Integer>();
 						
 						while(entityItr.hasNext()) {
@@ -518,13 +514,16 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Gets a ItemStack from string with id and damage value
 	public ItemStack getItemStack(String value) {
+		/*
+		 * Format should be either <data value:damage value> or <data value>
+		 */
 		int id = 0;
 		short damage = 0;
 		
-		int index = value.indexOf(":") + 1;
+		int index = value.indexOf(":");
 		
 		if(index == -1) {
-			String itemId = value.substring(0, index);
+			String itemId = value.substring(0, value.length());
 			
 			if(!isInteger(itemId)) 
 				return null;
@@ -620,10 +619,10 @@ public class CustomSpawners extends JavaPlugin {
 
 		while(mobs.hasNext()) {
 			int spawnerMobId = mobs.next();
-			Iterator<LivingEntity> livingEntities = s.getLoc().getWorld().getLivingEntities().iterator();
+			Iterator<Entity> livingEntities = s.getLoc().getWorld().getEntities().iterator();
 			
 			while(livingEntities.hasNext()) {
-				LivingEntity l = livingEntities.next();
+				Entity l = livingEntities.next();
 				
 				int entityId = l.getEntityId();
 
@@ -643,10 +642,10 @@ public class CustomSpawners extends JavaPlugin {
 		
 		while(passiveMobs.hasNext()) {
 			int spawnerMobId = passiveMobs.next();
-			Iterator<LivingEntity> livingEntities = s.getLoc().getWorld().getLivingEntities().iterator();
+			Iterator<Entity> livingEntities = s.getLoc().getWorld().getEntities().iterator();
 			
 			while(livingEntities.hasNext()) {
-				LivingEntity l = livingEntities.next();
+				Entity l = livingEntities.next();
 				
 				int entityId = l.getEntityId();
 
@@ -852,6 +851,36 @@ public class CustomSpawners extends JavaPlugin {
 		} else {
 			p.sendMessage(message);
 		}
+		
+	}
+	
+	//Parses the entity name
+	public String parseEntityName(EntityType type) {
+		String nameOfType = type.getName();
+		
+		if(nameOfType == null) {
+			return type.toString();
+		} else {
+			return nameOfType;
+		}
+		
+	}
+	
+	//Parses the entity type from it's name
+	public EntityType parseEntityType(String name) {
+		EntityType type = EntityType.fromName(name);
+		
+		if(type == null) {
+			for(EntityType e : EntityType.values()) {
+				if(e.toString().equals(name.toUpperCase())) {
+					return e;
+				}
+				
+			}
+			
+		}
+		
+		return type;
 		
 	}
 	

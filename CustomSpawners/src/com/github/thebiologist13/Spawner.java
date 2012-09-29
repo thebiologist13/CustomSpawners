@@ -295,10 +295,6 @@ public class Spawner {
 	public void spawn() {
 		//Are conditions valid for spawning?
 		boolean canSpawn = true;
-		//Random locations
-		double randX = 0;
-		double randY = 0;
-		double randZ = 0;
 
 		//If the spawner is not active, return
 		if(!active) {
@@ -320,202 +316,112 @@ public class Spawner {
 
 		//If we can spawn
 		if(canSpawn) {
+			
 			//Loop to spawn until the mobs per spawn is reached
 			for(int i = 0; i < mobsPerSpawn; i++) {
+				
 				//Break the loop if the spawn limit is reached
 				if(mobs.size() + passiveMobs.size() == maxMobs) {
 					break;
 				}
 
-				//Has the mob been spawned?
-				boolean spawned = false;
-
-				//Amount of times tried
-				int tries = 0;
-
-				//As long as the mob has not been spawned, keep trying
-				while(!spawned && tries <= 512) {
-
-					Location spawnLoc = null;
-					Location blockBelow = null;
-					Location blockAbove = null;
-					boolean acceptableLight = false;
-					byte light = 0;
-
-					if(!useSpawnArea) {
-						//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
-						randX = randomGenRad()  + loc.getBlockX();
-						randY = Math.round(randomGenRad()) + loc.getBlockY();
-						randZ = randomGenRad() + loc.getBlockZ();
-
-					} else {
-						//Generates a random location in the spawn area using randomGenRange().
-						randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
-						randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
-						randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
-					}
-
-					spawnLoc = new Location(loc.getWorld(), randX, randY, randZ);
-					blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
-					blockAbove = new Location(loc.getWorld(), randX, randY + 1, randZ);
-
-					light = spawnLoc.getBlock().getLightLevel();
-					if(light <= maxLightLevel && light >= minLightLevel) {
-						acceptableLight = true;
-					}
-
-					/*
-					 * If the blocks are empty, it has something to stand on, and the light level is acceptable: 
-					 * spawn the creature and add it to the list of mobs, then set this mob spawned
-					 */
-					if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty() && acceptableLight) {
-						SpawnableEntity type = randType();
-						Entity e = loc.getWorld().spawnEntity(spawnLoc, type.getType());
-						if(e != null) {
-
-							assignMobProps(e, type);
-
-							if(type.isPassive()) {
-								passiveMobs.put(e.getEntityId(), type);
-							} else {
-								mobs.put(e.getEntityId(), type);
-							}
-							spawned = true;
-						}
-					}
-
-					tries++;
+				SpawnableEntity spawnType = randType();
+				Location spawnLocation = getSpawningLocation(spawnType);
+				
+				if(spawnLocation == null) {
+					System.out.println("[CSDEBUG] " + "Spawn location is null.");
+					return;
+				} else if(spawnType == null) {
+					System.out.println("[CSDEBUG] " + "Entity is null.");
+					return;
 				}
+				
+				Entity e = spawnTheEntity(spawnType, spawnLocation);
+				
+				if(e != null) {
+
+					assignMobProps(e, spawnType);
+
+					if(spawnType.isPassive()) {
+						passiveMobs.put(e.getEntityId(), spawnType);
+					} else {
+						mobs.put(e.getEntityId(), spawnType);
+					}
+					
+				}
+				
 			}
+			
 		}
+		
 	}
 	
 	//Spawn the mobs
 	public void forceSpawn() {
-		//Random locations
-		double randX = 0;
-		double randY = 0;
-		double randZ = 0;
 
 		//Loop to spawn until the mobs per spawn is reached
 		for(int i = 0; i < mobsPerSpawn; i++) {
 			
-			//Has the mob been spawned?
-			boolean spawned = false;
+			SpawnableEntity spawnType = randType();
+			Location spawnLocation = getSpawningLocation(spawnType);
 			
-			//Amount of times tried
-			int tries = 0;
-			
-			//As long as the mob has not been spawned, keep trying
-			while(!spawned && tries <= 512) {
-				
-				Location spawnLoc = null;
-				Location blockBelow = null;
-				Location blockAbove = null;
-				
-				if(!useSpawnArea) {
-					//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
-					randX = randomGenRad()  + loc.getBlockX();
-					randY = Math.round(randomGenRad()) + loc.getBlockY();
-					randZ = randomGenRad() + loc.getBlockZ();
-					
-				} else {
-					//Generates a random location in the spawn area using randomGenRange().
-					randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
-					randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
-					randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
-				}
-				
-				spawnLoc = new Location(loc.getWorld(), randX, randY, randZ);
-				blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
-				blockAbove = new Location(loc.getWorld(), randX, randY + 1, randZ);
-				
-				/*
-				 * If the blocks are empty, it has something to stand on, and the light level is acceptable: 
-				 * spawn the creature and add it to the list of mobs, then set this mob spawned
-				 */
-				if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty()) {
-					SpawnableEntity type = randType();
-					Entity e = loc.getWorld().spawnEntity(spawnLoc, type.getType());
-					if(e != null) {
-
-						assignMobProps(e, type);
-
-						if(type.isPassive()) {
-							passiveMobs.put(e.getEntityId(), type);
-						} else {
-							mobs.put(e.getEntityId(), type);
-						}
-						spawned = true;
-					}
-				}
-				
-				tries++;
+			if(spawnLocation == null) {
+				System.out.println("[CSDEBUG] " + "Spawn location is null.");
+				return;
+			} else if(spawnType == null) {
+				System.out.println("[CSDEBUG] " + "Entity is null.");
+				return;
 			}
+			
+			Entity e = spawnTheEntity(spawnType, spawnLocation);
+			
+			if(e != null) {
+
+				assignMobProps(e, spawnType);
+
+				if(spawnType.isPassive()) {
+					passiveMobs.put(e.getEntityId(), spawnType);
+				} else {
+					mobs.put(e.getEntityId(), spawnType);
+				}
+				
+			}
+			
 		}
+		
 	}
 	
 	//Spawn the mobs
 	public void forceSpawnType(SpawnableEntity entity) {
-		//Random locations
-		double randX = 0;
-		double randY = 0;
-		double randZ = 0;
 
 		//Loop to spawn until the mobs per spawn is reached
 		for(int i = 0; i < mobsPerSpawn; i++) {
 			
-			//Has the mob been spawned?
-			boolean spawned = false;
+			Location spawnLocation = getSpawningLocation(entity);
 			
-			//Amount of times tried
-			int tries = 0;
-			
-			//As long as the mob has not been spawned, keep trying
-			while(!spawned && tries <= 512) {
-				
-				Location spawnLoc = null;
-				Location blockBelow = null;
-				Location blockAbove = null;
-				
-				if(!useSpawnArea) {
-					//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
-					randX = randomGenRad()  + loc.getBlockX();
-					randY = Math.round(randomGenRad()) + loc.getBlockY();
-					randZ = randomGenRad() + loc.getBlockZ();
-					
-				} else {
-					//Generates a random location in the spawn area using randomGenRange().
-					randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
-					randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
-					randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
-				}
-				
-				spawnLoc = new Location(loc.getWorld(), randX, randY, randZ);
-				blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
-				blockAbove = new Location(loc.getWorld(), randX, randY + 1, randZ);
-				
-				/*
-				 * If the blocks are empty, it has something to stand on, and the light level is acceptable: 
-				 * spawn the creature and add it to the list of mobs, then set this mob spawned
-				 */
-				if(spawnLoc.getBlock().isEmpty() && blockAbove.getBlock().isEmpty() && !blockBelow.getBlock().isEmpty()) {
-					Entity e = loc.getWorld().spawnEntity(spawnLoc, entity.getType());
-					if(e != null) {
-
-						assignMobProps(e, entity);
-						if(entity.isPassive()) {
-							passiveMobs.put(e.getEntityId(), entity);
-						} else {
-							mobs.put(e.getEntityId(), entity);
-						}
-						spawned = true;
-					}
-				}
-				
-				tries++;
+			if(spawnLocation == null) {
+				System.out.println("[CSDEBUG] " + "Spawn location is null.");
+				return;
+			} else if(entity == null) {
+				System.out.println("[CSDEBUG] " + "Entity is null.");
+				return;
 			}
+			
+			Entity e = spawnTheEntity(entity, spawnLocation);
+			
+			if(e != null) {
+
+				assignMobProps(e, entity);
+				if(entity.isPassive()) {
+					passiveMobs.put(e.getEntityId(), entity);
+				} else {
+					mobs.put(e.getEntityId(), entity);
+				}
+				
+			}
+			
 		}
+		
 	}
 	
 	/*
@@ -732,10 +638,6 @@ public class Spawner {
 				tnt.setFuseTicks(data.getFuseTicks());
 			}
 			
-		} else if(baseEntity instanceof Item) {
-			Item i = (Item) baseEntity;
-			
-			i.setItemStack(data.getItemType());
 		}
 		
 		if(data.isUsingCustomDamage())
@@ -800,6 +702,200 @@ public class Spawner {
 		} else {
 			a.setAge(data.getAge());
 		}
+		
+	}
+	
+	//Determines a valid spawn location
+	private Location getSpawningLocation(SpawnableEntity type) {
+		//Random locations
+		double randX = 0;
+		double randY = 0;
+		double randZ = 0;
+		
+		//Height of Mob
+		int h = 1;
+		
+		//For flying mobs. Will it require blocks beneath it to spawn?
+		boolean reqsBlockBelow = true;
+		
+		//Can it spawn in liquids?
+		boolean spawnInWater = true;
+		
+		//Actual location
+		Location spawnLoc = null;
+		
+		//Amount of times tried
+		int tries = 0;
+		
+		//Setting special properties
+		//TODO Eventually improve this
+		switch(type.getType()) {
+		case ZOMBIE:
+			h = 2;
+			break;
+		case SKELETON:
+			h = 2;
+			break;
+		case CREEPER:
+			h = 2;
+			break;
+		case ENDERMAN:
+			h = 3;
+			break;
+		case PIG_ZOMBIE:
+			h = 2;
+			break;
+		case SLIME:
+			h = type.getSlimeSize();
+			break;
+		case MAGMA_CUBE:
+			h = type.getSlimeSize();
+			break;
+		case BLAZE:
+			h = 2;
+			break;
+		case GHAST:
+			h = 4;
+			break;
+		case VILLAGER:
+			h = 2;
+			break;
+		case IRON_GOLEM:
+			h = 2;
+			break;
+		case SNOWMAN:
+			h = 2;
+			break;
+		case ENDER_DRAGON:
+			h = 3;
+			break;
+		case EGG:
+			reqsBlockBelow = false;
+			break;
+		case ENDER_PEARL:
+			reqsBlockBelow = false;
+			break;
+		case ARROW:
+			reqsBlockBelow = false;
+			break;
+		case SNOWBALL:
+			reqsBlockBelow = false;
+			break;
+		case FALLING_BLOCK:
+			reqsBlockBelow = false;
+			break;
+		case PRIMED_TNT:
+			reqsBlockBelow = false;
+			break;
+		case SMALL_FIREBALL:
+			reqsBlockBelow = false;
+			break;
+		case FIREBALL:
+			reqsBlockBelow = false;
+			break;
+		case SPLASH_POTION:
+			reqsBlockBelow = false;
+			break;
+		case THROWN_EXP_BOTTLE:
+			reqsBlockBelow = false;
+			break;
+		case DROPPED_ITEM:
+			reqsBlockBelow = false;
+			break;
+		case ENDER_CRYSTAL:
+			reqsBlockBelow = false;
+			break;
+		default:
+			h = 1;
+			reqsBlockBelow = true;
+			break;
+		}
+		
+		//As long as the mob has not been spawned, keep trying
+		while(tries < 128) {
+
+			//Getting a random location.
+			if(!useSpawnArea) {
+				//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
+				randX = randomGenRad()  + loc.getBlockX();
+				randY = Math.round(randomGenRad()) + loc.getBlockY();
+				randZ = randomGenRad() + loc.getBlockZ();
+
+			} else {
+				//Generates a random location in the spawn area using randomGenRange().
+				randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
+				randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
+				randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
+			}
+
+			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ);
+			
+			boolean canSpawnH = false;
+			boolean canSpawnB = false;
+			
+			int counter = 0;
+			while(counter < h) {
+				Location checkLoc = new Location(loc.getWorld(), randX, randY + counter, randZ);
+				
+				if(isEmpty(checkLoc, spawnInWater)) {
+					canSpawnH = true;
+				}
+				
+				counter++;
+			}
+			
+			if(reqsBlockBelow) {
+				Location blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
+				
+				if(!isEmpty(blockBelow, !spawnInWater)) {
+					canSpawnB = true;
+				}
+			} else {
+				canSpawnB = true;
+			}
+			
+			if(canSpawnH && canSpawnB) {
+				return spawnLoc;
+			}
+			
+			tries++;
+		}
+		
+		return null;
+	}
+	
+	//Checks if a block is "empty"
+	private boolean isEmpty(Location loc1, boolean liquidsNotSolid) {
+		if(loc1.getBlock().isLiquid() && liquidsNotSolid) {
+			return true;
+		} else if(loc1.getBlock().isEmpty()){
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+	
+	//Spawns the actual entity
+	private Entity spawnTheEntity(SpawnableEntity spawnType, Location spawnLocation) {
+		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
+			return loc.getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
+		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) { 
+			Entity thrower = loc.getWorld().spawnEntity(spawnLocation, EntityType.VILLAGER); //Note: This is a pseudo-entity to throw the potion since I can't spawn it.
+
+			if(thrower instanceof LivingEntity) { //Should always be true
+				LivingEntity throwerLiving = (LivingEntity) thrower;
+				return throwerLiving.launchProjectile(ThrownPotion.class);
+			}
+			
+		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {
+			return loc.getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) 0);
+		} else {
+			return loc.getWorld().spawnEntity(spawnLocation, spawnType.getType());
+		}
+		
+		return null;
+		
 	}
 	
 }

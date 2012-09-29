@@ -22,7 +22,7 @@ public class ActiveCommand extends SpawnerCommand {
 		//Spawner
 		Spawner s = null;
 		
-		if(!(arg0 instanceof Player)) {
+		if(arg0 instanceof Player) {
 			p = (Player) arg0;
 		}
 		

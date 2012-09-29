@@ -19,8 +19,7 @@ public class MobDamageEvent implements Listener {
 		//DamageController
 		DamageController dc = new DamageController(plugin);
 		
-		plugin.printDebugMessage(this.getClass().getName() + ": Registered damage.");
-
+		//plugin.printDebugMessage("Entity Damaged");
 		ev.setDamage(dc.getModifiedDamage(ev));
 		
 	}

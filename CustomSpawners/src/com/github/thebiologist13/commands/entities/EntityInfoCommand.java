@@ -90,7 +90,11 @@ public class EntityInfoCommand extends SpawnerCommand {
 			
 			String nameOfType = s.getType().getName();
 			
-			if(s.getType().getName().equals("Spider") && s.isJockey()) {
+			if(nameOfType == null) {
+				nameOfType = s.getType().toString();
+			}
+			
+			if(nameOfType.equals("Spider") && s.isJockey()) {
 				nameOfType = "Spider Jockey";
 			}
 			
