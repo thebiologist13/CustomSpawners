@@ -130,7 +130,7 @@ public class EntityPotionTypeCommand extends SpawnerCommand {
 			}
 
 			//Carry out command
-			s.addPoitionEffect(effect);
+			s.setPotionEffect(effect);
 
 			//Formatting Duration
 			String time = plugin.convertTicksToTime(duration);

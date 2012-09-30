@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -156,7 +157,7 @@ public class CustomSpawners extends JavaPlugin {
 		 * Removal Check Thread
 		 * This thread verifies that all spawned mobs still exist and removes used explosions. 
 		 * For example, if a mob despawned, it will be removed. Also, it clears the map of exploded entities
-		 * occationally.
+		 * occasionally.
 		 */
 		
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -170,17 +171,26 @@ public class CustomSpawners extends JavaPlugin {
 						Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 						Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
 						Iterator<Entity> entityItr = s.getLoc().getWorld().getEntities().iterator();
-						ArrayList<Integer> entityIdList = new ArrayList<Integer>();
+						HashMap<Integer, Entity> entityMap = new HashMap<Integer, Entity>();
 						
 						while(entityItr.hasNext()) {
-							entityIdList.add(entityItr.next().getEntityId());
+							Entity nextEntity = entityItr.next();
+							
+							entityMap.put(nextEntity.getEntityId(), nextEntity);
 						}
 						
 						while(mobItr.hasNext()) {
 							int mobId = mobItr.next();
 							
-							if(!entityIdList.contains(mobId)) {
+							if(!entityMap.containsKey(mobId)) {
 								mobItr.remove();
+							}
+							
+							//Removes a entity if they are too high up.
+							if(entityMap.containsKey(mobId)) {
+								if(entityMap.get(mobId).getLocation().getY() > 512) {
+									mobItr.remove();
+								}
 							}
 							
 						}
@@ -188,8 +198,14 @@ public class CustomSpawners extends JavaPlugin {
 						while(passiveMobItr.hasNext()) {
 							int mobId = passiveMobItr.next();
 							
-							if(!entityIdList.contains(mobId)) {
+							if(!entityMap.containsKey(mobId)) {
 								passiveMobItr.remove();
+							}
+							
+							if(entityMap.containsKey(mobId)) {
+								if(entityMap.get(mobId).getLocation().getY() > 512) {
+									passiveMobItr.remove();
+								}
 							}
 							
 						}

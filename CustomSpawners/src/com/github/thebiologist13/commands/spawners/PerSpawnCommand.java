@@ -23,7 +23,7 @@ public class PerSpawnCommand extends SpawnerCommand {
 		Spawner s = null;
 		
 		//Mobs per spawn
-		int mobsPerSpawn = -1;
+		int mobsPerSpawn = 1;
 		
 		//Check to make sure the command is from a player
 		if(arg0 instanceof Player) {

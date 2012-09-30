@@ -80,11 +80,13 @@ public class DamageController {
 				
 				if(black.contains(cause.name())) {
 					
+					plugin.printDebugMessage("Damage taken in damage blacklist.");
 					ev.setCancelled(true);
 					return 0;
 					
 				} else if(black.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
 					
+					plugin.printDebugMessage("Damage taken in damage blacklist.");
 					int id = entity.getEntityId();
 					
 					if(negatedFireImmunity.containsKey(id) && !e.getDamageBlacklist().contains(DamageCause.FIRE_TICK.name())) {
@@ -96,6 +98,7 @@ public class DamageController {
 					return 0;
 					
 				} else if(black.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
+					plugin.printDebugMessage("Damage taken in damage blacklist.");
 					EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 					
 					if(eve.getDamager() instanceof Player) {
@@ -115,11 +118,13 @@ public class DamageController {
 				
 				if(!white.contains(cause.name())) {
 					
+					plugin.printDebugMessage("Damage taken in damage whitelist.");
 					ev.setCancelled(true);
 					return 0;
 					
 				} else if(!(white.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK))) {
 					
+					plugin.printDebugMessage("Damage taken in damage whitelist.");
 					int id = entity.getEntityId();
 					
 					if(negatedFireImmunity.containsKey(id) && !e.getDamageBlacklist().contains(DamageCause.FIRE_TICK.name())) {
@@ -131,6 +136,8 @@ public class DamageController {
 					return 0;
 					
 				} else if(!(white.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent))) {
+					
+					plugin.printDebugMessage("Damage taken in damage whitelist.");
 					EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 					
 					if(eve.getDamager() instanceof Player) {
@@ -152,18 +159,23 @@ public class DamageController {
 			 */
 				
 			damage = getModDamage(ev);
+			plugin.printDebugMessage("Damage to take: " + damage);
 
 			/*
 			 * Finally apply the damage to extra health and health accordingly.
 			 */
 			if(extraHealthEntities.containsKey(mobId)) {
+				plugin.printDebugMessage("Extra health entity.");
 				//Get the remaining extra health after "damage"
 				int newExtraHealth = extraHealthEntities.get(mobId) - damage;
+				plugin.printDebugMessage("New extra health: " + newExtraHealth);
 				//If the new extra health <= 0, deal actual damage to entity
 				if(newExtraHealth <= 0) {
+					plugin.printDebugMessage("Lose actual health: " + Math.abs(newExtraHealth));
 					extraHealthEntities.remove(mobId);
 					return Math.abs(newExtraHealth);
 				} else {
+					plugin.printDebugMessage("Lose Extra health: " + newExtraHealth);
 					extraHealthEntities.replace(mobId, newExtraHealth);
 					return 0;
 				}

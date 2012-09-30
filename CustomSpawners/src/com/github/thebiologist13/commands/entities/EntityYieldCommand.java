@@ -26,7 +26,7 @@ public class EntityYieldCommand extends SpawnerCommand {
 		//Yield
 		float yield = 0.0f;
 		
-		final String MUST_BE_INTEGER = ChatColor.RED + "The fuse length must be an integer.";
+		final String MUST_BE_INTEGER = ChatColor.RED + "The yield must be an integer.";
 		
 		if(!(arg0 instanceof Player)) {
 			log.info(NO_CONSOLE);

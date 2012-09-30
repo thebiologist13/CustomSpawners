@@ -329,10 +329,10 @@ public class Spawner {
 				Location spawnLocation = getSpawningLocation(spawnType);
 				
 				if(spawnLocation == null) {
-					System.out.println("[CSDEBUG] " + "Spawn location is null.");
+					//System.out.println("[CSDEBUG] " + "Spawn location is null.");
 					return;
 				} else if(spawnType == null) {
-					System.out.println("[CSDEBUG] " + "Entity is null.");
+					//System.out.println("[CSDEBUG] " + "Entity is null.");
 					return;
 				}
 				
@@ -881,11 +881,13 @@ public class Spawner {
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return loc.getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) { 
-			Entity thrower = loc.getWorld().spawnEntity(spawnLocation, EntityType.VILLAGER); //Note: This is a pseudo-entity to throw the potion since I can't spawn it.
-
-			if(thrower instanceof LivingEntity) { //Should always be true
-				LivingEntity throwerLiving = (LivingEntity) thrower;
-				return throwerLiving.launchProjectile(ThrownPotion.class);
+			
+			ArrayList<Player> nearPlayers = getNearbyPlayers(loc, maxPlayerDistance) ;
+			
+			if(nearPlayers.size() > 0) {
+				Player nearPlayer = nearPlayers.get(0);
+				Projectile potion = nearPlayer.launchProjectile(ThrownPotion.class);
+				potion.teleport(spawnLocation);
 			}
 			
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {

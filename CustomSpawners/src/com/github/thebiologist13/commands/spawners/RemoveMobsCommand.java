@@ -42,7 +42,16 @@ public class RemoveMobsCommand extends SpawnerCommand {
 					
 				}
 			} else if(arg3[0].equalsIgnoreCase("removemobs")) {
-				if(arg3.length == 2){
+				if(CustomSpawners.consoleSpawner != -1 && arg3.length == 1) {
+					
+					s = plugin.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
+					
+				} else if(arg3.length == 1) {
+					
+					plugin.sendMessage(arg0, NEEDS_SELECTION);
+					return;
+					
+				} else if(arg3.length == 2){
 
 					s = plugin.getSpawner(arg3[1]);
 
@@ -51,17 +60,17 @@ public class RemoveMobsCommand extends SpawnerCommand {
 						return;
 					}
 					
-					plugin.log.info("Removing mobs spawned by spawner with ID " + plugin.getFriendlyName(s) + "...");
-					plugin.removeMobs(s);
-					
-					return;
-					
 				} else {
 					
 					plugin.log.info("An error has occured with this command. Did you type everything right?");
 					return;
 					
 				}
+				
+				plugin.log.info("Removing mobs spawned by spawner with ID " + plugin.getFriendlyName(s) + "...");
+				plugin.removeMobs(s);
+				return;
+				
 			}
 			
 		//Player

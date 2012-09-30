@@ -61,7 +61,11 @@ public class EntityCreateCommand extends SpawnerCommand {
 				if(type == null) {
 					p.sendMessage(NOT_ALLOWED_ENTITY);
 					return;
+				} else if(type.equals(EntityType.SPLASH_POTION) || type.equals(EntityType.ENDER_PEARL)) {
+					p.sendMessage(ChatColor.GOLD + "Sorry, potions and ender pearls are disabled in CustomSpawners right now due to severe bugs with them.");
+					return;
 				}
+				
 			}
 			
 			//Gets the next available ID for a spawner
@@ -143,7 +147,7 @@ public class EntityCreateCommand extends SpawnerCommand {
 			entity.setFuseTicks(config.getInt("entities.fuseTicks", 80));
 			entity.setYield((float) config.getDouble("entities.yield", 5.0d));
 			entity.setIncendiary(config.getBoolean("entities.incendiary", false));
-			entity.setItemType(plugin.getItemStack(config.getString("entities.itemType", "1:0")));
+			entity.setItemType(plugin.getItemStack(config.getString("entities.itemType", "1")));
 			entity.setUsingCustomDrops(config.getBoolean("entities.useCustomDrops", false));
 			
 			if(createJockey) {
@@ -323,6 +327,14 @@ public class EntityCreateCommand extends SpawnerCommand {
 			}
 			
 			type = EntityType.ENDER_CRYSTAL;
+			
+		} else if(entityType.equalsIgnoreCase("egg")) {
+			
+			if(!config.getBoolean("mobs.egg") && !p.hasPermission(override)) {
+				return null;
+			}
+			
+			type = EntityType.EGG;
 			
 		} else {
 			

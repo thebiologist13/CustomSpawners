@@ -222,8 +222,8 @@ mobs:
     fireball: true
     potion: true
     item: true
-    enderpearl: true
-    endercrystal: true
+    enderpearl: false
+    endercrystal: false
     
 players:
     # Maximum distance a player can be from a block

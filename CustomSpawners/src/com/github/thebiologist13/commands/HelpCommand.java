@@ -158,9 +158,15 @@ public class HelpCommand extends SpawnerCommand {
 				"/customspawners help [page] -> Displays this message.", 
 				"/customspawners reloadspawners -> Reloads all spawners.", 
 				"/spawners removeallmobs -> Kills all mobs created by spawners in the server.",
-				"/spawners removemobs <id> -> Kills all mobs created by the spawner with specified ID.",
+				"/spawners removemobs [id] -> Kills all mobs created by the spawner with specified ID.",
 				"/spawners activateall -> Sets all spawners on the server active.",
-				"/spawners deactivateall -> Sets all spawners on the server inactive.",
+				"/spawners select <id> -> Sets all spawners on the server inactive.",
+				"/spawners setactive [id] -> Sets all spawners on the server inactive.",
+				"/spawners setinactive [id] -> Sets all spawners on the server inactive.",
+				"/spawners forcespawn [id] -> Sets all spawners on the server inactive.",
+				"/spawners setmaxmobs [id] <max mobs> -> Sets all spawners on the server inactive.",
+				"/spawners setmobsperspawn [id] <mobs per spawn> -> Sets all spawners on the server inactive.",
+				"/spawners listall -> Lists all the spawners that have been created.",
 				"* * * * * * * * * * * * * * * *"
 		};
 		
