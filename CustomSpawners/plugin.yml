@@ -92,20 +92,20 @@ permissions:
             customspawners.entities.listall: true
             customspawners.entities.setfireticks: true
             customspawners.entities.blacklist: true
-		    customspawners.entities.whitelist: true
-		    customspawners.entities.itemlist: true
-		    customspawners.entities.setcustomdamage: true
-		    customspawners.entities.setdamageamount: true
-		    customspawners.entities.adddrop: true
-		    customspawners.entities.setdrop: true
-		    customspawners.entities.cleardrop: true
-		    customspawners.entities.setusingdrops: true
-		    customspawners.entities.setpotiontype: true
-		    customspawners.entities.setexp: true
-		    customspawners.entities.setfuselength: true
-		    customspawners.entities.setyield: true
-		    customspawners.entities.setincendiary: true
-		    customspawners.entities.setitemtype: true
+            customspawners.entities.whitelist: true
+            customspawners.entities.itemlist: true
+            customspawners.entities.setcustomdamage: true
+            customspawners.entities.setdamageamount: true
+            customspawners.entities.adddrop: true
+            customspawners.entities.setdrop: true
+            customspawners.entities.cleardrop: true
+            customspawners.entities.setusingdrops: true
+            customspawners.entities.setpotiontype: true
+            customspawners.entities.setexp: true
+            customspawners.entities.setfuselength: true
+            customspawners.entities.setyield: true
+            customspawners.entities.setincendiary: true
+            customspawners.entities.setitemtype: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawner" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
