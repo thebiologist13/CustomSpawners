@@ -40,7 +40,7 @@ spawners:
     hidden: false
     
     # What should the rate (in server ticks: 20 ticks/second)
-    # that the spawner spawns mobs at?
+    # that the spawner spawns mobs at? Make greater than 0.
     rate: 120
     
     # How many mobs should be spawned each time?
@@ -177,8 +177,8 @@ entities:
     incendiary: false
     
     # Item type for entities of type "DROPPED_ITEM" to be when spawned. Use the
-    # format <Item ID>:<Item Damage>. Default is stone.
-    itemType: 1:0
+    # format <Item ID>-<Item Damage>. Default is stone.
+    itemType: 1-0
     
     # Should the entity use customized drops by default?
     useCustomDrops: false

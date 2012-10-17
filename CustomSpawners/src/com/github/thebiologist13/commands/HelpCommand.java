@@ -134,7 +134,7 @@ public class HelpCommand extends SpawnerCommand {
 				ChatColor.GOLD + "/entities additem [id] <item ID>" + ChatColor.GREEN + " -> Add an item to the itemlist.",
 				ChatColor.GOLD + "/entities clearitems [id] " + ChatColor.GREEN + " -> Clears the itemlist.",
 				ChatColor.GOLD + "/entities adddrop [id] <item:damage> <amount>" + ChatColor.GREEN + " -> Add an item to the drops.",
-				ChatColor.GOLD + "/entities setdrop [id] <item:damage> <amount>" + ChatColor.GREEN + " -> Sets the mob's dropped item.",
+				ChatColor.GOLD + "/entities setdrops [id] <item:damage> <amount>" + ChatColor.GREEN + " -> Sets the mob's dropped item.",
 				ChatColor.GOLD + "/entities cleardrops [id]" + ChatColor.GREEN + " -> Clears the drops.",
 				ChatColor.GOLD + "/entities setusingdrops [id] <true or false>" + ChatColor.GREEN + " -> Set a entity to use custom drops.",
 				ChatColor.GOLD + "/entities setcustomdamage [id] <true or false>" + ChatColor.GREEN + " -> Sets whether customized damage will be used.",

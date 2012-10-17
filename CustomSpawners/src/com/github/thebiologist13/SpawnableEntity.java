@@ -42,6 +42,8 @@ public class SpawnableEntity {
 	private boolean useBlacklist = true;
 	private boolean useCustomDamage = false; //Check
 	private int damage = 2; //Check
+	private int maxHealth = 20;
+	private int maxAir = 200;
 	
 	//Specific Data
 	private Villager.Profession villagerProfession = null;
@@ -419,6 +421,22 @@ public class SpawnableEntity {
 
 	public void setUsingCustomDrops(boolean useCustomDrops) {
 		this.useCustomDrops = useCustomDrops;
+	}
+
+	public int getMaxHealth() {
+		return maxHealth;
+	}
+
+	public void setMaxHealth(int maxHealth) {
+		this.maxHealth = maxHealth;
+	}
+
+	public int getMaxAir() {
+		return maxAir;
+	}
+
+	public void setMaxAir(int maxAir) {
+		this.maxAir = maxAir;
 	}
 
 }

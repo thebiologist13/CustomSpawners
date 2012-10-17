@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Server;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
@@ -39,6 +40,9 @@ public class Spawner {
 	private Location loc = null; //Location of the spawner
 	private Location[] areaPoints = new Location[2]; //Points for a spawn area.
 	
+	//Block Type
+	private Block block = null;
+	
 	//Spawning rates/timing
 	private int ticksLeft = -1; //Ticks left before next spawn
 	private int rate = -1; //Rate in how many ticks to spawn at
@@ -48,6 +52,9 @@ public class Spawner {
 	private ConcurrentHashMap<Integer, SpawnableEntity> mobs = new ConcurrentHashMap<Integer, SpawnableEntity>(); 
 	//List of currently passive mobs from a spawner. When provoked, they are moved to "mobs"
 	private ConcurrentHashMap<Integer, SpawnableEntity> passiveMobs = new ConcurrentHashMap<Integer, SpawnableEntity>(); 
+	
+	//The current state of the spawner. i.e. if it is a mob spawner block or custom spawner. True if it is a mob spawner block.
+	private boolean converted = false;
 	
 	//Other
 	private Server server = null; //Used to get online players
@@ -60,6 +67,7 @@ public class Spawner {
 		this.id = id;
 		this.loc = loc;
 		this.server = server;
+		this.block = loc.getBlock();
 		typeData.put(type.getId(), type);
 		
 		areaPoints[0] = loc;
@@ -71,6 +79,7 @@ public class Spawner {
 		this.name = name;
 		this.loc = loc;
 		this.server = server;
+		this.block = loc.getBlock();
 		typeData.put(type.getId(), type);
 		
 		areaPoints[0] = loc;
@@ -200,6 +209,7 @@ public class Spawner {
 
 	public void setLoc(Location loc) {
 		this.loc = loc;
+		this.block = loc.getBlock();
 	}
 
 	public Location[] getAreaPoints() {
@@ -259,6 +269,22 @@ public class Spawner {
 	public void removePassiveMob(int mobId) {
 		if(passiveMobs.containsKey(mobId))
 			passiveMobs.remove(mobId);
+	}
+	
+	public boolean isConverted() {
+		return converted;
+	}
+
+	public void setConverted(boolean converted) {
+		this.converted = converted;
+	}
+
+	public Block getBlock() {
+		return block;
+	}
+	
+	public void setBlock(Block block) {
+		this.block =  block;
 	}
 	
 	/*
@@ -366,10 +392,10 @@ public class Spawner {
 			Location spawnLocation = getSpawningLocation(spawnType);
 			
 			if(spawnLocation == null) {
-				System.out.println("[CSDEBUG] " + "Spawn location is null.");
+				//System.out.println("[CSDEBUG] " + "Spawn location is null.");
 				return;
 			} else if(spawnType == null) {
-				System.out.println("[CSDEBUG] " + "Entity is null.");
+				//System.out.println("[CSDEBUG] " + "Entity is null.");
 				return;
 			}
 			
@@ -400,10 +426,10 @@ public class Spawner {
 			Location spawnLocation = getSpawningLocation(entity);
 			
 			if(spawnLocation == null) {
-				System.out.println("[CSDEBUG] " + "Spawn location is null.");
+				//System.out.println("[CSDEBUG] " + "Spawn location is null.");
 				return;
 			} else if(entity == null) {
-				System.out.println("[CSDEBUG] " + "Entity is null.");
+				//System.out.println("[CSDEBUG] " + "Entity is null.");
 				return;
 			}
 			
@@ -507,6 +533,8 @@ public class Spawner {
 		
 		if(baseEntity instanceof LivingEntity) {
 			LivingEntity entity = (LivingEntity) baseEntity;
+			data.setMaxHealth(entity.getMaxHealth());
+			data.setMaxAir(entity.getMaximumAir());
 			setBasicProps(entity, data);
 			
 			if(entity instanceof Ageable) {
@@ -571,12 +599,6 @@ public class Spawner {
 				} else if(monster instanceof Creeper) {
 					Creeper c = (Creeper) monster;
 					c.setPowered(data.isCharged());
-				} else if(monster instanceof Slime) {
-					Slime s = (Slime) monster;
-					s.setSize(data.getSlimeSize());
-				} else if(monster instanceof MagmaCube) {
-					MagmaCube m = (MagmaCube) monster;
-					m.setSize(data.getSlimeSize());
 				} else if(monster instanceof PigZombie) {
 					PigZombie p = (PigZombie) monster;
 					if(data.isAngry()) {
@@ -604,6 +626,13 @@ public class Spawner {
 						}
 					}
 				}
+				//Some are not classified as animals or monsters
+			} else if(entity instanceof Slime) {
+				Slime s = (Slime) entity;
+				s.setSize(data.getSlimeSize());
+			} else if(entity instanceof MagmaCube) {
+				MagmaCube m = (MagmaCube) entity;
+				m.setSize(data.getSlimeSize());
 			}
 			//TODO add things like ender pearl after here
 		} else if(baseEntity instanceof Projectile) {
@@ -832,6 +861,7 @@ public class Spawner {
 			
 			boolean canSpawnH = false;
 			boolean canSpawnB = false;
+			boolean canSpawnL = false;
 			
 			int counter = 0;
 			while(counter < h) {
@@ -854,7 +884,11 @@ public class Spawner {
 				canSpawnB = true;
 			}
 			
-			if(canSpawnH && canSpawnB) {
+			if((loc.getBlock().getLightLevel() <= maxLightLevel) && (loc.getBlock().getLightLevel() >= minLightLevel)) {
+				canSpawnL = true;
+			}
+			
+			if(canSpawnH && canSpawnB && canSpawnL) {
 				return spawnLoc;
 			}
 			

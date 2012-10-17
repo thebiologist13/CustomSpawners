@@ -23,6 +23,7 @@ public class InteractEvent implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteractEvent(PlayerInteractEvent ev) {
+		
 		//Player
 		Player p = ev.getPlayer();
 		//Item in hand
@@ -52,6 +53,7 @@ public class InteractEvent implements Listener {
 				}
 			}
 		}
+		
 	}
 	
 }

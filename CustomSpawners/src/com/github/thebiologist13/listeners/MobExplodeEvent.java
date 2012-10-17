@@ -53,7 +53,7 @@ public class MobExplodeEvent implements Listener {
 				
 			}*/
 			
-			explosionLoc.getWorld().createExplosion(ev.getLocation(), s.getYield(), s.isIncendiary());
+			explosionLoc.getWorld().createExplosion(ev.getLocation(), s.getYield(), s.isIncendiary()); //TODO Add a property to change whether custom explosive damage happens
 			
 		}
 		

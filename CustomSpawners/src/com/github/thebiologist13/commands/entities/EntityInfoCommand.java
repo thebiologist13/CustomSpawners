@@ -129,6 +129,17 @@ public class EntityInfoCommand extends SpawnerCommand {
 				}
 			}
 			
+			String dropMsg = "";
+			ArrayList<ItemStack> drops = s.getDrops();
+			for(int i = 0; i < drops.size(); i++) {
+				ItemStack item = drops.get(i);
+				if(i == 0) {
+					dropMsg += item.getTypeId() + ":" + item.getDurability();
+				} else {
+					dropMsg += ", " + item.getTypeId() + ":" + item.getDurability();
+				}
+			}
+			
 			EntityPotionEffect epe = s.getPotionEffect();
 			
 			String typeOfExpDrop = (s.getType().equals(EntityType.THROWN_EXP_BOTTLE)) ? "Experience Bottle Exp: " : "Mob Dropped Exp: ";
@@ -172,6 +183,8 @@ public class EntityInfoCommand extends SpawnerCommand {
 					ChatColor.GOLD + "Explosive Yield: " + s.getYield(),
 					ChatColor.GOLD + "Incendiary: " + s.isIncendiary(),
 					ChatColor.GOLD + "Item Type: " + plugin.getItemName(s.getItemType()),
+					ChatColor.GOLD + "Using Custom Drops :" + s.isUsingCustomDrops(),
+					ChatColor.GOLD + "Drops: " + dropMsg,
 					ChatColor.GREEN + "Scroll Up for More Properties."
 			};
 

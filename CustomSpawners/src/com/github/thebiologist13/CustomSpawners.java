@@ -12,17 +12,25 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import net.minecraft.server.NBTTagCompound;
+import net.minecraft.server.NBTTagDouble;
+import net.minecraft.server.NBTTagList;
+
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -536,9 +544,15 @@ public class CustomSpawners extends JavaPlugin {
 		int id = 0;
 		short damage = 0;
 		
+		//Version 0.0.5b - Tweaked this so it would register right
 		int index = value.indexOf(":");
 		
 		if(index == -1) {
+			index = value.indexOf("-");
+		}
+		
+		if(index == -1) {
+			
 			String itemId = value.substring(0, value.length());
 			
 			if(!isInteger(itemId)) 
@@ -898,6 +912,226 @@ public class CustomSpawners extends JavaPlugin {
 		
 		return type;
 		
+	}
+	
+	//This saves a Spawner to the world folder. Kind of "cheating" to make it so custom spawners can be recovered from the world.
+	public void saveCustomSpawnerToWorld(Spawner data) {
+		World w = data.getLoc().getWorld();
+		
+		String ch = File.separator;
+		String worldDir = w.getWorldFolder() + ch + "cs_data" + ch;
+		String entityDir = worldDir + "entity";
+		
+		File spawnerFile = new File(worldDir + "spawner" + ch + data.getId() + ".yml");
+		File entityFilesDir = new File(entityDir);
+		
+		HashMap<Integer, SpawnableEntity> types = data.getTypeData();
+		
+		File[] entityFilesList = entityFilesDir.listFiles();
+		ArrayList<String> entityFiles = new ArrayList<String>();
+		
+		for(File f : entityFilesList) {
+			entityFiles.add(f.getPath());
+		}
+		
+		for(Integer i : types.keySet()) {
+			printDebugMessage("Checking if entity files exist");
+			String fileName = entityDir + ch + i + ".yml";
+			printDebugMessage("File to check: " + fileName);
+			
+			if(!entityFiles.contains(fileName)) {
+				printDebugMessage("Doesn't contain file. Creating...");
+				saveCustomEntityToWorld(types.get(i), new File(fileName));
+			}
+			
+		}
+		
+		printDebugMessage("World Folder: " + spawnerFile.getPath());
+		
+		fileManager.saveSpawner(data, spawnerFile);
+	}
+	
+	public void saveCustomEntityToWorld(SpawnableEntity data, File path) {
+		fileManager.saveEntity(data, path);
+	}
+	
+	public NBTTagCompound getSpawnerNBT(Spawner s) {
+		NBTTagCompound sData = new NBTTagCompound();
+		NBTTagCompound eData = new NBTTagCompound();
+		SpawnableEntity mainEntity = (SpawnableEntity) s.getTypeData().keySet().toArray()[0]; //May throw a ClassCastException
+		Location spawnLocation = s.getAreaPoints()[0]; //This can be changed. Really just needs a single point to spawn to. Should add option to disable.
+		Vector velocity = mainEntity.getVelocity();
+		NBTTagList pos = convertArrayToList(new double[] {spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ()});
+		NBTTagList motion = convertArrayToList(new double[] {velocity.getX(), velocity.getY(), velocity.getZ()});
+		byte sitting = (byte) ((mainEntity.isSitting()) ? 1 : 0);
+		byte powered = (byte) ((mainEntity.isCharged()) ? 1 : 0);
+		byte saddle = (byte) ((mainEntity.isSaddled()) ? 1 : 0);
+		short angry = (short) ((mainEntity.isAngry()) ? 1 : 0);
+		
+		ArrayList<EntityPotionEffect> effectsCS = mainEntity.getEffects();
+		NBTTagList effects = new NBTTagList();
+		for(EntityPotionEffect e : effectsCS) {
+			effects.add(makePotionCompound((byte) e.getType().getId(), (byte) e.getAmplifier(), e.getDuration()));
+		}
+		
+		//Several values excluded because CustomSpawners doesn't have properties for them (rotation, fall distance, on ground, and dimension)
+		
+		/*
+		 * Entity Data
+		 */
+		eData.setString("id", mainEntity.getType().getName());
+		eData.set("Pos", pos);
+		eData.set("Motion", motion);
+		eData.setShort("Fire", (short) mainEntity.getFireTicks());
+		eData.setShort("Air", (short) getAir(mainEntity));
+		eData.setShort("Health", (short) getHealth(mainEntity));
+		eData.set("ActiveEffects", effects);
+		//Mob Specific Data
+		
+		if(!mainEntity.getType().equals(EntityType.DROPPED_ITEM)) {
+			eData.setInt("Age", getAge(mainEntity));
+		} else {
+			eData.setShort("Age", (short) getAge(mainEntity));
+		}
+		
+		if(!mainEntity.getType().equals(EntityType.CREEPER)) {
+			eData.setShort("Fuse", (short) mainEntity.getFuseTicks());
+		} else {
+			eData.setByte("Fuse", (byte) mainEntity.getFuseTicks());
+		}
+		
+		eData.setByte("Sitting", sitting);
+		eData.setByte("powered", powered);
+		eData.setByte("ExplosionRadius", (byte) mainEntity.getYield());
+		eData.setShort("carried", (short) mainEntity.getEndermanBlock().getItemTypeId());
+		eData.setShort("carriedData", mainEntity.getEndermanBlock().getData());
+		eData.setInt("CatType", Ocelot.Type.valueOf(mainEntity.getCatType()).getId());
+		eData.setByte("Saddled", saddle);
+		eData.setShort("Anger", angry); //Pigmen
+		//Could set a sheared variable here
+		eData.setByte("Color", DyeColor.valueOf(mainEntity.getColor()).getData());
+		eData.setInt("Size", mainEntity.getSlimeSize());
+		eData.setByte("Angry", (byte) angry); //Wolf
+		eData.setInt("Profession", mainEntity.getProfession().getId());
+		//Stuff for offers could go here
+		eData.setByte("Tile", (byte) mainEntity.getItemType().getTypeId());
+		eData.setByte("Data", mainEntity.getItemType().getData().getData());
+		
+		/*
+		 * Spawner Data
+		 */
+		sData.setInt("x", s.getLoc().getBlockX());
+		sData.setInt("y", s.getLoc().getBlockY());
+		sData.setInt("z", s.getLoc().getBlockZ());
+		sData.setString("EntityId", mainEntity.getType().getName());
+		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
+		sData.setShort("Delay", (short) s.getRate());
+		sData.setShort("MinSpawnDelay", (short) s.getRate());
+		sData.setShort("MaxSpawnDelay", (short) (s.getRate() + 2));
+		sData.setShort("MaxNearbyEntities", (short) s.getMaxMobs());
+		sData.setShort("RequiredPlayerRange", (short) s.getMaxPlayerDistance());
+		sData.set("SpawnData", eData);
+		//Additional data here
+		
+		return sData;
+	}
+	
+	//Gets a spawner from a location
+	public Spawner getSpawnerAt(Location loc) {
+		Iterator<Spawner> spItr = spawners.values().iterator();
+		
+		while(spItr.hasNext()) {
+			Spawner s = spItr.next();
+			
+			if(s.getLoc().equals(loc)) {
+				return s;
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	//Converts a double array to a NBTTagList
+	private NBTTagList convertArrayToList(double[] d0) {
+		NBTTagList list = new NBTTagList();
+		int i = d0.length;
+		
+		for(int j = 0; j < i; j++) {
+			double d = d0[j];
+			
+			list.add(new NBTTagDouble((String) null, d));
+		}
+		
+		return list;
+		
+	}
+	
+	//Converts a NBTTagCompound array to a NBTTagList
+	@SuppressWarnings("unused")
+	private NBTTagList convertArrayToList(NBTTagCompound[] comp) {
+		NBTTagList list = new NBTTagList();
+		int i = comp.length;
+		
+		for(int j = 0; j < i; j++) {
+			NBTTagCompound d = comp[j];
+			
+			list.add(d);
+		}
+		
+		return list;
+		
+	}
+	
+	//Makes a NBTTagCompound for a potion effect
+	private NBTTagCompound makePotionCompound(byte id, byte level, int dur) {
+		NBTTagCompound potion = new NBTTagCompound();
+		
+		potion.setByte("Id", id);
+		potion.setByte("Amplifier", level);
+		potion.setInt("Duration", dur);
+		
+		return potion;
+	}
+	
+	//Parses health
+	private int getHealth(SpawnableEntity e) {
+		
+		if(e.getHealth() == -2) {
+			return 1;
+		} else if(e.getHealth() == -1) {
+			return e.getMaxHealth();
+		} else {
+			return e.getHealth();
+		}
+		
+	}
+	
+	//Parses age
+	private int getAge(SpawnableEntity e) {
+		
+		if(e.getAge() == -2) {
+			return -24000; //Negative is a baby, and 24000 ticks is 20 minutes
+		} else if(e.getAge() == -1) {
+			return 0;
+		} else {
+			return e.getAge();
+		}
+		
+	}
+	
+	//Parses air
+	private int getAir(SpawnableEntity e) {
+
+		if(e.getAir() == -2) {
+			return 0;
+		} else if(e.getAir() == -1) {
+			return e.getMaxAir();
+		} else {
+			return e.getAir();
+		}
+				
 	}
 	
 }
