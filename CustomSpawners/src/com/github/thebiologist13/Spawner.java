@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.server.NBTTagCompound;
+
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -16,6 +18,10 @@ import org.bukkit.util.Vector;
 import com.github.thebiologist13.listeners.DamageController;
 
 public class Spawner {
+	
+	//TODO Switch to NBT
+	private NBTTagCompound data = new NBTTagCompound();
+	
 	//Identification variables
 	private String name = "";
 	private int id = -1; //Identification # for spawner

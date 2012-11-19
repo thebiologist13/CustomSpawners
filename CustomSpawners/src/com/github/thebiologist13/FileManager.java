@@ -488,6 +488,8 @@ public class FileManager {
 			boolean incendiary = yaml.getBoolean("incendiary", config.getBoolean("entities.incendiary", false));
 			ItemStack itemType = yaml.getItemStack("itemType", plugin.getItemStack(config.getString("itemType", "1:0")));
 			boolean usingCustomDrops = yaml.getBoolean("useCustomDrops", config.getBoolean("entities.useCustomDrops", false));
+			boolean invulnerable = yaml.getBoolean("invulnerable", config.getBoolean("entities.invulnerable", false));
+			EntityInventory inv = (EntityInventory) yaml.get("inventory", new EntityInventory());
 
 			//Make sure no values are null 
 			if(Integer.valueOf(id) == null) {
@@ -577,6 +579,8 @@ public class FileManager {
 			e.setIncendiary(incendiary);
 			e.setItemType(itemType);
 			e.setUsingCustomDrops(usingCustomDrops);
+			e.setInventory(inv);
+			e.setInvulnerable(invulnerable);
 
 			return e;
 		}
@@ -709,6 +713,8 @@ public class FileManager {
 		yaml.set("itemType", e.getItemType());
 		yaml.set("useCustomDrops", e.isUsingCustomDrops());
 		yaml.set("drops", e.getDrops());
+		yaml.set("invulnerable", e.isInvulnerable());
+		yaml.set("inventory", e.getInventory());
 
 		try {
 			yaml.save(f);

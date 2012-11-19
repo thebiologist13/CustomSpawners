@@ -58,6 +58,7 @@ public class EntitiesExecutor implements CommandExecutor {
 	private EntityExpCommand edc = null;
 	private EntityItemTypeCommand itc = null;
 	private EntityPotionTypeCommand ptc = null;
+	private EntityInvulnerableCommand eic = null;
 	
 	public EntitiesExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
@@ -103,6 +104,7 @@ public class EntitiesExecutor implements CommandExecutor {
 		yic = new EntityYieldCommand(plugin);
 		itc = new EntityItemTypeCommand(plugin);
 		ptc = new EntityPotionTypeCommand(plugin);
+		eic = new EntityInvulnerableCommand(plugin);
 	}
 
 	@Override
@@ -270,6 +272,9 @@ public class EntitiesExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("setyield")) {
 						yic.run(arg0, arg1, arg2, arg3);
 						return true;
+					} else if(arg3[0].equalsIgnoreCase("setinvulnerable") || arg3[0].equalsIgnoreCase("setinvincible")) {
+						eic.run(arg0, arg1, arg2, arg3);
+						return true;
 					}
 					
 				} else if(arg3.length == 3) {
@@ -378,6 +383,9 @@ public class EntitiesExecutor implements CommandExecutor {
 						return true;
 					} else if(arg3[0].equalsIgnoreCase("setyield")) {
 						yic.run(arg0, arg1, arg2, arg3);
+						return true;
+					} else if(arg3[0].equalsIgnoreCase("setinvulnerable") || arg3[0].equalsIgnoreCase("setinvincible")) {
+						eic.run(arg0, arg1, arg2, arg3);
 						return true;
 					}
 					

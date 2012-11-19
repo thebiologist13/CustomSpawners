@@ -3,6 +3,8 @@ version: 0.0.6
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
+softdepend: [WorldGuard]
+loadbefore: [WorldGuard, Multiverse-Core]
 commands:
     customspawners:
         description: The main command of CustomSpawners. Other commands branch off this one.
@@ -106,6 +108,7 @@ permissions:
             customspawners.entities.setyield: true
             customspawners.entities.setincendiary: true
             customspawners.entities.setitemtype: true
+            customspawners.entities.setinvulnerable: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawner" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -326,20 +329,23 @@ permissions:
         description: Allows the user/group to change whether the entity uses customized drops.
         default: op
     customspawners.entities.setpotiontype:
-        description: Allows the user/group to set values on the item list.
+        description: Allows the user/group to set the type of potion of a spawned potion.
         default: op
     customspawners.entities.setexp:
-        description: Allows the user/group to set values on the item list.
+        description: Allows the user/group to set the dropped exp.
         default: op
     customspawners.entities.setfuselength:
-        description: Allows the user/group to set values on the item list.
+        description: Allows the user/group to set the fuse length.
         default: op
     customspawners.entities.setyield:
-        description: Allows the user/group to set values on the item list.
+        description: Allows the user/group to set explosive yield.
         default: op
     customspawners.entities.setincendiary:
-        description: Allows the user/group to set values on the item list.
+        description: Allows the user/group to set an explosive incendiary.
         default: op
     customspawners.entities.setitemtype:
-        description: Allows the user/group to set values on the item list.
+        description: Allows the user/group to set the item type.
+        default: op
+    customspawners.entities.setinvulnerable:
+        description: Allows the user/group to set a entity invulnerable.
         default: op

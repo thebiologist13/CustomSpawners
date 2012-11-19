@@ -1,6 +1,7 @@
 package com.github.thebiologist13.commands.spawners;
 
-import net.minecraft.server.NBTTagCompound;
+import java.io.File;
+
 import net.minecraft.server.TileEntity;
 import net.minecraft.server.TileEntityMobSpawner;
 
@@ -11,6 +12,8 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.CSNBTManager;
+import com.github.thebiologist13.NotTileEntityException;
 import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.commands.SpawnerCommand;
 
@@ -43,10 +46,6 @@ public class ConvertCommand extends SpawnerCommand {
 		Player p = null;
 		//Spawner
 		Spawner s = null;
-		//Tile Entity
-		TileEntityMobSpawner tems = null;
-		//Data
-		NBTTagCompound data = new NBTTagCompound();
 		//CraftWorld
 		CraftWorld cw = null;
 		
@@ -83,22 +82,29 @@ public class ConvertCommand extends SpawnerCommand {
 			
 			cw = (CraftWorld) s.getLoc().getWorld();
 			TileEntity te = cw.getTileEntityAt(s.getLoc().getBlockX(), s.getLoc().getBlockY(), s.getLoc().getBlockZ());
+			Block blk = cw.getBlockAt(s.getLoc());
 			
 			if(s.isConverted()) { //If converting back to a CustomSpawner
 				
-				
+				s = plugin.loadSpawnerFromWorld(cw, s.getId());
+				s.setActive(true);
+				blk.setTypeIdAndData(s.getBlock().getTypeId(), s.getBlock().getData(), true);
+				CustomSpawners.spawners.replace(s.getId(), s);
 				
 			} else { //If converting to a mob spawner block
 				
 				if(!(te instanceof TileEntityMobSpawner)) {
-					Block blk = cw.getBlockAt(s.getLoc());
 					blk.setTypeIdAndData(52, (byte) 0, true);
 					te = cw.getTileEntityAt(s.getLoc().getBlockX(), s.getLoc().getBlockY(), s.getLoc().getBlockZ());
 				}
 				
-				tems = (TileEntityMobSpawner) te;
-				data = plugin.getSpawnerNBT(s); //Gets the converted data for a spawner
-				tems.a(data); //Sets the data to the spawner.
+				CSNBTManager nbtMan = new CSNBTManager();
+				s.setActive(false);
+				try {
+					nbtMan.setTileEntityMobSpawnerNBT(s.getLoc().getBlock(), nbtMan.getSpawnerNBT(s));
+				} catch (NotTileEntityException e) {
+					e.printStackTrace();
+				}
 				
 			}
 			

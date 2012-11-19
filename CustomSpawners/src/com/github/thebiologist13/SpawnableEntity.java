@@ -17,6 +17,8 @@ public class SpawnableEntity {
 	 * of data associated with them.
 	 */
 	
+	//TODO Switch to NBT
+	
 	//Identification Variables
 	private String name = "";
 	private int id = 0;
@@ -44,10 +46,16 @@ public class SpawnableEntity {
 	private int damage = 2; //Check
 	private int maxHealth = 20;
 	private int maxAir = 200;
+	private boolean invulnerable = false;
+	private boolean usingInventory = false;
+	private EntityInventory inventory = new EntityInventory();
+	//TODO isZombie prop
+	//TODO isWither prop
+	//TODO hurtMobs when falling
 	
 	//Specific Data
-	private Villager.Profession villagerProfession = null;
-	private MaterialData endermanBlock = null;
+	private Villager.Profession villagerProfession = Villager.Profession.FARMER;
+	private MaterialData endermanBlock = new MaterialData(1);
 	private boolean isSaddled = false;
 	private boolean isCharged = false;
 	private boolean isJockey = false;
@@ -63,7 +71,7 @@ public class SpawnableEntity {
 	private int fuseTicks = 80; //Check
 	private float yield = 5.0f; //Check
 	private boolean incendiary = false; //Check
-	private ItemStack itemType = null; //Check
+	private ItemStack itemType = new ItemStack(1); //Check
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
@@ -437,6 +445,30 @@ public class SpawnableEntity {
 
 	public void setMaxAir(int maxAir) {
 		this.maxAir = maxAir;
+	}
+
+	public boolean isInvulnerable() {
+		return invulnerable;
+	}
+
+	public void setInvulnerable(boolean invulnerable) {
+		this.invulnerable = invulnerable;
+	}
+
+	public EntityInventory getInventory() {
+		return inventory;
+	}
+
+	public void setInventory(EntityInventory inventory) {
+		this.inventory = inventory;
+	}
+
+	public boolean isUsingInventory() {
+		return usingInventory;
+	}
+
+	public void setUsingInventory(boolean usingInventory) {
+		this.usingInventory = usingInventory;
 	}
 
 }
