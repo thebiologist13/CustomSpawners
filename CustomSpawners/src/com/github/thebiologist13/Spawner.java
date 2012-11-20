@@ -2,10 +2,9 @@ package com.github.thebiologist13;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-
-import net.minecraft.server.NBTTagCompound;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -19,8 +18,7 @@ import com.github.thebiologist13.listeners.DamageController;
 
 public class Spawner {
 	
-	//TODO Switch to NBT
-	private NBTTagCompound data = new NBTTagCompound();
+	private Map<String, Object> data = new HashMap<String, Object>();
 	
 	//Identification variables
 	private String name = "";
@@ -70,6 +68,7 @@ public class Spawner {
 	 */
 	
 	public Spawner(SpawnableEntity type, Location loc, int id, Server server) {
+		data.put("csid", id);
 		this.id = id;
 		this.loc = loc;
 		this.server = server;
