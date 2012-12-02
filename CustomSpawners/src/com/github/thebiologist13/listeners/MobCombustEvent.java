@@ -15,7 +15,7 @@ public class MobCombustEvent implements Listener {
 		int id = combustee.getEntityId();
 		
 		if(!DamageController.negatedFireImmunity.containsKey(id)) {
-			DamageController.negatedFireImmunity.put(id, ev.getDuration());
+			DamageController.negatedFireImmunity.put(id, ev.getDuration() / 20);
 		}
 		
 	}

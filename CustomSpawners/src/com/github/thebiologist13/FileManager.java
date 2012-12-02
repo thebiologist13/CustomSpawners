@@ -3,10 +3,10 @@ package com.github.thebiologist13;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -89,7 +89,7 @@ public class FileManager {
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			boolean killOnReload = config.getBoolean("spawners.killOnReload", false);
-			ConcurrentHashMap<Integer, SpawnableEntity> allMobs = s.getMobs();
+			Map<Integer, SpawnableEntity> allMobs = s.getMobs();
 			allMobs.putAll(s.getPassiveMobs());
 			
 			if(logLevel > 1)
@@ -274,7 +274,11 @@ public class FileManager {
 				log.info("Loading " + f.getName());
 			
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-
+			
+			if(yaml.contains("spawner")) {
+				return (Spawner) yaml.get("spawner");
+			}
+			
 			int id = yaml.getInt("id");
 			String name = yaml.getString("name", "");
 			double radius = yaml.getDouble("radius", config.getDouble("spawners.radius", 32));
@@ -325,8 +329,8 @@ public class FileManager {
 			//Convert Raw yaml list of mobs to ArrayList<Integer>
 			Iterator<?> mobItr = mobs.iterator();
 			Iterator<?> passiveMobItr = passiveMobs.iterator();
-			ConcurrentHashMap<Integer, SpawnableEntity> mobsMap = new ConcurrentHashMap<Integer, SpawnableEntity>();
-			ConcurrentHashMap<Integer, SpawnableEntity> passiveMobsMap = new ConcurrentHashMap<Integer, SpawnableEntity>();
+			HashMap<Integer, SpawnableEntity> mobsMap = new HashMap<Integer, SpawnableEntity>();
+			HashMap<Integer, SpawnableEntity> passiveMobsMap = new HashMap<Integer, SpawnableEntity>();
 
 			while(mobItr.hasNext()) {
 				Object o = mobItr.next();
@@ -381,7 +385,7 @@ public class FileManager {
 
 			//Mob types
 			List<?> listType = yaml.getList("spawnableEntities");
-			LinkedHashMap<Integer, SpawnableEntity> entities = new LinkedHashMap<Integer, SpawnableEntity>();
+			Map<Integer, SpawnableEntity> entities = new HashMap<Integer, SpawnableEntity>();
 			for(Object o : listType) {
 				if(o instanceof Integer) {
 					int entityID = (Integer) o;
@@ -448,6 +452,10 @@ public class FileManager {
 				log.info("Loading " + f.getName());
 			
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
+			
+			if(yaml.contains("entity")) {
+				return (SpawnableEntity) yaml.get("entity");
+			}
 
 			int id = yaml.getInt("id");
 			String name = yaml.getString("name", "");
@@ -594,70 +602,75 @@ public class FileManager {
 		
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
 
-		List<String> mobIDs = new ArrayList<String>();
-		Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-		while(mobItr.hasNext()) {
-			int mobId = mobItr.next();
-			int entityId = s.getMobs().get(mobId).getId();
-			String toYaml = mobId + "_" + entityId;
-
-			mobIDs.add(toYaml);
-		}
-
-		List<String> passiveMobIDs = new ArrayList<String>();
-		Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
-		while(passiveMobItr.hasNext()) {
-			int passiveMobId = passiveMobItr.next();
-			int entityId = s.getPassiveMobs().get(passiveMobId).getId();
-			String toYaml = passiveMobId + "_" + entityId;
-
-			passiveMobIDs.add(toYaml);
-		}
-
-		List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
-		for(Integer i : s.getTypeData().keySet()) {
-			spawnableEntityIDs.add(i);
-		}
-
-		Location[] areaPoints = s.getAreaPoints();
-
-		if(yaml.getList("mobs") == null) {
-			yaml.set("mobs", null);
-		}
-
 		yaml.options().header("DO NOT MODIFY THIS FILE!");
+		
+		if(config.getBoolean("data.useNewSave", true)) {
+			yaml.set("spawner", s);
+			return;
+		} else {
+			List<String> mobIDs = new ArrayList<String>();
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+			while(mobItr.hasNext()) {
+				int mobId = mobItr.next();
+				int entityId = s.getMobs().get(mobId).getId();
+				String toYaml = mobId + "_" + entityId;
 
-		yaml.set("id", s.getId());
-		yaml.set("name", s.getName());
-		yaml.set("spawnableEntities", spawnableEntityIDs);
-		yaml.set("active", s.isActive());
-		yaml.set("hidden", s.isHidden());
-		yaml.set("radius", s.getRadius());
-		yaml.set("useSpawnArea", s.isUsingSpawnArea());
-		yaml.set("redstone", s.isRedstoneTriggered());
-		yaml.set("maxDistance", s.getMaxPlayerDistance());
-		yaml.set("minDistance", s.getMinPlayerDistance());
-		yaml.set("maxLight", s.getMaxLightLevel());
-		yaml.set("minLight", s.getMinLightLevel());
-		yaml.set("mobsPerSpawn", s.getMobsPerSpawn());
-		yaml.set("maxMobs", s.getMaxMobs());
-		yaml.set("location.world", s.getLoc().getWorld().getName());
-		yaml.set("location.x", s.getLoc().getBlockX());
-		yaml.set("location.y", s.getLoc().getBlockY());
-		yaml.set("location.z", s.getLoc().getBlockZ());
-		yaml.set("p1.world", areaPoints[0].getWorld().getName());
-		yaml.set("p1.x", areaPoints[0].getBlockX());
-		yaml.set("p1.y", areaPoints[0].getBlockY());
-		yaml.set("p1.z", areaPoints[0].getBlockZ());
-		yaml.set("p2.world", areaPoints[1].getWorld().getName());
-		yaml.set("p2.x", areaPoints[1].getBlockX());
-		yaml.set("p2.y", areaPoints[1].getBlockY());
-		yaml.set("p2.z", areaPoints[1].getBlockZ());
-		yaml.set("rate", s.getRate());
-		yaml.set("mobs", mobIDs);
-		yaml.set("passiveMobs", passiveMobIDs);
-		yaml.set("block", s.getBlock().getTypeId() + "-" + s.getBlock().getData());
-		yaml.set("converted", s.isConverted());
+				mobIDs.add(toYaml);
+			}
+
+			List<String> passiveMobIDs = new ArrayList<String>();
+			Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
+			while(passiveMobItr.hasNext()) {
+				int passiveMobId = passiveMobItr.next();
+				int entityId = s.getPassiveMobs().get(passiveMobId).getId();
+				String toYaml = passiveMobId + "_" + entityId;
+
+				passiveMobIDs.add(toYaml);
+			}
+
+			List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
+			for(Integer i : s.getTypeData().keySet()) {
+				spawnableEntityIDs.add(i);
+			}
+
+			Location[] areaPoints = s.getAreaPoints();
+
+			if(yaml.getList("mobs") == null) {
+				yaml.set("mobs", null);
+			}
+
+			yaml.set("id", s.getId());
+			yaml.set("name", s.getName());
+			yaml.set("spawnableEntities", spawnableEntityIDs);
+			yaml.set("active", s.isActive());
+			yaml.set("hidden", s.isHidden());
+			yaml.set("radius", s.getRadius());
+			yaml.set("useSpawnArea", s.isUsingSpawnArea());
+			yaml.set("redstone", s.isRedstoneTriggered());
+			yaml.set("maxDistance", s.getMaxPlayerDistance());
+			yaml.set("minDistance", s.getMinPlayerDistance());
+			yaml.set("maxLight", s.getMaxLightLevel());
+			yaml.set("minLight", s.getMinLightLevel());
+			yaml.set("mobsPerSpawn", s.getMobsPerSpawn());
+			yaml.set("maxMobs", s.getMaxMobs());
+			yaml.set("location.world", s.getLoc().getWorld().getName());
+			yaml.set("location.x", s.getLoc().getBlockX());
+			yaml.set("location.y", s.getLoc().getBlockY());
+			yaml.set("location.z", s.getLoc().getBlockZ());
+			yaml.set("p1.world", areaPoints[0].getWorld().getName());
+			yaml.set("p1.x", areaPoints[0].getBlockX());
+			yaml.set("p1.y", areaPoints[0].getBlockY());
+			yaml.set("p1.z", areaPoints[0].getBlockZ());
+			yaml.set("p2.world", areaPoints[1].getWorld().getName());
+			yaml.set("p2.x", areaPoints[1].getBlockX());
+			yaml.set("p2.y", areaPoints[1].getBlockY());
+			yaml.set("p2.z", areaPoints[1].getBlockZ());
+			yaml.set("rate", s.getRate());
+			yaml.set("mobs", mobIDs);
+			yaml.set("passiveMobs", passiveMobIDs);
+			yaml.set("block", s.getBlock().getTypeId() + "-" + s.getBlock().getData());
+			yaml.set("converted", s.isConverted());
+		}
 
 		try {
 			yaml.save(f);
@@ -674,47 +687,52 @@ public class FileManager {
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
 
 		yaml.options().header("DO NOT MODIFY THIS FILE!");
-
-		yaml.set("id", e.getId());
-		yaml.set("name", e.getName());
-		yaml.set("type", plugin.parseEntityName(e.getType()));
-		yaml.set("effects", e.getEffects());
-		yaml.set("xVelocity", e.getXVelocity());
-		yaml.set("yVelocity", e.getYVelocity());
-		yaml.set("zVelocity", e.getZVelocity());
-		yaml.set("age", e.getAge());
-		yaml.set("health", e.getHealth());
-		yaml.set("air", e.getAir());
-		yaml.set("profession", e.getProfession().toString());
-		yaml.set("endermanBlock", e.getEndermanBlock().toItemStack().getTypeId());
-		yaml.set("saddled", e.isSaddled());
-		yaml.set("charged", e.isCharged());
-		yaml.set("jockey", e.isJockey());
-		yaml.set("tame", e.isTamed());
-		yaml.set("angry", e.isAngry());
-		yaml.set("sitting", e.isSitting());
-		yaml.set("catType", e.getCatType());
-		yaml.set("slimeSize", e.getSlimeSize());
-		yaml.set("color", e.getColor());
-		yaml.set("passive", e.isPassive());
-		yaml.set("fireTicks", e.getFireTicks());
-		yaml.set("blacklist", e.getDamageBlacklist());
-		yaml.set("whitelist", e.getDamageWhitelist());
-		yaml.set("itemlist", e.getItemDamageList());
-		yaml.set("useBlacklist", e.isUsingBlacklist());
-		yaml.set("useWhitelist", e.isUsingWhitelist());
-		yaml.set("useCustomDamage", e.isUsingCustomDamage());
-		yaml.set("damage", e.getDamage());
-		yaml.set("potionType", e.getPotionEffect());
-		yaml.set("droppedExp", e.getDroppedExp());
-		yaml.set("fuseTicks", e.getFuseTicks());
-		yaml.set("yield", e.getYield());
-		yaml.set("incendiary", e.isIncendiary());
-		yaml.set("itemType", e.getItemType());
-		yaml.set("useCustomDrops", e.isUsingCustomDrops());
-		yaml.set("drops", e.getDrops());
-		yaml.set("invulnerable", e.isInvulnerable());
-		yaml.set("inventory", e.getInventory());
+		
+		if(config.getBoolean("data.useNewSave", true)) {
+			yaml.set("entity", e);
+			return;
+		} else {
+			yaml.set("id", e.getId());
+			yaml.set("name", e.getName());
+			yaml.set("type", plugin.parseEntityName(e.getType()));
+			yaml.set("effects", e.getEffects());
+			yaml.set("xVelocity", e.getXVelocity());
+			yaml.set("yVelocity", e.getYVelocity());
+			yaml.set("zVelocity", e.getZVelocity());
+			yaml.set("age", e.getAge());
+			yaml.set("health", e.getHealth());
+			yaml.set("air", e.getAir());
+			yaml.set("profession", e.getProfession().toString());
+			yaml.set("endermanBlock", e.getEndermanBlock().toItemStack().getTypeId());
+			yaml.set("saddled", e.isSaddled());
+			yaml.set("charged", e.isCharged());
+			yaml.set("jockey", e.isJockey());
+			yaml.set("tame", e.isTamed());
+			yaml.set("angry", e.isAngry());
+			yaml.set("sitting", e.isSitting());
+			yaml.set("catType", e.getCatType());
+			yaml.set("slimeSize", e.getSlimeSize());
+			yaml.set("color", e.getColor());
+			yaml.set("passive", e.isPassive());
+			yaml.set("fireTicks", e.getFireTicks());
+			yaml.set("blacklist", e.getDamageBlacklist());
+			yaml.set("whitelist", e.getDamageWhitelist());
+			yaml.set("itemlist", e.getItemDamageList());
+			yaml.set("useBlacklist", e.isUsingBlacklist());
+			yaml.set("useWhitelist", e.isUsingWhitelist());
+			yaml.set("useCustomDamage", e.isUsingCustomDamage());
+			yaml.set("damage", e.getDamage());
+			yaml.set("potionType", e.getPotionEffect());
+			yaml.set("droppedExp", e.getDroppedExp());
+			yaml.set("fuseTicks", e.getFuseTicks());
+			yaml.set("yield", e.getYield());
+			yaml.set("incendiary", e.isIncendiary());
+			yaml.set("itemType", e.getItemType());
+			yaml.set("useCustomDrops", e.isUsingCustomDrops());
+			yaml.set("drops", e.getDrops());
+			yaml.set("invulnerable", e.isInvulnerable());
+			yaml.set("inventory", e.getInventory());
+		}
 
 		try {
 			yaml.save(f);

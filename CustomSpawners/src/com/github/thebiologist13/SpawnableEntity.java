@@ -1,7 +1,12 @@
 package com.github.thebiologist13;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
@@ -9,7 +14,8 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-public class SpawnableEntity {
+@SerializableAs("SpawnableEntity")
+public class SpawnableEntity implements ConfigurationSerializable {
 	
 	/*
 	 * Spawnable Entities are entities that
@@ -17,86 +23,68 @@ public class SpawnableEntity {
 	 * of data associated with them.
 	 */
 	
-	//TODO Switch to NBT
-	
-	//Identification Variables
-	private String name = "";
-	private int id = 0;
+	private Map<String, Object> data = new HashMap<String, Object>();
 	
 	//Basic Data
-	private EntityType type = null;
 	private ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
-	private double xVelocity = 0;
-	private double yVelocity = 0;
-	private double zVelocity = 0;
-	private Vector velocity = new Vector(xVelocity, yVelocity, zVelocity);
-	private int age = 0;
-	private int health = 1;
-	private int air = 0;
-	private boolean passive = false;
-	private int fireTicks = 0;
-	private ArrayList<String> damageWhitelist = new ArrayList<String>();
-	private ArrayList<String> damageBlacklist = new ArrayList<String>();
+	//Damage Whitelist
+	private ArrayList<String> whitelist = new ArrayList<String>();
+	//Damage Blacklist
+	private ArrayList<String> blacklist = new ArrayList<String>();
+	//Items that do or do not inflict damage
 	private ArrayList<ItemStack> itemDamage = new ArrayList<ItemStack>(); 
+	//Drops
 	private ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
-	private boolean useCustomDrops = false;
-	private boolean useWhitelist = false;
-	private boolean useBlacklist = true;
-	private boolean useCustomDamage = false; //Check
-	private int damage = 2; //Check
-	private int maxHealth = 20;
-	private int maxAir = 200;
-	private boolean invulnerable = false;
-	private boolean usingInventory = false;
-	private EntityInventory inventory = new EntityInventory();
 	//TODO isZombie prop
 	//TODO isWither prop
 	//TODO hurtMobs when falling
-	
-	//Specific Data
-	private Villager.Profession villagerProfession = Villager.Profession.FARMER;
-	private MaterialData endermanBlock = new MaterialData(1);
-	private boolean isSaddled = false;
-	private boolean isCharged = false;
-	private boolean isJockey = false;
-	private boolean isTamed = false;
-	private boolean angry = false;
-	private boolean isSitting = false;
-	private String catType = "";
-	private int slimeSize = 1;
-	private String color = "";
 	//TODO add config defaults
-	private EntityPotionEffect potionEffect = new EntityPotionEffect(PotionEffectType.REGENERATION, 1, 0); //Check
-	private int droppedExp = 0; //Check
-	private int fuseTicks = 80; //Check
-	private float yield = 5.0f; //Check
-	private boolean incendiary = false; //Check
-	private ItemStack itemType = new ItemStack(1); //Check
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
-		this.type = type;
-		this.id = id;
+		this.data.put("type", type);
+		this.data.put("id", id);
+		this.data.put("useWhitelist", false);
+		this.data.put("useBlacklist", true);
+	}
+	
+	public void setData(Map<String, Object> data) {
 		
-		if(type.equals(EntityType.DROPPED_ITEM)) {
-			itemType = new ItemStack(1, 1, (short) 0);
-		}
+		if(data == null)
+			return;
+		
+		data.put("id", (Integer) this.data.get("id"));
+		data.put("name", (String) this.data.get("name"));
+		
+		this.data = data;
 	}
 
+	public Object getProp(String key) {
+		return (data.containsKey(key)) ? data.get(key) : null;
+	}
+	
+	public void setProp(String key, Object value) {
+		data.put(key, value);
+	}
+	
+	public boolean hasProp(String key) {
+		return data.containsKey(key);
+	}
+	
 	public String getName() {
-		return name;
+		return (data.containsKey("name")) ? (String) data.get("name") : "";
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		data.put("name", name);
 	}
 
 	public EntityType getType() {
-		return type;
+		return (EntityType) data.get("type");
 	}
 
 	public void setType(EntityType type) {
-		this.type = type;
+		data.put("type", type);
 	}
 
 	public ArrayList<EntityPotionEffect> getEffects() {
@@ -107,232 +95,225 @@ public class SpawnableEntity {
 		this.effects = effects;
 	}
 	
-	public void addPoitionEffect(EntityPotionEffect effect) {
+	public void addPotionEffect(EntityPotionEffect effect) {
 		effects.add(effect);
 	}
 
 	public double getXVelocity() {
-		return xVelocity;
+		return (data.containsKey("xVelo")) ? (Double) data.get("xVelo") : 0d;
 	}
 
 	public void setXVelocity(double xVelocity) {
-		this.xVelocity = xVelocity;
+		data.put("xVelo", xVelocity);
 	}
 
 	public double getYVelocity() {
-		return yVelocity;
+		return (data.containsKey("yVelo")) ? (Double) data.get("yVelo") : 0d;
 	}
 
 	public void setYVelocity(double yVelocity) {
-		this.yVelocity = yVelocity;
+		data.put("yVelo", yVelocity);
 	}
 
 	public double getZVelocity() {
-		return zVelocity;
+		return (data.containsKey("zVelo")) ? (Double) data.get("zVelo") : 0d;
 	}
 
 	public void setZVelocity(double zVelocity) {
-		this.zVelocity = zVelocity;
+		data.put("zVelo", zVelocity);
 	}
 
 	public int getAge() {
-		return age;
+		return (data.containsKey("age")) ? (Integer) data.get("age") : 0;
 	}
 
 	public void setAge(int age) {
-		this.age = age;
+		data.put("age", age);
 	}
 
 	public int getHealth() {
-		return health;
+		return (data.containsKey("health")) ? (Integer) data.get("health") : 1;
 	}
 
 	public void setHealth(int health) {
-		this.health = health;
+		data.put("health", health);
 	}
 
 	public MaterialData getEndermanBlock() {
-		return endermanBlock;
+		return (data.containsKey("enderBlock")) ? (MaterialData) data.get("enderBlock") : new MaterialData(1);
 	}
 
 	public void setEndermanBlock(MaterialData endermanBlock) {
-		this.endermanBlock = endermanBlock;
+		data.put("enderBlock", endermanBlock);
 	}
 
 	public boolean isSaddled() {
-		return isSaddled;
+		return (data.containsKey("saddle")) ? (Boolean) data.get("saddle") : false;
 	}
 
 	public void setSaddled(boolean isSaddled) {
-		this.isSaddled = isSaddled;
+		data.put("saddle", isSaddled);
 	}
 
 	public boolean isCharged() {
-		return isCharged;
+		return (data.containsKey("charged")) ? (Boolean) data.get("charged") : false;
 	}
 
 	public void setCharged(boolean isCharged) {
-		this.isCharged = isCharged;
+		data.put("charged", isCharged);
 	}
 
 	public boolean isJockey() {
-		return isJockey;
+		return (data.containsKey("jockey")) ? (Boolean) data.get("jockey") : false;
 	}
 
 	public void setJockey(boolean isJockey) {
-		this.isJockey = isJockey;
+		data.put("jockey", isJockey);
 	}
 
 	public boolean isTamed() {
-		return isTamed;
+		return (data.containsKey("tame")) ? (Boolean) data.get("tame") : false;
 	}
 
 	public void setTamed(boolean isTamed) {
-		this.isTamed = isTamed;
+		data.put("tame", isTamed);
 	}
 
 	public boolean isAngry() {
-		return angry;
+		return (data.containsKey("angry")) ? (Boolean) data.get("angry") : false;
 	}
 
 	public void setAngry(boolean angry) {
-		this.angry = angry;
+		data.put("angry", angry);
 	}
 
 	public boolean isSitting() {
-		return isSitting;
+		return (data.containsKey("sit")) ? (Boolean) data.get("sit") : false;
 	}
 
 	public void setSitting(boolean isSitting) {
-		this.isSitting = isSitting;
+		data.put("sit", isSitting);
 	}
 
 	public String getCatType() {
-		return catType;
+		return (data.containsKey("catType")) ? (String) data.get("catType") : "BLACK_CAT";
 	}
 
 	public void setCatType(String catType) {
-		this.catType = catType;
+		data.put("catType", catType);
 	}
 
 	public int getSlimeSize() {
-		return slimeSize;
+		return (data.containsKey("slimeSize")) ? (Integer) data.get("slimeSize") : 1;
 	}
 
 	public void setSlimeSize(int slimeSize) {
-		this.slimeSize = slimeSize;
+		data.put("slimeSize", slimeSize);
 	}
 
 	public String getColor() {
-		return color;
+		return (data.containsKey("color")) ? (String) data.get("color") : "WHITE";
 	}
 
 	public void setColor(String color) {
-		this.color = color;
+		data.put("color", color);
 	}
 
 	public int getId() {
-		return id;
+		return (Integer) data.get("id");
 	}
 
 	public Villager.Profession getProfession() {
-		return villagerProfession;
+		return (data.containsKey("profession")) ? (Villager.Profession) data.get("profession") : Villager.Profession.FARMER;
 	}
 
 	public void setProfession(Villager.Profession villagerProfession) {
-		this.villagerProfession = villagerProfession;
+		data.put("profession", villagerProfession);
 	}
 
 	public Vector getVelocity() {
-		return velocity;
+		return (data.containsKey("velocity")) ? (Vector) data.get("velocity") : new Vector(0, 0, 0);
 	}
 
 	public void setVelocity(Vector velocity) {
-		this.velocity = velocity;
-		this.xVelocity = velocity.getX();
-		this.yVelocity = velocity.getY();
-		this.zVelocity = velocity.getZ();
+		data.put("velocity", velocity);
+		setXVelocity(velocity.getX());
+		setYVelocity(velocity.getY());
+		setZVelocity(velocity.getZ());
 	}
 
 	public int getAir() {
-		return air;
+		return (data.containsKey("air")) ? (Integer) data.get("air") : 0;
 	}
 
 	public void setAir(int air) {
-		this.air = air;
+		data.put("air", air);
 	}
 	
 	public void remove() {
-		this.id = -1;
+		data.put("id", -1);
 	}
 	
 	public boolean isPassive() {
-		return passive;
+		return (data.containsKey("passive")) ? (Boolean) data.get("passive") : false;
 	}
 
 	public void setPassive(boolean passive) {
-		this.passive = passive;
+		data.put("passive", passive);
 	}
 
 	public int getFireTicks() {
-		return fireTicks;
+		return (data.containsKey("fire")) ? (Integer) data.get("fire") : 0;
 	}
 
 	public void setFireTicks(int fireTicks) {
-		this.fireTicks = fireTicks;
+		data.put("fireTicks", fireTicks);
 	}
 
 	public ArrayList<String> getDamageWhitelist() {
-		return damageWhitelist;
+		return whitelist;
 	}
 
 	public void setDamageWhitelist(ArrayList<String> damageWhitelist) {
-		this.damageWhitelist = damageWhitelist;
+		this.whitelist = damageWhitelist;
 	}
 	
 	public void addDamageWhitelist(String damageType) {
-		damageWhitelist.add(damageType);
+		whitelist.add(damageType);
 	}
 
 	public ArrayList<String> getDamageBlacklist() {
-		return damageBlacklist;
+		return blacklist;
 	}
 
 	public void setDamageBlacklist(ArrayList<String> damageBlacklist) {
-		this.damageBlacklist = damageBlacklist;
+		this.blacklist = damageBlacklist;
 	}
 	
 	public void addDamageBlacklist(String damageType) {
-		damageBlacklist.add(damageType);
+		blacklist.add(damageType);
 	}
 
 	public boolean isUsingWhitelist() {
-		return useWhitelist;
+		return (data.containsKey("useWhitelist")) ? (Boolean) data.get("useWhitelist") : false;
 	}
 
 	public void setUseWhitelist(boolean useWhitelist) {
-		this.useWhitelist = useWhitelist;
 		
-		if(useWhitelist) {
-			this.useBlacklist = false;
-		} else {
-			this.useBlacklist = true;
-		}
+		data.put("useWhitelist", useWhitelist);
+		data.put("useBlacklist", !useWhitelist);
 		
 	}
 
 	public boolean isUsingBlacklist() {
-		return useBlacklist;
+		return (data.containsKey("useBlacklist")) ? (Boolean) data.get("useBlacklist") : true;
 	}
 
 	public void setUseBlacklist(boolean useBlacklist) {
-		this.useBlacklist = useBlacklist;
 		
-		if(useBlacklist) {
-			this.useWhitelist = false;
-		} else {
-			this.useWhitelist = true;
-		}
+		data.put("useBlacklist", useBlacklist);
+		data.put("useWhitelist", !useBlacklist);
+		
 	}
 
 	public ArrayList<ItemStack> getItemDamageList() {
@@ -348,59 +329,59 @@ public class SpawnableEntity {
 	}
 
 	public boolean isUsingCustomDamage() {
-		return useCustomDamage;
+		return (data.containsKey("useCustomDamage")) ? (Boolean) data.get("useCustomDamage") : false;
 	}
 
 	public void setUsingCustomDamage(boolean useCustomDamage) {
-		this.useCustomDamage = useCustomDamage;
+		data.put("useCustomDamage", useCustomDamage);
 	}
 
 	public int getDamage() {
-		return damage;
+		return (data.containsKey("damage")) ? (Integer) data.get("damage") : 2;
 	}
 
 	public void setDamage(int damage) {
-		this.damage = damage;
+		data.put("damage", damage);
 	}
 
 	public EntityPotionEffect getPotionEffect() {
-		return potionEffect;
+		return (data.containsKey("potionType")) ? (EntityPotionEffect) data.get("potionType") : new EntityPotionEffect(PotionEffectType.REGENERATION, 1, 0);
 	}
 
 	public void setPotionEffect(EntityPotionEffect potionEffect) {
-		this.potionEffect = potionEffect;
+		data.put("potionEffect", potionEffect);
 	}
 
 	public int getDroppedExp() {
-		return droppedExp;
+		return (data.containsKey("exp")) ? (Integer) data.get("exp") : 1;
 	}
 
 	public void setDroppedExp(int droppedExp) {
-		this.droppedExp = droppedExp;
+		data.put("exp", droppedExp);
 	}
 
 	public int getFuseTicks() {
-		return fuseTicks;
+		return (data.containsKey("fuse")) ? (Integer) data.get("fuse") : 80;
 	}
 
 	public void setFuseTicks(int fuseTicks) {
-		this.fuseTicks = fuseTicks;
+		data.put("fuse", fuseTicks);
 	}
 
 	public float getYield() {
-		return yield;
+		return (data.containsKey("yield")) ? (Float) data.get("yield") : 4.0f;
 	}
 
 	public void setYield(float yield) {
-		this.yield = yield;
+		data.put("yield", yield);
 	}
 
 	public boolean isIncendiary() {
-		return incendiary;
+		return (data.containsKey("incendiary")) ? (Boolean) data.get("incendiary") : false;
 	}
 
 	public void setIncendiary(boolean incendiary) {
-		this.incendiary = incendiary;
+		data.put("incendiary", incendiary);
 	}
 
 	public ArrayList<ItemStack> getDrops() {
@@ -416,59 +397,157 @@ public class SpawnableEntity {
 	}
 
 	public ItemStack getItemType() {
-		return itemType;
+		return (data.containsKey("itemType")) ? (ItemStack) data.get("itemType") : new ItemStack(1, 1, (short) 0);
 	}
 
 	public void setItemType(ItemStack itemType) {
-		this.itemType = itemType;
+		data.put("itemType", itemType);
 	}
 
 	public boolean isUsingCustomDrops() {
-		return useCustomDrops;
+		return (data.containsKey("useDrops")) ? (Boolean) data.get("useDrops") : false;
 	}
 
 	public void setUsingCustomDrops(boolean useCustomDrops) {
-		this.useCustomDrops = useCustomDrops;
+		data.put("useDrops", useCustomDrops);
 	}
 
 	public int getMaxHealth() {
-		return maxHealth;
+		return (data.containsKey("maxHealth")) ? (Integer) data.get("maxHealth") : 20;
 	}
 
 	public void setMaxHealth(int maxHealth) {
-		this.maxHealth = maxHealth;
+		data.put("maxHealth", maxHealth);
 	}
 
 	public int getMaxAir() {
-		return maxAir;
+		return (data.containsKey("maxAir")) ? (Integer) data.get("maxAir") : 200;
 	}
 
 	public void setMaxAir(int maxAir) {
-		this.maxAir = maxAir;
+		data.put("maxAir", maxAir);
 	}
 
 	public boolean isInvulnerable() {
-		return invulnerable;
+		return (data.containsKey("invul")) ? (Boolean) data.get("invul") : false;
 	}
 
 	public void setInvulnerable(boolean invulnerable) {
-		this.invulnerable = invulnerable;
+		data.put("invul", invulnerable);
 	}
 
 	public EntityInventory getInventory() {
-		return inventory;
+		return (data.containsKey("inv")) ? (EntityInventory) data.get("inv") : new EntityInventory();
 	}
 
 	public void setInventory(EntityInventory inventory) {
-		this.inventory = inventory;
+		data.put("inv", inventory);
 	}
 
 	public boolean isUsingInventory() {
-		return usingInventory;
+		return (data.containsKey("useInventory")) ? (Boolean) data.get("useInventory") : false;
 	}
 
 	public void setUsingInventory(boolean usingInventory) {
-		this.usingInventory = usingInventory;
+		data.put("useInventory", usingInventory);
+	}
+	
+	public float getHeight() {
+		return (data.containsKey("height")) ? (Float) data.get("height") : 1f;
+	}
+	
+	public float getWidth() {
+		return (data.containsKey("width")) ? (Float) data.get("width") : 1f;
+	}
+	
+	public float getDepth() {
+		return (data.containsKey("depth")) ? (Float) data.get("depth") : 1f;
+	}
+
+	@Override
+	public Map<String, Object> serialize() {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("data", data);
+		map.put("effects", effects);
+		map.put("whitelist", whitelist);
+		map.put("blacklist", blacklist);
+		map.put("itemDamage", itemDamage);
+		map.put("drops", drops);
+		return map;
+	}
+	
+	public static SpawnableEntity deserialize(Map<String, Object> map) {
+		SpawnableEntity e;
+		Object data = map.get("data");
+		Object effects = map.get("effects");
+		Object white = map.get("whitelist");
+		Object black = map.get("blacklist");
+		Object itemDamage = map.get("itemDamage");
+		Object drops = map.get("drops");
+		
+		if(data instanceof Map) {
+			Map<?,?> dataMap = (Map<?,?>) data;
+			e = new SpawnableEntity((EntityType) dataMap.get("type"), (Integer) dataMap.get("id"));
+		} else {
+			return null;
+		}
+		
+		if(effects instanceof List) {
+			List<?> effectsList = (List<?>) effects;
+			for(Object o : effectsList) {
+				
+				if(o instanceof EntityPotionEffect) {
+					e.addPotionEffect((EntityPotionEffect) o);
+				}
+				
+			}
+		}
+		
+		if(white instanceof List) {
+			List<?> list = (List<?>) white;
+			for(Object o : list) {
+				
+				if(o instanceof String) {
+					e.addDamageWhitelist((String) o);
+				}
+				
+			}
+		}
+		
+		if(black instanceof List) {
+			List<?> list = (List<?>) black;
+			for(Object o : list) {
+				
+				if(o instanceof String) {
+					e.addDamageBlacklist((String) o);
+				}
+				
+			}
+		}
+		
+		if(itemDamage instanceof List) {
+			List<?> list = (List<?>) itemDamage;
+			for(Object o : list) {
+				
+				if(o instanceof ItemStack) {
+					e.addItemDamage((ItemStack) o);
+				}
+				
+			}
+		}
+		
+		if(drops instanceof List) {
+			List<?> list = (List<?>) drops;
+			for(Object o : list) {
+				
+				if(o instanceof ItemStack) {
+					e.addDrop((ItemStack) o);
+				}
+				
+			}
+		}
+		
+		return e;
 	}
 
 }

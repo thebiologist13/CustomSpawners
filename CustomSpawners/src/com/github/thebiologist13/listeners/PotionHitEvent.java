@@ -34,10 +34,13 @@ public class PotionHitEvent implements Listener {
 			ev.setCancelled(true);
 			
 			Collection<LivingEntity> affectedEntities = ev.getAffectedEntities();
+			
 			for(LivingEntity le : affectedEntities) {
+				
 				EntityPotionEffect epe = e.getPotionEffect();
 				PotionEffect effect = new PotionEffect(epe.getType(), epe.getDuration(), epe.getAmplifier());
 				le.addPotionEffect(effect, true);
+				
 			}
 			
 		}

@@ -34,13 +34,17 @@ public class PlayerTargetEvent implements Listener {
 		if(s == null) return;
 		
 		if(ev.getReason().equals(TargetReason.FORGOT_TARGET)) {
+			
 			if(s.getMobs().containsKey(entity.getEntityId())) {
 				ev.setCancelled(true);
 			}
+			
 		}
 		
 		if(s.getPassiveMobs().containsKey(entity.getEntityId())) {
+			
 			ev.setCancelled(true);
+			
 		}
 		
 	}

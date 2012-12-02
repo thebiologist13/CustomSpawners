@@ -4,225 +4,238 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Explosive;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Flying;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.SmallFireball;
+import org.bukkit.entity.Spider;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.WaterMob;
+import org.bukkit.entity.Wolf;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.listeners.DamageController;
 
-public class Spawner {
+@SerializableAs("Spawner")
+public class Spawner implements ConfigurationSerializable {
 	
+	//Main Data
 	private Map<String, Object> data = new HashMap<String, Object>();
-	
-	//Identification variables
-	private String name = "";
-	private int id = -1; //Identification # for spawner
-	
-	//TODO Make sure this is compatible with all files
-	private HashMap<Integer, SpawnableEntity> typeData = new HashMap<Integer, SpawnableEntity>(); //SpawnableEntities in format SpawnableEntity ID #, SpawnableEntity
-	
-	//Spawner Properties
-	private boolean active = false; //Is this spawner active?
-	private boolean hidden = false; //Is the spawner hidden?
-	private double radius = 0; //Radius that it can spawn in
-	private boolean useSpawnArea = false; //Should it use a separate spawn area?
-	private boolean redstoneTriggered = false; //Does it need to be redstone triggered to spawn?
-	private int maxPlayerDistance = -1; //Maximum distance a player can be from it to spawn mobs
-	private int minPlayerDistance = -1; //Minimum distance
-	private byte maxLightLevel = -1; //Maximum light level the spawner can spawn entities at
-	private byte minLightLevel = -1; //Minimum light level
-	private int mobsPerSpawn = 0; //Amount of mobs to spawn per time
-	private int maxMobs = -1; //Maximum amount of mobs it will spawn
-	
-	//Location variables
-	private Location loc = null; //Location of the spawner
-	private Location[] areaPoints = new Location[2]; //Points for a spawn area.
-	
-	//Block Type
-	private Block block = null;
-	
-	//Spawning rates/timing
-	private int ticksLeft = -1; //Ticks left before next spawn
-	private int rate = -1; //Rate in how many ticks to spawn at
-	
-	//List of mobs
+	//Spawnable Mobs
+	private Map<Integer, SpawnableEntity> typeData = new HashMap<Integer, SpawnableEntity>();
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
-	private ConcurrentHashMap<Integer, SpawnableEntity> mobs = new ConcurrentHashMap<Integer, SpawnableEntity>(); 
+	private Map<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>(); 
 	//List of currently passive mobs from a spawner. When provoked, they are moved to "mobs"
-	private ConcurrentHashMap<Integer, SpawnableEntity> passiveMobs = new ConcurrentHashMap<Integer, SpawnableEntity>(); 
+	private Map<Integer, SpawnableEntity> passiveMobs = new HashMap<Integer, SpawnableEntity>(); 
 	
-	//The current state of the spawner. i.e. if it is a mob spawner block or custom spawner. True if it is a mob spawner block.
-	private boolean converted = false;
-	
-	//Other
-	private Server server = null; //Used to get online players
+	//Ticks left before next spawn
+	private int ticksLeft = -1;
 	
 	/*
 	 * Constructors
 	 */
 	
 	public Spawner(SpawnableEntity type, Location loc, int id, Server server) {
-		data.put("csid", id);
-		this.id = id;
-		this.loc = loc;
-		this.server = server;
-		this.block = loc.getBlock();
-		typeData.put(type.getId(), type);
+		Location[] areaPoints = new Location[2];
 		
-		areaPoints[0] = loc;
-		areaPoints[1] = loc;
+		data.put("id", id);
+		data.put("loc", loc);
+		data.put("server", server);
+		data.put("areaPoints", areaPoints);
+		typeData.put(type.getId(), type);
+		data.put("converted", false);
+		data.put("mainEntity", type);
 	}
 	
 	public Spawner(SpawnableEntity type, Location loc, String name, int id, Server server) {
-		this.id = id;
-		this.name = name;
-		this.loc = loc;
-		this.server = server;
-		this.block = loc.getBlock();
-		typeData.put(type.getId(), type);
+		Location[] areaPoints = new Location[2];
 		
-		areaPoints[0] = loc;
-		areaPoints[1] = loc;
+		data.put("id", id);
+		data.put("loc", loc);
+		data.put("server", server);
+		data.put("areaPoints", areaPoints);
+		data.put("name", name);
+		typeData.put(type.getId(), type);
+		data.put("converted", false);
+		data.put("mainEntity", type);
+	}
+	
+	public void initServer(Server server) {
+		data.put("server", server);
 	}
 	
 	public int getId() {
-		return id;
+		return (Integer) data.get("id");
 	}
 	
 	public String getName() {
-		return name;
+		return (data.containsKey("name")) ? (String) data.get("name") : "";
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		data.put("name", name);
 	}
 
-	public HashMap<Integer, SpawnableEntity> getTypeData() {
-		return typeData;
+	public Map<Integer, SpawnableEntity> getTypeData() {
+		return this.typeData;
 	}
 
-	public void setTypeData(HashMap<Integer, SpawnableEntity> typeData) {
+	public void setTypeData(Map<Integer, SpawnableEntity> typeDataParam) {
 		
-		if(typeData == null) {
+		if(typeDataParam == null) {
 			return;
 		}
 		
-		this.typeData = typeData;
+		this.typeData = typeDataParam;
 	}
 	
 	public void addTypeData(SpawnableEntity data) {
 		typeData.put(data.getId(), data);
 	}
 	
+	public void removeTypeData(SpawnableEntity type) {
+		if(typeData.containsKey(type.getId())) {
+			typeData.remove(type.getId());
+		}
+	}
+	
+	public SpawnableEntity getMainEntity() {
+		return (SpawnableEntity) data.get("mainEntity");
+	}
+	
 	public boolean isActive() {
-		return active;
+		return (data.containsKey("active")) ? (Boolean) data.get("active") : false;
 	}
 
 	public void setActive(boolean active) {
-		this.active = active;
+		data.put("active", active);
 	}
 
 	public boolean isHidden() {
-		return hidden;
+		return (data.containsKey("hidden")) ? (Boolean) data.get("hidden") : false;
 	}
 
 	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
+		data.put("hidden", hidden);
 	}
 
 	public double getRadius() {
-		return radius;
+		return (data.containsKey("radius")) ? (Double) data.get("radius") : 0d;
 	}
 
 	public void setRadius(double radius) {
-		this.radius = radius;
+		data.put("radius", radius);
 	}
 
 	public boolean isUsingSpawnArea() {
-		return useSpawnArea;
+		return (data.containsKey("useSpawnArea")) ? (Boolean) data.get("useSpawnArea") : false;
 	}
 
 	public void setUseSpawnArea(boolean useSpawnArea) {
-		this.useSpawnArea = useSpawnArea;
+		data.put("useSpawnArea", useSpawnArea);
 	}
 
 	public boolean isRedstoneTriggered() {
-		return redstoneTriggered;
+		return (data.containsKey("redstone")) ? (Boolean) data.get("redstone") : false;
 	}
 
 	public void setRedstoneTriggered(boolean redstoneTriggered) {
-		this.redstoneTriggered = redstoneTriggered;
+		data.put("redstone", redstoneTriggered);
 	}
 
 	public int getMaxPlayerDistance() {
-		return maxPlayerDistance;
+		return (data.containsKey("maxDistance")) ? (Integer) data.get("maxDistance") : 0;
 	}
 
 	public void setMaxPlayerDistance(int maxPlayerDistance) {
-		this.maxPlayerDistance = maxPlayerDistance;
+		data.put("maxDistance", maxPlayerDistance);
 	}
 
 	public int getMinPlayerDistance() {
-		return minPlayerDistance;
+		return (data.containsKey("minDistance")) ? (Integer) data.get("minDistance") : 0;
 	}
 
 	public void setMinPlayerDistance(int minPlayerDistance) {
-		this.minPlayerDistance = minPlayerDistance;
+		data.put("minDistance", minPlayerDistance);
 	}
 
 	public byte getMaxLightLevel() {
-		return maxLightLevel;
+		return (data.containsKey("maxLight")) ? (Byte) data.get("maxLight") : 0;
 	}
 
 	public void setMaxLightLevel(byte maxLightLevel) {
-		this.maxLightLevel = maxLightLevel;
+		data.put("maxLight", maxLightLevel);
 	}
 
 	public byte getMinLightLevel() {
-		return minLightLevel;
+		return (data.containsKey("minLight")) ? (Byte) data.get("minLight") : 0;
 	}
 
 	public void setMinLightLevel(byte minLightLevel) {
-		this.minLightLevel = minLightLevel;
+		data.put("minLight", minLightLevel);
 	}
 
 	public int getMobsPerSpawn() {
-		return mobsPerSpawn;
+		return (data.containsKey("mobsPerSpawn")) ? (Integer) data.get("mobsPerSpawn") : 0;
 	}
 
 	public void setMobsPerSpawn(int mobsPerSpawn) {
-		this.mobsPerSpawn = mobsPerSpawn;
+		data.put("mobsPerSpawn", mobsPerSpawn);
 	}
 
 	public int getMaxMobs() {
-		return maxMobs;
+		return (data.containsKey("maxMobs")) ? (Integer) data.get("maxMobs") : 0;
 	}
 
 	public void setMaxMobs(int maxMobs) {
-		this.maxMobs = maxMobs;
+		data.put("maxMobs", maxMobs);
 	}
 
 	public Location getLoc() {
-		return loc;
+		return (Location) data.get("loc");
 	}
 
 	public void setLoc(Location loc) {
-		this.loc = loc;
-		this.block = loc.getBlock();
+		data.put("loc", loc);
+		data.put("block", loc.getBlock());
 	}
 
 	public Location[] getAreaPoints() {
-		return areaPoints;
+		return (Location[]) data.get("areaPoints");
 	}
 
 	public void setAreaPoints(Location[] areaPoints) {
-		this.areaPoints = areaPoints;
+		data.put("areaPoints", areaPoints);
 	}
 	
 	public void changeAreaPoint(int index, Location value) {
@@ -230,28 +243,31 @@ public class Spawner {
 			return;
 		}
 		
-		areaPoints[index] = value;
+		Location[] ap1 = (Location[]) data.get("areaPoints");
+		ap1[index] = value;
+		
+		data.put("areaPoints", ap1);
 	}
 
 	public int getRate() {
-		return rate;
+		return (data.containsKey("rate")) ? (Integer) data.get("rate") : 60;
 	}
 
 	public void setRate(int rate) {
-		this.rate = rate;
+		data.put("rate", rate);
 		this.ticksLeft = rate;
 	}
 
-	public ConcurrentHashMap<Integer, SpawnableEntity> getMobs() {
-		return mobs;
+	public Map<Integer, SpawnableEntity> getMobs() {
+		return this.mobs;
 	}
 	
-	public void setMobs(ConcurrentHashMap<Integer, SpawnableEntity> mobs) {
-		this.mobs = mobs;
+	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
+		this.mobs = mobParam;
 	}
 	
 	public void addMob(int mobId, SpawnableEntity entity) {
-		mobs.put(id, entity);
+		mobs.put(mobId, entity);
 	}
 	
 	public void removeMob(int mobId) {
@@ -259,16 +275,16 @@ public class Spawner {
 			mobs.remove(mobId);
 	}
 	
-	public ConcurrentHashMap<Integer, SpawnableEntity> getPassiveMobs() {
+	public Map<Integer, SpawnableEntity> getPassiveMobs() {
 		return passiveMobs;
 	}
 
-	public void setPassiveMobs(ConcurrentHashMap<Integer, SpawnableEntity> passiveMobs) {
-		this.passiveMobs = passiveMobs;
+	public void setPassiveMobs(Map<Integer, SpawnableEntity> pMobParam) {
+		this.passiveMobs = pMobParam;
 	}
 	
 	public void addPassiveMob(int mobId, SpawnableEntity entity) {
-		passiveMobs.put(id, entity);
+		passiveMobs.put(mobId, entity);
 	}
 	
 	public void removePassiveMob(int mobId) {
@@ -276,20 +292,50 @@ public class Spawner {
 			passiveMobs.remove(mobId);
 	}
 	
+	public Map<Integer, SpawnableEntity> getAllMobs() {
+		Map<Integer, SpawnableEntity> allMobs = new HashMap<Integer, SpawnableEntity>();
+		allMobs.putAll(mobs);
+		allMobs.putAll(passiveMobs);
+		return allMobs;
+	}
+	
 	public boolean isConverted() {
-		return converted;
+		return (Boolean) data.get("converted");
 	}
 
 	public void setConverted(boolean converted) {
-		this.converted = converted;
+		data.put("converted", converted);
 	}
 
 	public Block getBlock() {
-		return block;
+		return (Block) data.get("block");
 	}
 	
 	public void setBlock(Block block) {
-		this.block =  block;
+		data.put("block", block);
+	}
+	
+	public Object getProp(String key) {
+		return (data.containsKey(key)) ? data.get(key) : null;
+	}
+	
+	public void setProp(String key, Object value) {
+		data.put(key, value);
+	}
+	
+	public boolean hasProp(String key) {
+		return data.containsKey(key);
+	}
+	
+	public void setData(Map<String, Object> data) {
+		
+		if(data == null)
+			return;
+		
+		data.put("id", (Integer) this.data.get("id"));
+		data.put("name", (String) this.data.get("name"));
+		
+		this.data = data;
 	}
 	
 	/*
@@ -298,10 +344,10 @@ public class Spawner {
 
 	//Tick the spawn rate down and spawn mobs if it is time to spawn. Return the ticks left.
 	public int tick() {
-		if(active && !(rate <= 0)) {
+		if(((Boolean) data.get("active")) && !(((Integer) data.get("rate")) <= 0)) {
 			ticksLeft--;
 			if(ticksLeft == 0) {
-				ticksLeft = rate;
+				ticksLeft = ((Integer) data.get("rate"));
 				spawn();
 				return 0;
 			}
@@ -318,8 +364,8 @@ public class Spawner {
 		 * 
 		 * Won't happen initially because when the spawner is initialized, it is given an ID
 		 */
-		this.id = -1;
-		this.active = false;
+		data.put("id", -1);
+		data.put("active", false);
 	}
 	
 	//Spawn the mobs
@@ -328,59 +374,31 @@ public class Spawner {
 		boolean canSpawn = true;
 
 		//If the spawner is not active, return
-		if(!active) {
+		if(!((Boolean) data.get("active"))) {
 			return;
 		}
 
 		/*
 		 * This block checks if the conditions are met to spawn mobs
 		 */
-		if(redstoneTriggered && (!loc.getBlock().isBlockIndirectlyPowered() || !loc.getBlock().isBlockPowered())) {
+		if(((Boolean) data.get("redstone")) && (!((Block) data.get("block")).isBlockIndirectlyPowered() || !((Block) data.get("block")).isBlockPowered())) {
 			canSpawn = false;
 		} else if(!isPlayerNearby()) {
 			canSpawn = false;
-		} else if(!(loc.getBlock().getLightLevel() <= maxLightLevel) && !(loc.getBlock().getLightLevel() >= minLightLevel)) {
+		} else if(!(((Block) data.get("block")).getLightLevel() <= ((Byte) data.get("maxLight"))) && 
+				!(((Block) data.get("block")).getLightLevel() <= ((Byte) data.get("minLight")))) {
 			canSpawn = false;
-		} else if(mobs.size() >= maxMobs) {
+		} else if(mobs.size() >= ((Integer) data.get("maxMobs"))) {
 			canSpawn = false;
 		}
 
 		//If we can spawn
 		if(canSpawn) {
 			
-			//Loop to spawn until the mobs per spawn is reached
-			for(int i = 0; i < mobsPerSpawn; i++) {
-				
-				//Break the loop if the spawn limit is reached
-				if(mobs.size() + passiveMobs.size() == maxMobs) {
-					break;
-				}
-
+			//Break the loop if the spawn limit is reached
+			if(!(mobs.size() + passiveMobs.size() == ((Integer) data.get("maxMobs")))) {
 				SpawnableEntity spawnType = randType();
-				Location spawnLocation = getSpawningLocation(spawnType);
-				
-				if(spawnLocation == null) {
-					//System.out.println("[CSDEBUG] " + "Spawn location is null.");
-					return;
-				} else if(spawnType == null) {
-					//System.out.println("[CSDEBUG] " + "Entity is null.");
-					return;
-				}
-				
-				Entity e = spawnTheEntity(spawnType, spawnLocation);
-				
-				if(e != null) {
-
-					assignMobProps(e, spawnType);
-
-					if(spawnType.isPassive()) {
-						passiveMobs.put(e.getEntityId(), spawnType);
-					} else {
-						mobs.put(e.getEntityId(), spawnType);
-					}
-					
-				}
-				
+				mainSpawn(spawnType);
 			}
 			
 		}
@@ -390,11 +408,27 @@ public class Spawner {
 	//Spawn the mobs
 	public void forceSpawn() {
 
+		SpawnableEntity spawnType = randType();
+		mainSpawn(spawnType);
+		
+	}
+	
+	//Spawn the mobs
+	public void forceSpawnType(SpawnableEntity entity) {
+
+		mainSpawn(entity);
+		
+	}
+	
+	/*
+	 * Methods for choosing locations, checking things, etc.
+	 */
+	
+	private void mainSpawn(SpawnableEntity spawnType) {
 		//Loop to spawn until the mobs per spawn is reached
-		for(int i = 0; i < mobsPerSpawn; i++) {
-			
-			SpawnableEntity spawnType = randType();
-			Location spawnLocation = getSpawningLocation(spawnType);
+		for(int i = 0; i < ((Integer) data.get("mobsPerSpawn")); i++) {
+
+			/*Location spawnLocation = getSpawningLocation(spawnType);
 			
 			if(spawnLocation == null) {
 				//System.out.println("[CSDEBUG] " + "Spawn location is null.");
@@ -402,13 +436,16 @@ public class Spawner {
 			} else if(spawnType == null) {
 				//System.out.println("[CSDEBUG] " + "Entity is null.");
 				return;
-			}
+			}*/
 			
-			Entity e = spawnTheEntity(spawnType, spawnLocation);
+			Entity e = spawnTheEntity(spawnType, (Location) data.get("loc"));
 			
 			if(e != null) {
 
 				assignMobProps(e, spawnType);
+				net.minecraft.server.Entity nmEntity = ((CraftEntity) e).getHandle();
+				Location spawnLocation = getSpawningLocation(e, spawnType, nmEntity.height, nmEntity.width, nmEntity.length);
+				e.teleport(spawnLocation);
 
 				if(spawnType.isPassive()) {
 					passiveMobs.put(e.getEntityId(), spawnType);
@@ -422,53 +459,13 @@ public class Spawner {
 		
 	}
 	
-	//Spawn the mobs
-	public void forceSpawnType(SpawnableEntity entity) {
-
-		//Loop to spawn until the mobs per spawn is reached
-		for(int i = 0; i < mobsPerSpawn; i++) {
-			
-			Location spawnLocation = getSpawningLocation(entity);
-			
-			if(spawnLocation == null) {
-				//System.out.println("[CSDEBUG] " + "Spawn location is null.");
-				return;
-			} else if(entity == null) {
-				//System.out.println("[CSDEBUG] " + "Entity is null.");
-				return;
-			}
-			
-			Entity e = spawnTheEntity(entity, spawnLocation);
-			
-			if(e != null) {
-
-				assignMobProps(e, entity);
-				if(entity.isPassive()) {
-					passiveMobs.put(e.getEntityId(), entity);
-				} else {
-					mobs.put(e.getEntityId(), entity);
-				}
-				
-			}
-			
-		}
-		
-	}
-	
-	/*
-	 * Methods for choosing locations, checking things, etc.
-	 */
-	
 	//Check if players are nearby
 	private boolean isPlayerNearby() {
-		for(Player p : server.getOnlinePlayers()) {
+		for(Player p : ((Server) data.get("server")).getOnlinePlayers()) {
+			
 			//Finds distance between spawner and player in 3D space.
-			double distance = Math.sqrt(
-					Math.pow((p.getLocation().getX() - loc.getX()), 2) + // x coordinate
-					Math.pow((p.getLocation().getY() - loc.getY()), 2) + // y coordinate
-					Math.pow((p.getLocation().getZ() - loc.getZ()), 2)   // z coordinate
-					);
-			if(distance <= maxPlayerDistance && distance >= minPlayerDistance) {
+			double distance = p.getLocation().distance((Location) data.get("loc"));
+			if(distance <= ((Integer) data.get("maxDistance")) && distance >= ((Integer) data.get("minDistance"))) {
 				return true;
 			}
 		}
@@ -478,13 +475,10 @@ public class Spawner {
 	//Check if players are nearby
 	private ArrayList<Player> getNearbyPlayers(Location source, double max) {
 		ArrayList<Player> players = new ArrayList<Player>();
-		for(Player p : server.getOnlinePlayers()) {
+		for(Player p : ((Server) data.get("server")).getOnlinePlayers()) {
 			//Finds distance between spawner and player is 3D space.
-			double distance = Math.sqrt(
-					Math.pow((p.getLocation().getX() - source.getX()), 2) + // x coordinate
-					Math.pow((p.getLocation().getY() - source.getY()), 2) + // y coordinate
-					Math.pow((p.getLocation().getZ() - source.getZ()), 2)   // z coordinate
-					);
+			double distance = p.getLocation().distance((Location) data.get("loc"));
+			
 			if(distance <= max) {
 				players.add(p);
 			}
@@ -496,9 +490,9 @@ public class Spawner {
 	private double randomGenRad() {
 		Random rand = new Random();
 		if(rand.nextFloat() < 0.5) {
-			return (rand.nextDouble() * radius) * -1;
+			return Math.floor((rand.nextDouble() * ((Integer) data.get("radius"))) * -1) - 0.5;
 		} else {
-			return (rand.nextDouble() * radius) * 1;
+			return Math.floor((rand.nextDouble() * ((Integer) data.get("radius"))) * 1) + 0.5;
 		}
 	}
 	
@@ -639,7 +633,7 @@ public class Spawner {
 				MagmaCube m = (MagmaCube) entity;
 				m.setSize(data.getSlimeSize());
 			}
-			//TODO add things like ender pearl after here
+			
 		} else if(baseEntity instanceof Projectile) {
 			Projectile pro = (Projectile) baseEntity;
 			
@@ -673,9 +667,6 @@ public class Spawner {
 			}
 			
 		}
-		
-		if(data.isUsingCustomDamage())
-			DamageController.damageModEntities.put(baseEntity.getEntityId(), data.getDamage());
 		
 	}
 	
@@ -740,14 +731,11 @@ public class Spawner {
 	}
 	
 	//Determines a valid spawn location
-	private Location getSpawningLocation(SpawnableEntity type) {
+	private Location getSpawningLocation(Entity e, SpawnableEntity type, float height, float width, float length) {
 		//Random locations
 		double randX = 0;
 		double randY = 0;
 		double randZ = 0;
-		
-		//Height of Mob
-		int h = 1;
 		
 		//For flying mobs. Will it require blocks beneath it to spawn?
 		boolean reqsBlockBelow = true;
@@ -762,94 +750,39 @@ public class Spawner {
 		int tries = 0;
 		
 		//Setting special properties
-		//TODO Eventually improve this
 		switch(type.getType()) {
-		case ZOMBIE:
-			h = 2;
+		case ENDER_DRAGON:
+			reqsBlockBelow = false;
 			break;
-		case SKELETON:
-			h = 2;
-			break;
-		case CREEPER:
-			h = 2;
-			break;
-		case ENDERMAN:
-			h = 3;
-			break;
-		case PIG_ZOMBIE:
-			h = 2;
-			break;
-		case SLIME:
-			h = type.getSlimeSize();
-			break;
-		case MAGMA_CUBE:
-			h = type.getSlimeSize();
+		case WITHER:
+			reqsBlockBelow = false;
 			break;
 		case BLAZE:
-			h = 2;
-			break;
-		case GHAST:
-			h = 4;
-			break;
-		case VILLAGER:
-			h = 2;
-			break;
-		case IRON_GOLEM:
-			h = 2;
-			break;
-		case SNOWMAN:
-			h = 2;
-			break;
-		case ENDER_DRAGON:
-			h = 3;
-			break;
-		case EGG:
 			reqsBlockBelow = false;
 			break;
-		case ENDER_PEARL:
-			reqsBlockBelow = false;
-			break;
-		case ARROW:
-			reqsBlockBelow = false;
-			break;
-		case SNOWBALL:
-			reqsBlockBelow = false;
-			break;
-		case FALLING_BLOCK:
-			reqsBlockBelow = false;
-			break;
-		case PRIMED_TNT:
-			reqsBlockBelow = false;
-			break;
-		case SMALL_FIREBALL:
-			reqsBlockBelow = false;
-			break;
-		case FIREBALL:
-			reqsBlockBelow = false;
-			break;
-		case SPLASH_POTION:
-			reqsBlockBelow = false;
-			break;
-		case THROWN_EXP_BOTTLE:
-			reqsBlockBelow = false;
-			break;
-		case DROPPED_ITEM:
-			reqsBlockBelow = false;
-			break;
-		case ENDER_CRYSTAL:
+		case BAT:
 			reqsBlockBelow = false;
 			break;
 		default:
-			h = 1;
 			reqsBlockBelow = true;
+			if(e instanceof Flying)
+				reqsBlockBelow = false;
+			if(e instanceof WaterMob)
+				reqsBlockBelow = false;
+			if(!(e instanceof LivingEntity))
+				reqsBlockBelow = false;
 			break;
 		}
 		
 		//As long as the mob has not been spawned, keep trying
 		while(tries < 128) {
 
+			tries++;
+			Location loc = (Location) data.get("loc");
+			Location[] areaPoints = (Location[]) data.get("areaPoints");
+			
 			//Getting a random location.
-			if(!useSpawnArea) {
+			if(!((Boolean) data.get("useSpawnArea"))) {
 				//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
 				randX = randomGenRad()  + loc.getBlockX();
 				randY = Math.round(randomGenRad()) + loc.getBlockY();
@@ -864,43 +797,53 @@ public class Spawner {
 
 			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ);
 			
-			boolean canSpawnH = false;
-			boolean canSpawnB = false;
-			boolean canSpawnL = false;
-			
-			int counter = 0;
-			while(counter < h) {
-				Location checkLoc = new Location(loc.getWorld(), randX, randY + counter, randZ);
-				
-				if(isEmpty(checkLoc, spawnInWater)) {
-					canSpawnH = true;
-				}
-				
-				counter++;
+			if(!isEmpty(spawnLoc, spawnInWater)) {
+				continue;
 			}
+			
+			if(!areaEmpty(loc, spawnInWater, height, width, length))
+				continue;
 			
 			if(reqsBlockBelow) {
 				Location blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
 				
-				if(!isEmpty(blockBelow, !spawnInWater)) {
-					canSpawnB = true;
+				if(isEmpty(blockBelow, !spawnInWater)) {
+					continue;
 				}
-			} else {
-				canSpawnB = true;
 			}
 			
-			if((loc.getBlock().getLightLevel() <= maxLightLevel) && (loc.getBlock().getLightLevel() >= minLightLevel)) {
-				canSpawnL = true;
-			}
+			if(!((loc.getBlock().getLightLevel() <= ((Byte) data.get("maxLight"))) && (loc.getBlock().getLightLevel() >= ((Byte) data.get("minLight")))))
+				continue;
 			
-			if(canSpawnH && canSpawnB && canSpawnL) {
-				return spawnLoc;
-			}
-			
-			tries++;
+			return spawnLoc;
 		}
 		
 		return null;
+	}
+	
+	private boolean areaEmpty(Location loc, boolean spawnInWater, float height, float width, float length) {
+		
+		for(int y = 0; y < height; y++) {
+			double testY = loc.getY() + y;
+			
+			for(int x = (int) (loc.getX() - (width/2)); x < width; x++) {
+				double testX = loc.getX() + x;
+				
+				for(int z = (int) (loc.getZ() - (length/2)); z < length; z++) {
+					double testZ = loc.getZ() + z;
+					Location testLoc = new Location(loc.getWorld(), testX, testY, testZ);
+					
+					if(!isEmpty(testLoc, spawnInWater))
+						return false;
+					
+				}
+				
+			}
+			
+		}
+		
+		return true;
+		
 	}
 	
 	//Checks if a block is "empty"
@@ -918,25 +861,84 @@ public class Spawner {
 	//Spawns the actual entity
 	private Entity spawnTheEntity(SpawnableEntity spawnType, Location spawnLocation) {
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
-			return loc.getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
-		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) { 
-			
-			ArrayList<Player> nearPlayers = getNearbyPlayers(loc, maxPlayerDistance) ;
-			
-			if(nearPlayers.size() > 0) {
-				Player nearPlayer = nearPlayers.get(0);
-				Projectile potion = nearPlayer.launchProjectile(ThrownPotion.class);
-				potion.teleport(spawnLocation);
-			}
-			
+			return ((Location) data.get("loc")).getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {
-			return loc.getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) 0);
+			return ((Location) data.get("loc")).getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) 0);
 		} else {
-			return loc.getWorld().spawnEntity(spawnLocation, spawnType.getType());
+			return ((Location) data.get("loc")).getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
 		}
 		
-		return null;
+	}
+
+	@Override
+	public Map<String, Object> serialize() {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("data", data);
+		map.put("typeData", typeData);
+		map.put("mobs", mobs);
+		map.put("passiveMobs", passiveMobs);
+		return map;
+	}
+	
+	public static Spawner deserialize(Map<String, Object> map) {
+		Map<?,?> dataMap = (Map<?,?>) map.get("data");
+		Map<?,?> typeDataMap = (Map<?,?>) map.get("typeData");
+		Map<?,?> mobMap = (Map<?,?>) map.get("mobs");
+		Map<?,?> pMobMap = (Map<?,?>) map.get("passiveMobs");
+		SpawnableEntity type = (SpawnableEntity) dataMap.get("mainEntity");
+		Location loc = (Location) dataMap.get("loc");
+		int id = (Integer) dataMap.get("id");
+		Spawner s = new Spawner(type, loc, id, null); //NOTE: Doesn't initialize server. Use initServer(Server server) later.
 		
+		Map<String, Object> dataParam = new HashMap<String, Object>();
+		for(Object o : dataMap.keySet()) {
+			
+			if(o instanceof String) {
+				String key = (String) o;
+				dataParam.put(key, dataMap.get(key));
+			}
+				
+		}
+		
+		Map<Integer, SpawnableEntity> typeDataParam = new HashMap<Integer, SpawnableEntity>();
+		for(Object o : typeDataMap.keySet()) {
+			
+			if(o instanceof Integer) {
+				int key = (Integer) o;
+				typeDataParam.put(key, (SpawnableEntity) typeDataMap.get(key));
+			}
+				
+		}
+		
+		Map<Integer, SpawnableEntity> mobParam = new HashMap<Integer, SpawnableEntity>();
+		for(Object o : mobMap.keySet()) {
+			
+			if(o instanceof Integer) {
+				int key = (Integer) o;
+				mobParam.put(key, (SpawnableEntity) mobMap.get(key));
+			}
+				
+		}
+		
+		Map<Integer, SpawnableEntity> pMobParam = new HashMap<Integer, SpawnableEntity>();
+		for(Object o : pMobMap.keySet()) {
+			
+			if(o instanceof Integer) {
+				int key = (Integer) o;
+				pMobParam.put(key, (SpawnableEntity) pMobMap.get(key));
+			}
+				
+		}
+		
+		s.setData(dataParam);
+		
+		s.setTypeData(typeDataParam);
+		
+		s.setMobs(mobParam);
+		
+		s.setPassiveMobs(pMobParam);
+		
+		return s;
 	}
 	
 }

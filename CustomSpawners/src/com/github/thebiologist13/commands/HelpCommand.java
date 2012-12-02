@@ -73,6 +73,7 @@ public class HelpCommand extends SpawnerCommand {
 				ChatColor.GOLD + "/spawners activateall" + ChatColor.GREEN + " -> Sets all spawners on the server active.",
 				ChatColor.GOLD + "/spawners deactivateall" + ChatColor.GREEN + " -> Sets all spawners on the server inactive.",
 				ChatColor.GOLD + "/spawners setname [id] <name>" + ChatColor.GREEN + " -> Gives a name to the spawner.",
+				ChatColor.GOLD + "/spawners convert [id]" + ChatColor.GREEN + " -> Converts a CustomSpawners spawner to a mob spawner block and back.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
@@ -167,6 +168,8 @@ public class HelpCommand extends SpawnerCommand {
 				"/spawners setmaxmobs [id] <max mobs> -> Sets all spawners on the server inactive.",
 				"/spawners setmobsperspawn [id] <mobs per spawn> -> Sets all spawners on the server inactive.",
 				"/spawners listall -> Lists all the spawners that have been created.",
+				"/spawners info [id] -> Displays info on a spawner.",
+				"/entities info [id] -> Displays info on a entity.",
 				"* * * * * * * * * * * * * * * *"
 		};
 		

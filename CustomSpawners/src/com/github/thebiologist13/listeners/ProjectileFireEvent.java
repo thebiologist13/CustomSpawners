@@ -8,6 +8,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
+import com.github.thebiologist13.Spawner;
 
 public class ProjectileFireEvent implements Listener {
 
@@ -29,7 +30,13 @@ public class ProjectileFireEvent implements Listener {
 		if(e != null) {
 			
 			if(e.isUsingCustomDamage()) {
-				DamageController.damageModEntities.put(pro.getEntityId(), e.getDamage());
+				
+				Spawner s = plugin.getSpawnerWithEntity(launcher);
+				
+				if(s != null) {
+					s.addMob(pro.getEntityId(), e); //Cheats a bit
+				}
+				
 			}
 			
 		}

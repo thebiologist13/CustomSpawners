@@ -4,7 +4,7 @@ author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
 softdepend: [WorldGuard]
-loadbefore: [WorldGuard, Multiverse-Core]
+loadbefore: [WorldGuard]
 commands:
     customspawners:
         description: The main command of CustomSpawners. Other commands branch off this one.
@@ -64,6 +64,7 @@ permissions:
             customspawners.spawners.setname: true
             customspawners.spawners.setspawnarea: true
             customspawners.spawners.position: true
+            customspawners.spawners.convert: true
             customspawners.entities.setpassive: true
             customspawners.entities.create: true
             customspawners.entities.select: true
@@ -213,6 +214,9 @@ permissions:
         default: op
     customspawners.spawners.position:
         description: Allows the user/group to set spawn area positions.
+        default: op
+    customspawners.spawners.convert:
+        description: Allows the user/group to convert spawners.
         default: op
     customspawners.entities.setpassive:
         description: Allows the user/group to set the mobs passive.

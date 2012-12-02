@@ -37,13 +37,14 @@ public class MobExplodeEvent implements Listener {
 			
 			ev.setCancelled(true);
 			Location explosionLoc = ev.getLocation();
+			//TODO soon... by that I mean, probably never.
 			/*ArrayList<LivingEntity> entities = getNearbyEntities(e, s.getYield() * 2);
 			
 			for(LivingEntity le : entities) {
 				
 				if(s.isUsingCustomDamage()) {
 					
-					le.damage(s.getDamage()); //TODO proportionate to distance using impact and damage calculations?
+					le.damage(s.getDamage());
 					
 				} else {
 					
@@ -53,7 +54,7 @@ public class MobExplodeEvent implements Listener {
 				
 			}*/
 			
-			explosionLoc.getWorld().createExplosion(ev.getLocation(), s.getYield(), s.isIncendiary()); //TODO Add a property to change whether custom explosive damage happens
+			explosionLoc.getWorld().createExplosion(ev.getLocation(), s.getYield(), s.isIncendiary());
 			
 		}
 		

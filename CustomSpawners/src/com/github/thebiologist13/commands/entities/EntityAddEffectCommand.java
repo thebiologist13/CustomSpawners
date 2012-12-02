@@ -135,7 +135,7 @@ public class EntityAddEffectCommand extends SpawnerCommand {
 			}
 
 			//Carry out command
-			s.addPoitionEffect(effect);
+			s.addPotionEffect(effect);
 
 			String time = plugin.convertTicksToTime(duration);
 			

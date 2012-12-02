@@ -1,7 +1,8 @@
 package com.github.thebiologist13.commands.entities;
 
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -76,7 +77,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 				Spawner s = spawnerItr.next();
 				
 				if(s.getTypeData().containsKey(e.getId())) {
-					LinkedHashMap<Integer, SpawnableEntity> defaultEntity = new LinkedHashMap<Integer, SpawnableEntity>();
+					Map<Integer, SpawnableEntity> defaultEntity = new HashMap<Integer, SpawnableEntity>();
 					defaultEntity.put(CustomSpawners.defaultEntity.getId(), CustomSpawners.defaultEntity);
 					s.setTypeData(defaultEntity);
 					

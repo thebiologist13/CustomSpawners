@@ -11,12 +11,19 @@ public class PlayerLogoutEvent implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerLogout(PlayerQuitEvent ev) {
+		
 		if(CustomSpawners.spawnerSelection.containsKey(ev.getPlayer())) {
+			
 			CustomSpawners.spawnerSelection.remove(ev.getPlayer());
+			
 		}
 		
 		if(CustomSpawners.entitySelection.containsKey(ev.getPlayer())) {
+			
 			CustomSpawners.entitySelection.remove(ev.getPlayer());
+			
 		}
+		
 	}
+	
 }

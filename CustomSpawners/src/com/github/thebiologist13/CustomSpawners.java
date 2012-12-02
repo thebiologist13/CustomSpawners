@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -20,6 +22,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Entity;
@@ -39,6 +42,7 @@ import com.github.thebiologist13.listeners.PlayerLogoutEvent;
 import com.github.thebiologist13.listeners.PlayerTargetEvent;
 import com.github.thebiologist13.listeners.PotionHitEvent;
 import com.github.thebiologist13.listeners.ProjectileFireEvent;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 /**
  * 
@@ -50,12 +54,6 @@ import com.github.thebiologist13.listeners.ProjectileFireEvent;
  *
  */
 public class CustomSpawners extends JavaPlugin {
-	
-	/*
-	 * THE GREAT TODO LIST OF THINGS TODO!
-	 * * Spawn cycles
-	 * * Test new features
-	 */
 	
 	//Logger
 	public Logger log = Logger.getLogger("Minecraft");
@@ -96,8 +94,14 @@ public class CustomSpawners extends JavaPlugin {
 	//YAML file variable
 	private File configFile;
 	
+	//LogLevel
+	private int logLevel;
+	
 	//Debug
 	public static boolean debug = false;
+	
+	//WorldGuard
+	public WorldGuardPlugin worldGuard = null;
 	
 	public void onEnable() {
 		
@@ -108,7 +112,7 @@ public class CustomSpawners extends JavaPlugin {
 		config = getCustomConfig();
 		
 		//Default Entity
-		defaultEntity = new SpawnableEntity(EntityType.fromName(config.getString("entities.type")), -2);
+		defaultEntity = new SpawnableEntity(EntityType.fromName(config.getString("entities.type", "Pig")), -2);
 		defaultEntity.setName("Default");
 		
 		//FileManager assignment
@@ -116,6 +120,9 @@ public class CustomSpawners extends JavaPlugin {
 		
 		//Debug
 		debug = config.getBoolean("data.debug", false);
+		
+		//LogLevel
+		logLevel = config.getInt("data.logLevel", 2);
 		
 		//Commands
 		SpawnerExecutor se = new SpawnerExecutor(this);
@@ -129,7 +136,6 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
 		getServer().getPluginManager().registerEvents(new MobDamageEvent(this), this);
 		getServer().getPluginManager().registerEvents(new MobCombustEvent(), this);
-		//getServer().getPluginManager().registerEvents(new MobDamageByEntityEvent(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerTargetEvent(this), this);
 		getServer().getPluginManager().registerEvents(new MobDeathEvent(this), this);
 		getServer().getPluginManager().registerEvents(new InteractEvent(this), this);
@@ -144,6 +150,37 @@ public class CustomSpawners extends JavaPlugin {
 		
 		//Load spawners from files
 		fileManager.loadSpawners();
+		
+		//Load spawners and entities from world files
+		Iterator<World> worldItr = this.getServer().getWorlds().iterator();
+		while(worldItr.hasNext()) {
+			World w = worldItr.next();
+			
+			Iterator<SpawnableEntity> entitiesFromWorld = loadAllEntitiesFromWorld(w).iterator();
+			while(entitiesFromWorld.hasNext()) {
+				SpawnableEntity e = entitiesFromWorld.next();
+				
+				entities.put(getNextEntityId(), e);
+			}
+			
+			Iterator<Spawner> spawnersFromWorld = loadAllSpawnersFromWorld(w).iterator();
+			while(spawnersFromWorld.hasNext()) {
+				Spawner s = spawnersFromWorld.next();
+				
+				spawners.put(getNextSpawnerId(), s);
+			}
+		}
+		
+		//Setup WG
+		worldGuard = setupWG();
+		
+		if(worldGuard == null) {
+			
+			if(logLevel > 0) {
+				log.info("Cannot hook into WorldGuard.");
+			}
+			
+		}
 		
 		/*
 		 * Spawning Thread
@@ -178,47 +215,33 @@ public class CustomSpawners extends JavaPlugin {
 					Iterator<Spawner> spawnerItr = spawners.values().iterator();
 					while(spawnerItr.hasNext()) {
 						Spawner s = spawnerItr.next();
-						Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-						Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
 						Iterator<Entity> entityItr = s.getLoc().getWorld().getEntities().iterator();
-						HashMap<Integer, Entity> entityMap = new HashMap<Integer, Entity>();
+						
+						if(entityItr == null)
+							return;
 						
 						while(entityItr.hasNext()) {
 							Entity nextEntity = entityItr.next();
 							
-							entityMap.put(nextEntity.getEntityId(), nextEntity);
-						}
-						
-						while(mobItr.hasNext()) {
-							int mobId = mobItr.next();
-							
-							if(!entityMap.containsKey(mobId)) {
-								mobItr.remove();
-							}
-							
-							//Removes a entity if they are too high up.
-							if(entityMap.containsKey(mobId)) {
-								if(entityMap.get(mobId).getLocation().getY() > 512) {
-									mobItr.remove();
+							/*
+							 * Removes entities greater than 192 blocks from spawner. This is equal to 12 chunks, 
+							 * between Normal (8 chunk radius) and Far (16 chunk radius) render distance.
+							 */
+							if(nextEntity.getLocation().distance(s.getLoc()) > 192) {
+								int entId = nextEntity.getEntityId();
+								nextEntity.remove();
+								
+								if(s.getMobs().containsKey(entId)) {
+									s.removeMob(entId);
 								}
-							}
-							
-						}
-						
-						while(passiveMobItr.hasNext()) {
-							int mobId = passiveMobItr.next();
-							
-							if(!entityMap.containsKey(mobId)) {
-								passiveMobItr.remove();
-							}
-							
-							if(entityMap.containsKey(mobId)) {
-								if(entityMap.get(mobId).getLocation().getY() > 512) {
-									passiveMobItr.remove();
+								
+								if(s.getPassiveMobs().containsKey(entId)) {
+									s.removePassiveMob(entId);
 								}
+								
 							}
 							
-						}
+						}	
 						
 					}
 					
@@ -365,8 +388,8 @@ public class CustomSpawners extends JavaPlugin {
 	public SpawnableEntity getEntity(String ref) {
 		if(this.isInteger(ref)) {
 			int id = Integer.parseInt(ref);
-			Iterator<Integer> entityItr = entities.keySet().iterator();
 			
+			Iterator<Integer> entityItr = entities.keySet().iterator();
 			while(entityItr.hasNext()) {
 				int currentId = entityItr.next();
 				
@@ -374,9 +397,10 @@ public class CustomSpawners extends JavaPlugin {
 					return entities.get(id);
 				}
 			}
-		} else {
-			Iterator<Integer> entityItr = entities.keySet().iterator();
 			
+		} else {
+			
+			Iterator<Integer> entityItr = entities.keySet().iterator();
 			while(entityItr.hasNext()) {
 				Integer id = entityItr.next();
 				SpawnableEntity s = entities.get(id);
@@ -626,22 +650,32 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Resets selections if a spawner is removed
 	public void resetSpawnerSelections(int id) {
-		for(Player p : spawnerSelection.keySet()) {
+		Iterator<Player> pItr = entitySelection.keySet().iterator();
+		
+		while(pItr.hasNext()) {
+			Player p = pItr.next();
+			
 			if(spawnerSelection.get(p) == id) {
 				p.sendMessage(ChatColor.RED + "Your selected spawner has been removed.");
 				spawnerSelection.remove(p);
 			}
 		}
+		
 	}
 	
 	//Resets selections if a SpawnableEntity has been removed
 	public void resetEntitySelections(int id) {
-		for(Player p : entitySelection.keySet()) {
+		Iterator<Player> pItr = entitySelection.keySet().iterator();
+		
+		while(pItr.hasNext()) {
+			Player p = pItr.next();
+			
 			if(entitySelection.get(p) == id) {
 				p.sendMessage(ChatColor.RED + "Your selected entity has been removed.");
 				entitySelection.remove(p);
 			}
 		}
+		
 	}
 	
 	//Removes mobs spawned by a certain spawner
@@ -927,7 +961,7 @@ public class CustomSpawners extends JavaPlugin {
 		File spawnerFile = new File(worldDir + "spawner" + ch + data.getId() + ".yml");
 		File entityFilesDir = new File(entityDir);
 		
-		HashMap<Integer, SpawnableEntity> types = data.getTypeData();
+		Map<Integer, SpawnableEntity> types = data.getTypeData();
 		
 		File[] entityFilesList = entityFilesDir.listFiles();
 		ArrayList<String> entityFiles = new ArrayList<String>();
@@ -936,7 +970,10 @@ public class CustomSpawners extends JavaPlugin {
 			entityFiles.add(f.getPath());
 		}
 		
-		for(Integer i : types.keySet()) {
+		Iterator<Integer> tItr = types.keySet().iterator();
+		while(tItr.hasNext()) {
+			int i = tItr.next();
+			
 			printDebugMessage("Checking if entity files exist");
 			String fileName = entityDir + ch + i + ".yml";
 			printDebugMessage("File to check: " + fileName);
@@ -945,7 +982,6 @@ public class CustomSpawners extends JavaPlugin {
 				printDebugMessage("Doesn't contain file. Creating...");
 				saveCustomEntityToWorld(types.get(i), new File(fileName));
 			}
-			
 		}
 		
 		printDebugMessage("World Folder: " + spawnerFile.getPath());
@@ -957,14 +993,48 @@ public class CustomSpawners extends JavaPlugin {
 		fileManager.saveEntity(data, path);
 	}
 	
-	public Spawner loadSpawnerFromWorld(World w, int id) {
-		File f = w.getWorldFolder();
+	public List<Spawner> loadAllSpawnersFromWorld(World w) {
+		List<Spawner> list = new ArrayList<Spawner>();
+		
+		File worldFolder = w.getWorldFolder();
 		
 		String ch = File.separator;
-		String worldDir = w.getWorldFolder() + ch + "cs_data" + ch;
-		String entityDir = worldDir + "entity";
-		File spawnerFile = new File(worldDir + "spawner" + ch + id + ".yml");
-		File entityFilesDir = new File(entityDir);
+		String worldDir = worldFolder + ch + "cs_data" + ch;
+		File spawnerDir = new File(worldDir + "spawner");
+		File entityDir = new File(worldDir + "entity");
+		
+		for(File spawnerFile : spawnerDir.listFiles()) {
+			
+			Spawner s = fileManager.loadSpawner(spawnerFile);
+			Collection<SpawnableEntity> sEnts = s.getTypeData().values();
+			ArrayList<SpawnableEntity> containedEntities = new ArrayList<SpawnableEntity>();
+			
+			for(File f : entityDir.listFiles()) {
+				containedEntities.add(fileManager.loadEntity(f));
+			}
+			
+			if(containedEntities.containsAll(sEnts))
+				list.add(s);
+			
+		}
+		
+		return list;
+	}
+	
+	public List<SpawnableEntity> loadAllEntitiesFromWorld(World w) {
+		List<SpawnableEntity> list = new ArrayList<SpawnableEntity>();
+		
+		File worldFolder = w.getWorldFolder();
+		
+		String ch = File.separator;
+		String worldDir = worldFolder + ch + "cs_data" + ch;
+		File entityDir = new File(worldDir + "entity");
+		
+		for(File f : entityDir.listFiles()) {
+			list.add(fileManager.loadEntity(f));
+		}
+		
+		return list;
 	}
 	
 	//Gets a spawner from a location
@@ -982,6 +1052,16 @@ public class CustomSpawners extends JavaPlugin {
 
 		return null;
 
+	}
+	
+	//Sets up WorldGuard
+	private WorldGuardPlugin setupWG() {
+		Plugin wg = this.getServer().getPluginManager().getPlugin("WorldGuard");
+		
+		if(wg != null || !(wg instanceof WorldGuardPlugin)) 
+			return null;
+		
+		return (WorldGuardPlugin) wg;
 	}
 	
 }

@@ -61,10 +61,10 @@ public class EntityCreateCommand extends SpawnerCommand {
 				if(type == null) {
 					p.sendMessage(NOT_ALLOWED_ENTITY);
 					return;
-				} else if(type.equals(EntityType.SPLASH_POTION) || type.equals(EntityType.ENDER_PEARL)) {
+				} /*else if(type.equals(EntityType.SPLASH_POTION) || type.equals(EntityType.ENDER_PEARL)) {
 					p.sendMessage(ChatColor.GOLD + "Sorry, potions and ender pearls are disabled in CustomSpawners right now due to severe bugs with them.");
 					return;
-				}
+				}*/
 				
 			}
 			
@@ -290,7 +290,7 @@ public class EntityCreateCommand extends SpawnerCommand {
 				return null;
 			}
 			
-			type = EntityType.SPLASH_POTION; //TODO How to actually "launch" and change type?
+			type = EntityType.SPLASH_POTION;
 			
 		} else if(entityType.equalsIgnoreCase("experience_bottle") || entityType.equalsIgnoreCase("experiencebottle")
 				|| entityType.equalsIgnoreCase("xpbottle") || entityType.equalsIgnoreCase("xp_bottle")
@@ -300,7 +300,7 @@ public class EntityCreateCommand extends SpawnerCommand {
 				return null;
 			}
 			
-			type = EntityType.THROWN_EXP_BOTTLE; //TODO How to actually "launch" and change type?
+			type = EntityType.THROWN_EXP_BOTTLE;
 			
 		} else if(entityType.equalsIgnoreCase("item") || entityType.equalsIgnoreCase("drop")) {
 			
@@ -308,7 +308,7 @@ public class EntityCreateCommand extends SpawnerCommand {
 				return null;
 			}
 			
-			type = EntityType.DROPPED_ITEM; //TODO How to change type?
+			type = EntityType.DROPPED_ITEM;
 			
 		} else if(entityType.equalsIgnoreCase("enderpearl") || entityType.equalsIgnoreCase("ender_pearl")
 				|| entityType.equalsIgnoreCase("enderball") || entityType.equalsIgnoreCase("ender_ball")) {

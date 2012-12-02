@@ -279,6 +279,10 @@ data:
     # and 2 is all saving/loading info.
     logLevel: 2
     
+    # Would you like to use the new saving and loading method for more properties?
+    # Previously made spawners will be kept.
+    useNewSave: true
+    
     # Developer Debug Mode
     # Leave false unless you want endless console spam.
     debug: false
