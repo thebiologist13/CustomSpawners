@@ -45,6 +45,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.listeners.DamageController;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
 @SerializableAs("Spawner")
 public class Spawner implements ConfigurationSerializable {
@@ -425,6 +428,7 @@ public class Spawner implements ConfigurationSerializable {
 	 */
 	
 	private void mainSpawn(SpawnableEntity spawnType) {
+		
 		//Loop to spawn until the mobs per spawn is reached
 		for(int i = 0; i < ((Integer) data.get("mobsPerSpawn")); i++) {
 
@@ -439,6 +443,11 @@ public class Spawner implements ConfigurationSerializable {
 			}*/
 			
 			Entity e = spawnTheEntity(spawnType, (Location) data.get("loc"));
+			
+			if(!wgAllows(e)) {
+				e.remove();
+				return;
+			}
 			
 			if(e != null) {
 
@@ -868,6 +877,24 @@ public class Spawner implements ConfigurationSerializable {
 			return ((Location) data.get("loc")).getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
 		}
 		
+	}
+	
+	private boolean wgAllows(Entity e) {
+		
+		WorldGuardPlugin wg = (WorldGuardPlugin) ((Server) data.get("server")).getPluginManager().getPlugin("WorldGuard");
+		
+		if(wg == null || !(wg instanceof WorldGuardPlugin))
+			return true;
+		
+		ApplicableRegionSet set = wg.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
+		
+		if(!set.allows(DefaultFlag.MOB_SPAWNING))
+			return false;
+		
+		if(!set.getFlag(DefaultFlag.DENY_SPAWN).contains(e.getType()))
+			return false;
+		
+		return true;
 	}
 
 	@Override

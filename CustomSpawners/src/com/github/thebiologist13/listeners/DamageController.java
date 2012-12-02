@@ -12,6 +12,8 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
 public class DamageController {
 	
@@ -46,8 +48,14 @@ public class DamageController {
 				
 				SpawnableEntity e = plugin.getEntityFromSpawner(damager);
 				
-				if(e != null) 
+				if(e != null) {
+					
+					if(!wgAllows(entity)) {
+						return 0;
+					}
+					
 					return e.getDamage();
+				}
 				
 			}
 			
@@ -78,7 +86,6 @@ public class DamageController {
 				
 				if(black.contains(cause.name())) {
 					
-					ev.setCancelled(true);
 					return 0;
 					
 				} else if(black.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
@@ -87,8 +94,7 @@ public class DamageController {
 						int newTicks = negatedFireImmunity.get(mobId) - 1;
 						negatedFireImmunity.replace(mobId, newTicks);
 					}
-
-					ev.setCancelled(true);
+					
 					return 0;
 					
 				} else if(black.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
@@ -102,7 +108,6 @@ public class DamageController {
 						
 						if(e.getItemDamageList().contains(p.getItemInHand())) {
 							
-							ev.setCancelled(true);
 							return 0;
 							
 						}
@@ -163,7 +168,6 @@ public class DamageController {
 			} else {
 				
 				extraHealthEntities.replace(mobId, newExtraHealth);
-				ev.setCancelled(true);
 				return 0;
 				
 			}
@@ -174,6 +178,19 @@ public class DamageController {
 			
 		}
 		
+	}
+	
+	private boolean wgAllows(Entity e) {
+		
+		if(plugin.worldGuard == null)
+			return true;
+		
+		ApplicableRegionSet set = plugin.worldGuard.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
+		
+		if(!set.allows(DefaultFlag.MOB_DAMAGE))
+			return false;
+		
+		return true;
 	}
 	
 }

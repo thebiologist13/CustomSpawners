@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +16,8 @@ import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
 @SuppressWarnings("unused")
 public class MobExplodeEvent implements Listener {
@@ -36,6 +39,10 @@ public class MobExplodeEvent implements Listener {
 		if(s != null) {
 			
 			ev.setCancelled(true);
+			
+			if(!wgAllows(e)) 
+				return;
+			
 			Location explosionLoc = ev.getLocation();
 			//TODO soon... by that I mean, probably never.
 			/*ArrayList<LivingEntity> entities = getNearbyEntities(e, s.getYield() * 2);
@@ -73,6 +80,29 @@ public class MobExplodeEvent implements Listener {
 			}
 		}
 		return entities;
+	}
+	
+	//WorldGuard explosives 
+	private boolean wgAllows(Entity e) {
+		
+		if(plugin.worldGuard == null)
+			return true;
+		
+		ApplicableRegionSet set = plugin.worldGuard.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
+		
+		if(e.getType().equals(EntityType.PRIMED_TNT) && !set.allows(DefaultFlag.TNT))
+			return false;
+		
+		if(e.getType().equals(EntityType.FIREBALL) && !set.allows(DefaultFlag.GHAST_FIREBALL))
+			return false;
+		
+		if(e.getType().equals(EntityType.SMALL_FIREBALL) && !set.allows(DefaultFlag.GHAST_FIREBALL))
+			return false;
+		
+		if(e.getType().equals(EntityType.CREEPER) && !set.allows(DefaultFlag.CREEPER_EXPLOSION))
+			return false;
+		
+		return true;
 	}
 	
 }
