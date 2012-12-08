@@ -56,7 +56,7 @@ public class ConvertCommand extends SpawnerCommand {
 			
 			if(CustomSpawners.consoleSpawner != -1 && arg3.length == 1) {
 				
-				s = plugin.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
+				s = CustomSpawners.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
 				
 			} else if(arg3.length == 1) {
 				
@@ -65,7 +65,7 @@ public class ConvertCommand extends SpawnerCommand {
 				
 			} else if(arg3.length == 2) {
 				
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					plugin.sendMessage(arg0, NO_ID);
@@ -97,7 +97,7 @@ public class ConvertCommand extends SpawnerCommand {
 					
 				} else if(CustomSpawners.spawnerSelection.containsKey(p)  && arg3.length == 1) {
 					
-					s = plugin.getSpawner(String.valueOf(CustomSpawners.spawnerSelection.get(p)));
+					s = CustomSpawners.getSpawner(String.valueOf(CustomSpawners.spawnerSelection.get(p)));
 					
 				} else if(arg3.length == 1) {
 					
@@ -106,7 +106,7 @@ public class ConvertCommand extends SpawnerCommand {
 					
 				} else if(arg3.length == 2) {
 					
-					s = plugin.getSpawner(arg3[1]);
+					s = CustomSpawners.getSpawner(arg3[1]);
 
 					if(s == null) {
 						plugin.sendMessage(p, NO_ID);

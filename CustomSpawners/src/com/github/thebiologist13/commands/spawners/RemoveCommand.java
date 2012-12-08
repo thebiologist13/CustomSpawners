@@ -35,7 +35,7 @@ public class RemoveCommand extends SpawnerCommand {
 			//If the player wants to remove the selected spawner
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 			
 			//When the arg3 length is 1, but no spawner is selected.
 			} else if(arg3.length == 1){
@@ -46,7 +46,7 @@ public class RemoveCommand extends SpawnerCommand {
 			//If the player want to remove a spawner with a specified ID
 			} else if(arg3.length == 2) {
 				
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 				
 				//Check if the ID entered is the ID of a spawner
 				if(s == null) {

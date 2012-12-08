@@ -33,7 +33,7 @@ public class HiddenCommand extends SpawnerCommand {
 			//Set hidden for selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//Arguments entered for selection, but there is none
 			} else if(arg3.length == 1) {
@@ -44,7 +44,7 @@ public class HiddenCommand extends SpawnerCommand {
 			//Set hidden of specific spawner
 			} else if(arg3.length == 2) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -74,7 +74,7 @@ public class HiddenCommand extends SpawnerCommand {
 			//Set unhidden for selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//Arguments entered for selection, but there is none
 			} else if(arg3.length == 1) {
@@ -85,7 +85,7 @@ public class HiddenCommand extends SpawnerCommand {
 			//Set unhidden of specific spawner
 			} else if(arg3.length == 2) {
 				
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);

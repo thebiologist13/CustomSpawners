@@ -26,7 +26,7 @@ public class EntityYieldCommand extends SpawnerCommand {
 		//Yield
 		float yield = 0.0f;
 		
-		final String MUST_BE_INTEGER = ChatColor.RED + "The yield must be an integer.";
+		final String MUST_BE_FLOAT = ChatColor.RED + "The yield must be an float.";
 		
 		if(!(arg0 instanceof Player)) {
 			log.info(NO_CONSOLE);
@@ -38,10 +38,10 @@ public class EntityYieldCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 
-				if(!plugin.isInteger(arg3[1])) {
-					p.sendMessage(MUST_BE_INTEGER);
+				if(!CustomSpawners.isFloat(arg3[1])) {
+					p.sendMessage(MUST_BE_FLOAT);
 					return;
 				}
 
@@ -52,15 +52,15 @@ public class EntityYieldCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
 
-				if(!plugin.isInteger(arg3[2])) {
-					p.sendMessage(MUST_BE_INTEGER);
+				if(!CustomSpawners.isFloat(arg3[2])) {
+					p.sendMessage(MUST_BE_FLOAT);
 					return;
 				}
 

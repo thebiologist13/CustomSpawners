@@ -39,7 +39,7 @@ public class EntityBlackListCommand extends SpawnerCommand {
 			
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				String value = arg3[1];
 				
@@ -55,7 +55,7 @@ public class EntityBlackListCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -87,14 +87,14 @@ public class EntityBlackListCommand extends SpawnerCommand {
 			
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 			} else if(arg3.length == 1) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
 			} else if(arg3.length == 2) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -119,7 +119,7 @@ public class EntityBlackListCommand extends SpawnerCommand {
 			
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				String value = arg3[1];
 				
@@ -137,7 +137,7 @@ public class EntityBlackListCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);

@@ -39,7 +39,7 @@ public class SelectCommand extends SpawnerCommand {
 			}
 			
 			//Assign selectionId if a number
-			s = plugin.getSpawner(arg3[1]);
+			s = CustomSpawners.getSpawner(arg3[1]);
 			
 			if(s == null) {
 				plugin.sendMessage(arg0, NO_ID);
@@ -67,7 +67,7 @@ public class SelectCommand extends SpawnerCommand {
 				}
 				
 				//Assign selectionId if a number
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					plugin.sendMessage(p, NO_ID);

@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
-import com.github.thebiologist13.EntityPotionEffect;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.serialization.SPotionEffect;
 
 public class EntityClearEffectsCommand extends SpawnerCommand {
 
@@ -41,14 +41,14 @@ public class EntityClearEffectsCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 			} else if(arg3.length == 1) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
 			} else if(arg3.length == 2) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -61,7 +61,7 @@ public class EntityClearEffectsCommand extends SpawnerCommand {
 			}
 
 			//Carry out command
-			s.setEffects(new ArrayList<EntityPotionEffect>());
+			s.setEffects(new ArrayList<SPotionEffect>());
 
 			//Success
 			p.sendMessage(ChatColor.GREEN + "Successfully cleared the potion effects on spawnable entity with ID " 

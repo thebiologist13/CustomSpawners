@@ -38,7 +38,7 @@ public class SpawnAreaCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 				String value = arg3[1];
 				
@@ -57,7 +57,7 @@ public class SpawnAreaCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);

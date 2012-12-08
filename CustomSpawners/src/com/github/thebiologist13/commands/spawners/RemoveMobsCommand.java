@@ -44,7 +44,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 			} else if(arg3[0].equalsIgnoreCase("removemobs")) {
 				if(CustomSpawners.consoleSpawner != -1 && arg3.length == 1) {
 					
-					s = plugin.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
+					s = CustomSpawners.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
 					
 				} else if(arg3.length == 1) {
 					
@@ -53,7 +53,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 					
 				} else if(arg3.length == 2){
 
-					s = plugin.getSpawner(arg3[1]);
+					s = CustomSpawners.getSpawner(arg3[1]);
 
 					if(s == null) {
 						log.info("Object with that name or ID does not exist.");
@@ -97,7 +97,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 				if(p.hasPermission("customspawners.spawners.removemobs")) {
 					if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 						
-						s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+						s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 						
 						p.sendMessage(ChatColor.GREEN + "Removing mobs spawned by spawner with ID " + ChatColor.GOLD +
 								plugin.getFriendlyName(s) + ChatColor.GREEN + "...");
@@ -112,7 +112,7 @@ public class RemoveMobsCommand extends SpawnerCommand {
 						
 					} else if(arg3.length == 2){
 
-						s = plugin.getSpawner(arg3[1]);
+						s = CustomSpawners.getSpawner(arg3[1]);
 
 						if(s == null) {
 							p.sendMessage(NO_ID);

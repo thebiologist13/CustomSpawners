@@ -1,12 +1,10 @@
 package com.github.thebiologist13;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
@@ -14,8 +12,12 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-@SerializableAs("SpawnableEntity")
-public class SpawnableEntity implements ConfigurationSerializable {
+import com.github.thebiologist13.serialization.SInventory;
+import com.github.thebiologist13.serialization.SItemStack;
+import com.github.thebiologist13.serialization.SPotionEffect;
+import com.github.thebiologist13.serialization.SVector;
+
+public class SpawnableEntity implements Serializable {
 	
 	/*
 	 * Spawnable Entities are entities that
@@ -23,18 +25,21 @@ public class SpawnableEntity implements ConfigurationSerializable {
 	 * of data associated with them.
 	 */
 	
-	private Map<String, Object> data = new HashMap<String, Object>();
-	
-	//Basic Data
-	private ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
-	//Damage Whitelist
-	private ArrayList<String> whitelist = new ArrayList<String>();
+	private static final long serialVersionUID = -60000847475741355L;
+
 	//Damage Blacklist
 	private ArrayList<String> blacklist = new ArrayList<String>();
-	//Items that do or do not inflict damage
-	private ArrayList<ItemStack> itemDamage = new ArrayList<ItemStack>(); 
+	
+	private Map<String, Object> data = new HashMap<String, Object>();
 	//Drops
-	private ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
+	private ArrayList<SItemStack> drops = new ArrayList<SItemStack>();
+	//Basic Data
+	private ArrayList<SPotionEffect> effects = new ArrayList<SPotionEffect>();
+	//Items that do or do not inflict damage
+	private ArrayList<SItemStack> itemDamage = new ArrayList<SItemStack>(); 
+	//Damage Whitelist
+	private ArrayList<String> whitelist = new ArrayList<String>();
+	
 	//TODO isZombie prop
 	//TODO isWither prop
 	//TODO hurtMobs when falling
@@ -42,512 +47,455 @@ public class SpawnableEntity implements ConfigurationSerializable {
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
-		this.data.put("type", type);
+		this.data.put("type", type.getName());
 		this.data.put("id", id);
 		this.data.put("useWhitelist", false);
 		this.data.put("useBlacklist", true);
 	}
-	
-	public void setData(Map<String, Object> data) {
-		
-		if(data == null)
-			return;
-		
-		data.put("id", (Integer) this.data.get("id"));
-		data.put("name", (String) this.data.get("name"));
-		
-		this.data = data;
-	}
 
-	public Object getProp(String key) {
-		return (data.containsKey(key)) ? data.get(key) : null;
-	}
-	
-	public void setProp(String key, Object value) {
-		data.put(key, value);
-	}
-	
-	public boolean hasProp(String key) {
-		return data.containsKey(key);
-	}
-	
-	public String getName() {
-		return (data.containsKey("name")) ? (String) data.get("name") : "";
-	}
-
-	public void setName(String name) {
-		data.put("name", name);
-	}
-
-	public EntityType getType() {
-		return (EntityType) data.get("type");
-	}
-
-	public void setType(EntityType type) {
-		data.put("type", type);
-	}
-
-	public ArrayList<EntityPotionEffect> getEffects() {
-		return effects;
-	}
-
-	public void setEffects(ArrayList<EntityPotionEffect> effects) {
-		this.effects = effects;
-	}
-	
-	public void addPotionEffect(EntityPotionEffect effect) {
-		effects.add(effect);
-	}
-
-	public double getXVelocity() {
-		return (data.containsKey("xVelo")) ? (Double) data.get("xVelo") : 0d;
-	}
-
-	public void setXVelocity(double xVelocity) {
-		data.put("xVelo", xVelocity);
-	}
-
-	public double getYVelocity() {
-		return (data.containsKey("yVelo")) ? (Double) data.get("yVelo") : 0d;
-	}
-
-	public void setYVelocity(double yVelocity) {
-		data.put("yVelo", yVelocity);
-	}
-
-	public double getZVelocity() {
-		return (data.containsKey("zVelo")) ? (Double) data.get("zVelo") : 0d;
-	}
-
-	public void setZVelocity(double zVelocity) {
-		data.put("zVelo", zVelocity);
-	}
-
-	public int getAge() {
-		return (data.containsKey("age")) ? (Integer) data.get("age") : 0;
-	}
-
-	public void setAge(int age) {
-		data.put("age", age);
-	}
-
-	public int getHealth() {
-		return (data.containsKey("health")) ? (Integer) data.get("health") : 1;
-	}
-
-	public void setHealth(int health) {
-		data.put("health", health);
-	}
-
-	public MaterialData getEndermanBlock() {
-		return (data.containsKey("enderBlock")) ? (MaterialData) data.get("enderBlock") : new MaterialData(1);
-	}
-
-	public void setEndermanBlock(MaterialData endermanBlock) {
-		data.put("enderBlock", endermanBlock);
-	}
-
-	public boolean isSaddled() {
-		return (data.containsKey("saddle")) ? (Boolean) data.get("saddle") : false;
-	}
-
-	public void setSaddled(boolean isSaddled) {
-		data.put("saddle", isSaddled);
-	}
-
-	public boolean isCharged() {
-		return (data.containsKey("charged")) ? (Boolean) data.get("charged") : false;
-	}
-
-	public void setCharged(boolean isCharged) {
-		data.put("charged", isCharged);
-	}
-
-	public boolean isJockey() {
-		return (data.containsKey("jockey")) ? (Boolean) data.get("jockey") : false;
-	}
-
-	public void setJockey(boolean isJockey) {
-		data.put("jockey", isJockey);
-	}
-
-	public boolean isTamed() {
-		return (data.containsKey("tame")) ? (Boolean) data.get("tame") : false;
-	}
-
-	public void setTamed(boolean isTamed) {
-		data.put("tame", isTamed);
-	}
-
-	public boolean isAngry() {
-		return (data.containsKey("angry")) ? (Boolean) data.get("angry") : false;
-	}
-
-	public void setAngry(boolean angry) {
-		data.put("angry", angry);
-	}
-
-	public boolean isSitting() {
-		return (data.containsKey("sit")) ? (Boolean) data.get("sit") : false;
-	}
-
-	public void setSitting(boolean isSitting) {
-		data.put("sit", isSitting);
-	}
-
-	public String getCatType() {
-		return (data.containsKey("catType")) ? (String) data.get("catType") : "BLACK_CAT";
-	}
-
-	public void setCatType(String catType) {
-		data.put("catType", catType);
-	}
-
-	public int getSlimeSize() {
-		return (data.containsKey("slimeSize")) ? (Integer) data.get("slimeSize") : 1;
-	}
-
-	public void setSlimeSize(int slimeSize) {
-		data.put("slimeSize", slimeSize);
-	}
-
-	public String getColor() {
-		return (data.containsKey("color")) ? (String) data.get("color") : "WHITE";
-	}
-
-	public void setColor(String color) {
-		data.put("color", color);
-	}
-
-	public int getId() {
-		return (Integer) data.get("id");
-	}
-
-	public Villager.Profession getProfession() {
-		return (data.containsKey("profession")) ? (Villager.Profession) data.get("profession") : Villager.Profession.FARMER;
-	}
-
-	public void setProfession(Villager.Profession villagerProfession) {
-		data.put("profession", villagerProfession);
-	}
-
-	public Vector getVelocity() {
-		return (data.containsKey("velocity")) ? (Vector) data.get("velocity") : new Vector(0, 0, 0);
-	}
-
-	public void setVelocity(Vector velocity) {
-		data.put("velocity", velocity);
-		setXVelocity(velocity.getX());
-		setYVelocity(velocity.getY());
-		setZVelocity(velocity.getZ());
-	}
-
-	public int getAir() {
-		return (data.containsKey("air")) ? (Integer) data.get("air") : 0;
-	}
-
-	public void setAir(int air) {
-		data.put("air", air);
-	}
-	
-	public void remove() {
-		data.put("id", -1);
-	}
-	
-	public boolean isPassive() {
-		return (data.containsKey("passive")) ? (Boolean) data.get("passive") : false;
-	}
-
-	public void setPassive(boolean passive) {
-		data.put("passive", passive);
-	}
-
-	public int getFireTicks() {
-		return (data.containsKey("fire")) ? (Integer) data.get("fire") : 0;
-	}
-
-	public void setFireTicks(int fireTicks) {
-		data.put("fireTicks", fireTicks);
-	}
-
-	public ArrayList<String> getDamageWhitelist() {
-		return whitelist;
-	}
-
-	public void setDamageWhitelist(ArrayList<String> damageWhitelist) {
-		this.whitelist = damageWhitelist;
+	public void addDamageBlacklist(String damageType) {
+		blacklist.add(damageType);
 	}
 	
 	public void addDamageWhitelist(String damageType) {
 		whitelist.add(damageType);
+	}
+	
+	public void addDrop(ItemStack drop) {
+		drops.add(new SItemStack(drop));
+	}
+	
+	public void addItemDamage(ItemStack value) {
+		itemDamage.add(new SItemStack(value));
+	}
+
+	public void addPotionEffect(SPotionEffect effect) {
+		effects.add(effect);
+	}
+
+	public int getAge() {
+		return (this.data.containsKey("age")) ? (Integer) this.data.get("age") : 0;
+	}
+
+	public int getAir() {
+		return (this.data.containsKey("air")) ? (Integer) this.data.get("air") : 0;
+	}
+
+	public String getCatType() {
+		return (this.data.containsKey("catType")) ? (String) this.data.get("catType") : "BLACK_CAT";
+	}
+
+	public String getColor() {
+		return (this.data.containsKey("color")) ? (String) this.data.get("color") : "WHITE";
+	}
+	
+	public int getDamage() {
+		return (this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 2;
 	}
 
 	public ArrayList<String> getDamageBlacklist() {
 		return blacklist;
 	}
 
-	public void setDamageBlacklist(ArrayList<String> damageBlacklist) {
-		this.blacklist = damageBlacklist;
-	}
-	
-	public void addDamageBlacklist(String damageType) {
-		blacklist.add(damageType);
+	public ArrayList<String> getDamageWhitelist() {
+		return whitelist;
 	}
 
-	public boolean isUsingWhitelist() {
-		return (data.containsKey("useWhitelist")) ? (Boolean) data.get("useWhitelist") : false;
+	public int getDroppedExp() {
+		return (this.data.containsKey("exp")) ? (Integer) this.data.get("exp") : 1;
 	}
 
-	public void setUseWhitelist(boolean useWhitelist) {
+	public ArrayList<ItemStack> getDrops() {
 		
-		data.put("useWhitelist", useWhitelist);
-		data.put("useBlacklist", !useWhitelist);
+		ArrayList<ItemStack> drops1 = new ArrayList<ItemStack>();
 		
+		for(SItemStack i : drops) {
+			drops1.add(i.toItemStack());
+		}
+		
+		return drops1;
+	}
+
+	public ArrayList<SPotionEffect> getEffects() {
+		return effects;
+	}
+
+	public MaterialData getEndermanBlock() {
+		return (this.data.containsKey("enderBlock")) ? new MaterialData((Integer) this.data.get("enderBlock")) : new MaterialData(1);
+	}
+
+	public int getFireTicks() {
+		return (this.data.containsKey("fire")) ? (Integer) this.data.get("fire") : 0;
+	}
+
+	public int getFuseTicks() {
+		return (this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 80;
+	}
+
+	public int getHealth() {
+		return (this.data.containsKey("health")) ? (Integer) this.data.get("health") : 1;
+	}
+
+	public int getId() {
+		return (Integer) this.data.get("id");
+	}
+
+	public SInventory getInventory() {
+		return (this.data.containsKey("inv")) ? (SInventory) this.data.get("inv") : new SInventory();
+	}
+
+	public ArrayList<ItemStack> getItemDamageList() {
+		
+		ArrayList<ItemStack> damage1 = new ArrayList<ItemStack>();
+		
+		for(SItemStack i : itemDamage) {
+			damage1.add(i.toItemStack());
+		}
+		
+		return damage1;
+	}
+
+	public ItemStack getItemType() {
+		return (this.data.containsKey("itemType")) ? ((SItemStack) this.data.get("itemType")).toItemStack() : new ItemStack(1, 1, (short) 0);
+	}
+
+	public int getMaxAir() {
+		return (this.data.containsKey("maxAir")) ? (Integer) this.data.get("maxAir") : 200;
+	}
+
+	public int getMaxHealth() {
+		return (this.data.containsKey("maxHealth")) ? (Integer) this.data.get("maxHealth") : 20;
+	}
+
+	public String getName() {
+		return (this.data.containsKey("name")) ? (String) this.data.get("name") : "";
+	}
+
+	public SPotionEffect getPotionEffect() {
+		return (this.data.containsKey("potionType")) ? (SPotionEffect) this.data.get("potionType") : new SPotionEffect(PotionEffectType.REGENERATION, 1, 0);
+	}
+
+	public Villager.Profession getProfession() {
+		return (this.data.containsKey("profession")) ? Villager.Profession.valueOf((String) this.data.get("profession")) : Villager.Profession.FARMER;
+	}
+
+	public Object getProp(String key) {
+		return (this.data.containsKey(key)) ? this.data.get(key) : null;
+	}
+
+	public int getSlimeSize() {
+		return (this.data.containsKey("slimeSize")) ? (Integer) this.data.get("slimeSize") : 1;
+	}
+
+	public EntityType getType() {
+		return (EntityType) EntityType.fromName((String) this.data.get("type"));
+	}
+
+	public Vector getVelocity() {
+		return (this.data.containsKey("velocity")) ? ((SVector) this.data.get("velocity")).toVector() : new Vector(0, 0, 0);
+	}
+
+	public double getXVelocity() {
+		return (this.data.containsKey("xVelo")) ? (Double) this.data.get("xVelo") : 0d;
+	}
+
+	public float getYield() {
+		
+		if(this.data.containsKey("yield")) {
+			double d = (Double) this.data.get("yield");
+			return (float) d;
+		} else {
+			return 4.0f;
+		}
+		
+	}
+
+	public double getYVelocity() {
+		return (this.data.containsKey("yVelo")) ? (Double) this.data.get("yVelo") : 0d;
+	}
+
+	public double getZVelocity() {
+		return (this.data.containsKey("zVelo")) ? (Double) this.data.get("zVelo") : 0d;
+	}
+
+	public boolean hasProp(String key) {
+		return this.data.containsKey(key);
+	}
+
+	public boolean isAngry() {
+		return (this.data.containsKey("angry")) ? (Boolean) this.data.get("angry") : false;
+	}
+
+	public boolean isCharged() {
+		return (this.data.containsKey("charged")) ? (Boolean) this.data.get("charged") : false;
+	}
+
+	public boolean isIncendiary() {
+		return (this.data.containsKey("incendiary")) ? (Boolean) this.data.get("incendiary") : false;
+	}
+
+	public boolean isInvulnerable() {
+		return (this.data.containsKey("invul")) ? (Boolean) this.data.get("invul") : false;
+	}
+
+	public boolean isJockey() {
+		return (this.data.containsKey("jockey")) ? (Boolean) this.data.get("jockey") : false;
+	}
+
+	public boolean isPassive() {
+		return (this.data.containsKey("passive")) ? (Boolean) this.data.get("passive") : false;
+	}
+
+	public boolean isSaddled() {
+		return (this.data.containsKey("saddle")) ? (Boolean) this.data.get("saddle") : false;
+	}
+
+	public boolean isSitting() {
+		return (this.data.containsKey("sit")) ? (Boolean) this.data.get("sit") : false;
+	}
+
+	public boolean isTamed() {
+		return (this.data.containsKey("tame")) ? (Boolean) this.data.get("tame") : false;
 	}
 
 	public boolean isUsingBlacklist() {
-		return (data.containsKey("useBlacklist")) ? (Boolean) data.get("useBlacklist") : true;
+		return (this.data.containsKey("useBlacklist")) ? (Boolean) this.data.get("useBlacklist") : true;
+	}
+	
+	public boolean isUsingCustomDamage() {
+		return (this.data.containsKey("useCustomDamage")) ? (Boolean) this.data.get("useCustomDamage") : false;
+	}
+	
+	public boolean isUsingCustomDrops() {
+		return (this.data.containsKey("useDrops")) ? (Boolean) this.data.get("useDrops") : false;
+	}
+
+	public boolean isUsingInventory() {
+		return (this.data.containsKey("useInventory")) ? (Boolean) this.data.get("useInventory") : false;
+	}
+
+	public boolean isUsingWhitelist() {
+		return (this.data.containsKey("useWhitelist")) ? (Boolean) this.data.get("useWhitelist") : false;
+	}
+
+	public void remove() {
+		this.data.put("id", -1);
+	}
+
+	public void setAge(int age) {
+		this.data.put("age", age);
+	}
+	
+	public void setAir(int air) {
+		this.data.put("air", air);
+	}
+
+	public void setAngry(boolean angry) {
+		this.data.put("angry", angry);
+	}
+
+	public void setCatType(String catType) {
+		this.data.put("catType", catType);
+	}
+	
+	public void setCharged(boolean isCharged) {
+		this.data.put("charged", isCharged);
+	}
+
+	public void setColor(String color) {
+		this.data.put("color", color);
+	}
+
+	public void setDamage(int damage) {
+		this.data.put("damage", damage);
+	}
+
+	public void setDamageBlacklist(ArrayList<String> damageBlacklist) {
+		this.blacklist = damageBlacklist;
+	}
+
+	public void setDamageWhitelist(ArrayList<String> damageWhitelist) {
+		this.whitelist = damageWhitelist;
+	}
+
+	public void setData(Map<String, Object> data) {
+		
+		if(data == null)
+			return;
+		
+		if(this.data.containsKey("id")) {
+			data.put("id", (Integer) this.data.get("id"));
+		}
+		
+		if(this.data.containsKey("name")) {
+			data.put("name", (String) this.data.get("name"));
+		}
+		
+		this.data = data;
+	}
+
+	public void setDroppedExp(int droppedExp) {
+		this.data.put("exp", droppedExp);
+	}
+	
+	public void setDrops(ArrayList<ItemStack> drops) {
+		
+		ArrayList<SItemStack> drops1 = new ArrayList<SItemStack>();
+		
+		for(ItemStack i : drops) {
+			drops1.add(new SItemStack(i));
+		}
+		
+		this.drops = drops1;
+	}
+
+	public void setEffects(ArrayList<SPotionEffect> effects) {
+		this.effects = effects;
+	}
+
+	public void setEndermanBlock(MaterialData endermanBlock) {
+		this.data.put("enderBlock", endermanBlock.getItemTypeId());
+	}
+
+	public void setFireTicks(int fireTicks) {
+		this.data.put("fireTicks", fireTicks);
+	}
+
+	public void setFuseTicks(int fuseTicks) {
+		this.data.put("fuse", fuseTicks);
+	}
+
+	public void setHealth(int health) {
+		this.data.put("health", health);
+	}
+
+	public void setIncendiary(boolean incendiary) {
+		this.data.put("incendiary", incendiary);
+	}
+
+	public void setInventory(SInventory inventory) {
+		this.data.put("inv", inventory);
+	}
+
+	public void setInvulnerable(boolean invulnerable) {
+		this.data.put("invul", invulnerable);
+	}
+
+	public void setItemDamageList(ArrayList<ItemStack> itemDamage) {
+		
+		ArrayList<SItemStack> damage1 = new ArrayList<SItemStack>();
+		
+		for(ItemStack i : itemDamage) {
+			damage1.add(new SItemStack(i));
+		}
+		
+		this.itemDamage = damage1;
+		
+	}
+
+	public void setItemType(ItemStack itemType) {
+		this.data.put("itemType", new SItemStack(itemType));
+	}
+
+	public void setJockey(boolean isJockey) {
+		this.data.put("jockey", isJockey);
+	}
+
+	public void setMaxAir(int maxAir) {
+		this.data.put("maxAir", maxAir);
+	}
+
+	public void setMaxHealth(int maxHealth) {
+		this.data.put("maxHealth", maxHealth);
+	}
+
+	public void setName(String name) {
+		this.data.put("name", name);
+	}
+
+	public void setPassive(boolean passive) {
+		this.data.put("passive", passive);
+	}
+
+	public void setPotionEffect(SPotionEffect potionEffect) {
+		this.data.put("potionEffect", potionEffect);
+	}
+	
+	public void setProfession(Villager.Profession villagerProfession) {
+		this.data.put("profession", villagerProfession.toString());
+	}
+
+	public void setProp(String key, Object value) {
+		this.data.put(key, value);
+	}
+
+	public void setSaddled(boolean isSaddled) {
+		this.data.put("saddle", isSaddled);
+	}
+
+	public void setSitting(boolean isSitting) {
+		this.data.put("sit", isSitting);
+	}
+
+	public void setSlimeSize(int slimeSize) {
+		this.data.put("slimeSize", slimeSize);
+	}
+
+	public void setTamed(boolean isTamed) {
+		this.data.put("tame", isTamed);
+	}
+
+	public void setType(EntityType type) {
+		this.data.put("type", type.getName());
 	}
 
 	public void setUseBlacklist(boolean useBlacklist) {
 		
-		data.put("useBlacklist", useBlacklist);
-		data.put("useWhitelist", !useBlacklist);
+		this.data.put("useBlacklist", useBlacklist);
+		this.data.put("useWhitelist", !useBlacklist);
 		
 	}
 
-	public ArrayList<ItemStack> getItemDamageList() {
-		return itemDamage;
-	}
-
-	public void setItemDamageList(ArrayList<ItemStack> itemDamage) {
-		this.itemDamage = itemDamage;
-	}
-	
-	public void addItemDamage(ItemStack value) {
-		itemDamage.add(value);
-	}
-
-	public boolean isUsingCustomDamage() {
-		return (data.containsKey("useCustomDamage")) ? (Boolean) data.get("useCustomDamage") : false;
+	public void setUseWhitelist(boolean useWhitelist) {
+		
+		this.data.put("useWhitelist", useWhitelist);
+		this.data.put("useBlacklist", !useWhitelist);
+		
 	}
 
 	public void setUsingCustomDamage(boolean useCustomDamage) {
-		data.put("useCustomDamage", useCustomDamage);
-	}
-
-	public int getDamage() {
-		return (data.containsKey("damage")) ? (Integer) data.get("damage") : 2;
-	}
-
-	public void setDamage(int damage) {
-		data.put("damage", damage);
-	}
-
-	public EntityPotionEffect getPotionEffect() {
-		return (data.containsKey("potionType")) ? (EntityPotionEffect) data.get("potionType") : new EntityPotionEffect(PotionEffectType.REGENERATION, 1, 0);
-	}
-
-	public void setPotionEffect(EntityPotionEffect potionEffect) {
-		data.put("potionEffect", potionEffect);
-	}
-
-	public int getDroppedExp() {
-		return (data.containsKey("exp")) ? (Integer) data.get("exp") : 1;
-	}
-
-	public void setDroppedExp(int droppedExp) {
-		data.put("exp", droppedExp);
-	}
-
-	public int getFuseTicks() {
-		return (data.containsKey("fuse")) ? (Integer) data.get("fuse") : 80;
-	}
-
-	public void setFuseTicks(int fuseTicks) {
-		data.put("fuse", fuseTicks);
-	}
-
-	public float getYield() {
-		return (data.containsKey("yield")) ? (Float) data.get("yield") : 4.0f;
-	}
-
-	public void setYield(float yield) {
-		data.put("yield", yield);
-	}
-
-	public boolean isIncendiary() {
-		return (data.containsKey("incendiary")) ? (Boolean) data.get("incendiary") : false;
-	}
-
-	public void setIncendiary(boolean incendiary) {
-		data.put("incendiary", incendiary);
-	}
-
-	public ArrayList<ItemStack> getDrops() {
-		return drops;
-	}
-
-	public void setDrops(ArrayList<ItemStack> drops) {
-		this.drops = drops;
-	}
-	
-	public void addDrop(ItemStack drop) {
-		drops.add(drop);
-	}
-
-	public ItemStack getItemType() {
-		return (data.containsKey("itemType")) ? (ItemStack) data.get("itemType") : new ItemStack(1, 1, (short) 0);
-	}
-
-	public void setItemType(ItemStack itemType) {
-		data.put("itemType", itemType);
-	}
-
-	public boolean isUsingCustomDrops() {
-		return (data.containsKey("useDrops")) ? (Boolean) data.get("useDrops") : false;
+		this.data.put("useCustomDamage", useCustomDamage);
 	}
 
 	public void setUsingCustomDrops(boolean useCustomDrops) {
-		data.put("useDrops", useCustomDrops);
-	}
-
-	public int getMaxHealth() {
-		return (data.containsKey("maxHealth")) ? (Integer) data.get("maxHealth") : 20;
-	}
-
-	public void setMaxHealth(int maxHealth) {
-		data.put("maxHealth", maxHealth);
-	}
-
-	public int getMaxAir() {
-		return (data.containsKey("maxAir")) ? (Integer) data.get("maxAir") : 200;
-	}
-
-	public void setMaxAir(int maxAir) {
-		data.put("maxAir", maxAir);
-	}
-
-	public boolean isInvulnerable() {
-		return (data.containsKey("invul")) ? (Boolean) data.get("invul") : false;
-	}
-
-	public void setInvulnerable(boolean invulnerable) {
-		data.put("invul", invulnerable);
-	}
-
-	public EntityInventory getInventory() {
-		return (data.containsKey("inv")) ? (EntityInventory) data.get("inv") : new EntityInventory();
-	}
-
-	public void setInventory(EntityInventory inventory) {
-		data.put("inv", inventory);
-	}
-
-	public boolean isUsingInventory() {
-		return (data.containsKey("useInventory")) ? (Boolean) data.get("useInventory") : false;
+		this.data.put("useDrops", useCustomDrops);
 	}
 
 	public void setUsingInventory(boolean usingInventory) {
-		data.put("useInventory", usingInventory);
-	}
-	
-	public float getHeight() {
-		return (data.containsKey("height")) ? (Float) data.get("height") : 1f;
-	}
-	
-	public float getWidth() {
-		return (data.containsKey("width")) ? (Float) data.get("width") : 1f;
-	}
-	
-	public float getDepth() {
-		return (data.containsKey("depth")) ? (Float) data.get("depth") : 1f;
+		this.data.put("useInventory", usingInventory);
 	}
 
-	@Override
-	public Map<String, Object> serialize() {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("data", data);
-		map.put("effects", effects);
-		map.put("whitelist", whitelist);
-		map.put("blacklist", blacklist);
-		map.put("itemDamage", itemDamage);
-		map.put("drops", drops);
-		return map;
+	public void setVelocity(Vector velocity) {
+		this.data.put("velocity", new SVector(velocity));
+		setXVelocity(velocity.getX());
+		setYVelocity(velocity.getY());
+		setZVelocity(velocity.getZ());
+	}
+
+	public void setXVelocity(double xVelocity) {
+		this.data.put("xVelo", xVelocity);
+	}
+
+	public void setYield(float yield) {
+		this.data.put("yield", (double) yield);
+	}
+
+	public void setYVelocity(double yVelocity) {
+		this.data.put("yVelo", yVelocity);
 	}
 	
-	public static SpawnableEntity deserialize(Map<String, Object> map) {
-		SpawnableEntity e;
-		Object data = map.get("data");
-		Object effects = map.get("effects");
-		Object white = map.get("whitelist");
-		Object black = map.get("blacklist");
-		Object itemDamage = map.get("itemDamage");
-		Object drops = map.get("drops");
-		
-		if(data instanceof Map) {
-			Map<?,?> dataMap = (Map<?,?>) data;
-			e = new SpawnableEntity((EntityType) dataMap.get("type"), (Integer) dataMap.get("id"));
-		} else {
-			return null;
-		}
-		
-		if(effects instanceof List) {
-			List<?> effectsList = (List<?>) effects;
-			for(Object o : effectsList) {
-				
-				if(o instanceof EntityPotionEffect) {
-					e.addPotionEffect((EntityPotionEffect) o);
-				}
-				
-			}
-		}
-		
-		if(white instanceof List) {
-			List<?> list = (List<?>) white;
-			for(Object o : list) {
-				
-				if(o instanceof String) {
-					e.addDamageWhitelist((String) o);
-				}
-				
-			}
-		}
-		
-		if(black instanceof List) {
-			List<?> list = (List<?>) black;
-			for(Object o : list) {
-				
-				if(o instanceof String) {
-					e.addDamageBlacklist((String) o);
-				}
-				
-			}
-		}
-		
-		if(itemDamage instanceof List) {
-			List<?> list = (List<?>) itemDamage;
-			for(Object o : list) {
-				
-				if(o instanceof ItemStack) {
-					e.addItemDamage((ItemStack) o);
-				}
-				
-			}
-		}
-		
-		if(drops instanceof List) {
-			List<?> list = (List<?>) drops;
-			for(Object o : list) {
-				
-				if(o instanceof ItemStack) {
-					e.addDrop((ItemStack) o);
-				}
-				
-			}
-		}
-		
-		return e;
+	public void setZVelocity(double zVelocity) {
+		this.data.put("zVelo", zVelocity);
 	}
 
 }

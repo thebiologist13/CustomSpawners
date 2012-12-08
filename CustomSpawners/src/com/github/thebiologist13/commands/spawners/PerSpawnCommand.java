@@ -35,9 +35,9 @@ public class PerSpawnCommand extends SpawnerCommand {
 			//If the player wants to set the mobs per spawn of a selected spawner
 			if(CustomSpawners.consoleSpawner != -1 && arg3.length == 2) {
 				
-				s = plugin.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
+				s = CustomSpawners.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
 				
-				if(!plugin.isInteger(arg3[1])) {
+				if(!CustomSpawners.isInteger(arg3[1])) {
 					plugin.sendMessage(arg0, SPECIFY_NUMBER);
 					return;
 				}
@@ -52,14 +52,14 @@ public class PerSpawnCommand extends SpawnerCommand {
 			//If the player wants to set the mobs per spawn of a spawner by ID
 			} else if(arg3.length == 3) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					plugin.sendMessage(arg0, NO_ID);
 					return;
 				}
 				
-				if(!plugin.isInteger(arg3[2])) {
+				if(!CustomSpawners.isInteger(arg3[2])) {
 					plugin.sendMessage(arg0, SPECIFY_NUMBER);
 					return;
 				}
@@ -90,9 +90,9 @@ public class PerSpawnCommand extends SpawnerCommand {
 				//If the player wants to set the mobs per spawn of a selected spawner
 				if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 					
-					s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+					s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 					
-					if(!plugin.isInteger(arg3[1])) {
+					if(!CustomSpawners.isInteger(arg3[1])) {
 						plugin.sendMessage(p, SPECIFY_NUMBER);
 						return;
 					}
@@ -107,14 +107,14 @@ public class PerSpawnCommand extends SpawnerCommand {
 				//If the player wants to set the mobs per spawn of a spawner by ID
 				} else if(arg3.length == 3) {
 
-					s = plugin.getSpawner(arg3[1]);
+					s = CustomSpawners.getSpawner(arg3[1]);
 
 					if(s == null) {
 						plugin.sendMessage(p, NO_ID);
 						return;
 					}
 					
-					if(!plugin.isInteger(arg3[2])) {
+					if(!CustomSpawners.isInteger(arg3[2])) {
 						plugin.sendMessage(p, SPECIFY_NUMBER);
 						return;
 					}

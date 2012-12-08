@@ -1,16 +1,15 @@
 package com.github.thebiologist13;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
-import org.bukkit.Server;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
@@ -45,13 +44,13 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.listeners.DamageController;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.github.thebiologist13.serialization.SBlock;
+import com.github.thebiologist13.serialization.SLocation;
+import com.github.thebiologist13.serialization.SPotionEffect;
 
-@SerializableAs("Spawner")
-public class Spawner implements ConfigurationSerializable {
+public class Spawner implements Serializable {
 	
+	private static final long serialVersionUID = -153105685313343476L;
 	//Main Data
 	private Map<String, Object> data = new HashMap<String, Object>();
 	//Spawnable Mobs
@@ -68,45 +67,41 @@ public class Spawner implements ConfigurationSerializable {
 	 * Constructors
 	 */
 	
-	public Spawner(SpawnableEntity type, Location loc, int id, Server server) {
-		Location[] areaPoints = new Location[2];
-		
-		data.put("id", id);
-		data.put("loc", loc);
-		data.put("server", server);
-		data.put("areaPoints", areaPoints);
-		typeData.put(type.getId(), type);
-		data.put("converted", false);
-		data.put("mainEntity", type);
+	public Spawner(SpawnableEntity type, Location loc, int id) {
+		init(type, loc, id);
 	}
 	
-	public Spawner(SpawnableEntity type, Location loc, String name, int id, Server server) {
-		Location[] areaPoints = new Location[2];
-		
-		data.put("id", id);
-		data.put("loc", loc);
-		data.put("server", server);
-		data.put("areaPoints", areaPoints);
+	public Spawner(SpawnableEntity type, Location loc, String name, int id) {
+		init(type, loc, id);
 		data.put("name", name);
+	}
+	
+	private void init(SpawnableEntity type, Location loc, int id) {
+		SLocation[] areaPoints = new SLocation[2];
+		
+		areaPoints[0] = new SLocation(loc);
+		areaPoints[1] = new SLocation(loc);
+		
+		data.put("id", id);
+		data.put("loc", new SLocation(loc));
+		data.put("block", new SBlock(loc.getBlock()));
+		data.put("areaPoints", areaPoints);
 		typeData.put(type.getId(), type);
 		data.put("converted", false);
 		data.put("mainEntity", type);
-	}
-	
-	public void initServer(Server server) {
-		data.put("server", server);
+		data.put("useSpawnArea", false);
 	}
 	
 	public int getId() {
-		return (Integer) data.get("id");
+		return (Integer) this.data.get("id");
 	}
 	
 	public String getName() {
-		return (data.containsKey("name")) ? (String) data.get("name") : "";
+		return (this.data.containsKey("name")) ? (String) this.data.get("name") : "";
 	}
 
 	public void setName(String name) {
-		data.put("name", name);
+		this.data.put("name", name);
 	}
 
 	public Map<Integer, SpawnableEntity> getTypeData() {
@@ -133,112 +128,130 @@ public class Spawner implements ConfigurationSerializable {
 	}
 	
 	public SpawnableEntity getMainEntity() {
-		return (SpawnableEntity) data.get("mainEntity");
+		return (SpawnableEntity) this.data.get("mainEntity");
 	}
 	
 	public boolean isActive() {
-		return (data.containsKey("active")) ? (Boolean) data.get("active") : false;
+		return (this.data.containsKey("active")) ? (Boolean) this.data.get("active") : false;
 	}
 
 	public void setActive(boolean active) {
-		data.put("active", active);
+		this.data.put("active", active);
 	}
 
 	public boolean isHidden() {
-		return (data.containsKey("hidden")) ? (Boolean) data.get("hidden") : false;
+		return (this.data.containsKey("hidden")) ? (Boolean) this.data.get("hidden") : false;
 	}
 
 	public void setHidden(boolean hidden) {
-		data.put("hidden", hidden);
+		this.data.put("hidden", hidden);
 	}
 
 	public double getRadius() {
-		return (data.containsKey("radius")) ? (Double) data.get("radius") : 0d;
+		return (this.data.containsKey("radius")) ? (Double) this.data.get("radius") : 0d;
 	}
 
 	public void setRadius(double radius) {
-		data.put("radius", radius);
+		this.data.put("radius", radius);
 	}
 
 	public boolean isUsingSpawnArea() {
-		return (data.containsKey("useSpawnArea")) ? (Boolean) data.get("useSpawnArea") : false;
+		return (this.data.containsKey("useSpawnArea")) ? (Boolean) this.data.get("useSpawnArea") : false;
 	}
 
 	public void setUseSpawnArea(boolean useSpawnArea) {
-		data.put("useSpawnArea", useSpawnArea);
+		this.data.put("useSpawnArea", useSpawnArea);
 	}
 
 	public boolean isRedstoneTriggered() {
-		return (data.containsKey("redstone")) ? (Boolean) data.get("redstone") : false;
+		return (this.data.containsKey("redstone")) ? (Boolean) this.data.get("redstone") : false;
 	}
 
 	public void setRedstoneTriggered(boolean redstoneTriggered) {
-		data.put("redstone", redstoneTriggered);
+		this.data.put("redstone", redstoneTriggered);
 	}
 
 	public int getMaxPlayerDistance() {
-		return (data.containsKey("maxDistance")) ? (Integer) data.get("maxDistance") : 0;
+		return (this.data.containsKey("maxDistance")) ? (Integer) this.data.get("maxDistance") : 0;
 	}
 
 	public void setMaxPlayerDistance(int maxPlayerDistance) {
-		data.put("maxDistance", maxPlayerDistance);
+		this.data.put("maxDistance", maxPlayerDistance);
 	}
 
 	public int getMinPlayerDistance() {
-		return (data.containsKey("minDistance")) ? (Integer) data.get("minDistance") : 0;
+		return (this.data.containsKey("minDistance")) ? (Integer) this.data.get("minDistance") : 0;
 	}
 
 	public void setMinPlayerDistance(int minPlayerDistance) {
-		data.put("minDistance", minPlayerDistance);
+		this.data.put("minDistance", minPlayerDistance);
 	}
 
 	public byte getMaxLightLevel() {
-		return (data.containsKey("maxLight")) ? (Byte) data.get("maxLight") : 0;
+		return (this.data.containsKey("maxLight")) ? (Byte) this.data.get("maxLight") : 0;
 	}
 
 	public void setMaxLightLevel(byte maxLightLevel) {
-		data.put("maxLight", maxLightLevel);
+		this.data.put("maxLight", maxLightLevel);
 	}
 
 	public byte getMinLightLevel() {
-		return (data.containsKey("minLight")) ? (Byte) data.get("minLight") : 0;
+		return (this.data.containsKey("minLight")) ? (Byte) this.data.get("minLight") : 0;
 	}
 
 	public void setMinLightLevel(byte minLightLevel) {
-		data.put("minLight", minLightLevel);
+		this.data.put("minLight", minLightLevel);
 	}
 
 	public int getMobsPerSpawn() {
-		return (data.containsKey("mobsPerSpawn")) ? (Integer) data.get("mobsPerSpawn") : 0;
+		return (this.data.containsKey("mobsPerSpawn")) ? (Integer) this.data.get("mobsPerSpawn") : 0;
 	}
 
 	public void setMobsPerSpawn(int mobsPerSpawn) {
-		data.put("mobsPerSpawn", mobsPerSpawn);
+		this.data.put("mobsPerSpawn", mobsPerSpawn);
 	}
 
 	public int getMaxMobs() {
-		return (data.containsKey("maxMobs")) ? (Integer) data.get("maxMobs") : 0;
+		return (this.data.containsKey("maxMobs")) ? (Integer) this.data.get("maxMobs") : 0;
 	}
 
 	public void setMaxMobs(int maxMobs) {
-		data.put("maxMobs", maxMobs);
+		this.data.put("maxMobs", maxMobs);
 	}
 
 	public Location getLoc() {
-		return (Location) data.get("loc");
+		return ((SLocation) this.data.get("loc")).toLocation();
 	}
 
 	public void setLoc(Location loc) {
-		data.put("loc", loc);
-		data.put("block", loc.getBlock());
+		this.data.put("loc", new SLocation(loc));
+		setBlock(loc.getBlock());
 	}
 
 	public Location[] getAreaPoints() {
-		return (Location[]) data.get("areaPoints");
+		
+		Location[] ap1 = new Location[2];
+		SLocation[] ap = ((SLocation[]) this.data.get("areaPoints"));
+		
+		for(int i = 0; i < ap.length; i++) {
+			ap1[i] = ap[i].toLocation();
+		}
+		
+		return ap1;
 	}
 
 	public void setAreaPoints(Location[] areaPoints) {
-		data.put("areaPoints", areaPoints);
+		
+		if(areaPoints.length != 2)
+			return;
+		
+		SLocation[] ap1 = new SLocation[2];
+		
+		for(int i = 0; i < areaPoints.length; i++) {
+			ap1[i] = new SLocation(areaPoints[i]);
+		}
+		
+		this.data.put("areaPoints", ap1);
 	}
 	
 	public void changeAreaPoint(int index, Location value) {
@@ -246,18 +259,18 @@ public class Spawner implements ConfigurationSerializable {
 			return;
 		}
 		
-		Location[] ap1 = (Location[]) data.get("areaPoints");
-		ap1[index] = value;
+		SLocation[] ap1 = (SLocation[]) this.data.get("areaPoints");
+		ap1[index] = new SLocation(value);
 		
-		data.put("areaPoints", ap1);
+		this.data.put("areaPoints", ap1);
 	}
 
 	public int getRate() {
-		return (data.containsKey("rate")) ? (Integer) data.get("rate") : 60;
+		return (this.data.containsKey("rate")) ? (Integer) this.data.get("rate") : 60;
 	}
 
 	public void setRate(int rate) {
-		data.put("rate", rate);
+		this.data.put("rate", rate);
 		this.ticksLeft = rate;
 	}
 
@@ -303,31 +316,35 @@ public class Spawner implements ConfigurationSerializable {
 	}
 	
 	public boolean isConverted() {
-		return (Boolean) data.get("converted");
+		return (Boolean) this.data.get("converted");
 	}
 
 	public void setConverted(boolean converted) {
-		data.put("converted", converted);
+		this.data.put("converted", converted);
 	}
 
 	public Block getBlock() {
-		return (Block) data.get("block");
+		return ((SBlock) this.data.get("block")).toBlock();
 	}
 	
 	public void setBlock(Block block) {
-		data.put("block", block);
+		this.data.put("block", new SBlock(block));
 	}
 	
 	public Object getProp(String key) {
-		return (data.containsKey(key)) ? data.get(key) : null;
+		return (this.data.containsKey(key)) ? this.data.get(key) : null;
 	}
 	
 	public void setProp(String key, Object value) {
-		data.put(key, value);
+		if(key == null || value == null) {
+			return;
+		}
+		
+		this.data.put(key, value);
 	}
 	
 	public boolean hasProp(String key) {
-		return data.containsKey(key);
+		return this.data.containsKey(key);
 	}
 	
 	public void setData(Map<String, Object> data) {
@@ -335,8 +352,13 @@ public class Spawner implements ConfigurationSerializable {
 		if(data == null)
 			return;
 		
-		data.put("id", (Integer) this.data.get("id"));
-		data.put("name", (String) this.data.get("name"));
+		if(this.data.containsKey("id")) {
+			data.put("id", (Integer) this.data.get("id"));
+		}
+		
+		if(this.data.containsKey("name")) {
+			data.put("name", (String) this.data.get("name"));
+		}
 		
 		this.data = data;
 	}
@@ -388,7 +410,7 @@ public class Spawner implements ConfigurationSerializable {
 			canSpawn = false;
 		} else if(!isPlayerNearby()) {
 			canSpawn = false;
-		} else if(!(((Block) data.get("block")).getLightLevel() <= ((Byte) data.get("maxLight"))) && 
+		} else if(!(((SBlock) data.get("block")).toBlock().getLightLevel() <= ((Byte) data.get("maxLight"))) && 
 				!(((Block) data.get("block")).getLightLevel() <= ((Byte) data.get("minLight")))) {
 			canSpawn = false;
 		} else if(mobs.size() >= ((Integer) data.get("maxMobs"))) {
@@ -442,12 +464,7 @@ public class Spawner implements ConfigurationSerializable {
 				return;
 			}*/
 			
-			Entity e = spawnTheEntity(spawnType, (Location) data.get("loc"));
-			
-			if(!wgAllows(e)) {
-				e.remove();
-				return;
-			}
+			Entity e = spawnTheEntity(spawnType, getLoc());
 			
 			if(e != null) {
 
@@ -470,10 +487,10 @@ public class Spawner implements ConfigurationSerializable {
 	
 	//Check if players are nearby
 	private boolean isPlayerNearby() {
-		for(Player p : ((Server) data.get("server")).getOnlinePlayers()) {
+		for(Player p : Bukkit.getOnlinePlayers()) {
 			
 			//Finds distance between spawner and player in 3D space.
-			double distance = p.getLocation().distance((Location) data.get("loc"));
+			double distance = p.getLocation().distance(getLoc());
 			if(distance <= ((Integer) data.get("maxDistance")) && distance >= ((Integer) data.get("minDistance"))) {
 				return true;
 			}
@@ -484,9 +501,9 @@ public class Spawner implements ConfigurationSerializable {
 	//Check if players are nearby
 	private ArrayList<Player> getNearbyPlayers(Location source, double max) {
 		ArrayList<Player> players = new ArrayList<Player>();
-		for(Player p : ((Server) data.get("server")).getOnlinePlayers()) {
+		for(Player p : Bukkit.getOnlinePlayers()) {
 			//Finds distance between spawner and player is 3D space.
-			double distance = p.getLocation().distance((Location) data.get("loc"));
+			double distance = p.getLocation().distance(getLoc());
 			
 			if(distance <= max) {
 				players.add(p);
@@ -499,9 +516,9 @@ public class Spawner implements ConfigurationSerializable {
 	private double randomGenRad() {
 		Random rand = new Random();
 		if(rand.nextFloat() < 0.5) {
-			return Math.floor((rand.nextDouble() * ((Integer) data.get("radius"))) * -1) - 0.5;
+			return Math.floor((rand.nextDouble() * ((Double) data.get("radius"))) * -1) - 0.5;
 		} else {
-			return Math.floor((rand.nextDouble() * ((Integer) data.get("radius"))) * 1) + 0.5;
+			return Math.floor((rand.nextDouble() * ((Double) data.get("radius"))) * 1) + 0.5;
 		}
 	}
 	
@@ -689,7 +706,7 @@ public class Spawner implements ConfigurationSerializable {
 	
 	//Assigns some basic props
 	private void setBasicProps(LivingEntity entity, SpawnableEntity data) {
-		for(EntityPotionEffect p : data.getEffects()) {
+		for(SPotionEffect p : data.getEffects()) {
 			PotionEffect ef = new PotionEffect(p.getType(), p.getDuration(), p.getAmplifier());
 			entity.addPotionEffect(ef, true);
 		}
@@ -787,8 +804,8 @@ public class Spawner implements ConfigurationSerializable {
 		while(tries < 128) {
 
 			tries++;
-			Location loc = (Location) data.get("loc");
-			Location[] areaPoints = (Location[]) data.get("areaPoints");
+			Location loc = getLoc();
+			Location[] areaPoints = getAreaPoints();
 			
 			//Getting a random location.
 			if(!((Boolean) data.get("useSpawnArea"))) {
@@ -870,102 +887,13 @@ public class Spawner implements ConfigurationSerializable {
 	//Spawns the actual entity
 	private Entity spawnTheEntity(SpawnableEntity spawnType, Location spawnLocation) {
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
-			return ((Location) data.get("loc")).getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
+			return getLoc().getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {
-			return ((Location) data.get("loc")).getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) 0);
+			return getLoc().getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) 0);
 		} else {
-			return ((Location) data.get("loc")).getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
+			return getLoc().getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
 		}
 		
-	}
-	
-	private boolean wgAllows(Entity e) {
-		
-		WorldGuardPlugin wg = (WorldGuardPlugin) ((Server) data.get("server")).getPluginManager().getPlugin("WorldGuard");
-		
-		if(wg == null || !(wg instanceof WorldGuardPlugin))
-			return true;
-		
-		ApplicableRegionSet set = wg.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
-		
-		if(!set.allows(DefaultFlag.MOB_SPAWNING))
-			return false;
-		
-		if(!set.getFlag(DefaultFlag.DENY_SPAWN).contains(e.getType()))
-			return false;
-		
-		return true;
-	}
-
-	@Override
-	public Map<String, Object> serialize() {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("data", data);
-		map.put("typeData", typeData);
-		map.put("mobs", mobs);
-		map.put("passiveMobs", passiveMobs);
-		return map;
-	}
-	
-	public static Spawner deserialize(Map<String, Object> map) {
-		Map<?,?> dataMap = (Map<?,?>) map.get("data");
-		Map<?,?> typeDataMap = (Map<?,?>) map.get("typeData");
-		Map<?,?> mobMap = (Map<?,?>) map.get("mobs");
-		Map<?,?> pMobMap = (Map<?,?>) map.get("passiveMobs");
-		SpawnableEntity type = (SpawnableEntity) dataMap.get("mainEntity");
-		Location loc = (Location) dataMap.get("loc");
-		int id = (Integer) dataMap.get("id");
-		Spawner s = new Spawner(type, loc, id, null); //NOTE: Doesn't initialize server. Use initServer(Server server) later.
-		
-		Map<String, Object> dataParam = new HashMap<String, Object>();
-		for(Object o : dataMap.keySet()) {
-			
-			if(o instanceof String) {
-				String key = (String) o;
-				dataParam.put(key, dataMap.get(key));
-			}
-				
-		}
-		
-		Map<Integer, SpawnableEntity> typeDataParam = new HashMap<Integer, SpawnableEntity>();
-		for(Object o : typeDataMap.keySet()) {
-			
-			if(o instanceof Integer) {
-				int key = (Integer) o;
-				typeDataParam.put(key, (SpawnableEntity) typeDataMap.get(key));
-			}
-				
-		}
-		
-		Map<Integer, SpawnableEntity> mobParam = new HashMap<Integer, SpawnableEntity>();
-		for(Object o : mobMap.keySet()) {
-			
-			if(o instanceof Integer) {
-				int key = (Integer) o;
-				mobParam.put(key, (SpawnableEntity) mobMap.get(key));
-			}
-				
-		}
-		
-		Map<Integer, SpawnableEntity> pMobParam = new HashMap<Integer, SpawnableEntity>();
-		for(Object o : pMobMap.keySet()) {
-			
-			if(o instanceof Integer) {
-				int key = (Integer) o;
-				pMobParam.put(key, (SpawnableEntity) pMobMap.get(key));
-			}
-				
-		}
-		
-		s.setData(dataParam);
-		
-		s.setTypeData(typeDataParam);
-		
-		s.setMobs(mobParam);
-		
-		s.setPassiveMobs(pMobParam);
-		
-		return s;
 	}
 	
 }

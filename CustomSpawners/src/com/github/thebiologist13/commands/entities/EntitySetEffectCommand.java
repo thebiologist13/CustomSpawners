@@ -8,9 +8,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import com.github.thebiologist13.CustomSpawners;
-import com.github.thebiologist13.EntityPotionEffect;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.serialization.SPotionEffect;
 
 public class EntitySetEffectCommand extends SpawnerCommand {
 
@@ -30,7 +30,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 		//Entity
 		SpawnableEntity s = null;
 		//Effect
-		EntityPotionEffect effect = null;
+		SPotionEffect effect = null;
 		//PotionEffectType
 		PotionEffectType effectType = null;
 		//Amplifier
@@ -50,7 +50,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 4) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				effectType = PotionEffectType.getByName(arg3[1]);
 				
@@ -59,7 +59,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 					return;
 				}
 				
-				if(!plugin.isInteger(arg3[2])) {
+				if(!CustomSpawners.isInteger(arg3[2])) {
 					p.sendMessage(ChatColor.RED + "The potion effect level must be an integer.");
 					return;
 				}
@@ -71,7 +71,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 					return;
 				}
 				
-				if(!plugin.isInteger(arg3[3])) {
+				if(!CustomSpawners.isInteger(arg3[3])) {
 					p.sendMessage(ChatColor.RED + "The potion effect duration must be an integer.");
 					return;
 				}
@@ -83,14 +83,14 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 					return;
 				}
 
-				effect = new EntityPotionEffect(effectType, amplifier, duration);
+				effect = new SPotionEffect(effectType, duration, amplifier);
 				
 			} else if(arg3.length == 4) {
 				p.sendMessage(NEEDS_SELECTION);
 				return;
 			} else if(arg3.length == 5) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 				
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -104,7 +104,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 					return;
 				}
 				
-				if(!plugin.isInteger(arg3[3])) {
+				if(!CustomSpawners.isInteger(arg3[3])) {
 					p.sendMessage(ChatColor.RED + "The potion effect level must be an integer.");
 					return;
 				}
@@ -116,7 +116,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 					return;
 				}
 				
-				if(!plugin.isInteger(arg3[4])) {
+				if(!CustomSpawners.isInteger(arg3[4])) {
 					p.sendMessage(ChatColor.RED + "The potion effect duration must be an integer.");
 					return;
 				}
@@ -128,7 +128,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 					return;
 				}
 
-				effect = new EntityPotionEffect(effectType, amplifier, duration);
+				effect = new SPotionEffect(effectType, duration, amplifier);
 				
 			} else {
 				p.sendMessage(GENERAL_ERROR);
@@ -136,7 +136,7 @@ public class EntitySetEffectCommand extends SpawnerCommand {
 			}
 
 			//Carry out command
-			ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
+			ArrayList<SPotionEffect> effects = new ArrayList<SPotionEffect>();
 			effects.add(effect);
 			s.setEffects(effects);
 

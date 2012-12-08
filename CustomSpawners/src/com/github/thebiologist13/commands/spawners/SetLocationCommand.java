@@ -43,7 +43,7 @@ public class SetLocationCommand extends SpawnerCommand {
 			//If the player wants to set the location of the selected spawner
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 			//If the arguments are for selection but nothing is selected
 			} else if(arg3.length == 1) {
@@ -54,7 +54,7 @@ public class SetLocationCommand extends SpawnerCommand {
 			//If the player wants to set the location of a spawner by ID 
 			} else if(arg3.length == 2) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);

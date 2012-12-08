@@ -10,9 +10,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
-import com.github.thebiologist13.EntityPotionEffect;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.serialization.SPotionEffect;
 
 public class EntityInfoCommand extends SpawnerCommand {
 
@@ -39,33 +39,33 @@ public class EntityInfoCommand extends SpawnerCommand {
 			//If the player wants to perform command with a selection.
 			if(CustomSpawners.consoleEntity != -1 && arg3.length == 1) {
 
-				s = plugin.getEntity(String.valueOf(CustomSpawners.consoleEntity));
+				s = CustomSpawners.getEntity(String.valueOf(CustomSpawners.consoleEntity));
 
 				//Arguments are for selection, but none is selected
 			} else if(arg3.length == 1) {
 
-				plugin.sendMessage(p, NEEDS_SELECTION);
+				plugin.sendMessage(arg0, NEEDS_SELECTION);
 				return;
 
 				//If the player wants to perform command on a specific entity
 			} else if(arg3.length == 2) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
-					plugin.sendMessage(p, NO_ID);
+					plugin.sendMessage(arg0, NO_ID);
 					return;
 				}
 
 				//General error
 			} else {
 
-				plugin.sendMessage(p, GENERAL_ERROR);
+				plugin.sendMessage(arg0, GENERAL_ERROR);
 				return;
 
 			}
 
-			plugin.sendMessage(p, getInfo(s));
+			plugin.sendMessage(arg0, getInfo(s));
 			
 		} else {
 
@@ -75,7 +75,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 				//If the player wants to perform command with a selection.
 				if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 
-					s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+					s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 
 				//Arguments are for selection, but none is selected
 				} else if(arg3.length == 1) {
@@ -86,7 +86,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 				//If the player wants to perform command on a specific entity
 				} else if(arg3.length == 2) {
 
-					s = plugin.getEntity(arg3[1]);
+					s = CustomSpawners.getEntity(arg3[1]);
 					
 					if(s == null) {
 						plugin.sendMessage(p, NO_ID);
@@ -115,7 +115,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 	private String[] getInfo(SpawnableEntity s) {
 		
 		String effectMessage = ""; 
-		ArrayList<EntityPotionEffect> effects = s.getEffects();
+		ArrayList<SPotionEffect> effects = s.getEffects();
 		for(int i = 0; i < effects.size(); i++) {
 			if(i == 0) {
 				effectMessage += effects.get(i).getType().getName() + " " + effects.get(i).getAmplifier();
@@ -186,7 +186,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 			}
 		}
 		
-		EntityPotionEffect epe = s.getPotionEffect();
+		SPotionEffect epe = s.getPotionEffect();
 		
 		String typeOfExpDrop = (s.getType().equals(EntityType.THROWN_EXP_BOTTLE)) ? "Experience Bottle Exp: " : "Mob Dropped Exp: ";
 		
@@ -196,6 +196,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 				header + ChatColor.GREEN + ": ",
 				"",
 				ChatColor.GOLD + "Type: " + nameOfType,
+				ChatColor.GOLD + "Name: " + s.getName(),
 				ChatColor.GOLD + "Effects: " + effectMessage,
 				ChatColor.GOLD + "X Velocity: " + s.getXVelocity(),
 				ChatColor.GOLD + "Y Velocity: " + s.getYVelocity(),
@@ -229,7 +230,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 				ChatColor.GOLD + "Explosive Yield: " + s.getYield(),
 				ChatColor.GOLD + "Incendiary: " + s.isIncendiary(),
 				ChatColor.GOLD + "Item Type: " + plugin.getItemName(s.getItemType()),
-				ChatColor.GOLD + "Using Custom Drops :" + s.isUsingCustomDrops(),
+				ChatColor.GOLD + "Using Custom Drops: " + s.isUsingCustomDrops(),
 				ChatColor.GOLD + "Drops: " + dropMsg,
 				ChatColor.GREEN + "Scroll Up for More Properties."
 		};

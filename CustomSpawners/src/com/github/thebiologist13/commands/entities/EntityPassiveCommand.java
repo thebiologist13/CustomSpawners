@@ -36,7 +36,7 @@ public class EntityPassiveCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 
 				String value = arg3[1];
 
@@ -55,7 +55,7 @@ public class EntityPassiveCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);

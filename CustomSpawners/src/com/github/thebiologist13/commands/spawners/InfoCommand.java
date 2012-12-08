@@ -36,7 +36,7 @@ public class InfoCommand extends SpawnerCommand {
 			//If the player wants to perform command with a selection.
 			if(CustomSpawners.consoleSpawner != -1 && arg3.length == 1) {
 
-				s = plugin.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
+				s = CustomSpawners.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
 
 				//Arguments are for selection, but none is selected
 			} else if(arg3.length == 1) {
@@ -47,7 +47,7 @@ public class InfoCommand extends SpawnerCommand {
 				//If the player wants to perform command on a specific spawner
 			} else if(arg3.length == 2) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					plugin.sendMessage(arg0, NO_ID);
@@ -63,7 +63,7 @@ public class InfoCommand extends SpawnerCommand {
 			}
 
 			//Send info
-			plugin.sendMessage(p, getInfo(s));
+			plugin.sendMessage(arg0, getInfo(s));
 			
 		} else {
 			
@@ -73,7 +73,7 @@ public class InfoCommand extends SpawnerCommand {
 				//If the player wants to perform command with a selection.
 				if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
 					
-					s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+					s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 					
 				//Arguments are for selection, but none is selected
 				} else if(arg3.length == 1) {
@@ -84,7 +84,7 @@ public class InfoCommand extends SpawnerCommand {
 				//If the player wants to perform command on a specific spawner
 				} else if(arg3.length == 2) {
 
-					s = plugin.getSpawner(arg3[1]);
+					s = CustomSpawners.getSpawner(arg3[1]);
 
 					if(s == null) {
 						plugin.sendMessage(p, NO_ID);

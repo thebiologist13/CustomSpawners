@@ -37,7 +37,7 @@ public class EntityIncendiaryCommand extends SpawnerCommand {
 			
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				if(arg3[1].equalsIgnoreCase("true") || arg3[1].equalsIgnoreCase("false")) {
 					if(arg3[1].equals("true")) {
@@ -53,7 +53,7 @@ public class EntityIncendiaryCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 				
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 				
 				if(s == null) {
 					p.sendMessage(NO_ID);

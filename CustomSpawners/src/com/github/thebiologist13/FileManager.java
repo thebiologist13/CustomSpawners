@@ -1,7 +1,11 @@
 package com.github.thebiologist13;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,8 +18,8 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
@@ -31,17 +35,23 @@ public class FileManager {
 	
 	private final int logLevel;
 	
-	private final String SPAWNER_PATH = plugin.getDataFolder() + File.separator + "Spawners";
+	private final String SPAWNER_PATH;
 	
-	private final String ENTITY_PATH = plugin.getDataFolder() + File.separator + "Entities";
+	private final String ENTITY_PATH;
 	
 	private final String ch = File.separator;
+	
+	private final String NOT_DAT = "CustomSpawners has switched to using .dat files for saving. Sorry for any inconvenience.";
+	
+	private final String SWITCHED_FORMAT = "CustomSpawners has switched to save in .dat files. As much data as possible will be carried over into the new format.";
 	
 	public FileManager(CustomSpawners plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
 		this.config = plugin.getCustomConfig();
 		this.logLevel = config.getInt("data.logLevel", 2);
+		this.SPAWNER_PATH = plugin.getDataFolder() + File.separator + "Spawners";
+		this.ENTITY_PATH = plugin.getDataFolder() + File.separator + "Entities";
 	}
 	
 	//Loads spawners from file
@@ -62,6 +72,12 @@ public class FileManager {
 		for(File f : sFiles) {
 			
 			Spawner s = loadSpawner(f);
+			
+			if(s == null) {
+				log.info("Failed to load from " + f.getPath());
+				continue;
+			}
+			
 			CustomSpawners.spawners.put(s.getId(), s);
 			
 		}
@@ -92,13 +108,15 @@ public class FileManager {
 			Map<Integer, SpawnableEntity> allMobs = s.getMobs();
 			allMobs.putAll(s.getPassiveMobs());
 			
+			String path = SPAWNER_PATH + ch + String.valueOf(s.getId()) + ".dat";
+			
 			if(logLevel > 1)
-				log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + SPAWNER_PATH + ch + String.valueOf(s.getId()) + ".yml");
+				log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + path);
 			
 			if(killOnReload) {
 				for(Integer e : allMobs.keySet()) {
-					List<LivingEntity> entities = plugin.getServer().getWorld(s.getLoc().getWorld().getName()).getLivingEntities();
-					for(LivingEntity le : entities) {
+					List<Entity> entities = plugin.getServer().getWorld(s.getLoc().getWorld().getName()).getEntities();
+					for(Entity le : entities) {
 						if(le.getEntityId() == e) {
 							le.remove();
 						}
@@ -108,7 +126,7 @@ public class FileManager {
 				s.getPassiveMobs().clear();
 			}
 			
-			File saveFile = new File(SPAWNER_PATH + ch + String.valueOf(s.getId()) + ".yml");
+			File saveFile = new File(path);
 			
 			saveSpawner(s, saveFile);
 			
@@ -123,7 +141,7 @@ public class FileManager {
 	//Load entities from file
 	public void loadEntities() {
 		if(logLevel > 0)
-			log.info("Loading entities from directory " + ENTITY_PATH + ch + "Entities");
+			log.info("Loading entities from directory " + ENTITY_PATH);
 		
 		File sDir = new File(ENTITY_PATH);
 		if(!sDir.exists()) {
@@ -137,6 +155,12 @@ public class FileManager {
 		for(File f : sFiles) {
 			
 			SpawnableEntity e = loadEntity(f);
+			
+			if(e == null) {
+				log.info("Failed to load from " + f.getPath());
+				continue;
+			}
+			
 			CustomSpawners.entities.put(e.getId(), e);
 			
 		}
@@ -153,6 +177,7 @@ public class FileManager {
 
 	//Save entities to file
 	public void saveEntities() {
+		
 		if(logLevel > 0)
 			log.info("Saving entities...");
 		
@@ -164,10 +189,12 @@ public class FileManager {
 		while(entityItr.hasNext()) {
 			SpawnableEntity e = entityItr.next();
 
-			if(logLevel > 1)
-				log.info("Saving entity " + String.valueOf(e.getId()) + " to " + ENTITY_PATH + ch + String.valueOf(e.getId()) + ".yml");
+			String path = ENTITY_PATH + ch + String.valueOf(e.getId()) + ".dat";
 			
-			File saveFile = new File(ENTITY_PATH + ch + String.valueOf(e.getId()) + ".yml");
+			if(logLevel > 1)
+				log.info("Saving entity " + String.valueOf(e.getId()) + " to " + path);
+			
+			File saveFile = new File(path);
 			saveEntity(e, saveFile);
 			
 		}
@@ -180,23 +207,35 @@ public class FileManager {
 
 	//Removes a spawner or entity's data file
 	public void removeDataFile(int id, boolean isSpawner) {
+		
 		File file = null;
 
 		if(isSpawner) {
-			file = new File(SPAWNER_PATH + ch + id + ".yml");
+			
+			String path = SPAWNER_PATH + ch + id + ".dat";
+			file = new File(path);
+			
 			if(!file.exists()) {
-				plugin.printDebugMessage("Spawner File Does Not Exist. Path => " + SPAWNER_PATH + ch + id + ".yml");
+				plugin.printDebugMessage("Spawner File Does Not Exist. Path => " + path);
 				return;
 			}
+			
 			file.delete();
+			
 		} else {
-			file = new File(ENTITY_PATH + ch + id + ".yml");
+			
+			String path = ENTITY_PATH + ch + id + ".dat";
+			file = new File(path);
+			
 			if(!file.exists()) {
-				plugin.printDebugMessage("Entity File Does Not Exist. Path => " + ENTITY_PATH + ch + id + ".yml");
+				plugin.printDebugMessage("Entity File Does Not Exist. Path => " + path);
 				return;
 			}
+			
 			file.delete();
+			
 		}
+		
 	}
 
 	//Reloads
@@ -252,32 +291,50 @@ public class FileManager {
 	//Autosaves a spawner
 	public synchronized void autosave(Spawner s) {
 
-		File saveFile = new File(SPAWNER_PATH + ch + String.valueOf(s.getId()) + ".yml");
-		saveSpawner(s, saveFile);
+		String path = SPAWNER_PATH + ch + s.getId() + ".dat";
+		File file = new File(path);
+		
+		saveSpawner(s, file);
 
 	}
 
 	//Autosaves an entity
 	public synchronized void autosave(SpawnableEntity e) {
 
-		File saveFile = new File(ENTITY_PATH + ch + String.valueOf(e.getId()) + ".yml");
-		saveEntity(e, saveFile);
+		String path = ENTITY_PATH + ch + e.getId() + ".dat";
+		File file = new File(path);
+		
+		saveEntity(e, file);
 
 	}
 	
 	//Loads a Spawner from a YAML file
 	public Spawner loadSpawner(File f) {
 		
-		if(f.getName().endsWith(".yml")) {
+		if(logLevel > 1) 
+			log.info("Loading " + f.getName());
+		
+		if(isDat(f)) {
 			
-			if(logLevel > 1) 
-				log.info("Loading " + f.getName());
+			try {
+				FileInputStream fIn = new FileInputStream(f);
+				ObjectInputStream oIn = new ObjectInputStream(fIn);
+				
+				Spawner s = (Spawner) oIn.readObject();
+				
+				oIn.close();
+				fIn.close();
+				
+				return s;
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.severe("Failed to load spawner from" + f.getPath() + "!");
+			}
+			
+		} else if(isYaml(f)) {
 			
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-			
-			if(yaml.contains("spawner")) {
-				return (Spawner) yaml.get("spawner");
-			}
 			
 			int id = yaml.getInt("id");
 			String name = yaml.getString("name", "");
@@ -340,7 +397,7 @@ public class FileManager {
 					int key = Integer.parseInt(pair.substring(0, pair.indexOf("_")));
 					int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
 
-					SpawnableEntity e = plugin.getEntity(String.valueOf(value));
+					SpawnableEntity e = CustomSpawners.getEntity(String.valueOf(value));
 
 					mobsMap.put(key, e);
 				}
@@ -354,7 +411,7 @@ public class FileManager {
 					int key = Integer.parseInt(pair.substring(0, pair.indexOf("_")));
 					int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
 
-					SpawnableEntity e = plugin.getEntity(String.valueOf(value));
+					SpawnableEntity e = CustomSpawners.getEntity(String.valueOf(value));
 
 					passiveMobsMap.put(key, e);
 				}
@@ -389,7 +446,7 @@ public class FileManager {
 			for(Object o : listType) {
 				if(o instanceof Integer) {
 					int entityID = (Integer) o;
-					SpawnableEntity se = plugin.getEntity(String.valueOf(entityID));
+					SpawnableEntity se = CustomSpawners.getEntity(String.valueOf(entityID));
 					entities.put(entityID, se);
 				}
 			}
@@ -416,7 +473,7 @@ public class FileManager {
 			block.setTypeIdAndData(blockID, blockData, false);
 			
 
-			Spawner s = new Spawner(baseEntity, loc, name, id, plugin.getServer());
+			Spawner s = new Spawner(baseEntity, loc, name, id);
 			s.setRadius(radius);
 			s.setRedstoneTriggered(redstoneTriggered);
 			s.setMaxPlayerDistance(maxPlayerDistance);
@@ -436,7 +493,11 @@ public class FileManager {
 			s.setBlock(block);
 			s.setConverted(converted);
 
+			log.info(SWITCHED_FORMAT);
+			f.delete();
+			
 			return s;
+			
 		}
 		
 		return null;
@@ -446,21 +507,34 @@ public class FileManager {
 	//Loads a SpawnableEntity from a YAML file
 	public SpawnableEntity loadEntity(File f) {
 		
-		if(f.getName().endsWith(".yml")) {
+		if(logLevel > 1)
+			log.info("Loading " + f.getName());
+		
+		if(isDat(f)) {
 			
-			if(logLevel > 1)
-				log.info("Loading " + f.getName());
+			try {
+				FileInputStream fIn = new FileInputStream(f);
+				ObjectInputStream oIn = new ObjectInputStream(fIn);
+				
+				SpawnableEntity e = (SpawnableEntity) oIn.readObject();
+				
+				oIn.close();
+				fIn.close();
+				
+				return e;
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.severe("Failed to load entity from" + f.getPath() + "!");
+			}
+			
+		} else if(isYaml(f)) {
 			
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-			
-			if(yaml.contains("entity")) {
-				return (SpawnableEntity) yaml.get("entity");
-			}
 
 			int id = yaml.getInt("id");
 			String name = yaml.getString("name", "");
 			String strType = yaml.getString("type");
-			List<?> rawEffects = yaml.getList("effects");
 			double xVelocity = yaml.getDouble("xVelocity", 0);
 			double yVelocity = yaml.getDouble("yVelocity", 0);
 			double zVelocity = yaml.getDouble("zVelocity", 0);
@@ -489,7 +563,6 @@ public class FileManager {
 			
 			boolean usingCustomDamage = yaml.getBoolean("useCustomDamage", config.getBoolean("entities.useCustomDamage", false));
 			int damage = yaml.getInt("damage", config.getInt("entities.dealtDamage", 2));
-			EntityPotionEffect effectType = (EntityPotionEffect) yaml.get("potionType", plugin.getPotion(config.getString("entities.potionType", "REGENERATION_1_0:0")));
 			int droppedExp = yaml.getInt("droppedExp", config.getInt("entities.experienceDropped", 1));
 			int fuseTicks = yaml.getInt("fuseTicks", config.getInt("entities.fuseTicks", 80));
 			float yield = (float) yaml.getDouble("yield", config.getDouble("entities.yield", 5.0d));
@@ -497,7 +570,6 @@ public class FileManager {
 			ItemStack itemType = yaml.getItemStack("itemType", plugin.getItemStack(config.getString("itemType", "1:0")));
 			boolean usingCustomDrops = yaml.getBoolean("useCustomDrops", config.getBoolean("entities.useCustomDrops", false));
 			boolean invulnerable = yaml.getBoolean("invulnerable", config.getBoolean("entities.invulnerable", false));
-			EntityInventory inv = (EntityInventory) yaml.get("inventory", new EntityInventory());
 
 			//Make sure no values are null 
 			if(Integer.valueOf(id) == null) {
@@ -508,12 +580,6 @@ public class FileManager {
 			if(strType == null) {
 				log.info("Cannot load type of entity in file " + f.getName() + "! Using default type. ");
 				strType = "PIG";
-			}
-			
-			//PotionEffect handling
-			ArrayList<EntityPotionEffect> effects = new ArrayList<EntityPotionEffect>();
-			for(Object o : rawEffects) {
-				effects.add((EntityPotionEffect) o);
 			}
 
 			ArrayList<String> blacklistStrings = new ArrayList<String>();
@@ -554,7 +620,6 @@ public class FileManager {
 
 			SpawnableEntity e = new SpawnableEntity(type, id);
 			e.setName(name);
-			e.setEffects(effects);
 			e.setVelocity(velocity);
 			e.setAge(age);
 			e.setHealth(health);
@@ -580,15 +645,16 @@ public class FileManager {
 			e.setDrops(dropListStacks);
 			e.setUsingCustomDamage(usingCustomDamage);
 			e.setDamage(damage);
-			e.setPotionEffect(effectType);
 			e.setDroppedExp(droppedExp);
 			e.setFuseTicks(fuseTicks);
 			e.setYield(yield);
 			e.setIncendiary(incendiary);
 			e.setItemType(itemType);
 			e.setUsingCustomDrops(usingCustomDrops);
-			e.setInventory(inv);
 			e.setInvulnerable(invulnerable);
+			
+			log.info(SWITCHED_FORMAT);
+			f.delete();
 
 			return e;
 		}
@@ -600,77 +666,93 @@ public class FileManager {
 	//Saves a Spawner to a YAML file
 	public void saveSpawner(Spawner s, File f) {
 		
+		if(isDat(f)) {
+			
+			try {
+				FileOutputStream fOut = new FileOutputStream(f);
+				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
+				
+				oOut.writeObject(s);
+				
+				oOut.close();
+				fOut.close();
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.severe("Failed to save spawner " + String.valueOf(s.getId()) + "!");
+			}
+			
+			return;
+		} else {
+			log.info(NOT_DAT);
+		}
+		
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
 
 		yaml.options().header("DO NOT MODIFY THIS FILE!");
 		
-		if(config.getBoolean("data.useNewSave", true)) {
-			yaml.set("spawner", s);
-			return;
-		} else {
-			List<String> mobIDs = new ArrayList<String>();
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-			while(mobItr.hasNext()) {
-				int mobId = mobItr.next();
-				int entityId = s.getMobs().get(mobId).getId();
-				String toYaml = mobId + "_" + entityId;
+		List<String> mobIDs = new ArrayList<String>();
+		Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+		while(mobItr.hasNext()) {
+			int mobId = mobItr.next();
+			int entityId = s.getMobs().get(mobId).getId();
+			String toYaml = mobId + "_" + entityId;
 
-				mobIDs.add(toYaml);
-			}
-
-			List<String> passiveMobIDs = new ArrayList<String>();
-			Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
-			while(passiveMobItr.hasNext()) {
-				int passiveMobId = passiveMobItr.next();
-				int entityId = s.getPassiveMobs().get(passiveMobId).getId();
-				String toYaml = passiveMobId + "_" + entityId;
-
-				passiveMobIDs.add(toYaml);
-			}
-
-			List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
-			for(Integer i : s.getTypeData().keySet()) {
-				spawnableEntityIDs.add(i);
-			}
-
-			Location[] areaPoints = s.getAreaPoints();
-
-			if(yaml.getList("mobs") == null) {
-				yaml.set("mobs", null);
-			}
-
-			yaml.set("id", s.getId());
-			yaml.set("name", s.getName());
-			yaml.set("spawnableEntities", spawnableEntityIDs);
-			yaml.set("active", s.isActive());
-			yaml.set("hidden", s.isHidden());
-			yaml.set("radius", s.getRadius());
-			yaml.set("useSpawnArea", s.isUsingSpawnArea());
-			yaml.set("redstone", s.isRedstoneTriggered());
-			yaml.set("maxDistance", s.getMaxPlayerDistance());
-			yaml.set("minDistance", s.getMinPlayerDistance());
-			yaml.set("maxLight", s.getMaxLightLevel());
-			yaml.set("minLight", s.getMinLightLevel());
-			yaml.set("mobsPerSpawn", s.getMobsPerSpawn());
-			yaml.set("maxMobs", s.getMaxMobs());
-			yaml.set("location.world", s.getLoc().getWorld().getName());
-			yaml.set("location.x", s.getLoc().getBlockX());
-			yaml.set("location.y", s.getLoc().getBlockY());
-			yaml.set("location.z", s.getLoc().getBlockZ());
-			yaml.set("p1.world", areaPoints[0].getWorld().getName());
-			yaml.set("p1.x", areaPoints[0].getBlockX());
-			yaml.set("p1.y", areaPoints[0].getBlockY());
-			yaml.set("p1.z", areaPoints[0].getBlockZ());
-			yaml.set("p2.world", areaPoints[1].getWorld().getName());
-			yaml.set("p2.x", areaPoints[1].getBlockX());
-			yaml.set("p2.y", areaPoints[1].getBlockY());
-			yaml.set("p2.z", areaPoints[1].getBlockZ());
-			yaml.set("rate", s.getRate());
-			yaml.set("mobs", mobIDs);
-			yaml.set("passiveMobs", passiveMobIDs);
-			yaml.set("block", s.getBlock().getTypeId() + "-" + s.getBlock().getData());
-			yaml.set("converted", s.isConverted());
+			mobIDs.add(toYaml);
 		}
+
+		List<String> passiveMobIDs = new ArrayList<String>();
+		Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
+		while(passiveMobItr.hasNext()) {
+			int passiveMobId = passiveMobItr.next();
+			int entityId = s.getPassiveMobs().get(passiveMobId).getId();
+			String toYaml = passiveMobId + "_" + entityId;
+
+			passiveMobIDs.add(toYaml);
+		}
+
+		List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
+		for(Integer i : s.getTypeData().keySet()) {
+			spawnableEntityIDs.add(i);
+		}
+
+		Location[] areaPoints = s.getAreaPoints();
+
+		if(yaml.getList("mobs") == null) {
+			yaml.set("mobs", null);
+		}
+
+		yaml.set("id", s.getId());
+		yaml.set("name", s.getName());
+		yaml.set("spawnableEntities", spawnableEntityIDs);
+		yaml.set("active", s.isActive());
+		yaml.set("hidden", s.isHidden());
+		yaml.set("radius", s.getRadius());
+		yaml.set("useSpawnArea", s.isUsingSpawnArea());
+		yaml.set("redstone", s.isRedstoneTriggered());
+		yaml.set("maxDistance", s.getMaxPlayerDistance());
+		yaml.set("minDistance", s.getMinPlayerDistance());
+		yaml.set("maxLight", s.getMaxLightLevel());
+		yaml.set("minLight", s.getMinLightLevel());
+		yaml.set("mobsPerSpawn", s.getMobsPerSpawn());
+		yaml.set("maxMobs", s.getMaxMobs());
+		yaml.set("location.world", s.getLoc().getWorld().getName());
+		yaml.set("location.x", s.getLoc().getBlockX());
+		yaml.set("location.y", s.getLoc().getBlockY());
+		yaml.set("location.z", s.getLoc().getBlockZ());
+		yaml.set("p1.world", areaPoints[0].getWorld().getName());
+		yaml.set("p1.x", areaPoints[0].getBlockX());
+		yaml.set("p1.y", areaPoints[0].getBlockY());
+		yaml.set("p1.z", areaPoints[0].getBlockZ());
+		yaml.set("p2.world", areaPoints[1].getWorld().getName());
+		yaml.set("p2.x", areaPoints[1].getBlockX());
+		yaml.set("p2.y", areaPoints[1].getBlockY());
+		yaml.set("p2.z", areaPoints[1].getBlockZ());
+		yaml.set("rate", s.getRate());
+		yaml.set("mobs", mobIDs);
+		yaml.set("passiveMobs", passiveMobIDs);
+		yaml.set("block", s.getBlock().getTypeId() + "-" + s.getBlock().getData());
+		yaml.set("converted", s.isConverted());
 
 		try {
 			yaml.save(f);
@@ -684,62 +766,42 @@ public class FileManager {
 	//Saves a SpawnableEntity to YAML file
 	public void saveEntity(SpawnableEntity e, File f) {
 		
-		FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-
-		yaml.options().header("DO NOT MODIFY THIS FILE!");
-		
-		if(config.getBoolean("data.useNewSave", true)) {
-			yaml.set("entity", e);
+		if(isDat(f)) {
+			
+			try {
+				FileOutputStream fOut = new FileOutputStream(f);
+				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
+				
+				oOut.writeObject(e);
+				
+				oOut.close();
+				fOut.close();
+				
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				log.severe("Failed to save entity " + String.valueOf(e.getId()) + "!");
+			}
+			
 			return;
-		} else {
-			yaml.set("id", e.getId());
-			yaml.set("name", e.getName());
-			yaml.set("type", plugin.parseEntityName(e.getType()));
-			yaml.set("effects", e.getEffects());
-			yaml.set("xVelocity", e.getXVelocity());
-			yaml.set("yVelocity", e.getYVelocity());
-			yaml.set("zVelocity", e.getZVelocity());
-			yaml.set("age", e.getAge());
-			yaml.set("health", e.getHealth());
-			yaml.set("air", e.getAir());
-			yaml.set("profession", e.getProfession().toString());
-			yaml.set("endermanBlock", e.getEndermanBlock().toItemStack().getTypeId());
-			yaml.set("saddled", e.isSaddled());
-			yaml.set("charged", e.isCharged());
-			yaml.set("jockey", e.isJockey());
-			yaml.set("tame", e.isTamed());
-			yaml.set("angry", e.isAngry());
-			yaml.set("sitting", e.isSitting());
-			yaml.set("catType", e.getCatType());
-			yaml.set("slimeSize", e.getSlimeSize());
-			yaml.set("color", e.getColor());
-			yaml.set("passive", e.isPassive());
-			yaml.set("fireTicks", e.getFireTicks());
-			yaml.set("blacklist", e.getDamageBlacklist());
-			yaml.set("whitelist", e.getDamageWhitelist());
-			yaml.set("itemlist", e.getItemDamageList());
-			yaml.set("useBlacklist", e.isUsingBlacklist());
-			yaml.set("useWhitelist", e.isUsingWhitelist());
-			yaml.set("useCustomDamage", e.isUsingCustomDamage());
-			yaml.set("damage", e.getDamage());
-			yaml.set("potionType", e.getPotionEffect());
-			yaml.set("droppedExp", e.getDroppedExp());
-			yaml.set("fuseTicks", e.getFuseTicks());
-			yaml.set("yield", e.getYield());
-			yaml.set("incendiary", e.isIncendiary());
-			yaml.set("itemType", e.getItemType());
-			yaml.set("useCustomDrops", e.isUsingCustomDrops());
-			yaml.set("drops", e.getDrops());
-			yaml.set("invulnerable", e.isInvulnerable());
-			yaml.set("inventory", e.getInventory());
 		}
-
-		try {
-			yaml.save(f);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			log.severe("Failed to save entity " + String.valueOf(e.getId()) + "!");
-		}
+		
+	}
+	
+	public boolean isDat(File f) {
+		
+		if(f.getName().endsWith(".dat")) 
+			return true;
+		
+		return false;
+		
+	}
+	
+	public boolean isYaml(File f) {
+		
+		if(f.getName().endsWith(".yml")) 
+			return true;
+		
+		return false;
 		
 	}
 	

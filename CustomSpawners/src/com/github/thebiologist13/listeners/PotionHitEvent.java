@@ -10,8 +10,8 @@ import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.potion.PotionEffect;
 
 import com.github.thebiologist13.CustomSpawners;
-import com.github.thebiologist13.EntityPotionEffect;
 import com.github.thebiologist13.SpawnableEntity;
+import com.github.thebiologist13.serialization.SPotionEffect;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
@@ -42,7 +42,7 @@ public class PotionHitEvent implements Listener {
 			
 			for(LivingEntity le : affectedEntities) {
 				
-				EntityPotionEffect epe = e.getPotionEffect();
+				SPotionEffect epe = e.getPotionEffect();
 				PotionEffect effect = new PotionEffect(epe.getType(), epe.getDuration(), epe.getAmplifier());
 				le.addPotionEffect(effect, true);
 				

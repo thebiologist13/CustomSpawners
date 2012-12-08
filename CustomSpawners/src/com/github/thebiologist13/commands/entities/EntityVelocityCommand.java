@@ -47,7 +47,7 @@ public class EntityVelocityCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				int firstCommaIndex = arg3[1].indexOf(",");
 				int secondCommaIndex = arg3[1].indexOf(",", firstCommaIndex + 1);
@@ -56,7 +56,7 @@ public class EntityVelocityCommand extends SpawnerCommand {
 				String yVal = arg3[1].substring(firstCommaIndex + 1, secondCommaIndex);
 				String zVal = arg3[1].substring(secondCommaIndex + 1, arg3[1].length());
 				
-				if(!plugin.isDouble(xVal) || !plugin.isDouble(yVal) || !plugin.isDouble(zVal)) {
+				if(!CustomSpawners.isDouble(xVal) || !CustomSpawners.isDouble(yVal) || !CustomSpawners.isDouble(zVal)) {
 					p.sendMessage(COMMAND_FORMAT);
 					return;
 				}
@@ -70,7 +70,7 @@ public class EntityVelocityCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -84,7 +84,7 @@ public class EntityVelocityCommand extends SpawnerCommand {
 				String yVal = arg3[2].substring(firstCommaIndex + 1, secondCommaIndex);
 				String zVal = arg3[2].substring(secondCommaIndex + 1, arg3[2].length());
 				
-				if(!plugin.isDouble(xVal) ||!plugin.isDouble(yVal) || !plugin.isDouble(zVal)) {
+				if(!CustomSpawners.isDouble(xVal) ||!CustomSpawners.isDouble(yVal) || !CustomSpawners.isDouble(zVal)) {
 					p.sendMessage(COMMAND_FORMAT);
 					return;
 				}

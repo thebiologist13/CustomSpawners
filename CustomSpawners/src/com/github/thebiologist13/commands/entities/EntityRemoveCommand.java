@@ -41,7 +41,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			//If the player wants to remove the selected entity
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
 				
-				e = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				e = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 			
 			//When the arg3 length is 1, but no entity is selected.
 			} else if(arg3.length == 1){
@@ -52,7 +52,7 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			//If the player want to remove a entity with a specified ID
 			} else if(arg3.length == 2) {
 				
-				e = plugin.getEntity(arg3[1]);
+				e = CustomSpawners.getEntity(arg3[1]);
 				
 				//Check if the ID entered is the ID of a entity
 				if(e == null) {

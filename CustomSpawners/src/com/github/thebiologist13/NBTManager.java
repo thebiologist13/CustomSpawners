@@ -18,6 +18,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
+import com.github.thebiologist13.serialization.SInventory;
+import com.github.thebiologist13.serialization.SPotionEffect;
+
 import net.minecraft.server.NBTTagCompound;
 import net.minecraft.server.NBTTagDouble;
 import net.minecraft.server.NBTTagFloat;
@@ -435,9 +438,9 @@ public class NBTManager {
 		NBTTagList pos = makeDoubleList(new double[] {spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ()});
 		NBTTagList motion = makeDoubleList(new double[] {velocity.getX(), velocity.getY(), velocity.getZ()});
 		
-		ArrayList<EntityPotionEffect> effectsCS = mainEntity.getEffects();
+		ArrayList<SPotionEffect> effectsCS = mainEntity.getEffects();
 		NBTTagList effects = new NBTTagList();
-		for(EntityPotionEffect e : effectsCS) {
+		for(SPotionEffect e : effectsCS) {
 			effects.add(makePotionCompound((byte) e.getType().getId(), (byte) e.getAmplifier(), e.getDuration()));
 		}
 		
@@ -510,7 +513,7 @@ public class NBTManager {
 	 * @param i EntityInventory to use.
 	 * @return NBTTagList with inventory information.
 	 */
-	private NBTTagList makeInventory(EntityInventory i) {
+	private NBTTagList makeInventory(SInventory i) {
 		NBTTagList list = new NBTTagList();
 		ArrayList<ItemStack> mainInv = i.getMainInventory();
 		

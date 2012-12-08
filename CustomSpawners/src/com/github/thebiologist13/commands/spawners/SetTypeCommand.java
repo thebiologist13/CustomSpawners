@@ -43,9 +43,9 @@ public class SetTypeCommand extends SpawnerCommand {
 			//If they want to set the spawn type of a selected spawner
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
-				type = plugin.getEntity(arg3[1]);
+				type = CustomSpawners.getEntity(arg3[1]);
 				
 				if(type == null) {
 					p.sendMessage(ENTITY_NONEXISTANT);
@@ -61,14 +61,14 @@ public class SetTypeCommand extends SpawnerCommand {
 			//If they want to set spawn type by ID
 			} else if(arg3.length == 3) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
 				
-				type = plugin.getEntity(arg3[2]);
+				type = CustomSpawners.getEntity(arg3[2]);
 				
 				if(type == null) {
 					p.sendMessage(ENTITY_NONEXISTANT);

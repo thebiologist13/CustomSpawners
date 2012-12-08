@@ -36,7 +36,7 @@ public class SetRedstoneCommand extends SpawnerCommand {
 			//Set redstone powered of selection
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
 				if(arg3[1].equalsIgnoreCase("true") || arg3[1].equalsIgnoreCase("false")) {
 					if(arg3[1].equals("true")) {
@@ -57,7 +57,7 @@ public class SetRedstoneCommand extends SpawnerCommand {
 			//Set redstone powered of specific spawner
 			} else if(arg3.length == 3) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);

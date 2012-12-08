@@ -38,7 +38,7 @@ public class EntitySelectCommand extends SpawnerCommand {
 			}
 			
 			//Assign selectionId if a number
-			SpawnableEntity s = plugin.getEntity(arg3[1]);
+			SpawnableEntity s = CustomSpawners.getEntity(arg3[1]);
 			
 			if(s == null) {
 				plugin.sendMessage(arg0, NO_ID);
@@ -65,7 +65,7 @@ public class EntitySelectCommand extends SpawnerCommand {
 				}
 				
 				//Assign selectionId if a number
-				SpawnableEntity s = plugin.getEntity(arg3[1]);
+				SpawnableEntity s = CustomSpawners.getEntity(arg3[1]);
 				
 				if(s == null) {
 					plugin.sendMessage(p, NO_ID);

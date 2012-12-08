@@ -21,7 +21,6 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
@@ -42,6 +41,7 @@ import com.github.thebiologist13.listeners.PlayerLogoutEvent;
 import com.github.thebiologist13.listeners.PlayerTargetEvent;
 import com.github.thebiologist13.listeners.PotionHitEvent;
 import com.github.thebiologist13.listeners.ProjectileFireEvent;
+import com.github.thebiologist13.serialization.SPotionEffect;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 /**
@@ -104,9 +104,6 @@ public class CustomSpawners extends JavaPlugin {
 	public WorldGuardPlugin worldGuard = null;
 	
 	public void onEnable() {
-		
-		//Serialization
-		ConfigurationSerialization.registerClass(EntityPotionEffect.class, "Effect");
 		
 		//Config
 		config = getCustomConfig();
@@ -351,8 +348,8 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Gets a spawner
-	public Spawner getSpawner(String ref) {
-		if(this.isInteger(ref)) {
+	public static Spawner getSpawner(String ref) {
+		if(isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
 			
@@ -385,8 +382,8 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Gets an entity
-	public SpawnableEntity getEntity(String ref) {
-		if(this.isInteger(ref)) {
+	public static SpawnableEntity getEntity(String ref) {
+		if(isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 			
 			Iterator<Integer> entityItr = entities.keySet().iterator();
@@ -504,7 +501,7 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Convenience method for accurately testing if a string can be parsed to an integer.
-	public boolean isInteger(String what) {
+	public static boolean isInteger(String what) {
 		try {
 			Integer.parseInt(what);
 			return true;
@@ -514,9 +511,19 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Convenience method for accurately testing if a string can be parsed to an double.
-	public boolean isDouble(String what) {
+	public static boolean isDouble(String what) {
 		try {
 			Double.parseDouble(what);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
+	}
+	
+	//Convenience method for accurately testing if a string can be parsed to an double.
+	public static boolean isFloat(String what) {
+		try {
+			Float.parseFloat(what);
 			return true;
 		} catch(NumberFormatException e) {
 			return false;
@@ -628,7 +635,7 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Gets an EntityPotionEffect from format <PotionEffectType>_<level>_<minutes>:<seconds>
-	public EntityPotionEffect getPotion(String value) {
+	public SPotionEffect getPotion(String value) {
 		int index1 = value.indexOf("_");
 		int index2 = value.indexOf("_", index1 + 1);
 		int index3 = value.indexOf(":");
@@ -645,7 +652,7 @@ public class CustomSpawners extends JavaPlugin {
 		int seconds = Integer.parseInt(value.substring(index3 + 1, value.length()));
 		int effectDuration = (minutes * 1200) + (seconds * 20);
 		
-		return new EntityPotionEffect(effectType, effectLevel, effectDuration);
+		return new SPotionEffect(effectType, effectDuration,  effectLevel);
 	}
 	
 	//Resets selections if a spawner is removed
@@ -889,7 +896,7 @@ public class CustomSpawners extends JavaPlugin {
 			p = (Player) sender;
 		
 		if(p == null) {
-			message = ChatColor.stripColor(message);
+			message = "[CUSTOMSPAWNERS] " + ChatColor.stripColor(message);
 			log.info(message);
 		} else {
 			p.sendMessage(message);
@@ -910,7 +917,7 @@ public class CustomSpawners extends JavaPlugin {
 		if(p == null) {
 			
 			for(String s : message) {
-				s = ChatColor.stripColor(s);
+				s = "[CUSTOMSPAWNERS] " + ChatColor.stripColor(s);
 				log.info(s);
 			}
 			
@@ -956,9 +963,13 @@ public class CustomSpawners extends JavaPlugin {
 		
 		String ch = File.separator;
 		String worldDir = w.getWorldFolder() + ch + "cs_data" + ch;
-		String entityDir = worldDir + "entity";
+		String entityDir = worldDir + ch + "entity";
+		String spawnerDir = worldDir + ch + "spawner";
 		
-		File spawnerFile = new File(worldDir + "spawner" + ch + data.getId() + ".yml");
+		String spawnerPath = spawnerDir + ch + data.getId() + ".dat";
+		
+		File spawnerFile = new File(spawnerPath); //TODO Finish Me!
+		
 		File entityFilesDir = new File(entityDir);
 		
 		Map<Integer, SpawnableEntity> types = data.getTypeData();
@@ -975,7 +986,9 @@ public class CustomSpawners extends JavaPlugin {
 			int i = tItr.next();
 			
 			printDebugMessage("Checking if entity files exist");
-			String fileName = entityDir + ch + i + ".yml";
+			
+			String fileName = entityDir + ch + i + ".dat";
+			
 			printDebugMessage("File to check: " + fileName);
 			
 			if(!entityFiles.contains(fileName)) {
@@ -996,20 +1009,27 @@ public class CustomSpawners extends JavaPlugin {
 	public List<Spawner> loadAllSpawnersFromWorld(World w) {
 		List<Spawner> list = new ArrayList<Spawner>();
 		
-		File worldFolder = w.getWorldFolder();
-		
 		String ch = File.separator;
-		String worldDir = worldFolder + ch + "cs_data" + ch;
-		File spawnerDir = new File(worldDir + "spawner");
-		File entityDir = new File(worldDir + "entity");
+		String worldDir = w.getWorldFolder() + ch + "cs_data" + ch;
+		String entityDir = worldDir + ch + "entity";
+		String spawnerDir = worldDir + ch + "spawner";
 		
-		for(File spawnerFile : spawnerDir.listFiles()) {
+		File spawnerFiles = new File(spawnerDir);
+		File entityFiles = new File(entityDir);
+		
+		if(!spawnerFiles.exists())
+			spawnerFiles.mkdirs();
+		
+		if(!entityFiles.exists())
+			entityFiles.mkdirs();
+		
+		for(File spawnerFile : spawnerFiles.listFiles()) {
 			
 			Spawner s = fileManager.loadSpawner(spawnerFile);
 			Collection<SpawnableEntity> sEnts = s.getTypeData().values();
 			ArrayList<SpawnableEntity> containedEntities = new ArrayList<SpawnableEntity>();
 			
-			for(File f : entityDir.listFiles()) {
+			for(File f : entityFiles.listFiles()) {
 				containedEntities.add(fileManager.loadEntity(f));
 			}
 			
@@ -1024,13 +1044,16 @@ public class CustomSpawners extends JavaPlugin {
 	public List<SpawnableEntity> loadAllEntitiesFromWorld(World w) {
 		List<SpawnableEntity> list = new ArrayList<SpawnableEntity>();
 		
-		File worldFolder = w.getWorldFolder();
-		
 		String ch = File.separator;
-		String worldDir = worldFolder + ch + "cs_data" + ch;
-		File entityDir = new File(worldDir + "entity");
+		String worldDir = w.getWorldFolder() + ch + "cs_data" + ch;
+		String entityDir = worldDir + ch + "entity";
 		
-		for(File f : entityDir.listFiles()) {
+		File entityFiles = new File(entityDir);
+		
+		if(!entityFiles.exists())
+			entityFiles.mkdirs();
+		
+		for(File f : entityFiles.listFiles()) {
 			list.add(fileManager.loadEntity(f));
 		}
 		

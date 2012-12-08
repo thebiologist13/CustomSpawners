@@ -47,11 +47,7 @@ public class CreateCommand extends SpawnerCommand {
 			}
 			
 			//Try to parse an entity type from input. Null if invalid.
-			type = plugin.getEntity(arg3[1]);
-			
-			if(type == null) {
-				p.sendMessage(NO_ID);
-			}
+			type = CustomSpawners.getEntity(arg3[1]);
 			
 			if(type == null) {
 				p.sendMessage(ENTITY_NONEXISTANT);
@@ -62,7 +58,7 @@ public class CreateCommand extends SpawnerCommand {
 			id = plugin.getNextSpawnerId();
 			
 			//Creates a new instance of spawner using variables parsed from command
-			Spawner spawner = new Spawner(type, target.getLocation(), id, plugin.getServer());
+			Spawner spawner = new Spawner(type, target.getLocation(), id);
 			
 			//Setting default properties from config
 			spawner.setRadius(config.getDouble("spawners.radius", 16));

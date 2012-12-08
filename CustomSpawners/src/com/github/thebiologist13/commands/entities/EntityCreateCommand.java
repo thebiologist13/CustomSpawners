@@ -9,9 +9,9 @@ import org.bukkit.entity.Villager;
 import org.bukkit.material.MaterialData;
 
 import com.github.thebiologist13.CustomSpawners;
-import com.github.thebiologist13.EntityPotionEffect;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.serialization.SPotionEffect;
 
 public class EntityCreateCommand extends SpawnerCommand {
 
@@ -126,7 +126,7 @@ public class EntityCreateCommand extends SpawnerCommand {
 			entity.setEndermanBlock(enderBlock);
 			
 			String rawEffectType = config.getString("entities.potionType", "REGENERATION_1_0:0");
-			EntityPotionEffect effect = plugin.getPotion(rawEffectType);
+			SPotionEffect effect = plugin.getPotion(rawEffectType);
 			
 			entity.setSaddled(config.getBoolean("entities.isSaddled", false));
 			entity.setCharged(config.getBoolean("entities.isCharged", false));

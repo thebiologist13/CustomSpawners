@@ -38,7 +38,7 @@ public class EntityNameCommand extends SpawnerCommand {
 			//If the player wants to rename the selected spawner
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				name = arg3[1];
 
@@ -51,7 +51,7 @@ public class EntityNameCommand extends SpawnerCommand {
 				//If the player want to rename a spawner with a specified ID
 			} else if(arg3.length == 3) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -73,7 +73,7 @@ public class EntityNameCommand extends SpawnerCommand {
 					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
 			
 			//Remove the name
-			SpawnableEntity e = plugin.getEntity(name);
+			SpawnableEntity e = CustomSpawners.getEntity(name);
 			if(e == null) {
 				s.setName(name);
 			} else {

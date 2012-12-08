@@ -47,9 +47,11 @@ public class SpawnerExecutor implements CommandExecutor {
 	private InfoCommand ic = null;
 	private PositionCommand pc = null;
 	private SpawnAreaCommand sac = null;
+	private ConvertCommand coc = null;
 	
 	public SpawnerExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
+		this.config = plugin.getCustomConfig();
 		this.log = plugin.log;
 		
 		aac = new ActivateAllCommand(plugin);
@@ -76,6 +78,7 @@ public class SpawnerExecutor implements CommandExecutor {
 		ac = new ActiveCommand(plugin);
 		pc = new PositionCommand(plugin);
 		sac = new SpawnAreaCommand(plugin);
+		coc = new ConvertCommand(plugin);
 	}
 	
 	@Override
@@ -172,6 +175,11 @@ public class SpawnerExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("pos2")) {
 
 						pc.run(arg0, arg1, arg2, arg3);
+						return true;
+
+					} else if(arg3[0].equalsIgnoreCase("convert")) {
+
+						coc.run(arg0, arg1, arg2, arg3);
 						return true;
 
 					}
@@ -300,6 +308,11 @@ public class SpawnerExecutor implements CommandExecutor {
 					} else if(arg3[0].equalsIgnoreCase("setspawnarea")) {
 
 						sac.run(arg0, arg1, arg2, arg3);
+						return true;
+
+					} else if(arg3[0].equalsIgnoreCase("convert")) {
+
+						coc.run(arg0, arg1, arg2, arg3);
 						return true;
 
 					}

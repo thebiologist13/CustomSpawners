@@ -39,9 +39,9 @@ public class SetRateCommand extends SpawnerCommand {
 			//If the player wants to set the spawn rate of a selected spawner
 			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
 				
-				s = plugin.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
 				
-				if(!plugin.isInteger(arg3[1])) {
+				if(!CustomSpawners.isInteger(arg3[1])) {
 					p.sendMessage(SPECIFY_NUMBER);
 					return;
 				}
@@ -57,14 +57,14 @@ public class SetRateCommand extends SpawnerCommand {
 			//If the player wants to set the spawn rate of a spawner by ID
 			} else if(arg3.length == 3) {
 
-				s = plugin.getSpawner(arg3[1]);
+				s = CustomSpawners.getSpawner(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
 					return;
 				}
 				
-				if(!plugin.isInteger(arg3[2])) {
+				if(!CustomSpawners.isInteger(arg3[2])) {
 					p.sendMessage(SPECIFY_NUMBER);
 					return;
 				}

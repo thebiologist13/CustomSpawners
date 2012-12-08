@@ -39,14 +39,14 @@ public class EntityAgeCommand extends SpawnerCommand {
 		if(p.hasPermission(perm)) {
 			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
 
-				s = plugin.getEntity(CustomSpawners.entitySelection.get(p).toString());
+				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
 				
 				if(arg3[1].equalsIgnoreCase("ADULT")) {
 					s.setAge(-1);
 				} else if(arg3[1].equalsIgnoreCase("BABY")) {
 					s.setAge(-2);
 				} else {
-					if(plugin.isInteger(arg3[1])) {
+					if(CustomSpawners.isInteger(arg3[1])) {
 						s.setAge(Integer.parseInt(arg3[1]));
 					} else {
 						p.sendMessage(ChatColor.RED + "Age value must be an integer, \"ADULT\", or \"BABY\".");
@@ -64,7 +64,7 @@ public class EntityAgeCommand extends SpawnerCommand {
 				return;
 			} else if(arg3.length == 3) {
 
-				s = plugin.getEntity(arg3[1]);
+				s = CustomSpawners.getEntity(arg3[1]);
 
 				if(s == null) {
 					p.sendMessage(NO_ID);
@@ -76,7 +76,7 @@ public class EntityAgeCommand extends SpawnerCommand {
 				} else if(arg3[2].equalsIgnoreCase("BABY")) {
 					s.setAge(-2);
 				} else {
-					if(plugin.isInteger(arg3[2])) {
+					if(CustomSpawners.isInteger(arg3[2])) {
 						s.setAge(Integer.parseInt(arg3[2]));
 					} else {
 						p.sendMessage(ChatColor.RED + "Age value must be an integer, \"ADULT\", or \"BABY\".");
