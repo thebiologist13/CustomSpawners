@@ -26,7 +26,7 @@ public class EntityYieldCommand extends SpawnerCommand {
 		//Yield
 		float yield = 0.0f;
 		
-		final String MUST_BE_FLOAT = ChatColor.RED + "The yield must be an float.";
+		final String MUST_BE_FLOAT = ChatColor.RED + "The yield must be a float.";
 		
 		if(!(arg0 instanceof Player)) {
 			log.info(NO_CONSOLE);

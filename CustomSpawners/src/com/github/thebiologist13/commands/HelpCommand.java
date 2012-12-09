@@ -157,7 +157,7 @@ public class HelpCommand extends SpawnerCommand {
 		final String[] HELP_MESSAGE_NO_COLOR = {
 				"* * * CustomSpawners Help * * *",
 				"/customspawners help [page] -> Displays this message.", 
-				"/customspawners reloadspawners -> Reloads all spawners.", 
+				"/customspawners reload -> Reloads everything.", 
 				"/spawners removeallmobs -> Kills all mobs created by spawners in the server.",
 				"/spawners removemobs [id] -> Kills all mobs created by the spawner with specified ID.",
 				"/spawners activateall -> Sets all spawners on the server active.",

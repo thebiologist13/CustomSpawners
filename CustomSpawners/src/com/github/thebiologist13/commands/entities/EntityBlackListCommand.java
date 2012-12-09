@@ -168,7 +168,7 @@ public class EntityBlackListCommand extends SpawnerCommand {
 					"\'s useBlacklist value to " + ChatColor.GOLD + String.valueOf(useBlacklist) + ChatColor.GREEN + "!");
 			
 		} else {
-			p.sendMessage(NO_PERMISSION);
+			p.sendMessage(NOT_COMMAND);
 		}
 		
 	}

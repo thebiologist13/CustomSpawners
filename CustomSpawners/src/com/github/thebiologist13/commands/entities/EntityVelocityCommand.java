@@ -4,11 +4,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
+
+import com.github.thebiologist13.serialization.SVector;;
 
 public class EntityVelocityCommand extends SpawnerCommand {
 
@@ -99,7 +100,7 @@ public class EntityVelocityCommand extends SpawnerCommand {
 			}
 
 			//Carry out command
-			s.setVelocity(new Vector(x,y,z));
+			s.setVelocity(new SVector(x, y, z));
 
 			//Success
 			p.sendMessage(ChatColor.GREEN + "Successfully set the velocity of spawnable entity with ID " 

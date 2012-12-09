@@ -399,21 +399,21 @@ public class Spawner implements Serializable {
 		boolean canSpawn = true;
 
 		//If the spawner is not active, return
-		if(!((Boolean) data.get("active"))) {
+		if(!isActive()) {
 			return;
 		}
 
 		/*
 		 * This block checks if the conditions are met to spawn mobs
 		 */
-		if(((Boolean) data.get("redstone")) && (!((Block) data.get("block")).isBlockIndirectlyPowered() || !((Block) data.get("block")).isBlockPowered())) {
+		if(isRedstoneTriggered() && (!getBlock().isBlockIndirectlyPowered() || !getBlock().isBlockPowered())) {
 			canSpawn = false;
 		} else if(!isPlayerNearby()) {
 			canSpawn = false;
-		} else if(!(((SBlock) data.get("block")).toBlock().getLightLevel() <= ((Byte) data.get("maxLight"))) && 
-				!(((Block) data.get("block")).getLightLevel() <= ((Byte) data.get("minLight")))) {
+		} else if(!(getBlock().getLightLevel() <= getMaxLightLevel()) && 
+				!(getBlock().getLightLevel() <= getMinLightLevel())) {
 			canSpawn = false;
-		} else if(mobs.size() >= ((Integer) data.get("maxMobs"))) {
+		} else if(mobs.size() >= getMaxMobs()) {
 			canSpawn = false;
 		}
 
@@ -421,7 +421,7 @@ public class Spawner implements Serializable {
 		if(canSpawn) {
 			
 			//Break the loop if the spawn limit is reached
-			if(!(mobs.size() + passiveMobs.size() == ((Integer) data.get("maxMobs")))) {
+			if(!(mobs.size() + passiveMobs.size() == getMaxMobs())) {
 				SpawnableEntity spawnType = randType();
 				mainSpawn(spawnType);
 			}
@@ -452,26 +452,34 @@ public class Spawner implements Serializable {
 	private void mainSpawn(SpawnableEntity spawnType) {
 		
 		//Loop to spawn until the mobs per spawn is reached
-		for(int i = 0; i < ((Integer) data.get("mobsPerSpawn")); i++) {
-
-			/*Location spawnLocation = getSpawningLocation(spawnType);
+		for(int i = 0; i < getMobsPerSpawn(); i++) {
 			
-			if(spawnLocation == null) {
-				//System.out.println("[CSDEBUG] " + "Spawn location is null.");
-				return;
-			} else if(spawnType == null) {
-				//System.out.println("[CSDEBUG] " + "Entity is null.");
-				return;
-			}*/
+			Location spLoc = getLoc();
+			spLoc.setYaw(randRot());
 			
-			Entity e = spawnTheEntity(spawnType, getLoc());
+			Entity e;
+			
+			if(spawnType.hasAllDimensions()) {
+				Location spawnLocation = getSpawningLocation(spawnType, spawnType.requiresBlockBelow(), 
+						spawnType.getHeight(), spawnType.getWidth(), spawnType.getLength());
+				e = spawnTheEntity(spawnType, spawnLocation);
+			} else {
+				e = spawnTheEntity(spawnType, spLoc);
+				
+				net.minecraft.server.Entity nmEntity = ((CraftEntity) e).getHandle();
+				
+				CustomSpawners.entities.get(spawnType.getId()).setHeight(nmEntity.height);
+				CustomSpawners.entities.get(spawnType.getId()).setWidth(nmEntity.width);
+				CustomSpawners.entities.get(spawnType.getId()).setLength(nmEntity.length);
+				CustomSpawners.entities.get(spawnType.getId()).setBlockBelow(getBlockBelowFromEntity(e));
+				
+				Location spawnLocation = getSpawningLocation(spawnType, getBlockBelowFromEntity(e), nmEntity.height, nmEntity.width, nmEntity.length);
+				e.teleport(spawnLocation);
+			}
 			
 			if(e != null) {
 
 				assignMobProps(e, spawnType);
-				net.minecraft.server.Entity nmEntity = ((CraftEntity) e).getHandle();
-				Location spawnLocation = getSpawningLocation(e, spawnType, nmEntity.height, nmEntity.width, nmEntity.length);
-				e.teleport(spawnLocation);
 
 				if(spawnType.isPassive()) {
 					passiveMobs.put(e.getEntityId(), spawnType);
@@ -550,10 +558,15 @@ public class Spawner implements Serializable {
 		return null;
 	}
 	
+	private float randRot() {
+		Random rand = new Random();
+		return rand.nextFloat() * 360.0f;
+	}
+	
 	//Assigns properties to a LivingEntity
 	private void assignMobProps(Entity baseEntity, SpawnableEntity data) {
 		
-		baseEntity.setVelocity(data.getVelocity());
+		baseEntity.setVelocity(data.getVelocity().clone());
 		baseEntity.setFireTicks(data.getFireTicks());
 		
 		if(baseEntity instanceof LivingEntity) {
@@ -757,14 +770,11 @@ public class Spawner implements Serializable {
 	}
 	
 	//Determines a valid spawn location
-	private Location getSpawningLocation(Entity e, SpawnableEntity type, float height, float width, float length) {
+	private Location getSpawningLocation(SpawnableEntity type, boolean reqsBlockBelow, float height, float width, float length) {
 		//Random locations
 		double randX = 0;
 		double randY = 0;
 		double randZ = 0;
-		
-		//For flying mobs. Will it require blocks beneath it to spawn?
-		boolean reqsBlockBelow = true;
 		
 		//Can it spawn in liquids?
 		boolean spawnInWater = true;
@@ -775,8 +785,59 @@ public class Spawner implements Serializable {
 		//Amount of times tried
 		int tries = 0;
 		
-		//Setting special properties
-		switch(type.getType()) {
+		//As long as the mob has not been spawned, keep trying
+		while(tries < 128) {
+
+			tries++;
+			Location loc = getLoc();
+			Location[] areaPoints = getAreaPoints();
+			
+			//Getting a random location.
+			if(!isUsingSpawnArea()) {
+				//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
+				randX = randomGenRad()  + loc.getBlockX();
+				randY = Math.round(randomGenRad()) + loc.getBlockY();
+				randZ = randomGenRad() + loc.getBlockZ();
+
+			} else {
+				//Generates a random location in the spawn area using randomGenRange().
+				randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
+				randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
+				randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
+			}
+
+			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ);
+			spawnLoc.setYaw(randRot());
+			
+			if(!isEmpty(spawnLoc, spawnInWater)) {
+				continue;
+			}
+			
+			if(!areaEmpty(loc, spawnInWater, height, width, length))
+				continue;
+			
+			if(reqsBlockBelow) {
+				Location blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
+				
+				if(isEmpty(blockBelow, !spawnInWater)) {
+					continue;
+				}
+			}
+			
+			if(!((getBlock().getLightLevel() <= getMaxLightLevel()) && (getBlock().getLightLevel() >= getMinLightLevel())))
+				continue;
+			
+			return spawnLoc;
+		}
+		
+		return null;
+	}
+	
+	private boolean getBlockBelowFromEntity(Entity e) {
+		
+		boolean reqsBlockBelow = true;
+		
+		switch(e.getType()) {
 		case ENDER_DRAGON:
 			reqsBlockBelow = false;
 			break;
@@ -800,51 +861,8 @@ public class Spawner implements Serializable {
 			break;
 		}
 		
-		//As long as the mob has not been spawned, keep trying
-		while(tries < 128) {
-
-			tries++;
-			Location loc = getLoc();
-			Location[] areaPoints = getAreaPoints();
-			
-			//Getting a random location.
-			if(!((Boolean) data.get("useSpawnArea"))) {
-				//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
-				randX = randomGenRad()  + loc.getBlockX();
-				randY = Math.round(randomGenRad()) + loc.getBlockY();
-				randZ = randomGenRad() + loc.getBlockZ();
-
-			} else {
-				//Generates a random location in the spawn area using randomGenRange().
-				randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
-				randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
-				randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
-			}
-
-			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ);
-			
-			if(!isEmpty(spawnLoc, spawnInWater)) {
-				continue;
-			}
-			
-			if(!areaEmpty(loc, spawnInWater, height, width, length))
-				continue;
-			
-			if(reqsBlockBelow) {
-				Location blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
-				
-				if(isEmpty(blockBelow, !spawnInWater)) {
-					continue;
-				}
-			}
-			
-			if(!((loc.getBlock().getLightLevel() <= ((Byte) data.get("maxLight"))) && (loc.getBlock().getLightLevel() >= ((Byte) data.get("minLight")))))
-				continue;
-			
-			return spawnLoc;
-		}
+		return reqsBlockBelow;
 		
-		return null;
 	}
 	
 	private boolean areaEmpty(Location loc, boolean spawnInWater, float height, float width, float length) {

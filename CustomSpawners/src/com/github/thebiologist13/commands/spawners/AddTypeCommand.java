@@ -44,7 +44,7 @@ public class AddTypeCommand extends SpawnerCommand {
 				type = CustomSpawners.getEntity(arg3[1]);
 				
 				if(type == null) {
-					p.sendMessage(ENTITY_NONEXISTANT);
+					p.sendMessage(NO_ID);
 					return;
 				}
 				
@@ -60,7 +60,7 @@ public class AddTypeCommand extends SpawnerCommand {
 				type = CustomSpawners.getEntity(arg3[2]);
 				
 				if(type == null) {
-					p.sendMessage(ENTITY_NONEXISTANT);
+					p.sendMessage(NO_ID);
 					return;
 				}
 

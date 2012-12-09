@@ -15,6 +15,10 @@ public class SInventory implements Serializable {
 	
 	public SInventory() {
 		this.content = new HashMap<Integer, SItemStack>();
+		armor[0] = new SItemStack(0);
+		armor[1] = new SItemStack(0);
+		armor[2] = new SItemStack(0);
+		armor[3] = new SItemStack(0);
 	}
 	
 	public SInventory(HashMap<Integer, ItemStack> content) {

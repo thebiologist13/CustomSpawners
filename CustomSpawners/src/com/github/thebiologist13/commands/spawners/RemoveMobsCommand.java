@@ -37,7 +37,21 @@ public class RemoveMobsCommand extends SpawnerCommand {
 					
 				} else {
 					
-					log.info("An error has occured with this command. Did you type everything right?");
+					log.info(GENERAL_ERROR);
+					return;
+					
+				}
+			} else if(arg3[0].equalsIgnoreCase("invadersmustdie")) {
+				if(arg3.length == 1) {
+					
+					log.info("Removing all spawned mobs...");
+					log.info("INVADERS MUST DIE!");
+					removeAllMobs();
+					return;
+					
+				} else {
+					
+					log.info(GENERAL_ERROR);
 					return;
 					
 				}
@@ -56,18 +70,50 @@ public class RemoveMobsCommand extends SpawnerCommand {
 					s = CustomSpawners.getSpawner(arg3[1]);
 
 					if(s == null) {
-						log.info("Object with that name or ID does not exist.");
+						log.info(NO_ID);
 						return;
 					}
 					
 				} else {
 					
-					plugin.log.info("An error has occured with this command. Did you type everything right?");
+					plugin.log.info(GENERAL_ERROR);
 					return;
 					
 				}
 				
 				plugin.log.info("Removing mobs spawned by spawner with ID " + plugin.getFriendlyName(s) + "...");
+				plugin.removeMobs(s);
+				return;
+				
+			} else if(arg3[0].equalsIgnoreCase("destroythemwithlasers") || arg3[0].equalsIgnoreCase("knifeparty")) {
+				
+				if(CustomSpawners.consoleSpawner != -1 && arg3.length == 1) {
+					
+					s = CustomSpawners.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
+					
+				} else if(arg3.length == 1) {
+					
+					plugin.sendMessage(arg0, NEEDS_SELECTION);
+					return;
+					
+				} else if(arg3.length == 2){
+
+					s = CustomSpawners.getSpawner(arg3[1]);
+
+					if(s == null) {
+						log.info(NO_ID);
+						return;
+					}
+					
+				} else {
+					
+					plugin.log.info(GENERAL_ERROR);
+					return;
+					
+				}
+				
+				plugin.sendMessage(arg0, "Removing mobs spawned by spawner with ID " + plugin.getFriendlyName(s) + "...");
+				plugin.sendMessage(arg0, ChatColor.DARK_RED + "KNIFE PARTY!");
 				plugin.removeMobs(s);
 				return;
 				
@@ -93,6 +139,26 @@ public class RemoveMobsCommand extends SpawnerCommand {
 					p.sendMessage(NO_PERMISSION);
 					return;
 				}
+			}  else if(arg3[0].equalsIgnoreCase("invadersmustdie")) {
+				
+				if(p.hasPermission("customspawners.spawners.removeallmobs")) {
+					
+					if(arg3.length == 1) {
+						
+						plugin.sendMessage(p, ChatColor.GREEN + "Removing all spawned mobs...");
+						plugin.sendMessage(p, ChatColor.DARK_RED + "INVADERS MUST DIE!");
+						removeAllMobs();
+						return;
+						
+					} else {
+						
+						log.info(GENERAL_ERROR);
+						return;
+						
+					}
+					
+				}
+				
 			} else if(arg3[0].equalsIgnoreCase("removemobs")) {
 				if(p.hasPermission("customspawners.spawners.removemobs")) {
 					if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
@@ -132,6 +198,40 @@ public class RemoveMobsCommand extends SpawnerCommand {
 						return;
 						
 					}
+				} else {
+					p.sendMessage(NO_PERMISSION);
+					return;
+				}
+			} else if(arg3[0].equalsIgnoreCase("destroythemwithlasers") || arg3[0].equalsIgnoreCase("knifeparty")) {
+				if(p.hasPermission("customspawners.spawners.removemobs")) {
+					if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
+						
+						s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
+						
+					} else if(arg3.length == 1) {
+						
+						p.sendMessage(NEEDS_SELECTION);
+						
+					} else if(arg3.length == 2){
+
+						s = CustomSpawners.getSpawner(arg3[1]);
+
+						if(s == null) {
+							p.sendMessage(NO_ID);
+							return;
+						}
+						
+					} else {
+						
+						p.sendMessage(GENERAL_ERROR);
+						
+					}
+					
+					plugin.sendMessage(arg0, ChatColor.GREEN + "Removing mobs spawned by spawner with ID " + ChatColor.GOLD +
+							plugin.getFriendlyName(s) + ChatColor.GREEN + "...");
+					plugin.sendMessage(arg0, ChatColor.DARK_RED + "KNIFE PARTY!");
+					plugin.removeMobs(s);
+					
 				} else {
 					p.sendMessage(NO_PERMISSION);
 					return;

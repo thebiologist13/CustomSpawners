@@ -53,12 +53,6 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			} else if(arg3.length == 2) {
 				
 				e = CustomSpawners.getEntity(arg3[1]);
-				
-				//Check if the ID entered is the ID of a entity
-				if(e == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
 			
 			//General error message
 			} else {
@@ -66,6 +60,12 @@ public class EntityRemoveCommand extends SpawnerCommand {
 				plugin.log.info(GENERAL_ERROR);
 				return;
 				
+			}
+			
+			//Check if the ID entered is the ID of a entity
+			if(e == null) {
+				p.sendMessage(NO_ID);
+				return;
 			}
 			
 			//Remove the entity

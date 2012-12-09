@@ -11,10 +11,10 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
-import com.github.thebiologist13.NBTManager;
-import com.github.thebiologist13.NotTileEntityException;
 import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.nbt.NBTManager;
+import com.github.thebiologist13.nbt.NotTileEntityException;
 
 public class ConvertCommand extends SpawnerCommand {
 

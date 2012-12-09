@@ -72,6 +72,54 @@ public class SpawnableEntity implements Serializable {
 	public void addPotionEffect(SPotionEffect effect) {
 		effects.add(effect);
 	}
+	
+	public void addInventoryItem(ItemStack stack) {
+		((SInventory) this.data.get("inv")).addItem(stack);
+	}
+	
+	public float getHeight() {
+		return (this.data.containsKey("height")) ? (Float) this.data.get("height") : -1f;
+	}
+	
+	public float getWidth() {
+		return (this.data.containsKey("width")) ? (Float) this.data.get("width") : -1f;
+	}
+	
+	public float getLength() {
+		return (this.data.containsKey("length")) ? (Float) this.data.get("length") : -1f;
+	}
+	
+	public void setHeight(float height) {
+		this.data.put("height", height);
+	}
+	
+	public void setWidth(float width) {
+		this.data.put("width", width);
+	}
+	
+	public void setLength(float length) {
+		this.data.put("length", length);
+	}
+	
+	public void setDimensions(float height, float width, float length) {
+		setHeight(height);
+		setWidth(width);
+		setLength(length);
+	}
+	
+	public boolean requiresBlockBelow() {
+		return (this.data.containsKey("blockBelow")) ? (Boolean) this.data.get("blockBelow") : true;
+	}
+	
+	public void setBlockBelow(boolean value) {
+		this.data.put("blockBelow", value);
+	}
+	
+	public boolean hasAllDimensions() {
+		return (this.data.containsKey("height") || 
+				this.data.containsKey("width") || 
+				this.data.containsKey("length")) ? false : true;
+	}
 
 	public int getAge() {
 		return (this.data.containsKey("age")) ? (Integer) this.data.get("age") : 0;
@@ -475,8 +523,8 @@ public class SpawnableEntity implements Serializable {
 		this.data.put("useInventory", usingInventory);
 	}
 
-	public void setVelocity(Vector velocity) {
-		this.data.put("velocity", new SVector(velocity));
+	public void setVelocity(SVector velocity) {
+		this.data.put("velocity", velocity);
 		setXVelocity(velocity.getX());
 		setYVelocity(velocity.getY());
 		setZVelocity(velocity.getZ());

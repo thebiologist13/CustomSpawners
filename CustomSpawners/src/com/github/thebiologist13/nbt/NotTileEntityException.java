@@ -1,4 +1,4 @@
-package com.github.thebiologist13;
+package com.github.thebiologist13.nbt;
 
 /**
  * This is an exception for when a block is not a tile entity.

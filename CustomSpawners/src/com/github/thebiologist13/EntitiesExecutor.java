@@ -1,445 +1,232 @@
 package com.github.thebiologist13;
 
-import java.util.logging.Logger;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.commands.SpawnerCommand;
 import com.github.thebiologist13.commands.entities.*;
 
 public class EntitiesExecutor implements CommandExecutor {
-
-	private CustomSpawners plugin = null;
+	
+	private ConcurrentHashMap<String, SpawnerCommand> commands = new ConcurrentHashMap<String, SpawnerCommand>();
 	
 	private FileConfiguration config = null;
 	
-	private Logger log = null;
-	
-	private EntityAddEffectCommand aec = null;
-	private EntityAgeCommand agc = null;
-	private EntityAirCommand aic = null;
-	private EntityAngryCommand anc = null;
-	private EntityCatTypeCommand ctc = null;
-	private EntityChargedCommand chc = null;
-	private EntityClearEffectsCommand cec = null;
-	private EntityColorCommand coc = null;
-	private EntityCreateCommand crc = null;
-	private EntityEnderBlockCommand ebc = null;
-	private EntityHealthCommand hec = null;
-	private EntityInfoCommand ifc = null;
-	private EntityJockeyCommand joc = null;
-	private EntityNameCommand nac = null;
-	private EntityProfessionCommand prc = null;
-	private EntityRemoveCommand rec = null;
-	private EntitySaddledCommand sac = null;
-	private EntitySelectCommand slc = null;
-	private EntitySetEffectCommand sec = null;
-	private EntitySetTypeCommand stc = null;
-	private EntitySittingCommand sic = null;
-	private EntitySlimeSizeCommand ssc = null;
-	private EntityTamedCommand tac = null;
-	private EntityVelocityCommand vec = null;
-	private EntityListAllCommand lac = null;
-	private EntityPassiveCommand pac = null;
-	private EntityFireTicksCommand ftc = null;
-	private EntityBlackListCommand blc = null;
-	private EntityWhiteListCommand wlc = null;
-	private EntityItemListCommand ilc = null;
-	
-	private EntityDamageCommand dac = null;
-	private EntityDropsCommand drc = null;
-	private EntityFuseCommand fuc = null;
-	private EntityIncendiaryCommand inc = null;
-	private EntityYieldCommand yic = null;
-	private EntityExpCommand edc = null;
-	private EntityItemTypeCommand itc = null;
-	private EntityPotionTypeCommand ptc = null;
-	private EntityInvulnerableCommand eic = null;
+	private CustomSpawners plugin = null;
 	
 	public EntitiesExecutor(CustomSpawners plugin) {
 		this.plugin = plugin;
-		this.log = plugin.log;
 		this.config = plugin.getCustomConfig();
 		
-		aec = new EntityAddEffectCommand(plugin);
-		agc = new EntityAgeCommand(plugin);
-		aic = new EntityAirCommand(plugin);
-		anc = new EntityAngryCommand(plugin);
-		ctc = new EntityCatTypeCommand(plugin);
-		chc = new EntityChargedCommand(plugin);
-		cec = new EntityClearEffectsCommand(plugin);
-		coc = new EntityColorCommand(plugin);
-		crc = new EntityCreateCommand(plugin);
-		ebc = new EntityEnderBlockCommand(plugin);
-		hec = new EntityHealthCommand(plugin);
-		ifc = new EntityInfoCommand(plugin);
-		joc = new EntityJockeyCommand(plugin);
-		nac = new EntityNameCommand(plugin);
-		prc = new EntityProfessionCommand(plugin);
-		rec = new EntityRemoveCommand(plugin);
-		sac = new EntitySaddledCommand(plugin);
-		slc = new EntitySelectCommand(plugin);
-		sec = new EntitySetEffectCommand(plugin);
-		stc = new EntitySetTypeCommand(plugin);
-		sic = new EntitySittingCommand(plugin);
-		ssc = new EntitySlimeSizeCommand(plugin);
-		tac = new EntityTamedCommand(plugin);
-		vec = new EntityVelocityCommand(plugin);
-		lac = new EntityListAllCommand(plugin);
-		pac = new EntityPassiveCommand(plugin);
-		ftc = new EntityFireTicksCommand(plugin);
-		blc = new EntityBlackListCommand(plugin);
-		wlc = new EntityWhiteListCommand(plugin);
-		ilc = new EntityItemListCommand(plugin);
+		SpawnerCommand aec = new EntityAddEffectCommand(plugin);
+		SpawnerCommand agc = new EntityAgeCommand(plugin);
+		SpawnerCommand aic = new EntityAirCommand(plugin);
+		SpawnerCommand anc = new EntityAngryCommand(plugin);
+		SpawnerCommand ctc = new EntityCatTypeCommand(plugin);
+		SpawnerCommand chc = new EntityChargedCommand(plugin);
+		SpawnerCommand cec = new EntityClearEffectsCommand(plugin);
+		SpawnerCommand coc = new EntityColorCommand(plugin);
+		SpawnerCommand crc = new EntityCreateCommand(plugin);
+		SpawnerCommand ebc = new EntityEnderBlockCommand(plugin);
+		SpawnerCommand hec = new EntityHealthCommand(plugin);
+		SpawnerCommand ifc = new EntityInfoCommand(plugin);
+		SpawnerCommand joc = new EntityJockeyCommand(plugin);
+		SpawnerCommand nac = new EntityNameCommand(plugin);
+		SpawnerCommand prc = new EntityProfessionCommand(plugin);
+		SpawnerCommand rec = new EntityRemoveCommand(plugin);
+		SpawnerCommand sac = new EntitySaddledCommand(plugin);
+		SpawnerCommand slc = new EntitySelectCommand(plugin);
+		SpawnerCommand sec = new EntitySetEffectCommand(plugin);
+		SpawnerCommand stc = new EntitySetTypeCommand(plugin);
+		SpawnerCommand sic = new EntitySittingCommand(plugin);
+		SpawnerCommand ssc = new EntitySlimeSizeCommand(plugin);
+		SpawnerCommand tac = new EntityTamedCommand(plugin);
+		SpawnerCommand vec = new EntityVelocityCommand(plugin);
+		SpawnerCommand lac = new EntityListAllCommand(plugin);
+		SpawnerCommand pac = new EntityPassiveCommand(plugin);
+		SpawnerCommand ftc = new EntityFireTicksCommand(plugin);
+		SpawnerCommand blc = new EntityBlackListCommand(plugin);
+		SpawnerCommand wlc = new EntityWhiteListCommand(plugin);
+		SpawnerCommand ilc = new EntityItemListCommand(plugin);
+		SpawnerCommand dac = new EntityDamageCommand(plugin);
+		SpawnerCommand drc = new EntityDropsCommand(plugin);
+		SpawnerCommand edc = new EntityExpCommand(plugin);
+		SpawnerCommand fuc = new EntityFuseCommand(plugin);
+		SpawnerCommand inc = new EntityIncendiaryCommand(plugin);
+		SpawnerCommand yic = new EntityYieldCommand(plugin);
+		SpawnerCommand itc = new EntityItemTypeCommand(plugin);
+		SpawnerCommand ptc = new EntityPotionTypeCommand(plugin);
+		SpawnerCommand eic = new EntityInvulnerableCommand(plugin);
+		SpawnerCommand einc = new EntityInventoryCommand(plugin);
 		
-		dac = new EntityDamageCommand(plugin);
-		drc = new EntityDropsCommand(plugin);
-		edc = new EntityExpCommand(plugin);
-		fuc = new EntityFuseCommand(plugin);
-		inc = new EntityIncendiaryCommand(plugin);
-		yic = new EntityYieldCommand(plugin);
-		itc = new EntityItemTypeCommand(plugin);
-		ptc = new EntityPotionTypeCommand(plugin);
-		eic = new EntityInvulnerableCommand(plugin);
+		this.commands.put("create", crc);
+		this.commands.put("select", slc);
+		this.commands.put("remove", rec);
+		this.commands.put("info", ifc);
+		this.commands.put("sel", slc);
+		this.commands.put("rem", rec);
+		this.commands.put("cleareffects", cec);
+		this.commands.put("noeffects", cec);
+		this.commands.put("list", lac);
+		this.commands.put("listall", lac);
+		this.commands.put("show", lac);
+		this.commands.put("clearitems", ilc);
+		this.commands.put("noitems", ilc);
+		this.commands.put("clearblacklist", blc);
+		this.commands.put("noblacklist", blc);
+		this.commands.put("blc", blc);
+		this.commands.put("clearwhitelist", wlc);
+		this.commands.put("nowhitelist", wlc);
+		this.commands.put("wlc", wlc);
+		this.commands.put("cleardrops", drc);
+		this.commands.put("nodrops", drc);
+		this.commands.put("drc", drc);
+		this.commands.put("setair", aic);
+		this.commands.put("air", aic);
+		this.commands.put("setage", agc);
+		this.commands.put("age", agc);
+		this.commands.put("setangry", anc);
+		this.commands.put("angry", anc);
+		this.commands.put("setcattype", ctc);
+		this.commands.put("cattype", ctc);
+		this.commands.put("cat", ctc);
+		this.commands.put("setcharged", chc);
+		this.commands.put("setcolor", coc);
+		this.commands.put("color", coc);
+		this.commands.put("setenderblock", ebc);
+		this.commands.put("enderblock", ebc);
+		this.commands.put("eb", ebc);
+		this.commands.put("setendermanblock", ebc);
+		this.commands.put("sethealth", hec);
+		this.commands.put("health", hec);
+		this.commands.put("hp", hec);
+		this.commands.put("setjockey", joc);
+		this.commands.put("jockey", joc);
+		this.commands.put("jock", joc);
+		this.commands.put("setname", nac);
+		this.commands.put("name", nac);
+		this.commands.put("setprofession", prc);
+		this.commands.put("profession", prc);
+		this.commands.put("villager", prc);
+		this.commands.put("setsaddled", sac);
+		this.commands.put("saddle", sac);
+		this.commands.put("settype", stc);
+		this.commands.put("type", stc);
+		this.commands.put("mob", stc);
+		this.commands.put("setsitting", sic);
+		this.commands.put("sitting", sic);
+		this.commands.put("sit", sic);
+		this.commands.put("setslimesize", ssc);
+		this.commands.put("setsize", ssc);
+		this.commands.put("size", ssc);
+		this.commands.put("settamed", tac);
+		this.commands.put("tamed", tac);
+		this.commands.put("setvelocity", vec);
+		this.commands.put("setvector", vec);
+		this.commands.put("velocity", vec);
+		this.commands.put("vector", vec);
+		this.commands.put("launch", vec);
+		this.commands.put("setpassive", pac);
+		this.commands.put("passive", pac);
+		this.commands.put("setfireticks", ftc);
+		this.commands.put("fireticks", ftc);
+		this.commands.put("fire", ftc);
+		this.commands.put("addblacklistitem", blc);
+		this.commands.put("setblacklist", blc);
+		this.commands.put("addwhitelistitem", wlc);
+		this.commands.put("setwhitelist", wlc);
+		this.commands.put("additem", ilc);
+		this.commands.put("setcustomdamage", dac);
+		this.commands.put("setdamageamount", dac);
+		this.commands.put("setusingdrops", drc);
+		this.commands.put("usedrops", drc);
+		this.commands.put("drops", drc);
+		this.commands.put("setexp", edc);
+		this.commands.put("setxp", edc);
+		this.commands.put("exp", edc);
+		this.commands.put("xp", edc);
+		this.commands.put("setfuselength", fuc);
+		this.commands.put("setfuseticks", fuc);
+		this.commands.put("fuselength", fuc);
+		this.commands.put("fuseticks", fuc);
+		this.commands.put("fuse", fuc);
+		this.commands.put("setincendiary", inc);
+		this.commands.put("incendiary", inc);
+		this.commands.put("napalm", inc);
+		this.commands.put("setitemtype", itc);
+		this.commands.put("itemtype", itc);
+		this.commands.put("setyield", yic);
+		this.commands.put("yield", yic);
+		this.commands.put("boomsize", yic);
+		this.commands.put("setinvulnerable", eic);
+		this.commands.put("invulnerable", eic);
+		this.commands.put("invincible", eic);
+		this.commands.put("dontdie", eic);
+		this.commands.put("adddrop", drc);
+		this.commands.put("addd", drc);
+		this.commands.put("setdrops", drc);
+		this.commands.put("setdrop", drc);
+		this.commands.put("setd", drc);
+		this.commands.put("addeffect", aec);
+		this.commands.put("adde", aec);
+		this.commands.put("seteffect", sec);
+		this.commands.put("sete", sec);
+		this.commands.put("setpotiontype", ptc);
+		this.commands.put("potiontype", ptc);
+		this.commands.put("clearinventory", einc);
+		this.commands.put("clearinv", einc);
+		einc.addAlias("clearinv", "clearinventory");
+		this.commands.put("noinv", einc);
+		einc.addAlias("noinv", "clearinventory");
+		this.commands.put("addinventoryitem", einc);
+		this.commands.put("addinventory", einc);
+		einc.addAlias("addinventory", "addinventoryitem");
+		this.commands.put("addinv", einc);
+		einc.addAlias("addinv", "addinventoryitem");
+		this.commands.put("setinventory", einc);
+		this.commands.put("setinv", einc);
+		einc.addAlias("setinv", "setinventory");
+		this.commands.put("sethand", einc);
+		this.commands.put("sethelmet", einc);
+		this.commands.put("sethelm", einc);
+		einc.addAlias("sethelm", "sethelmet");
+		this.commands.put("sethat", einc);
+		einc.addAlias("sethat", "sethelmet");
+		this.commands.put("setchest", einc);
+		this.commands.put("setshirt", einc);
+		einc.addAlias("setshirt", "setchest");
+		this.commands.put("setleggings", einc);
+		this.commands.put("setpants", einc);
+		einc.addAlias("setpants", "setleggings");
+		this.commands.put("setboots", einc);
+		this.commands.put("setshoes", einc);
+		einc.addAlias("setshoes", "setboots");
 	}
 
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
-		Player p = null;
-		
-		if(arg0 instanceof Player) {
-			p = (Player) arg0;
-		}
-		
 		if(arg1.getName().equalsIgnoreCase("entities")) {
 			try {
 				
-				if(arg3.length == 1) {
-					
-					if(arg3[0].equalsIgnoreCase("remove")) {
-						rec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("info")) {
-						ifc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("cleareffects")) {
-						cec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("listall")) {
-						lac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("clearitems")) {
-						ilc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("clearblacklist")) {
-						blc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("clearwhitelist")) {
-						wlc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("cleardrops")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					}
-					
-				} else if(arg3.length == 2) {
-					
-					if(arg3[0].equalsIgnoreCase("setage")) {
-						agc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setair")) {
-						aic.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setangry")) {
-						anc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcattype")) {
-						ctc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcharged")) {
-						chc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("cleareffects")) {
-						cec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcolor")) {
-						coc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("create")) {
-						crc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setenderblock") || arg3[0].equalsIgnoreCase("setendermanblock")) {
-						ebc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("sethealth")) {
-						hec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("info")) {
-						ifc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setjockey")) {
-						joc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setname")) {
-						nac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setprofession")) {
-						prc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("remove")) {
-						rec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setsaddled")) {
-						sac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("select")) {
-						slc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("settype")) {
-						stc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setsitting")) {
-						sic.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setslimesize") || arg3[0].equalsIgnoreCase("setsize")) {
-						ssc.run(arg0, arg1, arg2, arg3);
-						return true;
-					}  else if(arg3[0].equalsIgnoreCase("settamed")) {
-						tac.run(arg0, arg1, arg2, arg3);
-						return true;
-					}  else if(arg3[0].equalsIgnoreCase("setvelocity") || arg3[0].equalsIgnoreCase("setvector")) {
-						vec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setpassive")) {
-						pac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setfireticks")) {
-						ftc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("addblacklistitem")) {
-						blc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("clearblacklist")) {
-						blc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setblacklist")) {
-						blc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("addwhitelistitem")) {
-						wlc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("clearwhitelist")) {
-						wlc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setwhitelist")) {
-						wlc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("additem")) {
-						ilc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("clearitems")) {
-						ilc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcustomdamage")) {
-						dac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setdamageamount")) {
-						dac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("cleardrops")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setusingdrops")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setexp")) {
-						edc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setfuselength") || arg3[0].equalsIgnoreCase("setfuseticks")) {
-						fuc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setincendiary")) {
-						inc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setitemtype")) {
-						itc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setyield")) {
-						yic.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setinvulnerable") || arg3[0].equalsIgnoreCase("setinvincible")) {
-						eic.run(arg0, arg1, arg2, arg3);
-						return true;
-					}
-					
-				} else if(arg3.length == 3) {
-					
-					if(arg3[0].equalsIgnoreCase("setage")) {
-						agc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setair")) {
-						aic.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setangry")) {
-						anc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcattype")) {
-						ctc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcharged")) {
-						chc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcolor")) {
-						coc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setenderblock") || arg3[0].equalsIgnoreCase("setendermanblock")) {
-						ebc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("sethealth")) {
-						hec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("info")) {
-						ifc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setjockey")) {
-						joc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setname")) {
-						nac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setprofession")) {
-						prc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setsaddled")) {
-						sac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("settype")) {
-						stc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setsitting")) {
-						sic.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setslimesize") || arg3[0].equalsIgnoreCase("setsize")) {
-						ssc.run(arg0, arg1, arg2, arg3);
-						return true;
-					}  else if(arg3[0].equalsIgnoreCase("settamed")) {
-						tac.run(arg0, arg1, arg2, arg3);
-						return true;
-					}  else if(arg3[0].equalsIgnoreCase("setvelocity") || arg3[0].equalsIgnoreCase("setvector")) {
-						vec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setpassive")) {
-						pac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setfireticks")) {
-						ftc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("addblacklistitem")) {
-						blc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setblacklist")) {
-						blc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("addwhitelistitem")) {
-						wlc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setwhitelist")) {
-						wlc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("additem")) {
-						ilc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setcustomdamage")) {
-						dac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setdamageamount")) {
-						dac.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("adddrop")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setdrops")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setusingdrops")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setexp")) {
-						edc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setfuselength")) {
-						fuc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setincendiary")) {
-						inc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setitemtype")) {
-						itc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setyield")) {
-						yic.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setinvulnerable") || arg3[0].equalsIgnoreCase("setinvincible")) {
-						eic.run(arg0, arg1, arg2, arg3);
-						return true;
-					}
-					
-				} else if(arg3.length == 4) {
-					
-					if(arg3[0].equalsIgnoreCase("addeffect")) {
-						aec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("seteffect")) {
-						sec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setpotiontype")) {
-						ptc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("adddrop")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setdrops")) {
-						drc.run(arg0, arg1, arg2, arg3);
-						return true;
-					}
-					
-				} else if(arg3.length == 5) {
-					
-					if(arg3[0].equalsIgnoreCase("addeffect")) {
-						aec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("seteffect")) {
-						sec.run(arg0, arg1, arg2, arg3);
-						return true;
-					} else if(arg3[0].equalsIgnoreCase("setpotiontype")) {
-						ptc.run(arg0, arg1, arg2, arg3);
-						return true;
-					}
-					
+				SpawnerCommand runThis = commands.get(arg3[0].toLowerCase());
+				
+				if(runThis == null) {
+					plugin.sendMessage(arg0, ChatColor.RED + "\"" + arg3[0].toLowerCase() + "\" is not a valid command for CustomSpawners.");
 				} else {
-					if(arg0 instanceof Player) {
-						p = (Player) arg0;
-						p.sendMessage(SpawnerCommand.GENERAL_ERROR);
-					} else {
-						log.info("An error has occured with this command. Did you type everything right?");
-					}
-					return true;
+					runThis.run(arg0, arg1, arg2, arg3);
 				}
 				
-				return false;
 			} catch(Exception e) {
-				if(arg0 instanceof Player) {
-					p = (Player) arg0;
-					p.sendMessage(SpawnerCommand.GENERAL_ERROR);
-					e.printStackTrace();
-				} else {
-					log.info("An error has occured with this command. Did you type everything right?");
-				}
+				
+				plugin.sendDebugStack(arg0, e.getStackTrace());
+				plugin.sendMessage(arg0, SpawnerCommand.GENERAL_ERROR);
+				
 			}
 			
 			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCommand")) {
@@ -448,7 +235,9 @@ public class EntitiesExecutor implements CommandExecutor {
 			
 			return true;
 		}
+		
 		return false;
+		
 	}
 
 }

@@ -25,6 +25,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.Vector;
 
+import com.github.thebiologist13.serialization.SVector;
+
 public class FileManager {
 	
 	private CustomSpawners plugin = null;
@@ -620,7 +622,7 @@ public class FileManager {
 
 			SpawnableEntity e = new SpawnableEntity(type, id);
 			e.setName(name);
-			e.setVelocity(velocity);
+			e.setVelocity(new SVector(velocity));
 			e.setAge(age);
 			e.setHealth(health);
 			e.setAir(air);

@@ -50,7 +50,7 @@ public class CreateCommand extends SpawnerCommand {
 			type = CustomSpawners.getEntity(arg3[1]);
 			
 			if(type == null) {
-				p.sendMessage(ENTITY_NONEXISTANT);
+				p.sendMessage(NO_ID);
 				return;
 			}
 			

@@ -1,4 +1,4 @@
-package com.github.thebiologist13;
+package com.github.thebiologist13.nbt;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,6 +18,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
+import com.github.thebiologist13.SpawnableEntity;
+import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SPotionEffect;
 

@@ -487,16 +487,16 @@ public class CustomSpawners extends JavaPlugin {
 	//Remove a spawner
 	public void removeSpawner(Spawner s) {
 		if(spawners.containsValue(s)) {
-			spawners.remove(s.getId());
 			resetSpawnerSelections(s.getId());
+			spawners.remove(s.getId());
 		}
 	}
 	
 	//Remove an entity
 	public void removeEntity(SpawnableEntity e) {
 		if(entities.containsValue(e)) {
-			entities.remove(e.getId());
 			resetEntitySelections(e.getId());
+			entities.remove(e.getId());
 		}
 	}
 	
@@ -1085,6 +1085,18 @@ public class CustomSpawners extends JavaPlugin {
 			return null;
 		
 		return (WorldGuardPlugin) wg;
+	}
+	
+	//Sends a stack trace if debug is on.
+	public void sendDebugStack(CommandSender sender, StackTraceElement[] trace) {
+		
+		if(debug) {
+			for(StackTraceElement e : trace) {
+				String s = e.toString();
+				sendMessage(sender, s);
+			}
+		}
+		
 	}
 	
 }
