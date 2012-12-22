@@ -76,8 +76,8 @@ public class EntityHealthCommand extends SpawnerCommand {
 				} else if(arg3[1].equalsIgnoreCase("MINIMUM")) {
 					s.setHealth(-2);
 				} else {
-					if(CustomSpawners.isInteger(arg3[1])) {
-						s.setHealth(Integer.parseInt(arg3[1]));
+					if(CustomSpawners.isInteger(arg3[2])) {
+						s.setHealth(Integer.parseInt(arg3[2]));
 					} else {
 						p.sendMessage(ChatColor.RED + "Health value must be an integer, \"MAXIMUM\", or \"MINIMUM\".");
 						return;

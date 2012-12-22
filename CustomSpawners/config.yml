@@ -187,43 +187,14 @@ mobs:
 
     # Which mob types for entities should be 
     # unavailable on the server?
-    # Set false to disable.
-    pig: true
-    cow: true
-    mushroomcow: true
-    sheep: true
-    chicken: true
-    wolf: true
-    ocelot: true
-    squid: true
-    villager: true
-    spiderjockey: true
-    zombie: true
-    skeleton: true
-    creeper: true
-    spider: true
-    enderman: true
-    enderdragon: false
-    giant: false
-    silverfish: true
-    cavespider: true
-    slime: true
-    magmacube: true
-    pigzombie: true
-    ghast: false
-    blaze: false
-    irongolem: true
-    snowman: true
-    egg: true
-    snowball: true
-    arrow: true
-    fallingblock: true
-    tnt: true
-    fireball: true
-    potion: true
-    item: true
-    enderpearl: false
-    endercrystal: false
+    # Add to the list to disable.
+    blacklist:
+        - giant
+        - ender_dragon
+        - ender_crystal
+        - wither
+        - ghast
+        - blaze
     
 players:
     # Maximum distance a player can be from a block

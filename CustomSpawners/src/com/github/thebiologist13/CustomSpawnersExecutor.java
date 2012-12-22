@@ -47,7 +47,7 @@ public class CustomSpawnersExecutor implements CommandExecutor {
 
 			} catch(Exception e) {
 				
-				plugin.sendDebugStack(arg0, e.getStackTrace());
+				e.printStackTrace();
 				plugin.sendMessage(arg0, SpawnerCommand.GENERAL_ERROR);
 				
 			}

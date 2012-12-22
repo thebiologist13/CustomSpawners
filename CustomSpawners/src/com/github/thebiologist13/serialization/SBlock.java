@@ -60,7 +60,9 @@ public class SBlock implements Serializable {
 	}
 	
 	public Block toBlock() {
-		return Bukkit.getWorld(location.getWorldUUID()).getBlockAt(location.toLocation());
+		Block b = Bukkit.getWorld(location.getWorldUUID()).getBlockAt(location.toLocation());
+		b.setTypeIdAndData(id, data, false);
+		return b;
 	}
 	
 }

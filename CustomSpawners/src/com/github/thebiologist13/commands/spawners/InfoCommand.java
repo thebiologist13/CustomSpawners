@@ -125,8 +125,8 @@ public class InfoCommand extends SpawnerCommand {
 	private String[] getInfo(Spawner s) {
 		String typesMessage = "";
 		ArrayList<SpawnableEntity> types = new ArrayList<SpawnableEntity>();
-		for(SpawnableEntity e : s.getTypeData().values()) {
-			types.add(e);
+		for(Integer e : s.getTypeData()) {
+			types.add(CustomSpawners.getEntity(e.toString()));
 		}
 		
 		for(int i = 0; i < types.size(); i++) {

@@ -1,6 +1,8 @@
 package com.github.thebiologist13.commands.spawners;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
@@ -83,8 +85,8 @@ public class SetTypeCommand extends SpawnerCommand {
 				
 			}
 			
-			Map<Integer, SpawnableEntity> typeAsMap = new HashMap<Integer, SpawnableEntity>();
-			typeAsMap.put(type.getId(), type);
+			List<Integer> typeAsMap = new ArrayList<Integer>();
+			typeAsMap.add(type.getId());
 			
 			//Set the new type
 			s.setTypeData(typeAsMap);

@@ -1,6 +1,7 @@
 package com.github.thebiologist13.commands.entities;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.serialization.SItemStack;
 import com.github.thebiologist13.serialization.SPotionEffect;
 
 public class EntityInfoCommand extends SpawnerCommand {
@@ -179,11 +181,25 @@ public class EntityInfoCommand extends SpawnerCommand {
 		ArrayList<ItemStack> drops = s.getDrops();
 		for(int i = 0; i < drops.size(); i++) {
 			ItemStack item = drops.get(i);
+			String append = plugin.getItemName(item) + " #" + item.getAmount(); 
 			if(i == 0) {
-				dropMsg += item.getTypeId() + ":" + item.getDurability();
+				dropMsg += append;
 			} else {
-				dropMsg += ", " + item.getTypeId() + ":" + item.getDurability();
+				dropMsg += ", " + append;
 			}
+		}
+		
+		String invMsg = "";
+		invMsg += "[HEAD] -> " + plugin.getItemName(s.getInventory().getArmor()[3]) + " ";
+		invMsg += "[CHEST] -> " + plugin.getItemName(s.getInventory().getArmor()[2]) + " ";
+		invMsg += "[LEGS] -> " + plugin.getItemName(s.getInventory().getArmor()[1]) + " ";
+		invMsg += "[BOOTS] -> " + plugin.getItemName(s.getInventory().getArmor()[0]) + " ";
+		invMsg += "[HAND] -> " + plugin.getItemName(s.getInventory().getHand()) + " ";
+		
+		Map<Integer, SItemStack> content = s.getInventory().getContent();
+		for(Integer i : content.keySet()) {
+			SItemStack stack = content.get(i);
+			invMsg += "[" + i + "] ->" + plugin.getItemName(stack.toItemStack()) + " #" + stack.getCount() + " "; 
 		}
 		
 		SPotionEffect epe = s.getPotionEffect();
@@ -232,6 +248,8 @@ public class EntityInfoCommand extends SpawnerCommand {
 				ChatColor.GOLD + "Item Type: " + plugin.getItemName(s.getItemType()),
 				ChatColor.GOLD + "Using Custom Drops: " + s.isUsingCustomDrops(),
 				ChatColor.GOLD + "Drops: " + dropMsg,
+				ChatColor.GOLD + "Inventory: " + invMsg,
+				ChatColor.GOLD + "Invincible: " + s.isInvulnerable(),
 				ChatColor.GREEN + "Scroll Up for More Properties."
 		};
 		

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -107,8 +106,6 @@ public class FileManager {
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			boolean killOnReload = config.getBoolean("spawners.killOnReload", false);
-			Map<Integer, SpawnableEntity> allMobs = s.getMobs();
-			allMobs.putAll(s.getPassiveMobs());
 			
 			String path = SPAWNER_PATH + ch + String.valueOf(s.getId()) + ".dat";
 			
@@ -116,7 +113,7 @@ public class FileManager {
 				log.info("Saving spawner " + String.valueOf(s.getId()) + " to " + path);
 			
 			if(killOnReload) {
-				for(Integer e : allMobs.keySet()) {
+				for(Integer e : s.getMobs().keySet()) {
 					List<Entity> entities = plugin.getServer().getWorld(s.getLoc().getWorld().getName()).getEntities();
 					for(Entity le : entities) {
 						if(le.getEntityId() == e) {
@@ -125,7 +122,6 @@ public class FileManager {
 					}
 				}
 				s.getMobs().clear();
-				s.getPassiveMobs().clear();
 			}
 			
 			File saveFile = new File(path);
@@ -351,7 +347,6 @@ public class FileManager {
 			int mobsPerSpawn = yaml.getInt("mobsPerSpawn", config.getInt("spawners.mobsPerSpawn", 2)); 
 			int maxMobs = yaml.getInt("maxMobs", config.getInt("spawners.maxMobs", 64)); 
 			List<?> mobs = yaml.getList("mobs"); 
-			List<?> passiveMobs = yaml.getList("passiveMobs");
 			int rate = yaml.getInt("rate", config.getInt("spawners.rate", 120));
 			boolean usingSpawnArea = yaml.getBoolean("useSpawnArea", false);
 			String locWorld = yaml.getString("location.world");
@@ -387,9 +382,7 @@ public class FileManager {
 
 			//Convert Raw yaml list of mobs to ArrayList<Integer>
 			Iterator<?> mobItr = mobs.iterator();
-			Iterator<?> passiveMobItr = passiveMobs.iterator();
 			HashMap<Integer, SpawnableEntity> mobsMap = new HashMap<Integer, SpawnableEntity>();
-			HashMap<Integer, SpawnableEntity> passiveMobsMap = new HashMap<Integer, SpawnableEntity>();
 
 			while(mobItr.hasNext()) {
 				Object o = mobItr.next();
@@ -402,28 +395,6 @@ public class FileManager {
 					SpawnableEntity e = CustomSpawners.getEntity(String.valueOf(value));
 
 					mobsMap.put(key, e);
-				}
-			}
-
-			while(passiveMobItr.hasNext()) {
-				Object o = passiveMobItr.next();
-
-				if(o instanceof String) {
-					String pair = (String) o;
-					int key = Integer.parseInt(pair.substring(0, pair.indexOf("_")));
-					int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
-
-					SpawnableEntity e = CustomSpawners.getEntity(String.valueOf(value));
-
-					passiveMobsMap.put(key, e);
-				}
-			}
-
-			//Convert Raw yaml list of passive mobs to ArrayList<Integer>
-			ArrayList<Integer> passiveMobIDs = new ArrayList<Integer>();
-			for(Object o : passiveMobs) {
-				if(o instanceof Integer) {
-					passiveMobIDs.add((Integer) o);
 				}
 			}
 
@@ -444,18 +415,17 @@ public class FileManager {
 
 			//Mob types
 			List<?> listType = yaml.getList("spawnableEntities");
-			Map<Integer, SpawnableEntity> entities = new HashMap<Integer, SpawnableEntity>();
+			List<Integer> entities = new ArrayList<Integer>();
 			for(Object o : listType) {
 				if(o instanceof Integer) {
 					int entityID = (Integer) o;
-					SpawnableEntity se = CustomSpawners.getEntity(String.valueOf(entityID));
-					entities.put(entityID, se);
+					entities.add(entityID);
 				}
 			}
 
 			SpawnableEntity baseEntity = null;
-			for(SpawnableEntity e : entities.values()) {
-				baseEntity = e;
+			for(Integer i : entities) {
+				baseEntity = CustomSpawners.getEntity(i.toString());
 				break;
 			}
 			
@@ -491,7 +461,6 @@ public class FileManager {
 			s.setAreaPoints(areaPoints);
 			s.setTypeData(entities);
 			s.setMobs(mobsMap);
-			s.setPassiveMobs(passiveMobsMap);
 			s.setBlock(block);
 			s.setConverted(converted);
 
@@ -612,7 +581,7 @@ public class FileManager {
 				}
 			}
 
-			EntityType type = plugin.parseEntityType(strType);
+			EntityType type = plugin.parseEntityType(strType, true);
 
 			Vector velocity = new Vector(xVelocity, yVelocity, zVelocity);
 
@@ -703,21 +672,6 @@ public class FileManager {
 			mobIDs.add(toYaml);
 		}
 
-		List<String> passiveMobIDs = new ArrayList<String>();
-		Iterator<Integer> passiveMobItr = s.getPassiveMobs().keySet().iterator();
-		while(passiveMobItr.hasNext()) {
-			int passiveMobId = passiveMobItr.next();
-			int entityId = s.getPassiveMobs().get(passiveMobId).getId();
-			String toYaml = passiveMobId + "_" + entityId;
-
-			passiveMobIDs.add(toYaml);
-		}
-
-		List<Integer> spawnableEntityIDs = new ArrayList<Integer>();
-		for(Integer i : s.getTypeData().keySet()) {
-			spawnableEntityIDs.add(i);
-		}
-
 		Location[] areaPoints = s.getAreaPoints();
 
 		if(yaml.getList("mobs") == null) {
@@ -726,7 +680,7 @@ public class FileManager {
 
 		yaml.set("id", s.getId());
 		yaml.set("name", s.getName());
-		yaml.set("spawnableEntities", spawnableEntityIDs);
+		yaml.set("spawnableEntities", s.getTypeData());
 		yaml.set("active", s.isActive());
 		yaml.set("hidden", s.isHidden());
 		yaml.set("radius", s.getRadius());
@@ -752,7 +706,6 @@ public class FileManager {
 		yaml.set("p2.z", areaPoints[1].getBlockZ());
 		yaml.set("rate", s.getRate());
 		yaml.set("mobs", mobIDs);
-		yaml.set("passiveMobs", passiveMobIDs);
 		yaml.set("block", s.getBlock().getTypeId() + "-" + s.getBlock().getData());
 		yaml.set("converted", s.isConverted());
 

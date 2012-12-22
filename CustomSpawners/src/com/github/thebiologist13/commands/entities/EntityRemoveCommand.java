@@ -1,8 +1,8 @@
 package com.github.thebiologist13.commands.entities;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -76,9 +76,9 @@ public class EntityRemoveCommand extends SpawnerCommand {
 			while(spawnerItr.hasNext()) {
 				Spawner s = spawnerItr.next();
 				
-				if(s.getTypeData().containsKey(e.getId())) {
-					Map<Integer, SpawnableEntity> defaultEntity = new HashMap<Integer, SpawnableEntity>();
-					defaultEntity.put(CustomSpawners.defaultEntity.getId(), CustomSpawners.defaultEntity);
+				if(s.getTypeData().contains(e.getId())) {
+					List<Integer> defaultEntity = new ArrayList<Integer>();
+					defaultEntity.add(CustomSpawners.defaultEntity.getId());
 					s.setTypeData(defaultEntity);
 					
 					p.sendMessage(ChatColor.GOLD + "The spawner with ID " + s.getId() + " has been set to the default entity due to removal.");

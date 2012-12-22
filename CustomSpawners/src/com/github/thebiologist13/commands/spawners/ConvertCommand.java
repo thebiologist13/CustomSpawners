@@ -1,13 +1,13 @@
 package com.github.thebiologist13.commands.spawners;
 
-import net.minecraft.server.TileEntity;
-import net.minecraft.server.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_5.TileEntity;
+import net.minecraft.server.v1_4_5.TileEntityMobSpawner;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -136,8 +136,6 @@ public class ConvertCommand extends SpawnerCommand {
 		
 		if(s.isConverted()) { //If converting back to a CustomSpawner
 			
-			//TODO Maybe add a "locked" property so it can't be set active when converted?
-			s.setActive(true); //Sets the CustomSpawner's spawner to be inactive so double spawns don't occur 
 			blk.setTypeIdAndData(s.getBlock().getTypeId(), s.getBlock().getData(), true);
 			
 		} else { //If converting to a mob spawner block
@@ -150,7 +148,7 @@ public class ConvertCommand extends SpawnerCommand {
 			NBTManager nbtMan = new NBTManager();
 			s.setActive(false);
 			try {
-				nbtMan.setTileEntityMobSpawnerNBT(s.getLoc().getBlock(), nbtMan.getSpawnerNBT(s));
+				nbtMan.setTileEntityMobSpawnerNBT(s.getLoc().getBlock(), nbtMan.getSpawnerNBT(s)); //TODO settype not working and duplicate load?
 			} catch (NotTileEntityException e) {
 				e.printStackTrace();
 			}

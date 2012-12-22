@@ -11,7 +11,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.Spawner;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
@@ -25,6 +24,9 @@ public class DamageController {
 		
 	//Hashmap for extra health
 	public static ConcurrentHashMap<Integer, Integer> extraHealthEntities = new ConcurrentHashMap<Integer, Integer>();
+	
+	//Map for aggroed mobs (entity id, spawnableEntity)
+	public static ConcurrentHashMap<Integer, Integer> angryMobs = new ConcurrentHashMap<Integer, Integer>();
 	
 	private CustomSpawners plugin = null;
 	
@@ -72,10 +74,7 @@ public class DamageController {
 				
 				if(damager instanceof Player) {
 					
-					Spawner s = plugin.getSpawnerWithEntity(entity);
-					
-					s.removePassiveMob(mobId);
-					s.addMob(mobId, e);
+					angryMobs.put(mobId, e.getId());
 					
 				}
 				

@@ -74,7 +74,9 @@ public class SpawnableEntity implements Serializable {
 	}
 	
 	public void addInventoryItem(ItemStack stack) {
-		((SInventory) this.data.get("inv")).addItem(stack);
+		SInventory newInv = getInventory();
+		newInv.addItem(stack);
+		setInventory(newInv);
 	}
 	
 	public float getHeight() {
@@ -130,7 +132,7 @@ public class SpawnableEntity implements Serializable {
 	}
 
 	public String getCatType() {
-		return (this.data.containsKey("catType")) ? (String) this.data.get("catType") : "BLACK_CAT";
+		return (this.data.containsKey("catType")) ? (String) this.data.get("catType") : "WILD_OCELOT";
 	}
 
 	public String getColor() {

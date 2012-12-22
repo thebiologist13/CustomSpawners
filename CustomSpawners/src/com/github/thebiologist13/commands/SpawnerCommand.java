@@ -33,7 +33,7 @@ public abstract class SpawnerCommand {
 	public final static String INVALID_BLOCK = ChatColor.RED + "You must be looking a a block.";
 	public final static String INVALID_CAUSE = ChatColor.RED + "Could not parse damage type.";
 	public final static String INVALID_ENTITY = ChatColor.RED + "Can not parse entity type. Using default entity from conifg.";
-	public final static String INVALID_ITEM = ChatColor.RED + "That is not an item or is in the wrong format for item types. Use <Item ID>:<Item Damage>";
+	public final static String INVALID_ITEM = ChatColor.RED + "That is not an item or is in the wrong format for item types. Use <Item ID>:<Item Damage> [amount]";
 	public final static String INVALID_VALUES = ChatColor.RED + "You have entered invalid values for this command. It may be too big/small or be negative.";
 	public final static String LESS_ARGS = ChatColor.RED + "Not enough arguments.";
 	public final static String MORE_ARGS = ChatColor.RED + "Too many arguments.";
@@ -68,7 +68,7 @@ public abstract class SpawnerCommand {
 	}
 
 	public String getAssignedCommand(String[] args) {
-		return this.aliases.get(args[0]);	
+		return (this.aliases.containsKey(args[0])) ? this.aliases.get(args[0]) : args[0];	
 	}
 	
 	public SpawnableEntity getSelectedEntity(CommandSender sender) {

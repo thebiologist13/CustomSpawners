@@ -128,12 +128,12 @@ public class SpawnerExecutor implements CommandExecutor {
 
 			} catch(Exception e) {
 				
-				plugin.sendDebugStack(arg0, e.getStackTrace());
+				e.printStackTrace();
 				plugin.sendMessage(arg0, SpawnerCommand.GENERAL_ERROR);
 				
 			}
 			
-			if(config.getBoolean("data.autosave", true) && config.getBoolean("data.saveOnCommand", false)) {
+			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCommand")) {
 				plugin.getFileManager().autosaveAll();
 			}
 

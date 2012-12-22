@@ -30,9 +30,10 @@ public class SItemStack implements Serializable {
 	}
 	
 	public SItemStack(ItemStack i) {
-		this.id = i.getTypeId();
-		this.data = i.getDurability();
-		this.count = i.getAmount();
+		ItemStack newStack = i.clone();
+		this.id = newStack.getTypeId();
+		this.data = newStack.getDurability();
+		this.count = newStack.getAmount();
 	}
 
 	public int getId() {

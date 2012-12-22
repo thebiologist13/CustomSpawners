@@ -3,14 +3,16 @@ package com.github.thebiologist13;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_4_5.entity.CraftEntity;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
@@ -40,11 +42,16 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.WaterMob;
 import org.bukkit.entity.Wolf;
+import org.bukkit.entity.Zombie;
+import org.bukkit.entity.Skeleton.SkeletonType;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.listeners.DamageController;
 import com.github.thebiologist13.serialization.SBlock;
+import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SLocation;
 import com.github.thebiologist13.serialization.SPotionEffect;
 
@@ -54,11 +61,9 @@ public class Spawner implements Serializable {
 	//Main Data
 	private Map<String, Object> data = new HashMap<String, Object>();
 	//Spawnable Mobs
-	private Map<Integer, SpawnableEntity> typeData = new HashMap<Integer, SpawnableEntity>();
+	private List<Integer> typeData = new ArrayList<Integer>();
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
 	private Map<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>(); 
-	//List of currently passive mobs from a spawner. When provoked, they are moved to "mobs"
-	private Map<Integer, SpawnableEntity> passiveMobs = new HashMap<Integer, SpawnableEntity>(); 
 	
 	//Ticks left before next spawn
 	private int ticksLeft = -1;
@@ -86,7 +91,7 @@ public class Spawner implements Serializable {
 		data.put("loc", new SLocation(loc));
 		data.put("block", new SBlock(loc.getBlock()));
 		data.put("areaPoints", areaPoints);
-		typeData.put(type.getId(), type);
+		typeData.add(type.getId());
 		data.put("converted", false);
 		data.put("mainEntity", type);
 		data.put("useSpawnArea", false);
@@ -104,11 +109,11 @@ public class Spawner implements Serializable {
 		this.data.put("name", name);
 	}
 
-	public Map<Integer, SpawnableEntity> getTypeData() {
+	public List<Integer> getTypeData() {
 		return this.typeData;
 	}
 
-	public void setTypeData(Map<Integer, SpawnableEntity> typeDataParam) {
+	public void setTypeData(List<Integer> typeDataParam) {
 		
 		if(typeDataParam == null) {
 			return;
@@ -118,11 +123,11 @@ public class Spawner implements Serializable {
 	}
 	
 	public void addTypeData(SpawnableEntity data) {
-		typeData.put(data.getId(), data);
+		typeData.add(data.getId());
 	}
 	
 	public void removeTypeData(SpawnableEntity type) {
-		if(typeData.containsKey(type.getId())) {
+		if(typeData.contains(type.getId())) {
 			typeData.remove(type.getId());
 		}
 	}
@@ -291,30 +296,6 @@ public class Spawner implements Serializable {
 			mobs.remove(mobId);
 	}
 	
-	public Map<Integer, SpawnableEntity> getPassiveMobs() {
-		return passiveMobs;
-	}
-
-	public void setPassiveMobs(Map<Integer, SpawnableEntity> pMobParam) {
-		this.passiveMobs = pMobParam;
-	}
-	
-	public void addPassiveMob(int mobId, SpawnableEntity entity) {
-		passiveMobs.put(mobId, entity);
-	}
-	
-	public void removePassiveMob(int mobId) {
-		if(passiveMobs.containsKey(mobId))
-			passiveMobs.remove(mobId);
-	}
-	
-	public Map<Integer, SpawnableEntity> getAllMobs() {
-		Map<Integer, SpawnableEntity> allMobs = new HashMap<Integer, SpawnableEntity>();
-		allMobs.putAll(mobs);
-		allMobs.putAll(passiveMobs);
-		return allMobs;
-	}
-	
 	public boolean isConverted() {
 		return (Boolean) this.data.get("converted");
 	}
@@ -421,7 +402,7 @@ public class Spawner implements Serializable {
 		if(canSpawn) {
 			
 			//Break the loop if the spawn limit is reached
-			if(!(mobs.size() + passiveMobs.size() == getMaxMobs())) {
+			if(!(mobs.size() == getMaxMobs())) {
 				SpawnableEntity spawnType = randType();
 				mainSpawn(spawnType);
 			}
@@ -454,6 +435,10 @@ public class Spawner implements Serializable {
 		//Loop to spawn until the mobs per spawn is reached
 		for(int i = 0; i < getMobsPerSpawn(); i++) {
 			
+			if(mobs.size() + i >= getMaxMobs()) {
+				return;
+			}
+			
 			Location spLoc = getLoc();
 			spLoc.setYaw(randRot());
 			
@@ -466,26 +451,23 @@ public class Spawner implements Serializable {
 			} else {
 				e = spawnTheEntity(spawnType, spLoc);
 				
-				net.minecraft.server.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_4_5.Entity nmEntity = ((CraftEntity) e).getHandle();
 				
-				CustomSpawners.entities.get(spawnType.getId()).setHeight(nmEntity.height);
-				CustomSpawners.entities.get(spawnType.getId()).setWidth(nmEntity.width);
-				CustomSpawners.entities.get(spawnType.getId()).setLength(nmEntity.length);
-				CustomSpawners.entities.get(spawnType.getId()).setBlockBelow(getBlockBelowFromEntity(e));
+				int id = spawnType.getId();
+				CustomSpawners.entities.get(id).setHeight(nmEntity.height);
+				CustomSpawners.entities.get(id).setWidth(nmEntity.width);
+				CustomSpawners.entities.get(id).setLength(nmEntity.length);
+				CustomSpawners.entities.get(id).setBlockBelow(getBlockBelowFromEntity(e));
 				
 				Location spawnLocation = getSpawningLocation(spawnType, getBlockBelowFromEntity(e), nmEntity.height, nmEntity.width, nmEntity.length);
 				e.teleport(spawnLocation);
 			}
 			
 			if(e != null) {
-
+				
 				assignMobProps(e, spawnType);
-
-				if(spawnType.isPassive()) {
-					passiveMobs.put(e.getEntityId(), spawnType);
-				} else {
-					mobs.put(e.getEntityId(), spawnType);
-				}
+				
+				mobs.put(e.getEntityId(), spawnType);
 				
 			}
 			
@@ -547,9 +529,9 @@ public class Spawner implements Serializable {
 		int index = rand.nextInt(typeData.size());
 		int count = 0;
 		
-		for(SpawnableEntity e : typeData.values()) {
+		for(Integer i : typeData) {
 			if(count == index) {
-				return e;
+				return CustomSpawners.getEntity(i.toString());
 			} else {
 				count++;
 			}
@@ -648,6 +630,22 @@ public class Spawner implements Serializable {
 						Skeleton skele = makeJockey(s);
 						setBasicProps(skele, data);
 					}
+				} else if(monster instanceof Zombie) {
+					Zombie z = (Zombie) monster;
+					boolean isVillager = false;
+					if(data.hasProp("zombie"))
+						isVillager = (Boolean) (data.getProp("zombie"));
+					z.setBaby((data.getAge() < -1) ? true : false);
+					z.setVillager(isVillager);
+				} else if(monster instanceof Skeleton) {
+					Skeleton sk = (Skeleton) monster;
+					SkeletonType skType = SkeletonType.NORMAL;
+					
+					if(data.hasProp("wither"))
+						skType = ((Boolean) (data.getProp("wither")) == true) ? SkeletonType.WITHER : SkeletonType.NORMAL;
+					
+					sk.setSkeletonType(skType);
+					
 				}
 			} else if(entity instanceof Golem) {
 				Golem golem = (Golem) entity;
@@ -719,6 +717,9 @@ public class Spawner implements Serializable {
 	
 	//Assigns some basic props
 	private void setBasicProps(LivingEntity entity, SpawnableEntity data) {
+		
+		setInventory(entity, data.getInventory()); 
+		
 		for(SPotionEffect p : data.getEffects()) {
 			PotionEffect ef = new PotionEffect(p.getType(), p.getDuration(), p.getAmplifier());
 			entity.addPotionEffect(ef, true);
@@ -748,6 +749,25 @@ public class Spawner implements Serializable {
 		} else {
 			entity.setRemainingAir(data.getAir());
 		}
+		
+	}
+	
+	//Inventory stuff
+	private void setInventory(LivingEntity entity, SInventory data) {
+		
+		EntityEquipment ee = entity.getEquipment();
+		
+		switch(entity.getType()) {
+		case SKELETON:
+			ee.setItemInHand(new ItemStack(Material.BOW));
+			break;
+		case PIG_ZOMBIE:
+			ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
+			break;
+		} 
+		
+		ee.setItemInHand(data.getHand());
+		ee.setArmorContents(data.getArmor());
 		
 	}
 	

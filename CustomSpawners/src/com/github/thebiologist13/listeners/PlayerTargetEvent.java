@@ -41,7 +41,7 @@ public class PlayerTargetEvent implements Listener {
 			
 		}
 		
-		if(s.getPassiveMobs().containsKey(entity.getEntityId())) {
+		if(DamageController.angryMobs.containsKey(entity.getEntityId())) {
 			
 			ev.setCancelled(true);
 			

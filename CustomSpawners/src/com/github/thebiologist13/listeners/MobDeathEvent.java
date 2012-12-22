@@ -1,10 +1,9 @@
 package com.github.thebiologist13.listeners;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -12,7 +11,8 @@ import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.Spawner;
+import com.github.thebiologist13.serialization.SInventory;
+import com.github.thebiologist13.serialization.SItemStack;
 
 public class MobDeathEvent implements Listener {
 	
@@ -25,23 +25,11 @@ public class MobDeathEvent implements Listener {
 	@EventHandler
 	public void onMobDeath(EntityDeathEvent ev) {
 		Entity entity = ev.getEntity();
-		EntityType type = ev.getEntityType();
-		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
-		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
 		SpawnableEntity e = plugin.getEntityFromSpawner(entity);
 		
-		while(spawnerItr.hasNext()) {
-			Spawner s = spawnerItr.next();
-			
-			for(SpawnableEntity e1 : s.getTypeData().values()) {
-				if(e1.getType().equals(type)) {
-					validSpawners.add(s);
-					break;
-				}
-			}
-		}
+		plugin.removeMob(entity);
 		
-		plugin.removeMob(entity, validSpawners);
+		DamageController.angryMobs.remove(entity.getEntityId());
 		
 		if(e != null) {
 			
@@ -50,6 +38,19 @@ public class MobDeathEvent implements Listener {
 				ev.getDrops().clear();
 				Iterator<ItemStack> itr = e.getDrops().iterator();
 				while(itr.hasNext()) ev.getDrops().add(itr.next());
+			} else if(!e.getInventory().isEmpty()) {
+				ev.getDrops().clear();
+				SInventory inv = e.getInventory();
+				Collection<SItemStack> items = inv.getContent().values();
+				for(SItemStack s : items) {
+					ItemStack i = s.toItemStack();
+					ev.getDrops().add(i);
+				}
+				ev.getDrops().add(inv.getHand());
+				ev.getDrops().add(inv.getArmor()[0]);
+				ev.getDrops().add(inv.getArmor()[1]);
+				ev.getDrops().add(inv.getArmor()[2]);
+				ev.getDrops().add(inv.getArmor()[3]);
 			}
 			
 			//Exp

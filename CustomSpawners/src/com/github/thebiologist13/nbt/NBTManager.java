@@ -2,13 +2,14 @@ package com.github.thebiologist13.nbt;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftEntity;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_5.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -18,17 +19,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
+import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SPotionEffect;
 
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagDouble;
-import net.minecraft.server.NBTTagFloat;
-import net.minecraft.server.NBTTagList;
-import net.minecraft.server.TileEntity;
-import net.minecraft.server.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_5.NBTTagCompound;
+import net.minecraft.server.v1_4_5.NBTTagDouble;
+import net.minecraft.server.v1_4_5.NBTTagFloat;
+import net.minecraft.server.v1_4_5.NBTTagList;
+import net.minecraft.server.v1_4_5.TileEntity;
+import net.minecraft.server.v1_4_5.TileEntityMobSpawner;
 
 /**
  * NBTManager (will be) a library for Bukkit and Minecraft for
@@ -235,7 +237,7 @@ public class NBTManager {
 	 * @param n The NBTTagCompound containing the information to be set.
 	 */
 	public void setItemNBT(ItemStack i, NBTTagCompound n) {
-		((CraftItemStack) i).getHandle().c(n);
+		CraftItemStack.asNMSCopy(i).c(n);
 	}
 	
 	/**
@@ -429,67 +431,36 @@ public class NBTManager {
 		NBTTagCompound eData = new NBTTagCompound(); //Entity NBT
 		SpawnableEntity mainEntity = s.getMainEntity(); //The primary entity of the spawner.
 		
-		byte sitting = (byte) ((mainEntity.isSitting()) ? 1 : 0);
-		byte powered = (byte) ((mainEntity.isCharged()) ? 1 : 0);
-		byte saddle = (byte) ((mainEntity.isSaddled()) ? 1 : 0);
-		short angry = (short) ((mainEntity.isAngry()) ? 1 : 0);
-		byte invulnerable = (byte) ((mainEntity.isInvulnerable()) ? 1 : 0);
+		Location spawnLocation = null;
 		
-		Location spawnLocation = s.getAreaPoints()[0]; //This can be changed. Really just needs a single point to spawn to. Should add option to disable.
-		Vector velocity = mainEntity.getVelocity();
-		NBTTagList pos = makeDoubleList(new double[] {spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ()});
-		NBTTagList motion = makeDoubleList(new double[] {velocity.getX(), velocity.getY(), velocity.getZ()});
-		
-		ArrayList<SPotionEffect> effectsCS = mainEntity.getEffects();
-		NBTTagList effects = new NBTTagList();
-		for(SPotionEffect e : effectsCS) {
-			effects.add(makePotionCompound((byte) e.getType().getId(), (byte) e.getAmplifier(), e.getDuration()));
+		if(s.isUsingSpawnArea()) {
+			spawnLocation = s.getAreaPoints()[0]; //This can be changed. Really just needs a single point to spawn to. Should add option to disable.
 		}
-		
-		//Several values excluded because CustomSpawners doesn't have properties for them (rotation, fall distance, on ground, and dimension)
-		
-		if(!mainEntity.getType().equals(EntityType.DROPPED_ITEM)) {
-			eData.setInt("Age", getAge(mainEntity));
+
+		if(s.getTypeData().size() == 1) {
+			eData = makeEntityData(mainEntity, spawnLocation);
+			sData.set("SpawnData", eData);
 		} else {
-			eData.setShort("Age", (short) getAge(mainEntity));
+			List<Integer> typeData = s.getTypeData();
+			NBTTagCompound[] potentials = new NBTTagCompound[typeData.size()];
+			
+			for(Integer i = 0; i < typeData.size(); i++) {
+				NBTTagCompound potentialData = new NBTTagCompound();
+				SpawnableEntity e = CustomSpawners.getEntity(typeData.get(i).toString());
+				NBTTagCompound eData2 = makeEntityData(e, spawnLocation);
+				
+				if(i == 0) {
+					sData.set("SpawnData", eData2);
+				}
+				
+				potentialData.setCompound("Properties", eData2);
+				potentialData.setInt("Weight", 0);
+				potentialData.setString("Type", e.getType().getName());
+				potentials[i] = potentialData;
+			}
+			
+			sData.set("SpawnPotentials", makeCompoundList(potentials));
 		}
-		
-		if(!mainEntity.getType().equals(EntityType.CREEPER)) {
-			eData.setShort("Fuse", (short) mainEntity.getFuseTicks());
-		} else {
-			eData.setByte("Fuse", (byte) mainEntity.getFuseTicks());
-		}
-		
-		eData.setString("id", mainEntity.getType().getName());
-		eData.set("Pos", pos);
-		eData.set("Motion", motion);
-		eData.setShort("Fire", (short) mainEntity.getFireTicks());
-		eData.setShort("Air", (short) getAir(mainEntity));
-		eData.setByte("Invulnerable", invulnerable);
-		eData.set("ActiveEffects", effects);
-		eData.setShort("Health", (short) getHealth(mainEntity));
-		eData.set("Equipment", makeInventory(mainEntity.getInventory())); //Put other inventory things after here
-		eData.setByte("Sitting", sitting);
-		eData.setByte("powered", powered);
-		eData.setByte("ExplosionRadius", (byte) mainEntity.getYield());
-		eData.setShort("carried", (short) mainEntity.getEndermanBlock().getItemTypeId());
-		eData.setShort("carriedData", mainEntity.getEndermanBlock().getData());
-		eData.setInt("CatType", Ocelot.Type.valueOf(mainEntity.getCatType()).getId());
-		eData.setByte("Saddle", saddle);
-		eData.setShort("Anger", angry); //Pigmen
-		eData.setByte("Color", DyeColor.valueOf(mainEntity.getColor()).getData()); //Could set a sheared variable here
-		eData.setInt("Size", mainEntity.getSlimeSize());
-		eData.setByte("Angry", (byte) angry); //Wolf
-		eData.setInt("Profession", mainEntity.getProfession().getId()); //Stuff for offers could go here
-		eData.setByte("PlayerCreated", (byte) 0);
-		eData.setDouble("Damage", mainEntity.getDamage()); //Arrows
-		eData.setCompound("Potion", makePotionCompound((byte) mainEntity.getPotionEffect().getType().getId(), 
-				(byte) mainEntity.getPotionEffect().getAmplifier(), 
-				mainEntity.getPotionEffect().getDuration()));
-		eData.setCompound("Item", getItemNBT(mainEntity.getItemType())); //TODO Make this include potion type
-		eData.setShort("Value", (short) mainEntity.getDroppedExp());
-		eData.setByte("Tile", (byte) mainEntity.getItemType().getTypeId());
-		eData.setByte("Data", mainEntity.getItemType().getData().getData());
 		
 		// Spawner Data
 		
@@ -498,13 +469,12 @@ public class NBTManager {
 		sData.setInt("z", s.getLoc().getBlockZ());
 		sData.setString("EntityId", mainEntity.getType().getName());
 		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
-		sData.setShort("SpawnRange", (short) s.getRadius());
+		sData.setShort("SpawnRange", Short.valueOf((short) s.getRadius()));
 		sData.setShort("Delay", (short) s.getRate());
 		sData.setShort("MinSpawnDelay", (short) s.getRate());
 		sData.setShort("MaxSpawnDelay", (short) (s.getRate() + 2));
 		sData.setShort("MaxNearbyEntities", (short) s.getMaxMobs());
 		sData.setShort("RequiredPlayerRange", (short) s.getMaxPlayerDistance());
-		sData.set("SpawnData", eData);
 		
 		return sData;
 	}
@@ -515,7 +485,7 @@ public class NBTManager {
 	 * @param i EntityInventory to use.
 	 * @return NBTTagList with inventory information.
 	 */
-	private NBTTagList makeInventory(SInventory i) {
+	public NBTTagList makeInventory(SInventory i) {
 		NBTTagList list = new NBTTagList();
 		ArrayList<ItemStack> mainInv = i.getMainInventory();
 		
@@ -580,6 +550,88 @@ public class NBTManager {
 			return e.getAir();
 		}
 				
+	}
+	
+	/**
+	 * Makes the Entity Data.
+	 * 
+	 * @param mainEntity The entity to make data from.
+	 * @return The data.
+	 */
+	private NBTTagCompound makeEntityData(SpawnableEntity mainEntity, Location spawnLocation) {
+		
+		NBTTagCompound eData = new NBTTagCompound();
+		byte sitting = (byte) ((mainEntity.isSitting()) ? 1 : 0);
+		byte powered = (byte) ((mainEntity.isCharged()) ? 1 : 0);
+		byte saddle = (byte) ((mainEntity.isSaddled()) ? 1 : 0);
+		short angry = (short) ((mainEntity.isAngry()) ? 1 : 0);
+		byte invulnerable = (byte) ((mainEntity.isInvulnerable()) ? 1 : 0);
+		
+		Vector velocity = mainEntity.getVelocity();
+		NBTTagList motion = makeDoubleList(new double[] {velocity.getX(), velocity.getY(), velocity.getZ()});
+		
+		ArrayList<SPotionEffect> effectsCS = mainEntity.getEffects();
+		NBTTagList effects = new NBTTagList();
+		for(SPotionEffect e : effectsCS) {
+			effects.add(makePotionCompound((byte) e.getType().getId(), (byte) e.getAmplifier(), e.getDuration()));
+		}
+		
+		//Several values excluded because CustomSpawners doesn't have properties for them (rotation, fall distance, on ground, and dimension)
+		
+		if(!mainEntity.getType().equals(EntityType.DROPPED_ITEM)) {
+			eData.setInt("Age", getAge(mainEntity));
+		} else {
+			eData.setShort("Age", (short) getAge(mainEntity));
+		}
+		
+		if(!mainEntity.getType().equals(EntityType.CREEPER)) {
+			eData.setShort("Fuse", (short) mainEntity.getFuseTicks());
+		} else {
+			eData.setByte("Fuse", (byte) mainEntity.getFuseTicks());
+		}
+		
+		Ocelot.Type catType = Ocelot.Type.WILD_OCELOT;
+		for(Ocelot.Type t : Ocelot.Type.values()) {
+			if(t.toString().equalsIgnoreCase(mainEntity.getCatType()))
+				catType = t;
+		}
+		
+		if(spawnLocation != null) {
+			NBTTagList pos = makeDoubleList(new double[] {spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ()});
+			eData.set("Pos", pos);
+		}
+		
+		eData.setString("id", mainEntity.getType().getName());
+		eData.set("Motion", motion);
+		eData.setShort("Fire", (short) mainEntity.getFireTicks());
+		eData.setShort("Air", (short) getAir(mainEntity));
+		eData.setByte("Invulnerable", invulnerable);
+		eData.set("ActiveEffects", effects);
+		eData.setShort("Health", (short) getHealth(mainEntity));
+		eData.set("Equipment", makeInventory(mainEntity.getInventory())); //Put other inventory things after here
+		eData.setByte("Sitting", sitting);
+		eData.setByte("powered", powered);
+		eData.setByte("ExplosionRadius", (byte) mainEntity.getYield());
+		eData.setShort("carried", (short) mainEntity.getEndermanBlock().getItemTypeId());
+		eData.setShort("carriedData", mainEntity.getEndermanBlock().getData());
+		eData.setInt("CatType", catType.getId());
+		eData.setByte("Saddle", saddle);
+		eData.setShort("Anger", angry); //Pigmen
+		eData.setByte("Color", DyeColor.valueOf(mainEntity.getColor()).getData()); //Could set a sheared variable here
+		eData.setInt("Size", mainEntity.getSlimeSize());
+		eData.setByte("Angry", (byte) angry); //Wolf
+		eData.setInt("Profession", mainEntity.getProfession().getId()); //Stuff for offers could go here
+		eData.setByte("PlayerCreated", (byte) 0);
+		eData.setDouble("Damage", mainEntity.getDamage()); //Arrows
+		eData.setCompound("Potion", makePotionCompound((byte) mainEntity.getPotionEffect().getType().getId(), 
+				(byte) mainEntity.getPotionEffect().getAmplifier(), 
+				mainEntity.getPotionEffect().getDuration()));
+		eData.setCompound("Item", getItemNBT(mainEntity.getItemType())); //TODO Make this include potion type
+		eData.setShort("Value", (short) mainEntity.getDroppedExp());
+		eData.setByte("Tile", (byte) mainEntity.getItemType().getTypeId());
+		eData.setByte("Data", mainEntity.getItemType().getData().getData());
+		
+		return eData;
 	}
 	
 }
