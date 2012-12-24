@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -158,6 +157,8 @@ public class CustomSpawners extends JavaPlugin {
 		//Load spawners from files
 		fileManager.loadSpawners();
 		
+		//One of these threads causes the crash
+		
 		//Load spawners and entities from world files
 		Iterator<World> worldItr = this.getServer().getWorlds().iterator();
 		while(worldItr.hasNext()) {
@@ -182,7 +183,7 @@ public class CustomSpawners extends JavaPlugin {
 				
 				if(sameSpawner) {
 					if(logLevel > 1) {
-						log.info("Canceled load of spawner from world, same locationa as existing one.");
+						log.info("Canceled load of spawner from world, same location as existing one.");
 					}
 					continue;
 				} else {
@@ -194,6 +195,7 @@ public class CustomSpawners extends JavaPlugin {
 		/*
 		 * Spawning Thread
 		 */
+		//SAFE
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
 			public void run() {
@@ -203,8 +205,9 @@ public class CustomSpawners extends JavaPlugin {
 				while(spawnerItr.hasNext()) {
 					Spawner s = spawnerItr.next();
 					
-					if(!s.getLoc().getChunk().isLoaded())
+					if(!s.getLoc().getChunk().isLoaded()) {
 						continue;
+					}
 					
 					s.tick();
 				}
@@ -215,49 +218,32 @@ public class CustomSpawners extends JavaPlugin {
 		
 		/*
 		 * Removal Check Thread
-		 * This thread verifies that all spawned mobs still exist and removes used explosions. 
-		 * For example, if a mob despawned, it will be removed.
+		 * This thread verifies that all spawned mobs still exist. 
 		 */
 		
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
 			@Override
 			public void run() {
-				try {
-					Iterator<Spawner> spawnerItr = spawners.values().iterator();
-					while(spawnerItr.hasNext()) {
-						Spawner s = spawnerItr.next();
-						List<Entity> worldEntities = s.getLoc().getWorld().getEntities();
-						if(worldEntities == null)
-							return;
-						Iterator<Entity> entityItr = s.getLoc().getWorld().getEntities().iterator();
+				
+				Iterator<Spawner> sp = spawners.values().iterator();
+				while(sp.hasNext()) {
+					Spawner s = sp.next();
+					List<Entity> mobs = s.getLoc().getWorld().getEntities();
+					Iterator<Integer> spMobs = s.getMobs().keySet().iterator();
+					while(spMobs.hasNext()) {
 						
-						if(entityItr == null)
-							return;
+						Entity e = getEntityFromWorld(spMobs.next(), s.getLoc().getWorld());
 						
-						while(entityItr.hasNext()) {
-							Entity nextEntity = entityItr.next();
-							
-							/*
-							 * Removes entities greater than 192 blocks from spawner. This is equal to 12 chunks, 
-							 * between Normal (8 chunk radius) and Far (16 chunk radius) render distance.
-							 */
-							if(nextEntity.getLocation().distance(s.getLoc()) > 192) {
-								int entId = nextEntity.getEntityId();
-								nextEntity.remove();
-								
-								if(s.getMobs().containsKey(entId)) {
-									s.removeMob(entId);
-								}
-								
-							}
-							
-						}	
+						if(e == null)
+							continue;
+						
+						if(!mobs.contains(e)) {
+							s.removeMob(e.getEntityId());
+						}
 						
 					}
 					
-				} catch(ConcurrentModificationException e) {
-					return;
 				}
 				
 			}
@@ -268,6 +254,7 @@ public class CustomSpawners extends JavaPlugin {
 		 * Autosave Thread
 		 * This thread manages autosaving
 		 */
+		//SAFE
 		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnClock")) {
 			
 			int interval = config.getInt("data.interval") * 1200;
@@ -413,6 +400,9 @@ public class CustomSpawners extends JavaPlugin {
 			}
 			
 		} else {
+			
+			if(ref.equalsIgnoreCase("default"))
+				return defaultEntity;
 			
 			Iterator<Integer> entityItr = entities.keySet().iterator();
 			while(entityItr.hasNext()) {
@@ -692,25 +682,16 @@ public class CustomSpawners extends JavaPlugin {
 		Iterator<Integer> mobs = s.getMobs().keySet().iterator();
 
 		while(mobs.hasNext()) {
-			int spawnerMobId = mobs.next();
-			Iterator<Entity> livingEntities = s.getLoc().getWorld().getEntities().iterator();
+			Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
 			
-			while(livingEntities.hasNext()) {
-				Entity l = livingEntities.next();
-				
-				int entityId = l.getEntityId();
-
-				if(spawnerMobId == entityId) {
-					if(l.getPassenger() != null) {
-						l.getPassenger().remove();
-					}
-					l.remove();
-					mobs.remove();
-					if(DamageController.extraHealthEntities.containsKey(spawnerMobId)) 
-						DamageController.extraHealthEntities.remove(spawnerMobId);
-				}
-				
-			}
+			if(spawnerMob.getPassenger() != null)
+				spawnerMob.getPassenger().remove();
+			
+			if(DamageController.extraHealthEntities.containsKey(spawnerMob)) 
+				DamageController.extraHealthEntities.remove(spawnerMob);
+			
+			spawnerMob.remove();
+			mobs.remove();
 			
 		}
 		
@@ -730,12 +711,12 @@ public class CustomSpawners extends JavaPlugin {
 			Iterator<Integer> mobs = s.getMobs().keySet().iterator();
 
 			while(mobs.hasNext()) {
-				int spawnerMobId = mobs.next();
+				Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
 				
-				if(spawnerMobId == entityId) {
+				if(spawnerMob.getEntityId() == entityId) {
 					mobs.remove();
-					if(DamageController.extraHealthEntities.containsKey(spawnerMobId)) 
-						DamageController.extraHealthEntities.remove(spawnerMobId);
+					if(DamageController.extraHealthEntities.containsKey(spawnerMob)) 
+						DamageController.extraHealthEntities.remove(spawnerMob);
 				}
 
 			}
@@ -766,9 +747,9 @@ public class CustomSpawners extends JavaPlugin {
 			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 
 			while(mobItr.hasNext()) {
-				int currentMob = mobItr.next();
+				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
 				
-				if(currentMob == entityId) {
+				if(currentMob.getEntityId() == entityId) {
 					return s.getMobs().get(currentMob);
 				}
 				
@@ -801,9 +782,9 @@ public class CustomSpawners extends JavaPlugin {
 			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 
 			while(mobItr.hasNext()) {
-				int currentMob = mobItr.next();
+				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
 				
-				if(currentMob == entityId) {
+				if(currentMob.getEntityId() == entityId) {
 					return s;
 				}
 				
@@ -813,6 +794,21 @@ public class CustomSpawners extends JavaPlugin {
 		
 		return null;
 		
+	}
+	
+	public Entity getEntityFromWorld(int id, World w) {
+		
+		Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
+		while(entitiesInWorld.hasNext()) {
+			Entity e = entitiesInWorld.next();
+			
+			if(e.getEntityId() == id) {
+				return e;
+			}
+			
+		}
+		
+		return null;
 	}
 	
 	public void printDebugMessage(String message) {

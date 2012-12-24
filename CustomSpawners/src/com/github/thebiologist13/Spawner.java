@@ -67,6 +67,8 @@ public class Spawner implements Serializable {
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
 	private Map<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>(); 
 	
+	//TODO spawns glitchy again
+	
 	//Ticks left before next spawn
 	private int ticksLeft = -1;
 	

@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -413,9 +414,25 @@ public class FileManager {
 					int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
 
 					SpawnableEntity e = CustomSpawners.getEntity(String.valueOf(value));
+					
+					Iterator<World> worlds = Bukkit.getWorlds().iterator();
+					while(worlds.hasNext()) {
+						World w = worlds.next();
+						
+						Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
+						while(entitiesInWorld.hasNext()) {
+							Entity en = entitiesInWorld.next();
+							
+							if(en.getEntityId() == key) {
+								mobsMap.put(key, e);
+							}
+							
+						}
+						
+					}
 
-					mobsMap.put(key, e);
 				}
+				
 			}
 
 			//Location
