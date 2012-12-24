@@ -110,6 +110,8 @@ permissions:
             customspawners.entities.setincendiary: true
             customspawners.entities.setitemtype: true
             customspawners.entities.setinvulnerable: true
+            customspawners.entities.inventory: true
+            customspawners.entities.setwither: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawner" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -352,4 +354,10 @@ permissions:
         default: op
     customspawners.entities.setinvulnerable:
         description: Allows the user/group to set a entity invulnerable.
+        default: op
+    customspawners.entities.inventory:
+        description: Allows the user/group to modify entity inventories.
+        default: op
+    customspawners.entities.setwither:
+        description: Allows the user/group to set the wither property.
         default: op

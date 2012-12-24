@@ -45,7 +45,7 @@ public class EntityYieldCommand extends SpawnerCommand {
 					return;
 				}
 
-				yield = Integer.parseInt(arg3[1]);
+				yield = Float.parseFloat(arg3[1]);
 
 			} else if(arg3.length == 2) {
 				p.sendMessage(NEEDS_SELECTION);
@@ -64,7 +64,7 @@ public class EntityYieldCommand extends SpawnerCommand {
 					return;
 				}
 
-				yield = Integer.parseInt(arg3[2]);
+				yield = Float.parseFloat(arg3[2]);
 
 			} else {
 				p.sendMessage(GENERAL_ERROR);

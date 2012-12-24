@@ -1,13 +1,13 @@
 package com.github.thebiologist13.commands.spawners;
 
-import net.minecraft.server.v1_4_5.TileEntity;
-import net.minecraft.server.v1_4_5.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_6.TileEntity;
+import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -80,6 +80,7 @@ public class ConvertCommand extends SpawnerCommand {
 			}
 			
 			convert(s);
+			plugin.sendMessage(arg0, ChatColor.GREEN + "Successfully converted spawner with ID " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "!");
 			
 		} else {
 			
@@ -121,6 +122,7 @@ public class ConvertCommand extends SpawnerCommand {
 				}
 				
 				convert(s);
+				plugin.sendMessage(arg0, ChatColor.GREEN + "Successfully converted spawner with ID " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "!");
 				
 			}
 			
@@ -148,7 +150,7 @@ public class ConvertCommand extends SpawnerCommand {
 			NBTManager nbtMan = new NBTManager();
 			s.setActive(false);
 			try {
-				nbtMan.setTileEntityMobSpawnerNBT(s.getLoc().getBlock(), nbtMan.getSpawnerNBT(s)); //TODO settype not working and duplicate load?
+				nbtMan.setTileEntityMobSpawnerNBT(s.getLoc().getBlock(), nbtMan.getSpawnerNBT(s));
 			} catch (NotTileEntityException e) {
 				e.printStackTrace();
 			}

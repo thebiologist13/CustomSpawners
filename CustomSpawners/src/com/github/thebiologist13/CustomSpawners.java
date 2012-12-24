@@ -119,6 +119,18 @@ public class CustomSpawners extends JavaPlugin {
 		//LogLevel
 		logLevel = config.getInt("data.logLevel", 2);
 		
+		//Setup WG
+		worldGuard = setupWG();
+
+		if(worldGuard == null) {
+
+			if(logLevel > 0) {
+				log.info("Cannot hook into WorldGuard.");
+			}
+
+		}
+				
+		
 		//Commands
 		SpawnerExecutor se = new SpawnerExecutor(this);
 		CustomSpawnersExecutor cse = new CustomSpawnersExecutor(this);
@@ -154,27 +166,29 @@ public class CustomSpawners extends JavaPlugin {
 			Iterator<SpawnableEntity> entitiesFromWorld = loadAllEntitiesFromWorld(w).iterator();
 			while(entitiesFromWorld.hasNext()) {
 				SpawnableEntity e = entitiesFromWorld.next();
-				
 				entities.put(getNextEntityId(), e);
 			}
 			
 			Iterator<Spawner> spawnersFromWorld = loadAllSpawnersFromWorld(w).iterator();
 			while(spawnersFromWorld.hasNext()) {
 				Spawner s = spawnersFromWorld.next();
+				boolean sameSpawner = false;
 				
-				spawners.put(getNextSpawnerId(), s);
+				for(Spawner s1 : spawners.values()) {
+					if(s1.getLoc().equals(s.getLoc())) {
+						sameSpawner = true;
+					}
+				}
+				
+				if(sameSpawner) {
+					if(logLevel > 1) {
+						log.info("Canceled load of spawner from world, same locationa as existing one.");
+					}
+					continue;
+				} else {
+					spawners.put(getNextSpawnerId(), s);
+				}
 			}
-		}
-		
-		//Setup WG
-		worldGuard = setupWG();
-		
-		if(worldGuard == null) {
-			
-			if(logLevel > 0) {
-				log.info("Cannot hook into WorldGuard.");
-			}
-			
 		}
 		
 		/*
@@ -188,6 +202,10 @@ public class CustomSpawners extends JavaPlugin {
 				
 				while(spawnerItr.hasNext()) {
 					Spawner s = spawnerItr.next();
+					
+					if(!s.getLoc().getChunk().isLoaded())
+						continue;
+					
 					s.tick();
 				}
 				
@@ -209,6 +227,9 @@ public class CustomSpawners extends JavaPlugin {
 					Iterator<Spawner> spawnerItr = spawners.values().iterator();
 					while(spawnerItr.hasNext()) {
 						Spawner s = spawnerItr.next();
+						List<Entity> worldEntities = s.getLoc().getWorld().getEntities();
+						if(worldEntities == null)
+							return;
 						Iterator<Entity> entityItr = s.getLoc().getWorld().getEntities().iterator();
 						
 						if(entityItr == null)
@@ -378,6 +399,9 @@ public class CustomSpawners extends JavaPlugin {
 	public static SpawnableEntity getEntity(String ref) {
 		if(isInteger(ref)) {
 			int id = Integer.parseInt(ref);
+			
+			if(id == -2)
+				return defaultEntity;
 			
 			Iterator<Integer> entityItr = entities.keySet().iterator();
 			while(entityItr.hasNext()) {

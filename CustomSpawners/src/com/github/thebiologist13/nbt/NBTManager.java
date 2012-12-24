@@ -7,9 +7,9 @@ import java.util.List;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_4_5.CraftWorld;
-import org.bukkit.craftbukkit.v1_4_5.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -25,12 +25,12 @@ import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SPotionEffect;
 
-import net.minecraft.server.v1_4_5.NBTTagCompound;
-import net.minecraft.server.v1_4_5.NBTTagDouble;
-import net.minecraft.server.v1_4_5.NBTTagFloat;
-import net.minecraft.server.v1_4_5.NBTTagList;
-import net.minecraft.server.v1_4_5.TileEntity;
-import net.minecraft.server.v1_4_5.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagDouble;
+import net.minecraft.server.v1_4_6.NBTTagFloat;
+import net.minecraft.server.v1_4_6.NBTTagList;
+import net.minecraft.server.v1_4_6.TileEntity;
+import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
 
 /**
  * NBTManager (will be) a library for Bukkit and Minecraft for
@@ -436,7 +436,7 @@ public class NBTManager {
 		if(s.isUsingSpawnArea()) {
 			spawnLocation = s.getAreaPoints()[0]; //This can be changed. Really just needs a single point to spawn to. Should add option to disable.
 		}
-
+		
 		if(s.getTypeData().size() == 1) {
 			eData = makeEntityData(mainEntity, spawnLocation);
 			sData.set("SpawnData", eData);
@@ -454,7 +454,7 @@ public class NBTManager {
 				}
 				
 				potentialData.setCompound("Properties", eData2);
-				potentialData.setInt("Weight", 0);
+				potentialData.setInt("Weight", i + 1);
 				potentialData.setString("Type", e.getType().getName());
 				potentials[i] = potentialData;
 			}
@@ -469,10 +469,10 @@ public class NBTManager {
 		sData.setInt("z", s.getLoc().getBlockZ());
 		sData.setString("EntityId", mainEntity.getType().getName());
 		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
-		sData.setShort("SpawnRange", Short.valueOf((short) s.getRadius()));
+		sData.setShort("SpawnRange", (short) s.getRadius());
 		sData.setShort("Delay", (short) s.getRate());
 		sData.setShort("MinSpawnDelay", (short) s.getRate());
-		sData.setShort("MaxSpawnDelay", (short) (s.getRate() + 2));
+		sData.setShort("MaxSpawnDelay", (short) (s.getRate() + 1));
 		sData.setShort("MaxNearbyEntities", (short) s.getMaxMobs());
 		sData.setShort("RequiredPlayerRange", (short) s.getMaxPlayerDistance());
 		
@@ -566,6 +566,11 @@ public class NBTManager {
 		byte saddle = (byte) ((mainEntity.isSaddled()) ? 1 : 0);
 		short angry = (short) ((mainEntity.isAngry()) ? 1 : 0);
 		byte invulnerable = (byte) ((mainEntity.isInvulnerable()) ? 1 : 0);
+		byte isWither = 0;
+		
+		if(mainEntity.hasProp("wither")) {
+			isWither = (byte) ((Boolean) (mainEntity.getProp("wither")) ? 1 : 0);
+		}
 		
 		Vector velocity = mainEntity.getVelocity();
 		NBTTagList motion = makeDoubleList(new double[] {velocity.getX(), velocity.getY(), velocity.getZ()});
@@ -609,6 +614,7 @@ public class NBTManager {
 		eData.set("ActiveEffects", effects);
 		eData.setShort("Health", (short) getHealth(mainEntity));
 		eData.set("Equipment", makeInventory(mainEntity.getInventory())); //Put other inventory things after here
+		//TODO if equipment is air, do nothing
 		eData.setByte("Sitting", sitting);
 		eData.setByte("powered", powered);
 		eData.setByte("ExplosionRadius", (byte) mainEntity.getYield());
@@ -630,6 +636,7 @@ public class NBTManager {
 		eData.setShort("Value", (short) mainEntity.getDroppedExp());
 		eData.setByte("Tile", (byte) mainEntity.getItemType().getTypeId());
 		eData.setByte("Data", mainEntity.getItemType().getData().getData());
+		eData.setByte("SkeletonType", isWither);
 		
 		return eData;
 	}

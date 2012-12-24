@@ -21,7 +21,7 @@ public class DamageController {
 	 * it has caught fire from somewhere else (other than fire ticks prop.) and should take fire damage.
 	 */
 	public static ConcurrentHashMap<Integer, Integer> negatedFireImmunity = new ConcurrentHashMap<Integer, Integer>();
-		
+	
 	//Hashmap for extra health
 	public static ConcurrentHashMap<Integer, Integer> extraHealthEntities = new ConcurrentHashMap<Integer, Integer>();
 	
@@ -80,7 +80,7 @@ public class DamageController {
 				
 			}
 			
-			if(e.isUsingBlacklist()) {
+			if(e.isUsingBlacklist()) { //Things to not take damage from
 				ArrayList<String> black = e.getDamageBlacklist();
 				
 				if(black.contains(cause.name())) {
@@ -89,9 +89,16 @@ public class DamageController {
 					
 				} else if(black.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
 					
-					if(negatedFireImmunity.containsKey(mobId) && !e.getDamageBlacklist().contains(DamageCause.FIRE_TICK.name())) {
+					if(negatedFireImmunity.containsKey(mobId)) {
 						int newTicks = negatedFireImmunity.get(mobId) - 1;
+						
+						if(newTicks == 0) {
+							negatedFireImmunity.remove(mobId);
+						}
+						
 						negatedFireImmunity.replace(mobId, newTicks);
+					} else {
+						negatedFireImmunity.put(mobId, e.getFireTicks());
 					}
 					
 					return 0;
@@ -119,20 +126,27 @@ public class DamageController {
 				
 				ArrayList<String> white = e.getDamageBlacklist();
 				
-				if(white.contains(cause.name())) {
+				if(!white.contains(cause.name())) {
 					
-					return damage;
+					return 0;
 					
-				} else if(white.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
+				} else if(!white.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
 					
-					if(negatedFireImmunity.containsKey(mobId) && !e.getDamageBlacklist().contains(DamageCause.FIRE_TICK.name())) {
+					if(negatedFireImmunity.containsKey(mobId)) {
 						int newTicks = negatedFireImmunity.get(mobId) - 1;
+						
+						if(newTicks == 0) {
+							negatedFireImmunity.remove(mobId);
+						}
+						
 						negatedFireImmunity.replace(mobId, newTicks);
+					} else {
+						negatedFireImmunity.put(mobId, e.getFireTicks());
 					}
 					
-					return damage;
+					return 0;
 					
-				} else if(white.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
+				} else if(!white.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
 					
 					EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 					Entity damager = eve.getDamager();
@@ -143,7 +157,7 @@ public class DamageController {
 						
 						if(e.getItemDamageList().contains(p.getItemInHand())) {
 							
-							return damage;
+							return 0;
 							
 						}
 						

@@ -126,6 +126,8 @@ public class SpawnerExecutor implements CommandExecutor {
 					runThis.run(arg0, arg1, arg2, arg3);
 				}
 
+			} catch(ArrayIndexOutOfBoundsException e) {
+				plugin.sendMessage(arg0, ChatColor.RED + "You entered an invalid number or arguments. Make sure you entered all the right parameters.");
 			} catch(Exception e) {
 				
 				e.printStackTrace();

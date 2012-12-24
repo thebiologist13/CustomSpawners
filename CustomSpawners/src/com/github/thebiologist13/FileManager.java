@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -204,7 +205,7 @@ public class FileManager {
 	}
 
 	//Removes a spawner or entity's data file
-	public void removeDataFile(int id, boolean isSpawner) {
+	public void removeDataFile(int id, boolean isSpawner) { //TODO remove from world too.
 		
 		File file = null;
 
@@ -220,6 +221,17 @@ public class FileManager {
 			
 			file.delete();
 			
+			for(World w : plugin.getServer().getWorlds()) {
+				File spawner = new File(w.getWorldFolder() + ch + "cs_data" + ch + "spawners" + ch + id + ".dat");
+				
+				if(!spawner.exists()) {
+					return;
+				}
+				
+				spawner.delete();
+				
+			}
+			
 		} else {
 			
 			String path = ENTITY_PATH + ch + id + ".dat";
@@ -231,6 +243,17 @@ public class FileManager {
 			}
 			
 			file.delete();
+			
+			for(World w : plugin.getServer().getWorlds()) {
+				File entity = new File(w.getWorldFolder() + ch + "cs_data" + ch + "entites" + ch + id + ".dat");
+				
+				if(!entity.exists()) {
+					return;
+				}
+				
+				entity.delete();
+				
+			}
 			
 		}
 		
@@ -308,9 +331,6 @@ public class FileManager {
 	
 	//Loads a Spawner from a YAML file
 	public Spawner loadSpawner(File f) {
-		
-		if(logLevel > 1) 
-			log.info("Loading " + f.getName());
 		
 		if(isDat(f)) {
 			
@@ -477,9 +497,6 @@ public class FileManager {
 	
 	//Loads a SpawnableEntity from a YAML file
 	public SpawnableEntity loadEntity(File f) {
-		
-		if(logLevel > 1)
-			log.info("Loading " + f.getName());
 		
 		if(isDat(f)) {
 			

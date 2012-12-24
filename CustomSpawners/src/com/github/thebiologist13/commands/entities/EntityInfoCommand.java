@@ -206,6 +206,11 @@ public class EntityInfoCommand extends SpawnerCommand {
 		
 		String typeOfExpDrop = (s.getType().equals(EntityType.THROWN_EXP_BOTTLE)) ? "Experience Bottle Exp: " : "Mob Dropped Exp: ";
 		
+		boolean isWither = false;
+		if(s.hasProp("wither")) {
+			isWither = (Boolean) s.getProp("wither");
+		}
+		
 		//Send info
 		String[] message = {
 				"",
@@ -250,6 +255,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 				ChatColor.GOLD + "Drops: " + dropMsg,
 				ChatColor.GOLD + "Inventory: " + invMsg,
 				ChatColor.GOLD + "Invincible: " + s.isInvulnerable(),
+				ChatColor.GOLD + "Wither: " + String.valueOf(isWither),
 				ChatColor.GREEN + "Scroll Up for More Properties."
 		};
 		

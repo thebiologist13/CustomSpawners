@@ -25,6 +25,11 @@ public class EntityInventoryCommand extends SpawnerCommand {
 		SpawnableEntity s = getSelectedEntity(arg0);
 		final String PERMISSION = "customspawners.entities.inventory";
 		
+		if(arg3.length == 1) {
+			plugin.sendMessage(arg0, LESS_ARGS);
+			return;
+		}
+		
 		if(!(arg0 instanceof Player)) {
 			plugin.sendMessage(arg0, NO_CONSOLE);
 			return;
@@ -34,6 +39,7 @@ public class EntityInventoryCommand extends SpawnerCommand {
 		
 		if(!p.hasPermission(PERMISSION)) {
 			plugin.sendMessage(arg0, NO_PERMISSION);
+			return;
 		}
 		
 		if(command == null) {

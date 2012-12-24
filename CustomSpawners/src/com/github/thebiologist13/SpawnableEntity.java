@@ -118,9 +118,9 @@ public class SpawnableEntity implements Serializable {
 	}
 	
 	public boolean hasAllDimensions() {
-		return (this.data.containsKey("height") || 
-				this.data.containsKey("width") || 
-				this.data.containsKey("length")) ? false : true;
+		return (this.data.containsKey("height") &&
+				this.data.containsKey("width") && 
+				this.data.containsKey("length")) ? true : false;
 	}
 
 	public int getAge() {

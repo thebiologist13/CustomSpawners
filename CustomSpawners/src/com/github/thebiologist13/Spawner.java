@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import net.minecraft.server.v1_4_6.AxisAlignedBB;
+
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_4_5.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftEntity;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
@@ -128,8 +130,14 @@ public class Spawner implements Serializable {
 	
 	public void removeTypeData(SpawnableEntity type) {
 		if(typeData.contains(type.getId())) {
-			typeData.remove(type.getId());
+			int index = typeData.indexOf(type.getId());
+			typeData.remove(index);
 		}
+		
+		if(typeData.size() == 0) {
+			typeData.add(CustomSpawners.defaultEntity.getId());
+		}
+		
 	}
 	
 	public SpawnableEntity getMainEntity() {
@@ -384,15 +392,14 @@ public class Spawner implements Serializable {
 			return;
 		}
 
+		boolean hasPower = getBlock().isBlockPowered() || getBlock().isBlockIndirectlyPowered();
+		
 		/*
 		 * This block checks if the conditions are met to spawn mobs
 		 */
-		if(isRedstoneTriggered() && (!getBlock().isBlockIndirectlyPowered() || !getBlock().isBlockPowered())) {
+		if(isRedstoneTriggered() && !hasPower) {
 			canSpawn = false;
 		} else if(!isPlayerNearby()) {
-			canSpawn = false;
-		} else if(!(getBlock().getLightLevel() <= getMaxLightLevel()) && 
-				!(getBlock().getLightLevel() <= getMinLightLevel())) {
 			canSpawn = false;
 		} else if(mobs.size() >= getMaxMobs()) {
 			canSpawn = false;
@@ -401,11 +408,8 @@ public class Spawner implements Serializable {
 		//If we can spawn
 		if(canSpawn) {
 			
-			//Break the loop if the spawn limit is reached
-			if(!(mobs.size() == getMaxMobs())) {
-				SpawnableEntity spawnType = randType();
-				mainSpawn(spawnType);
-			}
+			SpawnableEntity spawnType = randType();
+			mainSpawn(spawnType);
 			
 		}
 		
@@ -440,24 +444,39 @@ public class Spawner implements Serializable {
 			}
 			
 			Location spLoc = getLoc();
-			spLoc.setYaw(randRot());
 			
 			Entity e;
 			
 			if(spawnType.hasAllDimensions()) {
 				Location spawnLocation = getSpawningLocation(spawnType, spawnType.requiresBlockBelow(), 
 						spawnType.getHeight(), spawnType.getWidth(), spawnType.getLength());
+				
+				if(!spawnLocation.getChunk().isLoaded())
+					continue;
+				
 				e = spawnTheEntity(spawnType, spawnLocation);
-			} else {
+
+				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
+				
+				AxisAlignedBB bb = nmEntity.boundingBox;
+				
+				spawnType.setHeight((float) (bb.d - bb.a));
+				spawnType.setWidth((float) (bb.e - bb.b));
+				spawnType.setLength((float) (bb.f - bb.c));
+				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
+			} else { //TODO fix randRot
+				
+				if(!spLoc.getChunk().isLoaded())
+					continue;
+				
 				e = spawnTheEntity(spawnType, spLoc);
 				
-				net.minecraft.server.v1_4_5.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
 				
-				int id = spawnType.getId();
-				CustomSpawners.entities.get(id).setHeight(nmEntity.height);
-				CustomSpawners.entities.get(id).setWidth(nmEntity.width);
-				CustomSpawners.entities.get(id).setLength(nmEntity.length);
-				CustomSpawners.entities.get(id).setBlockBelow(getBlockBelowFromEntity(e));
+				spawnType.setHeight(nmEntity.height);
+				spawnType.setWidth(nmEntity.width);
+				spawnType.setLength(nmEntity.length);
+				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
 				
 				Location spawnLocation = getSpawningLocation(spawnType, getBlockBelowFromEntity(e), nmEntity.height, nmEntity.width, nmEntity.length);
 				e.teleport(spawnLocation);
@@ -516,9 +535,9 @@ public class Spawner implements Serializable {
 		Random rand = new Random();
 		double difference = Math.abs(arg0 - arg1);
 		if(arg0 < arg1) {
-			return arg0 + (difference * rand.nextDouble());
+			return Math.floor(arg0 + (difference * rand.nextDouble())) - 0.5;
 		} else if(arg1 < arg0) {
-			return arg1 + (difference * rand.nextDouble());
+			return Math.floor(arg1 + (difference * rand.nextDouble())) + 0.5;
 		} else {
 			return arg0;
 		}
@@ -527,22 +546,12 @@ public class Spawner implements Serializable {
 	private SpawnableEntity randType() {
 		Random rand = new Random();
 		int index = rand.nextInt(typeData.size());
-		int count = 0;
-		
-		for(Integer i : typeData) {
-			if(count == index) {
-				return CustomSpawners.getEntity(i.toString());
-			} else {
-				count++;
-			}
-		}
-		
-		return null;
+		return CustomSpawners.getEntity(typeData.get(index).toString());
 	}
 	
 	private float randRot() {
 		Random rand = new Random();
-		return rand.nextFloat() * 360.0f;
+		return Math.round(rand.nextFloat() * 3) * 90; //Snaps to 90 degree angles
 	}
 	
 	//Assigns properties to a LivingEntity
@@ -711,6 +720,7 @@ public class Spawner implements Serializable {
 	private Skeleton makeJockey(Spider spider) {
 		Location spiderLoc = spider.getLocation();
 		Entity skele = spiderLoc.getWorld().spawnEntity(spiderLoc, EntityType.SKELETON);
+		((LivingEntity) skele).getEquipment().setItemInHand(new ItemStack(Material.BOW));
 		spider.setPassenger(skele);
 		return (Skeleton) skele;
 	}
@@ -767,7 +777,7 @@ public class Spawner implements Serializable {
 		} 
 		
 		ee.setItemInHand(data.getHand());
-		ee.setArmorContents(data.getArmor());
+		ee.setArmorContents(data.getArmor());  
 		
 	}
 	
@@ -800,7 +810,7 @@ public class Spawner implements Serializable {
 		boolean spawnInWater = true;
 		
 		//Actual location
-		Location spawnLoc = null;
+		Location spawnLoc = getLoc();
 		
 		//Amount of times tried
 		int tries = 0;
@@ -826,31 +836,37 @@ public class Spawner implements Serializable {
 				randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
 			}
 
-			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ);
-			spawnLoc.setYaw(randRot());
+			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ, randRot(), 0);
 			
+			//loc is the location of the spawner block
+			//spawnLoc is the location being tested to spawn in
 			if(!isEmpty(spawnLoc, spawnInWater)) {
 				continue;
 			}
 			
-			if(!areaEmpty(loc, spawnInWater, height, width, length))
+			if(!areaEmpty(spawnLoc, spawnInWater, height, width, length))
 				continue;
 			
+			//Block below
 			if(reqsBlockBelow) {
 				Location blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
 				
-				if(isEmpty(blockBelow, !spawnInWater)) {
+				if(isEmpty(blockBelow, false)) {
 					continue;
 				}
 			}
 			
+			//Light leveling
 			if(!((getBlock().getLightLevel() <= getMaxLightLevel()) && (getBlock().getLightLevel() >= getMinLightLevel())))
+				continue;
+			
+			if(!((spawnLoc.getBlock().getLightLevel() <= getMaxLightLevel()) && (spawnLoc.getBlock().getLightLevel() >= getMinLightLevel())))
 				continue;
 			
 			return spawnLoc;
 		}
 		
-		return null;
+		return spawnLoc;
 	}
 	
 	private boolean getBlockBelowFromEntity(Entity e) {
@@ -887,19 +903,23 @@ public class Spawner implements Serializable {
 	
 	private boolean areaEmpty(Location loc, boolean spawnInWater, float height, float width, float length) {
 		
-		for(int y = 0; y < height; y++) {
+		
+		height = (float) Math.floor(height) + 1.0f;
+		width = (float) Math.floor(width) + 1.0f;
+		length = (float) Math.floor(length) + 1.0f;
+		
+		for(int y = 0; y <= height; y++) {
 			double testY = loc.getY() + y;
 			
-			for(int x = (int) (loc.getX() - (width/2)); x < width; x++) {
+			for(int x = 0; x <= width; x++) {
 				double testX = loc.getX() + x;
 				
-				for(int z = (int) (loc.getZ() - (length/2)); z < length; z++) {
+				for(int z = 0; z <= length; z++) {
 					double testZ = loc.getZ() + z;
 					Location testLoc = new Location(loc.getWorld(), testX, testY, testZ);
 					
 					if(!isEmpty(testLoc, spawnInWater))
 						return false;
-					
 				}
 				
 			}

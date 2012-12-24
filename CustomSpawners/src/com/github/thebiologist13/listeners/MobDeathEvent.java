@@ -3,6 +3,7 @@ package com.github.thebiologist13.listeners;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,19 +39,25 @@ public class MobDeathEvent implements Listener {
 				ev.getDrops().clear();
 				Iterator<ItemStack> itr = e.getDrops().iterator();
 				while(itr.hasNext()) ev.getDrops().add(itr.next());
-			} else if(!e.getInventory().isEmpty()) {
+			} else if(!e.getInventory().isEmpty()) { //TODO is this working?
 				ev.getDrops().clear();
 				SInventory inv = e.getInventory();
 				Collection<SItemStack> items = inv.getContent().values();
+				
 				for(SItemStack s : items) {
 					ItemStack i = s.toItemStack();
-					ev.getDrops().add(i);
+					if(!i.getType().equals(Material.AIR))
+						ev.getDrops().add(i);
 				}
-				ev.getDrops().add(inv.getHand());
-				ev.getDrops().add(inv.getArmor()[0]);
-				ev.getDrops().add(inv.getArmor()[1]);
-				ev.getDrops().add(inv.getArmor()[2]);
-				ev.getDrops().add(inv.getArmor()[3]);
+				
+				for(ItemStack i : inv.getArmor()) {
+					if(!i.getType().equals(Material.AIR))
+						ev.getDrops().add(i);
+				}
+				
+				if(!inv.getHand().getType().equals(Material.AIR))
+					ev.getDrops().add(inv.getHand());
+				
 			}
 			
 			//Exp

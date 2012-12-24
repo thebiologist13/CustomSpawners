@@ -2,7 +2,6 @@ package com.github.thebiologist13.serialization;
 
 import java.io.Serializable;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -60,8 +59,7 @@ public class SBlock implements Serializable {
 	}
 	
 	public Block toBlock() {
-		Block b = Bukkit.getWorld(location.getWorldUUID()).getBlockAt(location.toLocation());
-		b.setTypeIdAndData(id, data, false);
+		Block b = location.getWorld().getBlockAt(location.toLocation());
 		return b;
 	}
 	

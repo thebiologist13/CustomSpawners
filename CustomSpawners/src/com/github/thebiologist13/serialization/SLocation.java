@@ -70,8 +70,25 @@ public class SLocation implements Serializable {
 		this.worldUUID = worldUUID;
 	}
 	
+	public World getWorld() {
+		World w = Bukkit.getWorld(worldUUID);
+		if(w == null) {
+			w = Bukkit.getWorld(worldName);
+		}
+		
+		if(w != null)
+			return w;
+		
+		return Bukkit.getWorlds().get(0);
+	}
+	
+	public void setWorld(World w) {
+		this.worldName = w.getName();
+		this.worldUUID = w.getUID();
+	}
+	
 	public Location toLocation() {
-		return new Location(Bukkit.getWorld(worldUUID), x, y, z);
+		return new Location(getWorld(), x, y, z);
 	}
 
 }

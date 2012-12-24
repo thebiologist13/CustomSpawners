@@ -85,11 +85,11 @@ public class SetTypeCommand extends SpawnerCommand {
 				
 			}
 			
-			List<Integer> typeAsMap = new ArrayList<Integer>();
-			typeAsMap.add(type.getId());
+			List<Integer> typeAsList = new ArrayList<Integer>();
+			typeAsList.add(type.getId());
 			
 			//Set the new type
-			s.setTypeData(typeAsMap);
+			s.setTypeData(typeAsList);
 			
 			//Success message
 			if(s.getName().isEmpty()) {
