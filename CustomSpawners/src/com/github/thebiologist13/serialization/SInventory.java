@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.server.v1_4_6.Material;
+
 import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -123,7 +125,16 @@ public class SInventory implements Serializable {
 	}
 	
 	public boolean isEmpty() {
-		return (getMainInventory().isEmpty() && this.content.isEmpty()) ? true : false;
+		
+		boolean mainInventoryEmpty = true;
+		List<ItemStack> main = getMainInventory();
+		for(ItemStack i : main) {
+			if(!i.getType().equals(Material.AIR)) {
+				mainInventoryEmpty = false;
+			}
+		}
+		
+		return (mainInventoryEmpty && this.content.isEmpty()) ? true : false;
 	}
 	
 	public void removeBoot() {

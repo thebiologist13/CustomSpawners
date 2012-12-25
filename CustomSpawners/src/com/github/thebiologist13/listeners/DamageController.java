@@ -11,6 +11,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
@@ -195,10 +196,12 @@ public class DamageController {
 	
 	private boolean wgAllows(Entity e) {
 		
-		if(plugin.worldGuard == null)
+		WorldGuardPlugin wg = CustomSpawners.getWG();
+		
+		if(wg == null)
 			return true;
 		
-		ApplicableRegionSet set = plugin.worldGuard.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
+		ApplicableRegionSet set = wg.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
 		
 		if(!set.allows(DefaultFlag.MOB_DAMAGE))
 			return false;

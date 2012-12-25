@@ -20,6 +20,7 @@ public class ListNearCommand extends SpawnerCommand {
 	@Override
 	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		Player p = null;
+		int near = config.getInt("players.maxNear", 25);
 
 		if(!(arg0 instanceof Player)) {
 			plugin.log.info(NO_CONSOLE);
@@ -32,18 +33,18 @@ public class ListNearCommand extends SpawnerCommand {
 			ArrayList<Spawner> nearbySpawners = new ArrayList<Spawner>();
 			for(Spawner s : CustomSpawners.spawners.values()) {
 				if(!p.hasPermission("customspawners.spawners.listnear.hidden")) {
-					if(s.getLoc().distance(p.getLocation()) < 25 && !s.isHidden()) { //TODO add config option for this nearby distance (the 25)
+					if(s.getLoc().distance(p.getLocation()) < near && !s.isHidden()) {
 						 nearbySpawners.add(s);
 					}
 				} else {
-					if(s.getLoc().distance(p.getLocation()) < 25) { //TODO add config option for this nearby distance (the 25)
+					if(s.getLoc().distance(p.getLocation()) < near) {
 						 nearbySpawners.add(s);
 					}
 				}
 			}
 
 			if(nearbySpawners.size() == 0) {
-				p.sendMessage(ChatColor.GREEN + "There are no spawners within " + String.valueOf(25) + " blocks."); //TODO here too.
+				p.sendMessage(ChatColor.GREEN + "There are no spawners within " + String.valueOf(near) + " blocks.");
 				return;
 			} else {
 				p.sendMessage(ChatColor.GOLD + "Nearby Spawners: ");

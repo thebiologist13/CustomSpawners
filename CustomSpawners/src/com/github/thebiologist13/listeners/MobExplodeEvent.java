@@ -16,6 +16,7 @@ import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
@@ -85,10 +86,12 @@ public class MobExplodeEvent implements Listener {
 	//WorldGuard explosives 
 	private boolean wgAllows(Entity e) {
 		
-		if(plugin.worldGuard == null)
+		WorldGuardPlugin wg = CustomSpawners.getWG();
+		
+		if(wg == null)
 			return true;
 		
-		ApplicableRegionSet set = plugin.worldGuard.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
+		ApplicableRegionSet set = wg.getRegionManager(e.getWorld()).getApplicableRegions(e.getLocation());
 		
 		if(e.getType().equals(EntityType.PRIMED_TNT) && !set.allows(DefaultFlag.TNT))
 			return false;

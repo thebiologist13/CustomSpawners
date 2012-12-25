@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -98,7 +99,7 @@ public class CustomSpawners extends JavaPlugin {
 	public static boolean debug = false;
 	
 	//WorldGuard
-	public WorldGuardPlugin worldGuard = null;
+	private WorldGuardPlugin worldGuard = null;
 	
 	public void onEnable() {
 		
@@ -119,7 +120,7 @@ public class CustomSpawners extends JavaPlugin {
 		logLevel = config.getInt("data.logLevel", 2);
 		
 		//Setup WG
-		worldGuard = setupWG();
+		worldGuard = getWG();
 
 		if(worldGuard == null) {
 
@@ -240,6 +241,13 @@ public class CustomSpawners extends JavaPlugin {
 						
 						if(!mobs.contains(e)) {
 							s.removeMob(e.getEntityId());
+						} else { //This may be game breaking?
+							
+							if(e.getLocation().distance(s.getLoc()) > 192) {
+								s.removeMob(e.getEntityId());
+								e.remove();
+							}
+							
 						}
 						
 					}
@@ -1126,8 +1134,8 @@ public class CustomSpawners extends JavaPlugin {
 	}
 	
 	//Sets up WorldGuard
-	private WorldGuardPlugin setupWG() {
-		Plugin wg = this.getServer().getPluginManager().getPlugin("WorldGuard");
+	public static WorldGuardPlugin getWG() {
+		Plugin wg = Bukkit.getPluginManager().getPlugin("WorldGuard");
 		
 		if(wg != null || !(wg instanceof WorldGuardPlugin)) 
 			return null;

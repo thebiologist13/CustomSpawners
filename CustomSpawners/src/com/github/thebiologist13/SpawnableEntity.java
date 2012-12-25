@@ -40,11 +40,6 @@ public class SpawnableEntity implements Serializable {
 	//Damage Whitelist
 	private ArrayList<String> whitelist = new ArrayList<String>();
 	
-	//TODO isZombie prop
-	//TODO isWither prop
-	//TODO hurtMobs when falling
-	//TODO add config defaults
-	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
 		this.data.put("type", type.getName());

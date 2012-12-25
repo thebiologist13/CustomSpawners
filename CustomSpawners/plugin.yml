@@ -112,6 +112,7 @@ permissions:
             customspawners.entities.setinvulnerable: true
             customspawners.entities.inventory: true
             customspawners.entities.setwither: true
+            customspawners.entities.setvillager: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawner" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -360,4 +361,7 @@ permissions:
         default: op
     customspawners.entities.setwither:
         description: Allows the user/group to set the wither property.
+        default: op
+    customspawners.entities.setvillager:
+        description: Allows the user/group to set if spawned zombies should be villagers.
         default: op

@@ -206,7 +206,7 @@ public class FileManager {
 	}
 
 	//Removes a spawner or entity's data file
-	public void removeDataFile(int id, boolean isSpawner) { //TODO remove from world too.
+	public void removeDataFile(int id, boolean isSpawner) {
 		
 		File file = null;
 

@@ -567,9 +567,19 @@ public class NBTManager {
 		short angry = (short) ((mainEntity.isAngry()) ? 1 : 0);
 		byte invulnerable = (byte) ((mainEntity.isInvulnerable()) ? 1 : 0);
 		byte isWither = 0;
+		byte isBaby = 0;
+		byte isVillager = 0;
 		
 		if(mainEntity.hasProp("wither")) {
 			isWither = (byte) ((Boolean) (mainEntity.getProp("wither")) ? 1 : 0);
+		}
+		
+		if(mainEntity.getAge() < 0) {
+			isBaby = 1;
+		}
+		
+		if(mainEntity.hasProp("zombie")) {
+			isVillager = (byte) ((Boolean) (mainEntity.getProp("zombie")) ? 1 : 0);
 		}
 		
 		Vector velocity = mainEntity.getVelocity();
@@ -606,6 +616,10 @@ public class NBTManager {
 			eData.set("Pos", pos);
 		}
 		
+		if(!mainEntity.getInventory().isEmpty()) {
+			eData.set("Equipment", makeInventory(mainEntity.getInventory()));
+		}
+		
 		eData.setString("id", mainEntity.getType().getName());
 		eData.set("Motion", motion);
 		eData.setShort("Fire", (short) mainEntity.getFireTicks());
@@ -613,8 +627,6 @@ public class NBTManager {
 		eData.setByte("Invulnerable", invulnerable);
 		eData.set("ActiveEffects", effects);
 		eData.setShort("Health", (short) getHealth(mainEntity));
-		eData.set("Equipment", makeInventory(mainEntity.getInventory())); //Put other inventory things after here
-		//TODO if equipment is air, do nothing
 		eData.setByte("Sitting", sitting);
 		eData.setByte("powered", powered);
 		eData.setByte("ExplosionRadius", (byte) mainEntity.getYield());
@@ -632,11 +644,13 @@ public class NBTManager {
 		eData.setCompound("Potion", makePotionCompound((byte) mainEntity.getPotionEffect().getType().getId(), 
 				(byte) mainEntity.getPotionEffect().getAmplifier(), 
 				mainEntity.getPotionEffect().getDuration()));
-		eData.setCompound("Item", getItemNBT(mainEntity.getItemType())); //TODO Make this include potion type
+		eData.setCompound("Item", getItemNBT(mainEntity.getItemType()));
 		eData.setShort("Value", (short) mainEntity.getDroppedExp());
 		eData.setByte("Tile", (byte) mainEntity.getItemType().getTypeId());
 		eData.setByte("Data", mainEntity.getItemType().getData().getData());
 		eData.setByte("SkeletonType", isWither);
+		eData.setByte("isBaby", isBaby);
+		eData.setByte("isVillager", isVillager);
 		
 		return eData;
 	}

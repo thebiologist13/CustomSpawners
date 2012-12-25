@@ -67,8 +67,6 @@ public class Spawner implements Serializable {
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
 	private Map<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>(); 
 	
-	//TODO spawns glitchy again
-	
 	//Ticks left before next spawn
 	private int ticksLeft = -1;
 	
@@ -318,6 +316,14 @@ public class Spawner implements Serializable {
 		return ((SBlock) this.data.get("block")).toBlock();
 	}
 	
+	public int getBlockId() {
+		return ((SBlock) this.data.get("block")).getId();
+	}
+	
+	public byte getBlockData() {
+		return ((SBlock) this.data.get("block")).getData();
+	}
+	
 	public void setBlock(Block block) {
 		this.data.put("block", new SBlock(block));
 	}
@@ -466,7 +472,7 @@ public class Spawner implements Serializable {
 				spawnType.setWidth((float) (bb.e - bb.b));
 				spawnType.setLength((float) (bb.f - bb.c));
 				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
-			} else { //TODO fix randRot
+			} else {
 				
 				if(!spLoc.getChunk().isLoaded())
 					continue;
@@ -553,7 +559,7 @@ public class Spawner implements Serializable {
 	
 	private float randRot() {
 		Random rand = new Random();
-		return Math.round(rand.nextFloat() * 3) * 90; //Snaps to 90 degree angles
+		return (Math.round(rand.nextFloat() * 3)) * 90; //Snaps to 90 degree angles
 	}
 	
 	//Assigns properties to a LivingEntity

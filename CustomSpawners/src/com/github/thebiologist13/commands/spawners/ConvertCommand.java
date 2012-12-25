@@ -138,7 +138,7 @@ public class ConvertCommand extends SpawnerCommand {
 		
 		if(s.isConverted()) { //If converting back to a CustomSpawner
 			
-			blk.setTypeIdAndData(s.getBlock().getTypeId(), s.getBlock().getData(), true); //Change .toBlock()
+			blk.setTypeIdAndData(s.getBlockId(), s.getBlockData(), false);
 			
 		} else { //If converting to a mob spawner block
 			

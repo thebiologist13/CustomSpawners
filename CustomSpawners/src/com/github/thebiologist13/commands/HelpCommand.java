@@ -275,7 +275,7 @@ public class HelpCommand extends SpawnerCommand {
 				for(String s : HELP_MESSAGE_NO_COLOR) {
 					log.info(s);
 				}
-			} else if(arg3.length == 2) { //TODO Change when more console commands exist.
+			} else if(arg3.length == 2) {
 				for(String s : HELP_MESSAGE_NO_COLOR) {
 					log.info(s);
 				}
