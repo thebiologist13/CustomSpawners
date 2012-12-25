@@ -574,7 +574,7 @@ public class NBTManager {
 			isWither = (byte) ((Boolean) (mainEntity.getProp("wither")) ? 1 : 0);
 		}
 		
-		if(mainEntity.getAge() < 0) {
+		if(mainEntity.getAge() < -1) {
 			isBaby = 1;
 		}
 		

@@ -64,6 +64,7 @@ public class EntitiesExecutor implements CommandExecutor {
 		SpawnerCommand eic = new EntityInvulnerableCommand(plugin);
 		SpawnerCommand einc = new EntityInventoryCommand(plugin);
 		SpawnerCommand ewc = new EntityWitherCommand(plugin);
+		SpawnerCommand evc = new EntityVillagerCommand(plugin);
 		
 		this.commands.put("create", crc);
 		this.commands.put("select", slc);
@@ -208,6 +209,7 @@ public class EntitiesExecutor implements CommandExecutor {
 		this.commands.put("setshoes", einc);
 		einc.addAlias("setshoes", "setboots");
 		this.commands.put("setwither", ewc);
+		this.commands.put("setvillager", evc);
 	}
 
 	@Override

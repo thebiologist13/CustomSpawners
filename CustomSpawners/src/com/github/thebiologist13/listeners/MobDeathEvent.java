@@ -3,7 +3,6 @@ package com.github.thebiologist13.listeners;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -46,17 +45,14 @@ public class MobDeathEvent implements Listener {
 				
 				for(SItemStack s : items) {
 					ItemStack i = s.toItemStack();
-					if(!i.getType().equals(Material.AIR))
-						ev.getDrops().add(i);
+					ev.getDrops().add(i);
 				}
 				
 				for(ItemStack i : inv.getArmor()) {
-					if(!i.getType().equals(Material.AIR))
-						ev.getDrops().add(i);
+					ev.getDrops().add(i);
 				}
-				
-				if(!inv.getHand().getType().equals(Material.AIR))
-					ev.getDrops().add(inv.getHand());
+
+				ev.getDrops().add(inv.getHand());
 				
 			}
 			

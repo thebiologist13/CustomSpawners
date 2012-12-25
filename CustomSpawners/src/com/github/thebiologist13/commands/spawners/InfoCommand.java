@@ -29,8 +29,6 @@ public class InfoCommand extends SpawnerCommand {
 			p = (Player) arg0;
 		}
 		
-		p = (Player) arg0;
-		
 		if(p == null) {
 
 			//If the player wants to perform command with a selection.

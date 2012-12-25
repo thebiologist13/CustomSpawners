@@ -34,8 +34,6 @@ public class EntityInfoCommand extends SpawnerCommand {
 			p = (Player) arg0;
 		}
 
-		p = (Player) arg0;
-
 		if(p == null) {
 
 			//If the player wants to perform command with a selection.
@@ -211,6 +209,11 @@ public class EntityInfoCommand extends SpawnerCommand {
 			isWither = (Boolean) s.getProp("wither");
 		}
 		
+		boolean isVillager = false;
+		if(s.hasProp("zombie")) {
+			isVillager = (Boolean) s.getProp("zombie");
+		}
+		
 		//Send info
 		String[] message = {
 				"",
@@ -256,6 +259,7 @@ public class EntityInfoCommand extends SpawnerCommand {
 				ChatColor.GOLD + "Inventory: " + invMsg,
 				ChatColor.GOLD + "Invincible: " + s.isInvulnerable(),
 				ChatColor.GOLD + "Wither: " + String.valueOf(isWither),
+				ChatColor.GOLD + "Villager: " + String.valueOf(isVillager),
 				ChatColor.GREEN + "Scroll Up for More Properties."
 		};
 		
