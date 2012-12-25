@@ -99,6 +99,14 @@ public class Spawner implements Serializable {
 		data.put("useSpawnArea", false);
 	}
 	
+	public Spawner cloneWithNewId(int id) {
+		Spawner s = new Spawner(getMainEntity(), getLoc(), id);
+		s.setData(data);
+		s.setTypeData(typeData);
+		s.setMobs(mobs);
+		return s;
+	}
+	
 	public int getId() {
 		return (Integer) this.data.get("id");
 	}

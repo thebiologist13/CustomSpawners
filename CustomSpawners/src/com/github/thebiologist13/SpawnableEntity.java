@@ -74,6 +74,16 @@ public class SpawnableEntity implements Serializable {
 		setInventory(newInv);
 	}
 	
+	public SpawnableEntity cloneWithNewId(int id) {
+		SpawnableEntity e = new SpawnableEntity(getType(), id);
+		e.setData(data);
+		e.setDamageBlacklist(blacklist);
+		e.setDamageWhitelist(whitelist);
+		e.setItemDamageList(getItemDamageList());
+		e.setEffects(effects);
+		return e;
+	}
+	
 	public float getHeight() {
 		return (this.data.containsKey("height")) ? (Float) this.data.get("height") : -1f;
 	}

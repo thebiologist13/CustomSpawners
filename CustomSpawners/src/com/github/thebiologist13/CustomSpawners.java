@@ -188,7 +188,8 @@ public class CustomSpawners extends JavaPlugin {
 					}
 					continue;
 				} else {
-					spawners.put(getNextSpawnerId(), s);
+					int nextId = getNextSpawnerId();
+					spawners.put(nextId, s.cloneWithNewId(nextId));
 				}
 			}
 		}
@@ -196,7 +197,6 @@ public class CustomSpawners extends JavaPlugin {
 		/*
 		 * Spawning Thread
 		 */
-		//SAFE
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
 			public void run() {
@@ -221,7 +221,6 @@ public class CustomSpawners extends JavaPlugin {
 		 * Removal Check Thread
 		 * This thread verifies that all spawned mobs still exist. 
 		 */
-		
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
 			@Override
@@ -1086,7 +1085,11 @@ public class CustomSpawners extends JavaPlugin {
 			}
 			
 			for(File f : entityFiles.listFiles()) {
-				containedEntities.add(fileManager.loadEntity(f));
+				SpawnableEntity e = fileManager.loadEntity(f);
+				if(entities.containsKey(e.getId())) {
+					e = e.cloneWithNewId(getNextEntityId());
+				}
+				containedEntities.add(e);
 			}
 			
 			if(containedEntities.containsAll(sEnts))
