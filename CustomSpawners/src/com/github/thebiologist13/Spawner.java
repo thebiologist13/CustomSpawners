@@ -62,17 +62,12 @@ public class Spawner implements Serializable {
 	private static final long serialVersionUID = -153105685313343476L;
 	//Main Data
 	private Map<String, Object> data = new HashMap<String, Object>();
+	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
+	private Map<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>();
+	//Ticks left before next spawn
+	private int ticksLeft = -1; 
 	//Spawnable Mobs
 	private List<Integer> typeData = new ArrayList<Integer>();
-	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
-	private Map<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>(); 
-	
-	//Ticks left before next spawn
-	private int ticksLeft = -1;
-	
-	/*
-	 * Constructors
-	 */
 	
 	public Spawner(SpawnableEntity type, Location loc, int id) {
 		init(type, loc, id);
@@ -83,20 +78,23 @@ public class Spawner implements Serializable {
 		data.put("name", name);
 	}
 	
-	private void init(SpawnableEntity type, Location loc, int id) {
-		SLocation[] areaPoints = new SLocation[2];
+	public void addMob(int mobId, SpawnableEntity entity) {
+		mobs.put(mobId, entity);
+	}
+	
+	public void addTypeData(SpawnableEntity data) {
+		typeData.add(data.getId());
+	}
+	
+	public void changeAreaPoint(int index, Location value) {
+		if(index != 0 || index != 1) {
+			return;
+		}
 		
-		areaPoints[0] = new SLocation(loc);
-		areaPoints[1] = new SLocation(loc);
+		SLocation[] ap1 = (SLocation[]) this.data.get("areaPoints");
+		ap1[index] = new SLocation(value);
 		
-		data.put("id", id);
-		data.put("loc", new SLocation(loc));
-		data.put("block", new SBlock(loc.getBlock()));
-		data.put("areaPoints", areaPoints);
-		typeData.add(type.getId());
-		data.put("converted", false);
-		data.put("mainEntity", type);
-		data.put("useSpawnArea", false);
+		this.data.put("areaPoints", ap1);
 	}
 	
 	public Spawner cloneWithNewId(int id) {
@@ -106,147 +104,20 @@ public class Spawner implements Serializable {
 		s.setMobs(mobs);
 		return s;
 	}
-	
-	public int getId() {
-		return (Integer) this.data.get("id");
-	}
-	
-	public String getName() {
-		return (this.data.containsKey("name")) ? (String) this.data.get("name") : "";
-	}
 
-	public void setName(String name) {
-		this.data.put("name", name);
-	}
+	//Spawn the mobs
+	public void forceSpawn() {
 
-	public List<Integer> getTypeData() {
-		return this.typeData;
-	}
-
-	public void setTypeData(List<Integer> typeDataParam) {
-		
-		if(typeDataParam == null) {
-			return;
-		}
-		
-		this.typeData = typeDataParam;
-	}
-	
-	public void addTypeData(SpawnableEntity data) {
-		typeData.add(data.getId());
-	}
-	
-	public void removeTypeData(SpawnableEntity type) {
-		if(typeData.contains(type.getId())) {
-			int index = typeData.indexOf(type.getId());
-			typeData.remove(index);
-		}
-		
-		if(typeData.size() == 0) {
-			typeData.add(CustomSpawners.defaultEntity.getId());
-		}
+		SpawnableEntity spawnType = randType();
+		mainSpawn(spawnType);
 		
 	}
-	
-	public SpawnableEntity getMainEntity() {
-		return (SpawnableEntity) this.data.get("mainEntity");
-	}
-	
-	public boolean isActive() {
-		return (this.data.containsKey("active")) ? (Boolean) this.data.get("active") : false;
-	}
 
-	public void setActive(boolean active) {
-		this.data.put("active", active);
-	}
+	//Spawn the mobs
+	public void forceSpawnType(SpawnableEntity entity) {
 
-	public boolean isHidden() {
-		return (this.data.containsKey("hidden")) ? (Boolean) this.data.get("hidden") : false;
-	}
-
-	public void setHidden(boolean hidden) {
-		this.data.put("hidden", hidden);
-	}
-
-	public double getRadius() {
-		return (this.data.containsKey("radius")) ? (Double) this.data.get("radius") : 0d;
-	}
-
-	public void setRadius(double radius) {
-		this.data.put("radius", radius);
-	}
-
-	public boolean isUsingSpawnArea() {
-		return (this.data.containsKey("useSpawnArea")) ? (Boolean) this.data.get("useSpawnArea") : false;
-	}
-
-	public void setUseSpawnArea(boolean useSpawnArea) {
-		this.data.put("useSpawnArea", useSpawnArea);
-	}
-
-	public boolean isRedstoneTriggered() {
-		return (this.data.containsKey("redstone")) ? (Boolean) this.data.get("redstone") : false;
-	}
-
-	public void setRedstoneTriggered(boolean redstoneTriggered) {
-		this.data.put("redstone", redstoneTriggered);
-	}
-
-	public int getMaxPlayerDistance() {
-		return (this.data.containsKey("maxDistance")) ? (Integer) this.data.get("maxDistance") : 0;
-	}
-
-	public void setMaxPlayerDistance(int maxPlayerDistance) {
-		this.data.put("maxDistance", maxPlayerDistance);
-	}
-
-	public int getMinPlayerDistance() {
-		return (this.data.containsKey("minDistance")) ? (Integer) this.data.get("minDistance") : 0;
-	}
-
-	public void setMinPlayerDistance(int minPlayerDistance) {
-		this.data.put("minDistance", minPlayerDistance);
-	}
-
-	public byte getMaxLightLevel() {
-		return (this.data.containsKey("maxLight")) ? (Byte) this.data.get("maxLight") : 0;
-	}
-
-	public void setMaxLightLevel(byte maxLightLevel) {
-		this.data.put("maxLight", maxLightLevel);
-	}
-
-	public byte getMinLightLevel() {
-		return (this.data.containsKey("minLight")) ? (Byte) this.data.get("minLight") : 0;
-	}
-
-	public void setMinLightLevel(byte minLightLevel) {
-		this.data.put("minLight", minLightLevel);
-	}
-
-	public int getMobsPerSpawn() {
-		return (this.data.containsKey("mobsPerSpawn")) ? (Integer) this.data.get("mobsPerSpawn") : 0;
-	}
-
-	public void setMobsPerSpawn(int mobsPerSpawn) {
-		this.data.put("mobsPerSpawn", mobsPerSpawn);
-	}
-
-	public int getMaxMobs() {
-		return (this.data.containsKey("maxMobs")) ? (Integer) this.data.get("maxMobs") : 0;
-	}
-
-	public void setMaxMobs(int maxMobs) {
-		this.data.put("maxMobs", maxMobs);
-	}
-
-	public Location getLoc() {
-		return ((SLocation) this.data.get("loc")).toLocation();
-	}
-
-	public void setLoc(Location loc) {
-		this.data.put("loc", new SLocation(loc));
-		setBlock(loc.getBlock());
+		mainSpawn(entity);
+		
 	}
 
 	public Location[] getAreaPoints() {
@@ -259,6 +130,135 @@ public class Spawner implements Serializable {
 		}
 		
 		return ap1;
+	}
+	
+	public Block getBlock() {
+		return ((SBlock) this.data.get("block")).toBlock();
+	}
+	
+	public byte getBlockData() {
+		return ((SBlock) this.data.get("block")).getData();
+	}
+	
+	public int getBlockId() {
+		return ((SBlock) this.data.get("block")).getId();
+	}
+	
+	public int getId() {
+		return (Integer) this.data.get("id");
+	}
+
+	public Location getLoc() {
+		return ((SLocation) this.data.get("loc")).toLocation();
+	}
+
+	public SpawnableEntity getMainEntity() {
+		return (SpawnableEntity) this.data.get("mainEntity");
+	}
+
+	public byte getMaxLightLevel() {
+		return (this.data.containsKey("maxLight")) ? (Byte) this.data.get("maxLight") : 0;
+	}
+
+	public int getMaxMobs() {
+		return (this.data.containsKey("maxMobs")) ? (Integer) this.data.get("maxMobs") : 0;
+	}
+
+	public int getMaxPlayerDistance() {
+		return (this.data.containsKey("maxDistance")) ? (Integer) this.data.get("maxDistance") : 0;
+	}
+
+	public byte getMinLightLevel() {
+		return (this.data.containsKey("minLight")) ? (Byte) this.data.get("minLight") : 0;
+	}
+
+	public int getMinPlayerDistance() {
+		return (this.data.containsKey("minDistance")) ? (Integer) this.data.get("minDistance") : 0;
+	}
+
+	public Map<Integer, SpawnableEntity> getMobs() {
+		return this.mobs;
+	}
+
+	public int getMobsPerSpawn() {
+		return (this.data.containsKey("mobsPerSpawn")) ? (Integer) this.data.get("mobsPerSpawn") : 0;
+	}
+
+	public String getName() {
+		return (this.data.containsKey("name")) ? (String) this.data.get("name") : "";
+	}
+
+	public Object getProp(String key) {
+		return (this.data.containsKey(key)) ? this.data.get(key) : null;
+	}
+
+	public double getRadius() {
+		return (this.data.containsKey("radius")) ? (Double) this.data.get("radius") : 0d;
+	}
+
+	public int getRate() {
+		return (this.data.containsKey("rate")) ? (Integer) this.data.get("rate") : 60;
+	}
+
+	public List<Integer> getTypeData() {
+		return this.typeData;
+	}
+
+	public boolean hasProp(String key) {
+		return this.data.containsKey(key);
+	}
+
+	public boolean isActive() {
+		return (this.data.containsKey("active")) ? (Boolean) this.data.get("active") : false;
+	}
+
+	public boolean isConverted() {
+		return (Boolean) this.data.get("converted");
+	}
+
+	public boolean isHidden() {
+		return (this.data.containsKey("hidden")) ? (Boolean) this.data.get("hidden") : false;
+	}
+
+	public boolean isRedstoneTriggered() {
+		return (this.data.containsKey("redstone")) ? (Boolean) this.data.get("redstone") : false;
+	}
+
+	public boolean isUsingSpawnArea() {
+		return (this.data.containsKey("useSpawnArea")) ? (Boolean) this.data.get("useSpawnArea") : false;
+	}
+
+	//Remove the spawner
+	public void remove() {
+		/*
+		 * If the ID is -1, it should be removed next tick by not 
+		 * calling these functions and removing it's file.
+		 * 
+		 * Won't happen initially because when the spawner is initialized, it is given an ID
+		 */
+		data.put("id", -1);
+		data.put("active", false);
+	}
+
+	public void removeMob(int mobId) {
+		if(mobs.containsKey(mobId))
+			mobs.remove(mobId);
+	}
+
+	public void removeTypeData(SpawnableEntity type) {
+		if(typeData.contains(type.getId())) {
+			int index = typeData.indexOf(type.getId());
+			typeData.remove(index);
+		}
+		
+		if(typeData.size() == 0) {
+			typeData.add(CustomSpawners.defaultEntity.getId());
+		}
+		
+	}
+
+	public void setActive(boolean active) {
+		this.data.put("active", active);
 	}
 
 	public void setAreaPoints(Location[] areaPoints) {
@@ -275,83 +275,14 @@ public class Spawner implements Serializable {
 		this.data.put("areaPoints", ap1);
 	}
 	
-	public void changeAreaPoint(int index, Location value) {
-		if(index != 0 || index != 1) {
-			return;
-		}
-		
-		SLocation[] ap1 = (SLocation[]) this.data.get("areaPoints");
-		ap1[index] = new SLocation(value);
-		
-		this.data.put("areaPoints", ap1);
-	}
-
-	public int getRate() {
-		return (this.data.containsKey("rate")) ? (Integer) this.data.get("rate") : 60;
-	}
-
-	public void setRate(int rate) {
-		this.data.put("rate", rate);
-		this.ticksLeft = rate;
-	}
-
-	public Map<Integer, SpawnableEntity> getMobs() {
-		return this.mobs;
-	}
-	
-	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
-		this.mobs = mobParam;
-	}
-	
-	public void addMob(int mobId, SpawnableEntity entity) {
-		mobs.put(mobId, entity);
-	}
-	
-	public void removeMob(int mobId) {
-		if(mobs.containsKey(mobId))
-			mobs.remove(mobId);
-	}
-	
-	public boolean isConverted() {
-		return (Boolean) this.data.get("converted");
+	public void setBlock(Block block) {
+		this.data.put("block", new SBlock(block));
 	}
 
 	public void setConverted(boolean converted) {
 		this.data.put("converted", converted);
 	}
 
-	public Block getBlock() {
-		return ((SBlock) this.data.get("block")).toBlock();
-	}
-	
-	public int getBlockId() {
-		return ((SBlock) this.data.get("block")).getId();
-	}
-	
-	public byte getBlockData() {
-		return ((SBlock) this.data.get("block")).getData();
-	}
-	
-	public void setBlock(Block block) {
-		this.data.put("block", new SBlock(block));
-	}
-	
-	public Object getProp(String key) {
-		return (this.data.containsKey(key)) ? this.data.get(key) : null;
-	}
-	
-	public void setProp(String key, Object value) {
-		if(key == null || value == null) {
-			return;
-		}
-		
-		this.data.put(key, value);
-	}
-	
-	public boolean hasProp(String key) {
-		return this.data.containsKey(key);
-	}
-	
 	public void setData(Map<String, Object> data) {
 		
 		if(data == null)
@@ -367,35 +298,84 @@ public class Spawner implements Serializable {
 		
 		this.data = data;
 	}
+
+	public void setHidden(boolean hidden) {
+		this.data.put("hidden", hidden);
+	}
+	
+	public void setLoc(Location loc) {
+		this.data.put("loc", new SLocation(loc));
+		setBlock(loc.getBlock());
+	}
+	
+	public void setMaxLightLevel(byte maxLightLevel) {
+		this.data.put("maxLight", maxLightLevel);
+	}
+	
+	public void setMaxMobs(int maxMobs) {
+		this.data.put("maxMobs", maxMobs);
+	}
+	
+	public void setMaxPlayerDistance(int maxPlayerDistance) {
+		this.data.put("maxDistance", maxPlayerDistance);
+	}
+
+	public void setMinLightLevel(byte minLightLevel) {
+		this.data.put("minLight", minLightLevel);
+	}
+
+	public void setMinPlayerDistance(int minPlayerDistance) {
+		this.data.put("minDistance", minPlayerDistance);
+	}
+	
+	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
+		this.mobs = mobParam;
+	}
+	
+	public void setMobsPerSpawn(int mobsPerSpawn) {
+		this.data.put("mobsPerSpawn", mobsPerSpawn);
+	}
+	
+	public void setName(String name) {
+		this.data.put("name", name);
+	}
+	
+	public void setProp(String key, Object value) {
+		if(key == null || value == null) {
+			return;
+		}
+		
+		this.data.put(key, value);
+	}
+	
+	public void setRadius(double radius) {
+		this.data.put("radius", radius);
+	}
+	
+	public void setRate(int rate) {
+		this.data.put("rate", rate);
+		this.ticksLeft = rate;
+	}
+	
+	public void setRedstoneTriggered(boolean redstoneTriggered) {
+		this.data.put("redstone", redstoneTriggered);
+	}
 	
 	/*
 	 * Methods for spawning, timing, etc.
 	 */
 
-	//Tick the spawn rate down and spawn mobs if it is time to spawn. Return the ticks left.
-	public int tick() {
-		if(((Boolean) data.get("active")) && !(((Integer) data.get("rate")) <= 0)) {
-			ticksLeft--;
-			if(ticksLeft == 0) {
-				ticksLeft = ((Integer) data.get("rate"));
-				spawn();
-				return 0;
-			}
+	public void setTypeData(List<Integer> typeDataParam) {
+		
+		if(typeDataParam == null) {
+			return;
 		}
 		
-		return ticksLeft;
+		this.typeData = typeDataParam;
 	}
 	
-	//Remove the spawner
-	public void remove() {
-		/*
-		 * If the ID is -1, it should be removed next tick by not 
-		 * calling these functions and removing it's file.
-		 * 
-		 * Won't happen initially because when the spawner is initialized, it is given an ID
-		 */
-		data.put("id", -1);
-		data.put("active", false);
+	public void setUseSpawnArea(boolean useSpawnArea) {
+		this.data.put("useSpawnArea", useSpawnArea);
 	}
 	
 	//Spawn the mobs
@@ -431,144 +411,52 @@ public class Spawner implements Serializable {
 		
 	}
 	
-	//Spawn the mobs
-	public void forceSpawn() {
-
-		SpawnableEntity spawnType = randType();
-		mainSpawn(spawnType);
+	//Tick the spawn rate down and spawn mobs if it is time to spawn. Return the ticks left.
+	public int tick() {
+		if(((Boolean) data.get("active")) && !(((Integer) data.get("rate")) <= 0)) {
+			ticksLeft--;
+			if(ticksLeft == 0) {
+				ticksLeft = ((Integer) data.get("rate"));
+				spawn();
+				return 0;
+			}
+		}
 		
+		return ticksLeft;
 	}
 	
-	//Spawn the mobs
-	public void forceSpawnType(SpawnableEntity entity) {
-
-		mainSpawn(entity);
+	private boolean areaEmpty(Location loc, boolean spawnInWater, float height, float width, float length) {
+		
+		
+		height = (float) Math.floor(height) + 1.0f;
+		width = (float) Math.floor(width) + 1.0f;
+		length = (float) Math.floor(length) + 1.0f;
+		
+		for(int y = 0; y <= height; y++) {
+			double testY = loc.getY() + y;
+			
+			for(int x = 0; x <= width; x++) {
+				double testX = loc.getX() + x;
+				
+				for(int z = 0; z <= length; z++) {
+					double testZ = loc.getZ() + z;
+					Location testLoc = new Location(loc.getWorld(), testX, testY, testZ);
+					
+					if(!isEmpty(testLoc, spawnInWater))
+						return false;
+				}
+				
+			}
+			
+		}
+		
+		return true;
 		
 	}
 	
 	/*
 	 * Methods for choosing locations, checking things, etc.
 	 */
-	
-	private void mainSpawn(SpawnableEntity spawnType) {
-		
-		//Loop to spawn until the mobs per spawn is reached
-		for(int i = 0; i < getMobsPerSpawn(); i++) {
-			
-			if(mobs.size() + i >= getMaxMobs()) {
-				return;
-			}
-			
-			Location spLoc = getLoc();
-			
-			Entity e;
-			
-			if(spawnType.hasAllDimensions()) {
-				Location spawnLocation = getSpawningLocation(spawnType, spawnType.requiresBlockBelow(), 
-						spawnType.getHeight(), spawnType.getWidth(), spawnType.getLength());
-				
-				if(!spawnLocation.getChunk().isLoaded())
-					continue;
-				
-				e = spawnTheEntity(spawnType, spawnLocation);
-
-				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
-				
-				AxisAlignedBB bb = nmEntity.boundingBox;
-				
-				spawnType.setHeight((float) (bb.d - bb.a));
-				spawnType.setWidth((float) (bb.e - bb.b));
-				spawnType.setLength((float) (bb.f - bb.c));
-				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
-			} else {
-				
-				if(!spLoc.getChunk().isLoaded())
-					continue;
-				
-				e = spawnTheEntity(spawnType, spLoc);
-				
-				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
-				
-				spawnType.setHeight(nmEntity.height);
-				spawnType.setWidth(nmEntity.width);
-				spawnType.setLength(nmEntity.length);
-				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
-				
-				Location spawnLocation = getSpawningLocation(spawnType, getBlockBelowFromEntity(e), nmEntity.height, nmEntity.width, nmEntity.length);
-				e.teleport(spawnLocation);
-			}
-			
-			if(e != null) {
-				
-				assignMobProps(e, spawnType);
-				
-				mobs.put(e.getEntityId(), spawnType);
-				
-			}
-			
-		}
-		
-	}
-	
-	//Check if players are nearby
-	private boolean isPlayerNearby() {
-		for(Player p : Bukkit.getOnlinePlayers()) {
-			
-			//Finds distance between spawner and player in 3D space.
-			double distance = p.getLocation().distance(getLoc());
-			if(distance <= ((Integer) data.get("maxDistance")) && distance >= ((Integer) data.get("minDistance"))) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	//Check if players are nearby
-	private ArrayList<Player> getNearbyPlayers(Location source, double max) {
-		ArrayList<Player> players = new ArrayList<Player>();
-		for(Player p : Bukkit.getOnlinePlayers()) {
-			//Finds distance between spawner and player is 3D space.
-			double distance = p.getLocation().distance(getLoc());
-			
-			if(distance <= max) {
-				players.add(p);
-			}
-		}
-		return players;
-	}
-	
-	//Generate random double for location's parts within radius
-	private double randomGenRad() {
-		Random rand = new Random();
-		if(rand.nextFloat() < 0.5) {
-			return Math.floor((rand.nextDouble() * ((Double) data.get("radius"))) * -1) - 0.5;
-		} else {
-			return Math.floor((rand.nextDouble() * ((Double) data.get("radius"))) * 1) + 0.5;
-		}
-	}
-	
-	private double randomGenRange(double arg0, double arg1) {
-		Random rand = new Random();
-		double difference = Math.abs(arg0 - arg1);
-		if(arg0 < arg1) {
-			return Math.floor(arg0 + (difference * rand.nextDouble())) - 0.5;
-		} else if(arg1 < arg0) {
-			return Math.floor(arg1 + (difference * rand.nextDouble())) + 0.5;
-		} else {
-			return arg0;
-		}
-	}
-	
-	private SpawnableEntity randType() {
-		Random rand = new Random();
-		int index = rand.nextInt(typeData.size());
-		return CustomSpawners.getEntity(typeData.get(index).toString());
-	}
-	
-	private float randRot() {
-		Random rand = new Random();
-		return (Math.round(rand.nextFloat() * 3)) * 90; //Snaps to 90 degree angles
-	}
 	
 	//Assigns properties to a LivingEntity
 	private void assignMobProps(Entity baseEntity, SpawnableEntity data) {
@@ -732,87 +620,50 @@ public class Spawner implements Serializable {
 		
 	}
 	
-	//Makes a spider jockey
-	private Skeleton makeJockey(Spider spider) {
-		Location spiderLoc = spider.getLocation();
-		Entity skele = spiderLoc.getWorld().spawnEntity(spiderLoc, EntityType.SKELETON);
-		((LivingEntity) skele).getEquipment().setItemInHand(new ItemStack(Material.BOW));
-		spider.setPassenger(skele);
-		return (Skeleton) skele;
-	}
-	
-	//Assigns some basic props
-	private void setBasicProps(LivingEntity entity, SpawnableEntity data) {
+	private boolean getBlockBelowFromEntity(Entity e) {
 		
-		setInventory(entity, data.getInventory()); 
+		boolean reqsBlockBelow = true;
 		
-		for(SPotionEffect p : data.getEffects()) {
-			PotionEffect ef = new PotionEffect(p.getType(), p.getDuration(), p.getAmplifier());
-			entity.addPotionEffect(ef, true);
+		switch(e.getType()) {
+		case ENDER_DRAGON:
+			reqsBlockBelow = false;
+			break;
+		case WITHER:
+			reqsBlockBelow = false;
+			break;
+		case BLAZE:
+			reqsBlockBelow = false;
+			break;
+		case BAT:
+			reqsBlockBelow = false;
+			break;
+		default:
+			reqsBlockBelow = true;
+			if(e instanceof Flying)
+				reqsBlockBelow = false;
+			if(e instanceof WaterMob)
+				reqsBlockBelow = false;
+			if(!(e instanceof LivingEntity))
+				reqsBlockBelow = false;
+			break;
 		}
 		
-		//Health handling
-		if(data.getHealth() == -2) {
-			entity.setHealth(1);
-		} else if(data.getHealth() == -1) {
-			entity.setHealth(entity.getMaxHealth());
-		} else {
-			if(data.getHealth() > entity.getMaxHealth()) {
-				entity.setHealth(entity.getMaxHealth());
-				DamageController.extraHealthEntities.put(entity.getEntityId(), data.getHealth() - entity.getMaxHealth());
-			} else if(data.getHealth() < 0) {
-				entity.setHealth(0);
-			} else {
-				entity.setHealth(data.getHealth());
+		return reqsBlockBelow;
+		
+	}
+	
+	//Check if players are nearby
+	private ArrayList<Player> getNearbyPlayers(Location source, double max) {
+		ArrayList<Player> players = new ArrayList<Player>();
+		for(Player p : Bukkit.getOnlinePlayers()) {
+			//Finds distance between spawner and player is 3D space.
+			double distance = p.getLocation().distance(getLoc());
+			
+			if(distance <= max) {
+				players.add(p);
 			}
 		}
-		
-		//Air handling
-		if(data.getAir() == -2) {
-			entity.setRemainingAir(0);
-		} else if(data.getAir() == -1) {
-			entity.setRemainingAir(entity.getMaximumAir());
-		} else {
-			entity.setRemainingAir(data.getAir());
-		}
-		
-	}
-	
-	//Inventory stuff
-	private void setInventory(LivingEntity entity, SInventory data) {
-		
-		EntityEquipment ee = entity.getEquipment();
-		
-		switch(entity.getType()) {
-		case SKELETON:
-			ee.setItemInHand(new ItemStack(Material.BOW));
-			break;
-		case PIG_ZOMBIE:
-			ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
-			break;
-		} 
-		
-		ee.setItemInHand(data.getHand());
-		ee.setArmorContents(data.getArmor());  
-		
-	}
-	
-	//Explosive Properties
-	private void setExplosiveProps(Explosive e, SpawnableEntity data) {
-		e.setYield(data.getYield());
-		e.setIsIncendiary(data.isIncendiary());
-	}
-	
-	//Age properties
-	private void setAgeProps(Ageable a, SpawnableEntity data) {
-		if(data.getAge() == -2) {
-			a.setBaby();
-		} else if(data.getAge() == -1) {
-			a.setAdult();
-		} else {
-			a.setAge(data.getAge());
-		}
-		
+		return players;
 	}
 	
 	//Determines a valid spawn location
@@ -885,65 +736,20 @@ public class Spawner implements Serializable {
 		return spawnLoc;
 	}
 	
-	private boolean getBlockBelowFromEntity(Entity e) {
+	private void init(SpawnableEntity type, Location loc, int id) {
+		SLocation[] areaPoints = new SLocation[2];
 		
-		boolean reqsBlockBelow = true;
+		areaPoints[0] = new SLocation(loc);
+		areaPoints[1] = new SLocation(loc);
 		
-		switch(e.getType()) {
-		case ENDER_DRAGON:
-			reqsBlockBelow = false;
-			break;
-		case WITHER:
-			reqsBlockBelow = false;
-			break;
-		case BLAZE:
-			reqsBlockBelow = false;
-			break;
-		case BAT:
-			reqsBlockBelow = false;
-			break;
-		default:
-			reqsBlockBelow = true;
-			if(e instanceof Flying)
-				reqsBlockBelow = false;
-			if(e instanceof WaterMob)
-				reqsBlockBelow = false;
-			if(!(e instanceof LivingEntity))
-				reqsBlockBelow = false;
-			break;
-		}
-		
-		return reqsBlockBelow;
-		
-	}
-	
-	private boolean areaEmpty(Location loc, boolean spawnInWater, float height, float width, float length) {
-		
-		
-		height = (float) Math.floor(height) + 1.0f;
-		width = (float) Math.floor(width) + 1.0f;
-		length = (float) Math.floor(length) + 1.0f;
-		
-		for(int y = 0; y <= height; y++) {
-			double testY = loc.getY() + y;
-			
-			for(int x = 0; x <= width; x++) {
-				double testX = loc.getX() + x;
-				
-				for(int z = 0; z <= length; z++) {
-					double testZ = loc.getZ() + z;
-					Location testLoc = new Location(loc.getWorld(), testX, testY, testZ);
-					
-					if(!isEmpty(testLoc, spawnInWater))
-						return false;
-				}
-				
-			}
-			
-		}
-		
-		return true;
-		
+		data.put("id", id);
+		data.put("loc", new SLocation(loc));
+		data.put("block", new SBlock(loc.getBlock()));
+		data.put("areaPoints", areaPoints);
+		typeData.add(type.getId());
+		data.put("converted", false);
+		data.put("mainEntity", type);
+		data.put("useSpawnArea", false);
 	}
 	
 	//Checks if a block is "empty"
@@ -955,6 +761,199 @@ public class Spawner implements Serializable {
 		} else {
 			return false;
 		}
+		
+	}
+	
+	//Check if players are nearby
+	private boolean isPlayerNearby() {
+		for(Player p : Bukkit.getOnlinePlayers()) {
+			
+			//Finds distance between spawner and player in 3D space.
+			double distance = p.getLocation().distance(getLoc());
+			if(distance <= ((Integer) data.get("maxDistance")) && distance >= ((Integer) data.get("minDistance"))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void mainSpawn(SpawnableEntity spawnType) {
+		
+		//Loop to spawn until the mobs per spawn is reached
+		for(int i = 0; i < getMobsPerSpawn(); i++) {
+			
+			if(mobs.size() + i >= getMaxMobs()) {
+				return;
+			}
+			
+			Location spLoc = getLoc();
+			
+			Entity e;
+			
+			if(spawnType.hasAllDimensions()) {
+				Location spawnLocation = getSpawningLocation(spawnType, spawnType.requiresBlockBelow(), 
+						spawnType.getHeight(), spawnType.getWidth(), spawnType.getLength());
+				
+				if(!spawnLocation.getChunk().isLoaded())
+					continue;
+				
+				e = spawnTheEntity(spawnType, spawnLocation);
+
+				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
+				
+				AxisAlignedBB bb = nmEntity.boundingBox;
+				
+				spawnType.setHeight((float) (bb.d - bb.a));
+				spawnType.setWidth((float) (bb.e - bb.b));
+				spawnType.setLength((float) (bb.f - bb.c));
+				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
+			} else {
+				
+				if(!spLoc.getChunk().isLoaded())
+					continue;
+				
+				e = spawnTheEntity(spawnType, spLoc);
+				
+				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
+				
+				spawnType.setHeight(nmEntity.height);
+				spawnType.setWidth(nmEntity.width);
+				spawnType.setLength(nmEntity.length);
+				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
+				
+				Location spawnLocation = getSpawningLocation(spawnType, getBlockBelowFromEntity(e), nmEntity.height, nmEntity.width, nmEntity.length);
+				e.teleport(spawnLocation);
+			}
+			
+			if(e != null) {
+				
+				assignMobProps(e, spawnType);
+				
+				mobs.put(e.getEntityId(), spawnType);
+				
+			}
+			
+		}
+		
+	}
+	
+	//Makes a spider jockey
+	private Skeleton makeJockey(Spider spider) {
+		Location spiderLoc = spider.getLocation();
+		Entity skele = spiderLoc.getWorld().spawnEntity(spiderLoc, EntityType.SKELETON);
+		((LivingEntity) skele).getEquipment().setItemInHand(new ItemStack(Material.BOW));
+		spider.setPassenger(skele);
+		return (Skeleton) skele;
+	}
+	
+	//Generate random double for location's parts within radius
+	private double randomGenRad() {
+		Random rand = new Random();
+		if(rand.nextFloat() < 0.5) {
+			return Math.floor((rand.nextDouble() * ((Double) data.get("radius"))) * -1) - 0.5;
+		} else {
+			return Math.floor((rand.nextDouble() * ((Double) data.get("radius"))) * 1) + 0.5;
+		}
+	}
+	
+	private double randomGenRange(double arg0, double arg1) {
+		Random rand = new Random();
+		double difference = Math.abs(arg0 - arg1);
+		if(arg0 < arg1) {
+			return Math.floor(arg0 + (difference * rand.nextDouble())) - 0.5;
+		} else if(arg1 < arg0) {
+			return Math.floor(arg1 + (difference * rand.nextDouble())) + 0.5;
+		} else {
+			return arg0;
+		}
+	}
+	
+	private float randRot() {
+		Random rand = new Random();
+		return (Math.round(rand.nextFloat() * 3)) * 90; //Snaps to 90 degree angles
+	}
+	
+	private SpawnableEntity randType() {
+		Random rand = new Random();
+		int index = rand.nextInt(typeData.size());
+		SpawnableEntity e = CustomSpawners.getEntity(typeData.get(index).toString());
+		if(e == null) {
+			return CustomSpawners.defaultEntity;
+		}
+		return e;
+	}
+	
+	//Age properties
+	private void setAgeProps(Ageable a, SpawnableEntity data) {
+		if(data.getAge() == -2) {
+			a.setBaby();
+		} else if(data.getAge() == -1) {
+			a.setAdult();
+		} else {
+			a.setAge(data.getAge());
+		}
+		
+	}
+	
+	//Assigns some basic props
+	private void setBasicProps(LivingEntity entity, SpawnableEntity data) {
+		
+		setInventory(entity, data.getInventory()); 
+		
+		for(SPotionEffect p : data.getEffects()) {
+			PotionEffect ef = new PotionEffect(p.getType(), p.getDuration(), p.getAmplifier());
+			entity.addPotionEffect(ef, true);
+		}
+		
+		//Health handling
+		if(data.getHealth() == -2) {
+			entity.setHealth(1);
+		} else if(data.getHealth() == -1) {
+			entity.setHealth(entity.getMaxHealth());
+		} else {
+			if(data.getHealth() > entity.getMaxHealth()) {
+				entity.setHealth(entity.getMaxHealth());
+				DamageController.extraHealthEntities.put(entity.getEntityId(), data.getHealth() - entity.getMaxHealth());
+			} else if(data.getHealth() < 0) {
+				entity.setHealth(0);
+			} else {
+				entity.setHealth(data.getHealth());
+			}
+		}
+		
+		//Air handling
+		if(data.getAir() == -2) {
+			entity.setRemainingAir(0);
+		} else if(data.getAir() == -1) {
+			entity.setRemainingAir(entity.getMaximumAir());
+		} else {
+			entity.setRemainingAir(data.getAir());
+		}
+		
+	}
+	
+	//Explosive Properties
+	private void setExplosiveProps(Explosive e, SpawnableEntity data) {
+		e.setYield(data.getYield());
+		e.setIsIncendiary(data.isIncendiary());
+	}
+	
+	//Inventory stuff
+	private void setInventory(LivingEntity entity, SInventory data) {
+		
+		EntityEquipment ee = entity.getEquipment();
+		
+		switch(entity.getType()) {
+		case SKELETON:
+			ee.setItemInHand(new ItemStack(Material.BOW));
+			break;
+		case PIG_ZOMBIE:
+			ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
+			break;
+		} 
+		
+		ee.setItemInHand(data.getHand());
+		ee.setArmorContents(data.getArmor());  
 		
 	}
 	

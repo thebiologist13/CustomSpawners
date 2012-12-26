@@ -196,7 +196,7 @@ public class DamageController {
 	
 	private boolean wgAllows(Entity e) {
 		
-		WorldGuardPlugin wg = CustomSpawners.getWG();
+		WorldGuardPlugin wg = plugin.getWG();
 		
 		if(wg == null)
 			return true;

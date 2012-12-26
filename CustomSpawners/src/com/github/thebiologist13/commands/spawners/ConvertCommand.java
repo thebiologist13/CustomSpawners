@@ -131,22 +131,22 @@ public class ConvertCommand extends SpawnerCommand {
 	}
 	
 	private void convert(Spawner s) {
-		
+
 		CraftWorld cw = (CraftWorld) s.getLoc().getWorld();
 		TileEntity te = cw.getTileEntityAt(s.getLoc().getBlockX(), s.getLoc().getBlockY(), s.getLoc().getBlockZ());
 		Block blk = cw.getBlockAt(s.getLoc());
-		
+
 		if(s.isConverted()) { //If converting back to a CustomSpawner
-			
+
 			blk.setTypeIdAndData(s.getBlockId(), s.getBlockData(), false);
-			
+
 		} else { //If converting to a mob spawner block
-			
+
 			if(!(te instanceof TileEntityMobSpawner)) {
 				blk.setTypeIdAndData(52, (byte) 0, true);
 				te = cw.getTileEntityAt(s.getLoc().getBlockX(), s.getLoc().getBlockY(), s.getLoc().getBlockZ());
 			}
-			
+
 			NBTManager nbtMan = new NBTManager();
 			s.setActive(false);
 			try {
@@ -154,14 +154,14 @@ public class ConvertCommand extends SpawnerCommand {
 			} catch (NotTileEntityException e) {
 				e.printStackTrace();
 			}
-			
+
 			//Save to world
 			plugin.saveCustomSpawnerToWorld(s);
-			
+
 		}
-		
+
 		s.setConverted(!s.isConverted());
-		
+
 	}
 
 }

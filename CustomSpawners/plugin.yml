@@ -32,7 +32,8 @@ permissions:
             customspawners.customspawners: true
             customspawners.help: true
             customspawners.reloadspawners: true
-            customspawners.limitoverride: true
+            customspawners.io: true
+            customspawners.spawners.limitoverride: true
             customspawners.spawners.activateall: true
             customspawners.spawners.deactivateall: true
             customspawners.spawners.forcespawn: true
@@ -121,6 +122,9 @@ permissions:
         default: true
     customspawners.reloadspawners:
         description: Allows the user/group to reload spawners from file.
+        default: op
+    customspawners.io:
+        description: Allows the user/group to load/save spawners to world.
         default: op
     customspawners.spawners.activateall:
         description: Allows the user/group to activate all spawners.

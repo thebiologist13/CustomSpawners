@@ -36,7 +36,7 @@ public class FileManager {
 	
 	private FileConfiguration config = null;
 	
-	private final int logLevel;
+	private final byte logLevel;
 	
 	private final String SPAWNER_PATH;
 	
@@ -52,7 +52,7 @@ public class FileManager {
 		this.plugin = plugin;
 		this.log = plugin.log;
 		this.config = plugin.getCustomConfig();
-		this.logLevel = config.getInt("data.logLevel", 2);
+		this.logLevel = plugin.getLogLevel();
 		this.SPAWNER_PATH = plugin.getDataFolder() + File.separator + "Spawners";
 		this.ENTITY_PATH = plugin.getDataFolder() + File.separator + "Entities";
 	}

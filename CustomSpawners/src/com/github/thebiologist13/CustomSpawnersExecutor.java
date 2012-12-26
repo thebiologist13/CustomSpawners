@@ -20,9 +20,12 @@ public class CustomSpawnersExecutor implements CommandExecutor {
 		
 		HelpCommand hc = new HelpCommand(plugin);
 		ReloadDataCommand rc = new ReloadDataCommand(plugin);
+		SpawnerIOCommand si = new SpawnerIOCommand(plugin);
 		
 		commands.put("help", hc);
 		commands.put("reload", rc);
+		commands.put("export", si);
+		commands.put("import", si);
 	}
 
 	@Override
