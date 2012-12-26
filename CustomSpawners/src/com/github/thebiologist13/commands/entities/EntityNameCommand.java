@@ -63,15 +63,11 @@ public class EntityNameCommand extends SpawnerCommand {
 				//General error message
 			} else {
 
-				plugin.log.info(GENERAL_ERROR);
+				plugin.sendMessage(arg0, GENERAL_ERROR);
 				return;
 
 			}
 
-			//Send success message
-			p.sendMessage(ChatColor.GREEN + "Successfully set the name of entity with ID " + ChatColor.GOLD +
-					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
-			
 			//Remove the name
 			SpawnableEntity e = CustomSpawners.getEntity(name);
 			if(e == null) {
@@ -80,6 +76,10 @@ public class EntityNameCommand extends SpawnerCommand {
 				p.sendMessage(ChatColor.RED + "That name is already taken for an entity.");
 				return;
 			}
+			
+			//Send success message
+			plugin.sendMessage(arg0, ChatColor.GREEN + "Successfully set the name of entity with ID " + ChatColor.GOLD +
+					String.valueOf(s.getId()) + ChatColor.GREEN + " to " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
 			
 		} else {
 			p.sendMessage(NO_PERMISSION);

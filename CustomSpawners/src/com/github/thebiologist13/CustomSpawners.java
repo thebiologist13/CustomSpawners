@@ -124,13 +124,13 @@ public class CustomSpawners extends JavaPlugin {
 		if(worldGuard == null) {
 
 			if(logLevel > 0) {
-				log.info("[CUSTOMSPAWNERS] Cannot hook into WorldGuard.");
+				log.info("[CustomSpawners] Cannot hook into WorldGuard.");
 			}
 
 		} else {
 
 			if(logLevel > 0) {
-				log.info("[CUSTOMSPAWNERS] Hooked into WorldGuard.");
+				log.info("[CustomSpawners] Hooked into WorldGuard.");
 			}
 
 		}
@@ -198,24 +198,21 @@ public class CustomSpawners extends JavaPlugin {
 				Iterator<Spawner> sp = spawners.values().iterator();
 				while(sp.hasNext()) {
 					Spawner s = sp.next();
-					List<Entity> mobs = s.getLoc().getWorld().getEntities();
 					Iterator<Integer> spMobs = s.getMobs().keySet().iterator();
 					while(spMobs.hasNext()) {
 
-						Entity e = getEntityFromWorld(spMobs.next(), s.getLoc().getWorld());
-
-						if(e == null)
+						int spId = spMobs.next();
+						
+						Entity e = getEntityFromWorld(spId, s.getLoc().getWorld());
+						
+						if(e == null) {
+							s.removeMob(spId);
 							continue;
-
-						if(!mobs.contains(e)) {
+						}
+						
+						if(e.getLocation().distance(s.getLoc()) > 192) {
 							s.removeMob(e.getEntityId());
-						} else { //This may be game breaking?
-
-							if(e.getLocation().distance(s.getLoc()) > 192) {
-								s.removeMob(e.getEntityId());
-								e.remove();
-							}
-
+							e.remove();
 						}
 
 					}
@@ -456,6 +453,10 @@ public class CustomSpawners extends JavaPlugin {
 
 			while(mobItr.hasNext()) {
 				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
+				
+				if(currentMob == null) {
+					continue;
+				}
 
 				if(currentMob.getEntityId() == entityId) {
 					return s.getMobs().get(currentMob);
@@ -659,6 +660,10 @@ public class CustomSpawners extends JavaPlugin {
 			while(mobItr.hasNext()) {
 				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
 
+				if(currentMob == null) {
+					continue;
+				}
+				
 				if(currentMob.getEntityId() == entityId) {
 					return s;
 				}
@@ -878,6 +883,10 @@ public class CustomSpawners extends JavaPlugin {
 			while(mobs.hasNext()) {
 				Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
 
+				if(spawnerMob == null) {
+					continue;
+				}
+				
 				if(spawnerMob.getEntityId() == entityId) {
 					mobs.remove();
 					if(DamageController.extraHealthEntities.containsKey(spawnerMob)) 
@@ -897,6 +906,10 @@ public class CustomSpawners extends JavaPlugin {
 		while(mobs.hasNext()) {
 			Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
 
+			if(spawnerMob == null) {
+				continue;
+			}
+			
 			if(spawnerMob.getPassenger() != null)
 				spawnerMob.getPassenger().remove();
 

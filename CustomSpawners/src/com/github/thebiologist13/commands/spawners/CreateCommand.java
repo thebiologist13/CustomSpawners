@@ -79,14 +79,8 @@ public class CreateCommand extends SpawnerCommand {
 				plugin.getFileManager().autosave(spawner);
 			}
 			
-			//Success message
-			if(type.getName().isEmpty()) {
-				p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getType().getName() + ChatColor.GREEN + 
-						" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
-			} else {
-				p.sendMessage(ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + type.getName() + ChatColor.GREEN + 
-						" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
-			}
+			plugin.sendMessage(arg0, ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + plugin.getFriendlyName(type) + ChatColor.GREEN + 
+					" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
 			
 		} else {
 			p.sendMessage(NO_PERMISSION);

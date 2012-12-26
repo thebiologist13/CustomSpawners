@@ -155,9 +155,6 @@ public class ConvertCommand extends SpawnerCommand {
 				e.printStackTrace();
 			}
 
-			//Save to world
-			plugin.saveCustomSpawnerToWorld(s);
-
 		}
 
 		s.setConverted(!s.isConverted());

@@ -189,7 +189,7 @@ public class SpawnableEntity implements Serializable {
 	}
 
 	public SPotionEffect getPotionEffect() {
-		return (this.data.containsKey("potionType")) ? (SPotionEffect) this.data.get("potionType") : new SPotionEffect(PotionEffectType.REGENERATION, 1, 0);
+		return (this.data.containsKey("potionEffect")) ? (SPotionEffect) this.data.get("potionEffect") : new SPotionEffect(PotionEffectType.REGENERATION, 1, 0);
 	}
 
 	public Villager.Profession getProfession() {
@@ -205,7 +205,14 @@ public class SpawnableEntity implements Serializable {
 	}
 
 	public EntityType getType() {
-		return (EntityType) EntityType.fromName((String) this.data.get("type"));
+		//TODO ThrownPotions throw NPE, ender pearls do not work.
+		String name = (String) this.data.get("type");
+		for(EntityType e1 : EntityType.values()) {
+			if(e1.toString().equals(name)) {
+				return e1;
+			}
+		}
+		return null;
 	}
 
 	public Vector getVelocity() {
@@ -495,7 +502,7 @@ public class SpawnableEntity implements Serializable {
 	}
 
 	public void setType(EntityType type) {
-		this.data.put("type", type.getName());
+		this.data.put("type", type.toString());
 	}
 
 	public void setUseBlacklist(boolean useBlacklist) {

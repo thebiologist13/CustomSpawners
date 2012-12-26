@@ -6,15 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.server.v1_4_6.AxisAlignedBB;
+import net.minecraft.server.v1_4_6.EntityEnderPearl;
+import net.minecraft.server.v1_4_6.EntityLiving;
+import net.minecraft.server.v1_4_6.EntityPotion;
 
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
 import org.bukkit.craftbukkit.v1_4_6.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
@@ -48,7 +55,9 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.entity.Skeleton.SkeletonType;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.listeners.DamageController;
@@ -63,7 +72,7 @@ public class Spawner implements Serializable {
 	//Main Data
 	private Map<String, Object> data = new HashMap<String, Object>();
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
-	private Map<Integer, SpawnableEntity> mobs = new HashMap<Integer, SpawnableEntity>();
+	private ConcurrentHashMap<Integer, SpawnableEntity> mobs = new ConcurrentHashMap<Integer, SpawnableEntity>();
 	//Ticks left before next spawn
 	private int ticksLeft = -1; 
 	//Spawnable Mobs
@@ -153,7 +162,7 @@ public class Spawner implements Serializable {
 	}
 
 	public SpawnableEntity getMainEntity() {
-		return (SpawnableEntity) this.data.get("mainEntity");
+		return CustomSpawners.getEntity(this.typeData.get(0).toString());
 	}
 
 	public byte getMaxLightLevel() {
@@ -329,7 +338,7 @@ public class Spawner implements Serializable {
 	}
 	
 	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
-		this.mobs = mobParam;
+		this.mobs = (ConcurrentHashMap<Integer, SpawnableEntity>) mobParam;
 	}
 	
 	public void setMobsPerSpawn(int mobsPerSpawn) {
@@ -591,7 +600,7 @@ public class Spawner implements Serializable {
 			
 			if(pro instanceof EnderPearl) {
 				EnderPearl e = (EnderPearl) pro;
-				ArrayList<Player> players = getNearbyPlayers(e.getLocation(), 16);
+				ArrayList<Player> players = getNearbyPlayers(e.getLocation(), getMaxPlayerDistance() + 1);
 				int index = (int) Math.round(randomGenRange(0, players.size()));
 				e.setShooter(players.get(index));
 			} else if(pro instanceof Fireball) {
@@ -748,7 +757,6 @@ public class Spawner implements Serializable {
 		data.put("areaPoints", areaPoints);
 		typeData.add(type.getId());
 		data.put("converted", false);
-		data.put("mainEntity", type);
 		data.put("useSpawnArea", false);
 	}
 	
@@ -962,7 +970,29 @@ public class Spawner implements Serializable {
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return getLoc().getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {
-			return getLoc().getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) 0);
+			return getLoc().getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) spawnType.getItemType().getDurability());
+		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) {
+			World world = getLoc().getWorld();
+			PotionType type = PotionType.getByEffect(spawnType.getPotionEffect().getType());
+			Potion p = new Potion(type);
+			p.setSplash(true);
+			int data = p.toDamageValue();
+			 
+			net.minecraft.server.v1_4_6.World nmsWorld = ((CraftWorld) world).getHandle();
+			EntityPotion ent = new EntityPotion(nmsWorld, spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), new net.minecraft.server.v1_4_6.ItemStack(373, 1, data));
+			nmsWorld.addEntity(ent);
+			return ent.getBukkitEntity();
+		} else if(spawnType.getType().equals(EntityType.ENDER_PEARL)) {
+			World world = getLoc().getWorld();
+			EntityLiving nearPlayer = ((CraftLivingEntity) getNearbyPlayers(getLoc(), getMaxPlayerDistance() + 1).get(0)).getHandle();
+			 
+			net.minecraft.server.v1_4_6.World nmsWorld = ((CraftWorld) world).getHandle();
+			EntityEnderPearl ent = new EntityEnderPearl(nmsWorld, nearPlayer);
+			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
+			nmsWorld.addEntity(ent);
+			return ent.getBukkitEntity();
+		} else if(spawnType.getType().equals(EntityType.EGG)) {
+			return getLoc().getWorld().spawnEntity(spawnLocation, EntityType.EGG);
 		} else {
 			return getLoc().getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
 		}

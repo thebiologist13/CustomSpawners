@@ -437,8 +437,17 @@ public class NBTManager {
 			spawnLocation = s.getAreaPoints()[0]; //This can be changed. Really just needs a single point to spawn to. Should add option to disable.
 		}
 		
+		String id = "";
+		if(mainEntity.getType().equals(EntityType.SPLASH_POTION)) {
+			id = "ThrownPotion";
+		} else if(mainEntity.getType().equals(EntityType.ENDER_PEARL)) {
+			id = "ThrownEnderpearl";
+		} else {
+			id = mainEntity.getType().getName();
+		}
+		
 		if(s.getTypeData().size() == 1) {
-			eData = makeEntityData(mainEntity, spawnLocation);
+			eData = makeEntityData(mainEntity, spawnLocation, id);
 			sData.set("SpawnData", eData);
 		} else {
 			List<Integer> typeData = s.getTypeData();
@@ -447,7 +456,7 @@ public class NBTManager {
 			for(Integer i = 0; i < typeData.size(); i++) {
 				NBTTagCompound potentialData = new NBTTagCompound();
 				SpawnableEntity e = CustomSpawners.getEntity(typeData.get(i).toString());
-				NBTTagCompound eData2 = makeEntityData(e, spawnLocation);
+				NBTTagCompound eData2 = makeEntityData(e, spawnLocation, id);
 				
 				if(i == 0) {
 					sData.set("SpawnData", eData2);
@@ -467,7 +476,7 @@ public class NBTManager {
 		sData.setInt("x", s.getLoc().getBlockX());
 		sData.setInt("y", s.getLoc().getBlockY());
 		sData.setInt("z", s.getLoc().getBlockZ());
-		sData.setString("EntityId", mainEntity.getType().getName());
+		sData.setString("EntityId", id);
 		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
 		sData.setShort("SpawnRange", (short) s.getRadius());
 		sData.setShort("Delay", (short) s.getRate());
@@ -558,7 +567,7 @@ public class NBTManager {
 	 * @param mainEntity The entity to make data from.
 	 * @return The data.
 	 */
-	private NBTTagCompound makeEntityData(SpawnableEntity mainEntity, Location spawnLocation) {
+	private NBTTagCompound makeEntityData(SpawnableEntity mainEntity, Location spawnLocation, String id) {
 		
 		NBTTagCompound eData = new NBTTagCompound();
 		byte sitting = (byte) ((mainEntity.isSitting()) ? 1 : 0);
@@ -571,7 +580,7 @@ public class NBTManager {
 		byte isVillager = 0;
 		
 		if(mainEntity.hasProp("wither")) {
-			isWither = (byte) ((Boolean) (mainEntity.getProp("wither")) ? 1 : 0);
+			isWither = (byte) (((Boolean) (mainEntity.getProp("wither"))) ? 1 : 0);
 		}
 		
 		if(mainEntity.getAge() < -1) {
@@ -579,7 +588,7 @@ public class NBTManager {
 		}
 		
 		if(mainEntity.hasProp("zombie")) {
-			isVillager = (byte) ((Boolean) (mainEntity.getProp("zombie")) ? 1 : 0);
+			isVillager = (byte) (((Boolean) (mainEntity.getProp("zombie"))) ? 1 : 0);
 		}
 		
 		Vector velocity = mainEntity.getVelocity();
@@ -620,7 +629,7 @@ public class NBTManager {
 			eData.set("Equipment", makeInventory(mainEntity.getInventory()));
 		}
 		
-		eData.setString("id", mainEntity.getType().getName());
+		eData.setString("id", id);
 		eData.set("Motion", motion);
 		eData.setShort("Fire", (short) mainEntity.getFireTicks());
 		eData.setShort("Air", (short) getAir(mainEntity));

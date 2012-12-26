@@ -22,7 +22,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 	}
 
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) { //TODO Test me!
+	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
 		Player p = (arg0 instanceof Player) ? (Player) arg0 : null;
 		String command = getAssignedCommand(arg3).toLowerCase();
@@ -47,7 +47,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 			
 			int amountLoaded = loadData().size();
 			
-			plugin.sendMessage(arg0, ChatColor.GREEN + "Loaded " + amountLoaded + " spawners from worlds in server.");
+			plugin.sendMessage(arg0, ChatColor.GREEN + "Loaded " + ChatColor.GOLD + amountLoaded + ChatColor.GREEN + " spawners from worlds in server.");
 
 		} else if(command.equals("export")) {
 
@@ -60,7 +60,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 				amountLoaded++;
 			}
 
-			plugin.sendMessage(arg0, ChatColor.GREEN + "Exported " + amountLoaded + " spawners to worlds.");
+			plugin.sendMessage(arg0, ChatColor.GREEN + "Exported " + ChatColor.GOLD + amountLoaded + ChatColor.GREEN + " spawners to worlds.");
 			
 		}
 		
