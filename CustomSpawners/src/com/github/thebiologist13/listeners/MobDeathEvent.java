@@ -39,7 +39,6 @@ public class MobDeathEvent implements Listener {
 				Iterator<ItemStack> itr = e.getDrops().iterator();
 				while(itr.hasNext()) ev.getDrops().add(itr.next());
 			} else if(!e.getInventory().isEmpty()) {
-				System.out.println("Inventory not empty.");
 				ev.getDrops().clear();
 				SInventory inv = e.getInventory();
 				Collection<SItemStack> items = inv.getContent().values();

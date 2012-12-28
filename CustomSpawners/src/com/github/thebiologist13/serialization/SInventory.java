@@ -134,9 +134,6 @@ public class SInventory implements Serializable {
 			}
 		}
 		
-		System.out.println("mainInventoryEmpty = " + mainInventoryEmpty);
-		System.out.println("contentEmpty? = " + this.content.isEmpty());
-		
 		return (mainInventoryEmpty && this.content.isEmpty()) ? true : false;
 	}
 	
