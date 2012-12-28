@@ -35,7 +35,7 @@ public class MobExplodeEvent implements Listener {
 		Entity e = ev.getEntity();
 		
 		//SpawnableEntity
-		SpawnableEntity s = plugin.getEntityFromSpawner(e);
+		SpawnableEntity s = plugin.getEntityFromSpawner(e.getEntityId());
 		
 		if(s != null) {
 			

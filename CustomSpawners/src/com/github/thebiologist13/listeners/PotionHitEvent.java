@@ -29,7 +29,7 @@ public class PotionHitEvent implements Listener {
 		//Entity
 		Entity entity = ev.getEntity();
 		//SpawnableEntity
-		SpawnableEntity e = plugin.getEntityFromSpawner(entity);
+		SpawnableEntity e = plugin.getEntityFromSpawner(entity.getEntityId());
 		
 		if(e != null) {
 			

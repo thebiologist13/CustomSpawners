@@ -154,11 +154,6 @@ public class HelpCommand extends SpawnerCommand {
 				ChatColor.GOLD + "/entities clearinventroy [id]" + ChatColor.GREEN + " -> Sets the dropped experience.",
 				ChatColor.GOLD + "/entities sethand [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
 				ChatColor.GOLD + "/entities sethelmet [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
-				ChatColor.GOLD + "/entities setchest [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.", //10
-				ChatColor.GOLD + "/entities setpants [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
-				ChatColor.GOLD + "/entities setboots [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
-				ChatColor.GOLD + "/entities addinv [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
-				ChatColor.GOLD + "/entities setwither [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		

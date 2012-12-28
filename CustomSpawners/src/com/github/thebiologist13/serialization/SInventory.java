@@ -17,7 +17,7 @@ public class SInventory implements Serializable {
 
 	private static final long serialVersionUID = 7492076966612850960L;
 	private SItemStack[] armor = new SItemStack[4];
-	private HashMap<Integer, SItemStack> content = null;
+	private HashMap<Integer, SItemStack> content;
 	private SItemStack hand = new SItemStack(0);
 	
 	public SInventory() {
@@ -126,13 +126,16 @@ public class SInventory implements Serializable {
 	
 	public boolean isEmpty() {
 		
-		boolean mainInventoryEmpty = true;
+		boolean mainInventoryEmpty = false;
 		List<ItemStack> main = getMainInventory();
 		for(ItemStack i : main) {
 			if(!i.getType().equals(Material.AIR)) {
-				mainInventoryEmpty = false;
+				mainInventoryEmpty = true;
 			}
 		}
+		
+		System.out.println("mainInventoryEmpty = " + mainInventoryEmpty);
+		System.out.println("contentEmpty? = " + this.content.isEmpty());
 		
 		return (mainInventoryEmpty && this.content.isEmpty()) ? true : false;
 	}

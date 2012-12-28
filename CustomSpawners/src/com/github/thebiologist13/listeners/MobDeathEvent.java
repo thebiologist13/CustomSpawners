@@ -25,7 +25,7 @@ public class MobDeathEvent implements Listener {
 	@EventHandler
 	public void onMobDeath(EntityDeathEvent ev) {
 		Entity entity = ev.getEntity();
-		SpawnableEntity e = plugin.getEntityFromSpawner(entity);
+		SpawnableEntity e = plugin.getEntityFromSpawner(entity.getEntityId());
 		
 		plugin.removeMob(entity);
 		
@@ -39,6 +39,7 @@ public class MobDeathEvent implements Listener {
 				Iterator<ItemStack> itr = e.getDrops().iterator();
 				while(itr.hasNext()) ev.getDrops().add(itr.next());
 			} else if(!e.getInventory().isEmpty()) {
+				System.out.println("Inventory not empty.");
 				ev.getDrops().clear();
 				SInventory inv = e.getInventory();
 				Collection<SItemStack> items = inv.getContent().values();
