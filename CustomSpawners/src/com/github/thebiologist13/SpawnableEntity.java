@@ -205,10 +205,11 @@ public class SpawnableEntity implements Serializable {
 	}
 
 	public EntityType getType() {
-		//TODO ThrownPotions throw NPE, ender pearls do not work.
 		String name = (String) this.data.get("type");
+		System.out.println(name);
 		for(EntityType e1 : EntityType.values()) {
-			if(e1.toString().equals(name)) {
+			System.out.println(e1.toString());
+			if(e1.toString().equalsIgnoreCase(name)) {
 				return e1;
 			}
 		}

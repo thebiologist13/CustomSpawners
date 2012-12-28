@@ -31,7 +31,7 @@ permissions:
         children:
             customspawners.customspawners: true
             customspawners.help: true
-            customspawners.reloadspawners: true
+            customspawners.reload: true
             customspawners.io: true
             customspawners.spawners.limitoverride: true
             customspawners.spawners.activateall: true
@@ -120,7 +120,7 @@ permissions:
     customspawners.help:
         description: Allows the user/group to use the "/customspawner help" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
-    customspawners.reloadspawners:
+    customspawners.reload:
         description: Allows the user/group to reload spawners from file.
         default: op
     customspawners.io:
