@@ -64,10 +64,11 @@ public class DamageController {
 			
 		} else {
 			
-			SpawnableEntity e = plugin.getEntityFromSpawner(entity);
+			SpawnableEntity e = plugin.getEntityFromSpawner(entity.getEntityId());
 			
-			if(e == null)
+			if(e == null) {
 				return damage;
+			}
 			
 			if(ev instanceof EntityDamageByEntityEvent) {
 				EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
@@ -81,8 +82,9 @@ public class DamageController {
 				
 			}
 			
-			if(e.isInvulnerable())
+			if(e.isInvulnerable()) {
 				return 0;
+			}
 			
 			if(e.isUsingBlacklist()) { //Things to not take damage from
 				ArrayList<String> black = e.getDamageBlacklist();

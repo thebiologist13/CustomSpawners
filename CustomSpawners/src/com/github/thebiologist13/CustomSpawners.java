@@ -469,9 +469,32 @@ public class CustomSpawners extends JavaPlugin {
 		return null;
 
 	}
+	
+	public SpawnableEntity getEntityFromSpawner(int id) {
+		
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
+
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+
+			while(mobItr.hasNext()) {
+				int currentMob = mobItr.next();
+
+				if(currentMob == id) {
+					return s.getMobs().get(currentMob);
+				}
+
+			}
+
+		}
+
+		return null;
+
+	}
 
 	public Entity getEntityFromWorld(int id, World w) {
-
+		
 		Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
 		while(entitiesInWorld.hasNext()) {
 			Entity e = entitiesInWorld.next();
