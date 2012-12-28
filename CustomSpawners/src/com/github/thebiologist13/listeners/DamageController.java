@@ -81,6 +81,9 @@ public class DamageController {
 				
 			}
 			
+			if(e.isInvulnerable())
+				return 0;
+			
 			if(e.isUsingBlacklist()) { //Things to not take damage from
 				ArrayList<String> black = e.getDamageBlacklist();
 				
