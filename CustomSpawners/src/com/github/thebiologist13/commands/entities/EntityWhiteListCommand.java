@@ -198,7 +198,7 @@ public class EntityWhiteListCommand extends SpawnerCommand {
 			for(DamageCause c : causes) {
 				if(c.name().equalsIgnoreCase(value)) {
 					match = true;
-					type = value;
+					type = value.toUpperCase();
 					break;
 				}
 			}

@@ -84,7 +84,7 @@ public class DamageController {
 			if(e.isUsingBlacklist()) { //Things to not take damage from
 				ArrayList<String> black = e.getDamageBlacklist();
 				
-				if(black.contains(cause.name())) {
+				if(black.contains(cause.name().toUpperCase())) {
 					
 					return 0;
 					
@@ -127,7 +127,7 @@ public class DamageController {
 				
 				ArrayList<String> white = e.getDamageBlacklist();
 				
-				if(!white.contains(cause.name())) {
+				if(!white.contains(cause.name().toUpperCase())) {
 					
 					return 0;
 					

@@ -47,11 +47,11 @@ public class SpawnableEntity implements Serializable {
 	}
 
 	public void addDamageBlacklist(String damageType) {
-		blacklist.add(damageType);
+		blacklist.add(damageType.toUpperCase());
 	}
 	
 	public void addDamageWhitelist(String damageType) {
-		whitelist.add(damageType);
+		whitelist.add(damageType.toUpperCase());
 	}
 	
 	public void addDrop(ItemStack drop) {
@@ -206,9 +206,7 @@ public class SpawnableEntity implements Serializable {
 
 	public EntityType getType() {
 		String name = (String) this.data.get("type");
-		System.out.println(name);
 		for(EntityType e1 : EntityType.values()) {
-			System.out.println(e1.toString());
 			if(e1.toString().equalsIgnoreCase(name)) {
 				return e1;
 			}
