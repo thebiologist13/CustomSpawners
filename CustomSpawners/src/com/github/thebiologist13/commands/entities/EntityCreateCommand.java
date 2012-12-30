@@ -1,173 +1,88 @@
 package com.github.thebiologist13.commands.entities;
 
+import java.util.List;
+
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
-import org.bukkit.material.MaterialData;
-
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
-import com.github.thebiologist13.serialization.SPotionEffect;
 
-public class EntityCreateCommand extends SpawnerCommand {
+public class EntityCreateCommand extends EntityCommand {
 
 	public EntityCreateCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
+	public EntityCreateCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player
-		Player p = null;
-		//Base entity type
-		EntityType type = null;
-		//ID of entity to make
-		int id = 0;
-		//Override perm
-		String override = "customspawners.limitoverride";
+	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
-		//Makes sure the command was from in-game
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
-			return;
+		final String NOT_ALLOWED_ENTITY = ChatColor.RED + "That entity type is disabled for those without permission.";
+		final String NONEXISTANT_ENTITY = ChatColor.RED + "That is not a entity type";
+		
+		String in = getValue(args, 0, "pig");
+		
+		SpawnableEntity newEntity = new SpawnableEntity(EntityType.PIG, PLUGIN.getNextEntityId());
+		
+		List<?> notAllowed = CONFIG.getList("mobs.blacklist");
+		
+		boolean hasOverride = true;
+		
+		if(sender instanceof Player) {
+			hasOverride = ((Player) sender).hasPermission("customspawners.limitoverride");
 		}
 		
-		p = (Player) arg0;
-		
-		//Permission check
-		if(p.hasPermission("customspawners.entities.create")) {
-			
-			boolean createJockey = false;
-			
-			String entityType = arg3[1];
-			
-			if(entityType.equalsIgnoreCase("spiderjockey") || entityType.equalsIgnoreCase("skeletonjockey")) {
-				
-				if(!config.getList("mobs.blacklist").contains("spiderjockey") && !p.hasPermission(override)) {
-					p.sendMessage(NOT_ALLOWED_ENTITY);
-					return;
-				}
-				
-				type = EntityType.SPIDER;
-				createJockey = true;
-				
-			} else {
-				
-				type = plugin.parseEntityType(entityType, p.hasPermission("customspawners.limitoverride"));
-				
-				if(type == null) {
-					p.sendMessage(NOT_ALLOWED_ENTITY);
-					return;
-				} /*else if(type.equals(EntityType.SPLASH_POTION) || type.equals(EntityType.ENDER_PEARL)) {
-					p.sendMessage(ChatColor.GOLD + "Sorry, potions and ender pearls are disabled in CustomSpawners right now due to severe bugs with them.");
-					return;
-				}*/
-				
+		if(in.equals("spiderjockey") || in.equals("spider_jockey") ||
+				in.equals("skeletonjockey") || in.equals("skeleton_jockey")) {
+			newEntity.setType(EntityType.SPIDER);
+			newEntity.setJockey(true);
+			if((notAllowed.contains("spider_jockey") || notAllowed.contains("skeleton_jockey")) && !hasOverride) {
+				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
+				return;
 			}
-			
-			//Gets the next available ID for a spawner
-			id = plugin.getNextEntityId();
-			
-			//Creates a new instance of spawner using variables parsed from command
-			SpawnableEntity entity = new SpawnableEntity(type, id);
-			
-			//Converting and setting convenience properties from config
-			Object ageObj = config.get("entities.age", "ADULT");
-			Object healthObj = config.get("entities.health", "MAXIMUM");
-			Object airObj = config.get("entities.air", "MAXIMUM");
-			
-			if(ageObj.equals("ADULT")) {
-				entity.setAge(-1);
-			} else if(ageObj.equals("BABY")) {
-				entity.setAge(-2);
-			} else {
-				if(ageObj instanceof Integer) {
-					entity.setAge(((Integer) ageObj).intValue());
-				} else {
-					p.sendMessage(ChatColor.RED + "Invalid config default for entity age. Using \"ADULT\".");
-					entity.setAge(-1);
-				}
+		} else if(in.equals("witherskeleton") || in.equals("wither_skeleton")) {
+			newEntity.setType(EntityType.SKELETON);
+			newEntity.setProp("wither", true);
+			if(notAllowed.contains("wither_skeleton") && !hasOverride) {
+				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
+				return;
 			}
-			
-			if(healthObj.equals("MAXIMUM")) {
-				entity.setHealth(-1);
-			} else if(healthObj.equals("MINIMUM")) {
-				entity.setHealth(-2);
-			} else {
-				if(healthObj instanceof Integer) {
-					entity.setHealth(((Integer) healthObj).intValue());
-				} else {
-					p.sendMessage(ChatColor.RED + "Invalid config default for entity health. Using \"MAXIMUM\".");
-					entity.setHealth(-1);
-				}
+		} else if(in.equals("crepp")) {
+			newEntity.setType(EntityType.CREEPER);
+			newEntity.setCharged(true);
+			newEntity.setYield(0);
+			if(notAllowed.contains("creeper") && !hasOverride) {
+				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
+				return;
 			}
-			
-			if(airObj.equals("MAXIMUM")) {
-				entity.setAir(-1);
-			} else if(airObj.equals("MINIMUM")) {
-				entity.setAir(-2);
-			} else {
-				if(airObj instanceof Integer) {
-					entity.setAir(((Integer) airObj).intValue());
-				} else {
-					p.sendMessage(ChatColor.RED + "Invalid config default for entity air. Using \"MAXIMUM\".");
-					entity.setAir(-1);
-				}
-			}
-			
-			//Setting default properties from config
-			Villager.Profession profession = Villager.Profession.valueOf(config.getString("entities.profession", "FARMER"));
-			entity.setProfession(profession);
-			
-			MaterialData enderBlock = new MaterialData(config.getInt("entities.endermanBlock", 2));
-			entity.setEndermanBlock(enderBlock);
-			
-			String rawEffectType = config.getString("entities.potionType", "REGENERATION_1_0:0");
-			SPotionEffect effect = plugin.getPotion(rawEffectType);
-			
-			entity.setSaddled(config.getBoolean("entities.isSaddled", false));
-			entity.setCharged(config.getBoolean("entities.isCharged", false));
-			entity.setTamed(config.getBoolean("entities.isTamed", false));
-			entity.setSitting(config.getBoolean("entities.isSitting", false));
-			entity.setAngry(config.getBoolean("entities.isAngry", false));
-			entity.setJockey(config.getBoolean("entities.isJockey", false));
-			String catStr = config.getString("entities.catType", "NONE");
-			entity.setCatType(catStr);
-			entity.setSlimeSize(config.getInt("entities.slimeSize", 1));
-			String color = config.getString("entities.color", "WHITE");
-			entity.setColor(color);
-			entity.setPassive(config.getBoolean("entities.passive", false));
-			entity.setUsingCustomDamage(config.getBoolean("entities.useCustomDamage", false));
-			entity.setDamage(config.getInt("entities.dealtDamage", 2));
-			entity.setPotionEffect(effect);
-			entity.setDroppedExp(config.getInt("entities.experienceDropped", 1));
-			entity.setFuseTicks(config.getInt("entities.fuseTicks", 80));
-			entity.setYield((float) config.getDouble("entities.yield", 5.0d));
-			entity.setIncendiary(config.getBoolean("entities.incendiary", false));
-			entity.setItemType(plugin.getItemStack(config.getString("entities.itemType", "1")));
-			entity.setUsingCustomDrops(config.getBoolean("entities.useCustomDrops", false));
-			
-			if(createJockey) {
-				entity.setJockey(true);
-			}
-			
-			CustomSpawners.entities.put(id, entity);
-			
-			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
-				plugin.getFileManager().autosave(entity);
-			}
-			
-			//Success message
-			p.sendMessage(ChatColor.GREEN + "Sucessfully created a spawnable entity with ID " + ChatColor.GOLD 
-					+ id + ChatColor.GREEN + "!");
 		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
+			EntityType type = PLUGIN.parseEntityType(in, hasOverride);
+			
+			if(type == null) {
+				PLUGIN.sendMessage(sender, NONEXISTANT_ENTITY);
+				return;
+			}
+			
+			if(!PLUGIN.allowedEntity(type)) {
+				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
+				return;
+			}
 		}
+		
+		CustomSpawners.entities.put(newEntity.getId(), newEntity);
+		
+		if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
+			PLUGIN.getFileManager().autosave(newEntity);
+		}
+		
+		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully created a new " + ChatColor.GOLD + 
+				in + ChatColor.GREEN + " entity with ID number " + ChatColor.GOLD + newEntity.getId() + ChatColor.GREEN + "!");
+		
 	}
 	
 }

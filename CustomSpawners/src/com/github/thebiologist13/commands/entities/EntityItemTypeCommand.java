@@ -8,9 +8,9 @@ import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 
-public class EntityItemTypeCommand extends SpawnerCommand {
+public class EntityItemTypeCommand extends SubCommand {
 
 	public EntityItemTypeCommand(CustomSpawners plugin) {
 		super(plugin);

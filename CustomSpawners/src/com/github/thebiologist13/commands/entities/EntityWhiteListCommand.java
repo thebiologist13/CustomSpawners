@@ -9,9 +9,9 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 
-public class EntityWhiteListCommand extends SpawnerCommand {
+public class EntityWhiteListCommand extends SubCommand {
 	
 	public EntityWhiteListCommand(CustomSpawners plugin) {
 		super(plugin);

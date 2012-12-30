@@ -81,107 +81,10 @@ spawners:
     # /customspawners reload is used. 
     # This saves time saving and loading spawners.
     killOnReload: false
-
-entities:
     
-    # Default Entity Properties
-    # These properties are just what is given to an entity
-    # when it is created; they can be changed at any time.
-    
-    # Base type of mob. Note that zombie pigmen are 
-    # "pigzombie" and ocelots are "ozelot".
-    type: pig
-    
-    # Starting age of an entity. Make this an integer
-    # or use "BABY" for a baby animal or "ADULT" for 
-    # an adult animal.
-    age: ADULT
-    
-    # Starting health of an entity. Make this an integer
-    # but keep in mind every increment of 1 is 1/2 a heart.
-    # Use "MINIMUM" for a mob with minimum health (1/2 heart)
-    # and "MAXIMUM" for the mob's maximum amount of health.
-    health: MAXIMUM
-    
-    # Starting air for an entity. Useful if the spawner is deep
-    # under water/lava. Use "MINIMUM" for no air and "MAXIMUM"
-    # for a full bubble meter for that mob.
-    air: MAXIMUM
-    
-    # Starting profession of a villager. Allowed values are
-    # "BLACKSMITH", "BUTCHER", "FARMER", "LIBRARIAN", and
-    # "PRIEST".
-    profession: FARMER
-    
-    # Block ID an enderman will be holding. Not all blocks will
-    # work. Default is grass.
-    endermanBlock: 2
-    
-    # Boolean values for some properties. The name should be
-    # self-explanatory.
-    isSaddled: false
-    isCharged: false
-    isJockey: false
-    isTamed: false
-    isAngry: false
-    isSitting: false
-    
-    # Default type of cat an ocelot is. Allowed values are
-    # "BLACK_CAT", "RED_CAT", and "SIAMESE_CAT". Use "NONE"
-    # for a wild ocelot.
-    catType: NONE
-    
-    # Size of slimes and magma cubes. Use an integer value
-    # from 1 to 256. Keep in mind the largest natural slimes
-    # are only a 4 in size!
-    slimeSize: 1
-    
-    # Color of sheep when spawned. Allowed values are "BLACK",
-    # "BLUE", "BROWN", "CYAN", "GREY", "GREEN", "LIGHT_BLUE",
-    # "LIME", "MAGENTA", "ORANGE", "PINK", "PURPLE", "RED",
-    # "SILVER", "WHITE", and "YELLOW".
-    color: WHITE 
-     
-    # Should entities be passive until provoked?
-    passive: false
-    
-    # Should damage blacklisting be enabled or disabled by default?
-    # Whitelist will be the opposite of this. If this value is true,
-    # entities will take all types of damage when created.
-    useBlacklist: true
-    
-    # Should entities use custom damage variables be default?
-    useCustomDamage: false
-    
-    # Default amount of damage to deal if the entity is using
-    # custom damage.
-    dealtDamage: 2 
-    
-    # Default potion effect for SplashPotion entities. Use the format
-    # <PotionType>_<Level>_<Minutes>:<Seconds>
-    potionType: REGENERATION_1_0:0
-    
-    # Default experience to drop in Exp Orbs from mobs or experience
-    # bottle entities. Going from level 1 to level 30 is 825exp
-    experienceDropped: 1
-    
-    # Ticks that the fuse on primed TNT entities should last. 20 ticks/second
-    fuseTicks: 80
-    
-    # Explosive yield. This is the radius of the affected area from fireball
-    # and TNT explosions. Does not apply to creepers (yet :D).
-    yield: 5.0
-    
-    # Incendiary explosives! If this is true, explosives will be incendiary
-    # (like ghast fireballs) when they explode!
-    incendiary: false
-    
-    # Item type for entities of type "DROPPED_ITEM" to be when spawned. Use the
-    # format <Item ID>-<Item Damage>. Default is stone.
-    itemType: 1-0
-    
-    # Should the entity use customized drops by default?
-    useCustomDrops: false
+    # Should spawners be disabled when thier block is
+    # destroyed?
+    deactivateOnBreak: true
     
 mobs:
 
@@ -198,9 +101,8 @@ mobs:
     
 players:
     # Maximum distance a player can be from a block
-    # to set that block as a spawner. May be limited
-    # by power of server, but at least 100 blocks always.
-    maxDistance: 50
+    # to set that block as a spawner.
+    maxDistance: 5
     
     # Maximum distance a player can be from a spawner
     # to consider it "nearby". This is for the listnear

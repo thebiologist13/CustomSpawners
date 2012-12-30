@@ -7,9 +7,9 @@ import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 
-public class EntitySaddledCommand extends SpawnerCommand {
+public class EntitySaddledCommand extends SubCommand {
 
 	public EntitySaddledCommand(CustomSpawners plugin) {
 		super(plugin);

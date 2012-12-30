@@ -25,7 +25,11 @@ public class ExpBottleHitEvent implements Listener {
 
 		if(e != null) {
 
-			ev.setExperience(e.getDroppedExp());
+			int xp = e.getDroppedExp();
+			
+			if(xp > 0) {
+				ev.setExperience(xp);
+			}
 
 		}
 		

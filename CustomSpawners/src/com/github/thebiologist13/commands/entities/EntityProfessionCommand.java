@@ -8,9 +8,9 @@ import org.bukkit.entity.Villager;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 
-public class EntityProfessionCommand extends SpawnerCommand {
+public class EntityProfessionCommand extends SubCommand {
 
 	public EntityProfessionCommand(CustomSpawners plugin) {
 		super(plugin);

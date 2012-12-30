@@ -1,19 +1,28 @@
 package com.github.thebiologist13.commands;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 
-public class HelpCommand extends SpawnerCommand {
+
+/**
+ * This command displays the help message.
+ * 
+ * @author thebiologist13
+ */
+public class HelpCommand extends CustomSpawnersCommand {
 
 	public HelpCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 	
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+	public HelpCommand(CustomSpawners plugin, String perm) {
+		super(plugin, perm);
+	}
+	
+	@Override
+	public void run(CommandSender sender, String subCommand, String[] args) {
 		
 		final String[] HELP_MESSAGE_0 = {
 				ChatColor.GREEN + "* * * CustomSpawners Help * * *",
@@ -167,114 +176,53 @@ public class HelpCommand extends SpawnerCommand {
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
-		final String[] HELP_MESSAGE_NO_COLOR = {
-				"* * * CustomSpawners Help * * *",
-				"/customspawners help [page] -> Displays this message.", 
-				"/customspawners reload -> Reloads everything.", 
-				"/spawners removeallmobs -> Kills all mobs created by spawners in the server.",
-				"/spawners removemobs [id] -> Kills all mobs created by the spawner with specified ID.",
-				"/spawners activateall -> Sets all spawners on the server active.",
-				"/spawners select <id> -> Sets all spawners on the server inactive.",
-				"/spawners setactive [id] -> Sets all spawners on the server inactive.",
-				"/spawners setinactive [id] -> Sets all spawners on the server inactive.",
-				"/spawners forcespawn [id] -> Sets all spawners on the server inactive.",
-				"/spawners setmaxmobs [id] <max mobs> -> Sets all spawners on the server inactive.",
-				"/spawners setmobsperspawn [id] <mobs per spawn> -> Sets all spawners on the server inactive.",
-				"/spawners listall -> Lists all the spawners that have been created.",
-				"/spawners info [id] -> Displays info on a spawner.",
-				"/entities info [id] -> Displays info on a entity.",
-				"* * * * * * * * * * * * * * * *"
-		};
+		String pIn = getValue(args, 0, 0);
+		int page = 0;
 		
-		final String[] PLUGIN_INFO = {
-				ChatColor.GREEN + "* * * " +  ChatColor.GOLD + " CustomSpawners " + plugin.getDescription().getVersion() + ChatColor.GREEN + " by thebiologist13* * *",
-				"",
-				ChatColor.GREEN + "Plugin on BukkitDev: ",
-				ChatColor.AQUA + "http://dev.bukkit.org/server-mods/customspawners/",
-				"",
-				ChatColor.GREEN + "thebiologist13 on BukkitDev: ",
-				ChatColor.AQUA + "http://dev.bukkit.org/profiles/thebiologist13/",
-				"",
-				ChatColor.GREEN + "Use \"/customspawners help [page]\" for help on using CustomSpawners",
-				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
-		};
+		if(!CustomSpawners.isInteger(pIn)) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "Specify a number for a help page.");
+			return;
+		}
 		
-		final String[] PLUGIN_INFO_NO_COLOR = {
-				"* * * CustomSpawners " + plugin.getDescription().getVersion() + " by thebiologist13* * *",
-				"",
-				"Plugin on BukkitDev: ",
-				"http://dev.bukkit.org/server-mods/customspawners/",
-				"",
-				"thebiologist13 on BukkitDev: ",
-				"http://dev.bukkit.org/profiles/thebiologist13/",
-				"",
-				"Use \"/customspawners help [page]\" for help on using CustomSpawners",
-				"* * * * * * * * * * * * * * * *"
-		};
+		page = Integer.parseInt(pIn);
 		
-		final String INFO_PERM = "customspawners.customspawners";
-		final String HELP_PERM = "customspawners.help";
-		
-		if(arg0 instanceof Player) {
-			Player p = (Player) arg0;
-			
-			if(arg3.length == 0) {
-				if(p.hasPermission(INFO_PERM)) {
-					p.sendMessage(PLUGIN_INFO);
-				} else {
-					p.sendMessage(SpawnerCommand.NO_PERMISSION);
-				}
-			} else if(arg3.length == 1) {
-				if(p.hasPermission(HELP_PERM)) {
-					p.sendMessage(HELP_MESSAGE_0);
-				} else {
-					p.sendMessage(SpawnerCommand.NO_PERMISSION);
-				}
-			} else if(arg3.length == 2) {
-				if(p.hasPermission(HELP_PERM)) {
-					if(arg3[1].equalsIgnoreCase("1")) {
-						p.sendMessage(HELP_MESSAGE_1);
-					} else if(arg3[1].equalsIgnoreCase("2")) {
-						p.sendMessage(HELP_MESSAGE_2);
-					} else if(arg3[1].equalsIgnoreCase("3")) {
-						p.sendMessage(HELP_MESSAGE_3);
-					} else if(arg3[1].equalsIgnoreCase("4")) {
-						p.sendMessage(HELP_MESSAGE_4);
-					} else if(arg3[1].equalsIgnoreCase("5")) {
-						p.sendMessage(HELP_MESSAGE_5);
-					} else if(arg3[1].equalsIgnoreCase("6")) {
-						p.sendMessage(HELP_MESSAGE_6);
-					} else if(arg3[1].equalsIgnoreCase("7")) {
-						p.sendMessage(HELP_MESSAGE_7);
-					} else if(arg3[1].equalsIgnoreCase("8")) {
-						p.sendMessage(HELP_MESSAGE_8);
-					} else if(arg3[1].equalsIgnoreCase("9")) {
-						p.sendMessage(HELP_MESSAGE_9);
-					} else if(arg3[1].equalsIgnoreCase("10")) {
-						p.sendMessage(HELP_MESSAGE_10);
-					} else if(arg3[1].equalsIgnoreCase("11")) {
-						p.sendMessage(HELP_MESSAGE_11);
-					} else {
-						p.sendMessage(ChatColor.RED + "That is not a page of the help dialogue.");
-					}	
-				} else {
-					p.sendMessage(SpawnerCommand.NO_PERMISSION);
-				}	
-			} 
-		} else {
-			if(arg3.length == 0) {
-				for(String s : PLUGIN_INFO_NO_COLOR) {
-					log.info(s);
-				}
-			} else if(arg3.length == 1) {
-				for(String s : HELP_MESSAGE_NO_COLOR) {
-					log.info(s);
-				}
-			} else if(arg3.length == 2) {
-				for(String s : HELP_MESSAGE_NO_COLOR) {
-					log.info(s);
-				}
-			}
+		switch(page) {
+		case 1:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_1);
+			break;
+		case 2:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_2);
+			break;
+		case 3:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_3);
+			break;
+		case 4:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_4);
+			break;
+		case 5:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_5);
+			break;
+		case 6:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_6);
+			break;
+		case 7:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_7);
+			break;
+		case 8:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_8);
+			break;
+		case 9:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_9);
+			break;
+		case 10:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_10);
+			break;
+		case 11:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_11);
+			break;
+		default:
+			PLUGIN.sendMessage(sender, HELP_MESSAGE_0);
+			break;
 		}
 	}
 }

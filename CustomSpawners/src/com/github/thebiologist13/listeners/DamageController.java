@@ -1,6 +1,6 @@
 package com.github.thebiologist13.listeners;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Entity;
@@ -87,7 +87,7 @@ public class DamageController {
 			}
 			
 			if(e.isUsingBlacklist()) { //Things to not take damage from
-				ArrayList<String> black = e.getDamageBlacklist();
+				List<String> black = e.getDamageBlacklist();
 				
 				if(black.contains(cause.name().toUpperCase())) {
 					
@@ -130,7 +130,7 @@ public class DamageController {
 				
 			} else if(e.isUsingWhitelist()) {
 				
-				ArrayList<String> white = e.getDamageBlacklist();
+				List<String> white = e.getDamageBlacklist();
 				
 				if(!white.contains(cause.name().toUpperCase())) {
 					

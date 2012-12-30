@@ -8,10 +8,10 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 import com.github.thebiologist13.serialization.SPotionEffect;
 
-public class EntityPotionTypeCommand extends SpawnerCommand {
+public class EntityPotionTypeCommand extends SubCommand {
 
 	public EntityPotionTypeCommand(CustomSpawners plugin) {
 		super(plugin);

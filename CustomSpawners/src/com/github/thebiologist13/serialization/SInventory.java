@@ -64,6 +64,8 @@ public class SInventory implements Serializable {
 	
 	public void empty() {
 		content = new HashMap<Integer, SItemStack>();
+		armor = new SItemStack[4];
+		hand = new SItemStack(0);
 	}
 	
 	public ItemStack[] getArmor() {

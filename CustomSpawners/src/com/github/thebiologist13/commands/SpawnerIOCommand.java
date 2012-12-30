@@ -7,69 +7,58 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
 
-public class SpawnerIOCommand extends SpawnerCommand {
+
+/**
+ * This command saves and loads spawner data to the world folder.
+ * 
+ * @author thebiologist13
+ */
+public class SpawnerIOCommand extends CustomSpawnersCommand {
 
 	public SpawnerIOCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
-
+	
+	public SpawnerIOCommand(CustomSpawners plugin, String perm) {
+		super(plugin, perm);
+	}
+	
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		
-		Player p = (arg0 instanceof Player) ? (Player) arg0 : null;
-		String command = getAssignedCommand(arg3).toLowerCase();
-		final String PERMISSION = "customspawners.io";
-		
-		if(command == null) {
-			plugin.sendMessage(arg0, NOT_COMMAND);
-			return;
-		}
-		
-		if(arg0 instanceof Player) {
-			p = (Player) arg0;
-			if(!p.hasPermission(PERMISSION)) {
-				plugin.sendMessage(arg0, NO_PERMISSION);
-				return;
-			}
-		}
-			
-		if(command.equals("import")) {
+	public void run(CommandSender sender, String subCommand, String[] args) {
+		if(subCommand.equals("import")) {
 
-			plugin.sendMessage(arg0, ChatColor.GREEN + "Loading CustomSpawners data from worlds...");
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Loading CustomSpawners data from worlds...");
 			
 			int amountLoaded = loadData().size();
 			
-			plugin.sendMessage(arg0, ChatColor.GREEN + "Loaded " + ChatColor.GOLD + amountLoaded + ChatColor.GREEN + " spawners from worlds in server.");
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Loaded " + ChatColor.GOLD + amountLoaded + ChatColor.GREEN + " spawners from worlds in server.");
 
-		} else if(command.equals("export")) {
+		} else if(subCommand.equals("export")) {
 
-			plugin.sendMessage(arg0, ChatColor.GREEN + "Exporting CustomSpawners data to worlds...");
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Exporting CustomSpawners data to worlds...");
 			
 			Iterator<Spawner> sp = CustomSpawners.spawners.values().iterator();
 			int amountLoaded = 0;
 			while(sp.hasNext()) {
-				plugin.saveCustomSpawnerToWorld(sp.next());
+				PLUGIN.saveCustomSpawnerToWorld(sp.next());
 				amountLoaded++;
 			}
 
-			plugin.sendMessage(arg0, ChatColor.GREEN + "Exported " + ChatColor.GOLD + amountLoaded + ChatColor.GREEN + " spawners to worlds.");
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Exported " + ChatColor.GOLD + amountLoaded + ChatColor.GREEN + " spawners to worlds.");
 			
 		}
-		
 	}
 	
 	//Load spawners and entities from world files
 	public List<Spawner> loadData() {
 
-		Iterator<World> worldItr = plugin.getServer().getWorlds().iterator();
+		Iterator<World> worldItr = PLUGIN.getServer().getWorlds().iterator();
 		List<Spawner> loaded = new ArrayList<Spawner>();
 		
 		while(worldItr.hasNext()) {
@@ -78,7 +67,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 			Iterator<SpawnableEntity> entitiesFromWorld = loadAllEntitiesFromWorld(w).iterator();
 			while(entitiesFromWorld.hasNext()) {
 				SpawnableEntity e = entitiesFromWorld.next();
-				int nextId = plugin.getNextEntityId();
+				int nextId = PLUGIN.getNextEntityId();
 				if(CustomSpawners.entities.containsKey(e.getId())) {
 					e = e.cloneWithNewId(nextId);
 				}
@@ -99,7 +88,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 				if(sameSpawner) {
 					continue;
 				} else {
-					int nextId = plugin.getNextSpawnerId();
+					int nextId = PLUGIN.getNextSpawnerId();
 					Spawner s1 = s.cloneWithNewId(nextId);
 					CustomSpawners.spawners.put(nextId, s1);
 					loaded.add(s1);
@@ -130,7 +119,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 		
 		for(File spawnerFile : spawnerFiles.listFiles()) {
 			
-			Spawner s = plugin.getFileManager().loadSpawner(spawnerFile);
+			Spawner s = PLUGIN.getFileManager().loadSpawner(spawnerFile);
 			List<Integer> sEntsAsIDs = s.getTypeData();
 			List<SpawnableEntity> sEnts = new ArrayList<SpawnableEntity>();
 			ArrayList<SpawnableEntity> containedEntities = new ArrayList<SpawnableEntity>();
@@ -140,7 +129,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 			}
 			
 			for(File f : entityFiles.listFiles()) {
-				containedEntities.add(plugin.getFileManager().loadEntity(f));
+				containedEntities.add(PLUGIN.getFileManager().loadEntity(f));
 			}
 			
 			if(containedEntities.containsAll(sEnts))
@@ -164,7 +153,7 @@ public class SpawnerIOCommand extends SpawnerCommand {
 			entityFiles.mkdirs();
 		
 		for(File f : entityFiles.listFiles()) {
-			list.add(plugin.getFileManager().loadEntity(f));
+			list.add(PLUGIN.getFileManager().loadEntity(f));
 		}
 		
 		return list;

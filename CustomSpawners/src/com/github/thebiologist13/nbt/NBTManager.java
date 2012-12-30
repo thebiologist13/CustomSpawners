@@ -594,7 +594,7 @@ public class NBTManager {
 		Vector velocity = mainEntity.getVelocity();
 		NBTTagList motion = makeDoubleList(new double[] {velocity.getX(), velocity.getY(), velocity.getZ()});
 		
-		ArrayList<SPotionEffect> effectsCS = mainEntity.getEffects();
+		List<SPotionEffect> effectsCS = mainEntity.getEffects();
 		NBTTagList effects = new NBTTagList();
 		for(SPotionEffect e : effectsCS) {
 			effects.add(makePotionCompound((byte) e.getType().getId(), (byte) e.getAmplifier(), e.getDuration()));

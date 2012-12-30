@@ -8,12 +8,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 import com.github.thebiologist13.commands.spawners.*;
 
 public class SpawnerExecutor implements CommandExecutor {
 
-	private ConcurrentHashMap<String, SpawnerCommand> commands = new ConcurrentHashMap<String, SpawnerCommand>();
+	private ConcurrentHashMap<String, SubCommand> commands = new ConcurrentHashMap<String, SubCommand>();
 	
 	private FileConfiguration config = null;
 	
@@ -23,32 +23,32 @@ public class SpawnerExecutor implements CommandExecutor {
 		this.plugin = plugin;
 		this.config = plugin.getCustomConfig();
 		
-		SpawnerCommand hic = new HiddenCommand(plugin);
-		SpawnerCommand aac = new ActivateAllCommand(plugin);
-		SpawnerCommand atc = new AddTypeCommand(plugin);
-		SpawnerCommand dac = new DeactivateAllCommand(plugin);
-		SpawnerCommand fsc = new ForceSpawnCommand(plugin);
-		SpawnerCommand rmc = new RemoveMobsCommand(plugin);
-		SpawnerCommand nac = new NameCommand(plugin);
-		SpawnerCommand lnc = new ListNearCommand(plugin);
-		SpawnerCommand lac = new ListAllCommand(plugin);
-		SpawnerCommand cc = new CreateCommand(plugin);
-		SpawnerCommand sc = new SelectCommand(plugin);
-		SpawnerCommand rc = new RemoveCommand(plugin);
-		SpawnerCommand stc = new SetTypeCommand(plugin);
-		SpawnerCommand llc = new LightLevelCommand(plugin);
-		SpawnerCommand mmc = new MaxMobsCommand(plugin);
-		SpawnerCommand psc = new PerSpawnCommand(plugin);
-		SpawnerCommand pdc = new PlayerDistanceCommand(plugin);
-		SpawnerCommand slc = new SetLocationCommand(plugin);
-		SpawnerCommand src = new SetRadiusCommand(plugin);
-		SpawnerCommand srac = new SetRateCommand(plugin);
-		SpawnerCommand srec = new SetRedstoneCommand(plugin);
-		SpawnerCommand ic = new InfoCommand(plugin);
-		SpawnerCommand ac = new ActiveCommand(plugin);
-		SpawnerCommand pc = new PositionCommand(plugin);
-		SpawnerCommand sac = new SpawnAreaCommand(plugin);
-		SpawnerCommand coc = new ConvertCommand(plugin);
+		SubCommand hic = new HiddenCommand(plugin);
+		SubCommand aac = new ActivateAllCommand(plugin);
+		SubCommand atc = new AddTypeCommand(plugin);
+		SubCommand dac = new DeactivateAllCommand(plugin);
+		SubCommand fsc = new ForceSpawnCommand(plugin);
+		SubCommand rmc = new RemoveMobsCommand(plugin);
+		SubCommand nac = new NameCommand(plugin);
+		SubCommand lnc = new ListNearCommand(plugin);
+		SubCommand lac = new ListAllCommand(plugin);
+		SubCommand cc = new CreateCommand(plugin);
+		SubCommand sc = new SelectCommand(plugin);
+		SubCommand rc = new RemoveCommand(plugin);
+		SubCommand stc = new SetTypeCommand(plugin);
+		SubCommand llc = new LightLevelCommand(plugin);
+		SubCommand mmc = new MaxMobsCommand(plugin);
+		SubCommand psc = new PerSpawnCommand(plugin);
+		SubCommand pdc = new PlayerDistanceCommand(plugin);
+		SubCommand slc = new SetLocationCommand(plugin);
+		SubCommand src = new SetRadiusCommand(plugin);
+		SubCommand srac = new SetRateCommand(plugin);
+		SubCommand srec = new SetRedstoneCommand(plugin);
+		SubCommand ic = new InfoCommand(plugin);
+		SubCommand ac = new ActiveCommand(plugin);
+		SubCommand pc = new PositionCommand(plugin);
+		SubCommand sac = new SpawnAreaCommand(plugin);
+		SubCommand coc = new ConvertCommand(plugin);
 		
 		this.commands.put("create", cc);
 		this.commands.put("remove", rc);
@@ -118,7 +118,7 @@ public class SpawnerExecutor implements CommandExecutor {
 			
 			try {
 				
-				SpawnerCommand runThis = commands.get(arg3[0].toLowerCase());
+				SubCommand runThis = commands.get(arg3[0].toLowerCase());
 				
 				if(runThis == null) {
 					plugin.sendMessage(arg0, ChatColor.RED + "\"" + arg3[0].toLowerCase() + "\" is not a valid command for CustomSpawners.");
@@ -131,7 +131,7 @@ public class SpawnerExecutor implements CommandExecutor {
 			} catch(Exception e) {
 				
 				e.printStackTrace();
-				plugin.sendMessage(arg0, SpawnerCommand.GENERAL_ERROR);
+				plugin.sendMessage(arg0, SubCommand.GENERAL_ERROR);
 				
 			}
 			

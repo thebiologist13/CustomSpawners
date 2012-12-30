@@ -1,242 +1,332 @@
 package com.github.thebiologist13;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
-import com.github.thebiologist13.commands.SpawnerCommand;
 import com.github.thebiologist13.commands.entities.*;
 
-public class EntitiesExecutor implements CommandExecutor {
-	
-	private ConcurrentHashMap<String, SpawnerCommand> commands = new ConcurrentHashMap<String, SpawnerCommand>();
-	
-	private FileConfiguration config = null;
-	
-	private CustomSpawners plugin = null;
+/**
+ * This executes commands related to the /entities command.
+ * 
+ * @author thebiologist13
+ */
+public class EntitiesExecutor extends Executor implements CommandExecutor {
 	
 	public EntitiesExecutor(CustomSpawners plugin) {
-		this.plugin = plugin;
-		this.config = plugin.getCustomConfig();
+		super(plugin);
 		
-		SpawnerCommand aec = new EntityAddEffectCommand(plugin);
-		SpawnerCommand agc = new EntityAgeCommand(plugin);
-		SpawnerCommand aic = new EntityAirCommand(plugin);
-		SpawnerCommand anc = new EntityAngryCommand(plugin);
-		SpawnerCommand ctc = new EntityCatTypeCommand(plugin);
-		SpawnerCommand chc = new EntityChargedCommand(plugin);
-		SpawnerCommand cec = new EntityClearEffectsCommand(plugin);
-		SpawnerCommand coc = new EntityColorCommand(plugin);
-		SpawnerCommand crc = new EntityCreateCommand(plugin);
-		SpawnerCommand ebc = new EntityEnderBlockCommand(plugin);
-		SpawnerCommand hec = new EntityHealthCommand(plugin);
-		SpawnerCommand ifc = new EntityInfoCommand(plugin);
-		SpawnerCommand joc = new EntityJockeyCommand(plugin);
-		SpawnerCommand nac = new EntityNameCommand(plugin);
-		SpawnerCommand prc = new EntityProfessionCommand(plugin);
-		SpawnerCommand rec = new EntityRemoveCommand(plugin);
-		SpawnerCommand sac = new EntitySaddledCommand(plugin);
-		SpawnerCommand slc = new EntitySelectCommand(plugin);
-		SpawnerCommand sec = new EntitySetEffectCommand(plugin);
-		SpawnerCommand stc = new EntitySetTypeCommand(plugin);
-		SpawnerCommand sic = new EntitySittingCommand(plugin);
-		SpawnerCommand ssc = new EntitySlimeSizeCommand(plugin);
-		SpawnerCommand tac = new EntityTamedCommand(plugin);
-		SpawnerCommand vec = new EntityVelocityCommand(plugin);
-		SpawnerCommand lac = new EntityListAllCommand(plugin);
-		SpawnerCommand pac = new EntityPassiveCommand(plugin);
-		SpawnerCommand ftc = new EntityFireTicksCommand(plugin);
-		SpawnerCommand blc = new EntityBlackListCommand(plugin);
-		SpawnerCommand wlc = new EntityWhiteListCommand(plugin);
-		SpawnerCommand ilc = new EntityItemListCommand(plugin);
-		SpawnerCommand dac = new EntityDamageCommand(plugin);
-		SpawnerCommand drc = new EntityDropsCommand(plugin);
-		SpawnerCommand edc = new EntityExpCommand(plugin);
-		SpawnerCommand fuc = new EntityFuseCommand(plugin);
-		SpawnerCommand inc = new EntityIncendiaryCommand(plugin);
-		SpawnerCommand yic = new EntityYieldCommand(plugin);
-		SpawnerCommand itc = new EntityItemTypeCommand(plugin);
-		SpawnerCommand ptc = new EntityPotionTypeCommand(plugin);
-		SpawnerCommand eic = new EntityInvulnerableCommand(plugin);
-		SpawnerCommand einc = new EntityInventoryCommand(plugin);
-		SpawnerCommand ewc = new EntityWitherCommand(plugin);
-		SpawnerCommand evc = new EntityVillagerCommand(plugin);
+		EntityCommand effects = new EntityActiveEffectsCommand(plugin, "customspawners.entities.effects");
+		EntityCommand age = new EntityAgeCommand(plugin, "customspawners.entities.setage");
+		EntityCommand air = new EntityAirCommand(plugin, "customspawners.entities.setair");
+		EntityCommand angry = new EntityAngryCommand(plugin, "customspawners.entities.setangry");
+		EntityCommand cat = new EntityCatTypeCommand(plugin, "customspawners.entities.setcattype");
+		EntityCommand charged = new EntityChargedCommand(plugin, "customspawners.entities.setcharged");
+		EntityCommand color = new EntityColorCommand(plugin, "customspawners.entities.setcolor");
+		EntityCommand create = new EntityCreateCommand(plugin, "customspawners.entities.create");
+		EntityCommand ender = new EntityEnderBlockCommand(plugin, "customspawners.entities.setenderblock");
+		EntityCommand health = new EntityHealthCommand(plugin, "customspawners.entities.sethealth");
+		EntityCommand info = new EntityInfoCommand(plugin, "customspawners.entities.info");
+		EntityCommand jockey = new EntityJockeyCommand(plugin, "customspawners.entities.setjockey");
+		EntityCommand name = new EntityNameCommand(plugin, "customspawners.entities.setname");
+		EntityCommand profession = new EntityProfessionCommand(plugin, "customspawners.entities.setprofession");
+		EntityCommand remove = new EntityRemoveCommand(plugin, "customspawners.entities.remove");
+		EntityCommand saddled = new EntitySaddledCommand(plugin, "customspawners.entities.saddled");
+		EntityCommand select = new EntitySelectCommand(plugin, "customspawners.entities.select");
+		EntityCommand type = new EntitySetTypeCommand(plugin, "customspawners.entities.settype");
+		EntityCommand sitting = new EntitySittingCommand(plugin, "customspawners.entities.sitting");
+		EntityCommand slime = new EntitySlimeSizeCommand(plugin, "customspawners.entities.setslimesize");
+		EntityCommand tamed = new EntityTamedCommand(plugin, "customspawners.entities.settamed");
+		EntityCommand vector = new EntityVelocityCommand(plugin, "customspawners.entities.setvelocity");
+		EntityCommand list = new EntityListAllCommand(plugin, "customspawners.entities.listall");
+		EntityCommand passive = new EntityPassiveCommand(plugin, "customspawners.entities.setpassive");
+		EntityCommand fire = new EntityFireTicksCommand(plugin, "customspawners.entities.setfireticks");
+		EntityCommand blacklist = new EntityBlackListCommand(plugin, "customspawners.entities.blacklist");
+		EntityCommand whitelist = new EntityWhiteListCommand(plugin, "customspawners.entities.whitelist");
+		EntityCommand itemlist = new EntityItemListCommand(plugin, "customspawners.entities.itemlist");
+		EntityCommand damage = new EntityDamageCommand(plugin, "customspawners.entities.setdamage");
+		EntityCommand drops = new EntityDropsCommand(plugin, "customspawners.entities.drops");
+		EntityCommand experience = new EntityExpCommand(plugin, "customspawners.entities.setexp");
+		EntityCommand fuse = new EntityFuseCommand(plugin, "customspawners.entities.setfuseticks");
+		EntityCommand incendiary = new EntityIncendiaryCommand(plugin, "customspawners.entities.setincendiary");
+		EntityCommand yield = new EntityYieldCommand(plugin, "customspawners.entities.setyield");
+		EntityCommand itemtype = new EntityItemTypeCommand(plugin, "customspawners.entities.setitemtype");
+		EntityCommand potiontype = new EntityPotionTypeCommand(plugin, "customspawners.entities.setpotiontype");
+		EntityCommand invulnerable = new EntityInvulnerableCommand(plugin, "customspawners.entities.setinvulnerable");
+		EntityCommand inventory = new EntityInventoryCommand(plugin, "customspawners.entities.setinventory");
+		EntityCommand wither = new EntityWitherCommand(plugin, "customspawners.entities.setwither");
+		EntityCommand villager = new EntityVillagerCommand(plugin, "customspawners.entities.setvillager");
 		
-		this.commands.put("create", crc);
-		this.commands.put("select", slc);
-		this.commands.put("remove", rec);
-		this.commands.put("info", ifc);
-		this.commands.put("sel", slc);
-		this.commands.put("rem", rec);
-		this.commands.put("cleareffects", cec);
-		this.commands.put("noeffects", cec);
-		this.commands.put("list", lac);
-		this.commands.put("listall", lac);
-		this.commands.put("show", lac);
-		this.commands.put("clearitems", ilc);
-		this.commands.put("noitems", ilc);
-		this.commands.put("clearblacklist", blc);
-		this.commands.put("noblacklist", blc);
-		this.commands.put("blc", blc);
-		this.commands.put("clearwhitelist", wlc);
-		this.commands.put("nowhitelist", wlc);
-		this.commands.put("wlc", wlc);
-		this.commands.put("cleardrops", drc);
-		this.commands.put("nodrops", drc);
-		this.commands.put("drc", drc);
-		this.commands.put("setair", aic);
-		this.commands.put("air", aic);
-		this.commands.put("setage", agc);
-		this.commands.put("age", agc);
-		this.commands.put("setangry", anc);
-		this.commands.put("angry", anc);
-		this.commands.put("setcattype", ctc);
-		this.commands.put("cattype", ctc);
-		this.commands.put("cat", ctc);
-		this.commands.put("setcharged", chc);
-		this.commands.put("setcolor", coc);
-		this.commands.put("color", coc);
-		this.commands.put("setenderblock", ebc);
-		this.commands.put("enderblock", ebc);
-		this.commands.put("eb", ebc);
-		this.commands.put("setendermanblock", ebc);
-		this.commands.put("sethealth", hec);
-		this.commands.put("health", hec);
-		this.commands.put("hp", hec);
-		this.commands.put("setjockey", joc);
-		this.commands.put("jockey", joc);
-		this.commands.put("jock", joc);
-		this.commands.put("setname", nac);
-		this.commands.put("name", nac);
-		this.commands.put("setprofession", prc);
-		this.commands.put("profession", prc);
-		this.commands.put("villager", prc);
-		this.commands.put("setsaddled", sac);
-		this.commands.put("saddle", sac);
-		this.commands.put("settype", stc);
-		this.commands.put("type", stc);
-		this.commands.put("mob", stc);
-		this.commands.put("setsitting", sic);
-		this.commands.put("sitting", sic);
-		this.commands.put("sit", sic);
-		this.commands.put("setslimesize", ssc);
-		this.commands.put("setsize", ssc);
-		this.commands.put("size", ssc);
-		this.commands.put("settamed", tac);
-		this.commands.put("tamed", tac);
-		this.commands.put("setvelocity", vec);
-		this.commands.put("setvector", vec);
-		this.commands.put("velocity", vec);
-		this.commands.put("vector", vec);
-		this.commands.put("launch", vec);
-		this.commands.put("setpassive", pac);
-		this.commands.put("passive", pac);
-		this.commands.put("setfireticks", ftc);
-		this.commands.put("fireticks", ftc);
-		this.commands.put("fire", ftc);
-		this.commands.put("addblacklistitem", blc);
-		this.commands.put("setblacklist", blc);
-		this.commands.put("addwhitelistitem", wlc);
-		this.commands.put("setwhitelist", wlc);
-		this.commands.put("additem", ilc);
-		this.commands.put("setcustomdamage", dac);
-		this.commands.put("setdamageamount", dac);
-		this.commands.put("setusingdrops", drc);
-		this.commands.put("usedrops", drc);
-		this.commands.put("drops", drc);
-		this.commands.put("setexp", edc);
-		this.commands.put("setxp", edc);
-		this.commands.put("exp", edc);
-		this.commands.put("xp", edc);
-		this.commands.put("setfuselength", fuc);
-		this.commands.put("setfuseticks", fuc);
-		this.commands.put("fuselength", fuc);
-		this.commands.put("fuseticks", fuc);
-		this.commands.put("fuse", fuc);
-		this.commands.put("setincendiary", inc);
-		this.commands.put("incendiary", inc);
-		this.commands.put("napalm", inc);
-		this.commands.put("setitemtype", itc);
-		this.commands.put("itemtype", itc);
-		this.commands.put("setyield", yic);
-		this.commands.put("yield", yic);
-		this.commands.put("boomsize", yic);
-		this.commands.put("setinvulnerable", eic);
-		this.commands.put("invulnerable", eic);
-		this.commands.put("invincible", eic);
-		this.commands.put("dontdie", eic);
-		this.commands.put("adddrop", drc);
-		this.commands.put("addd", drc);
-		this.commands.put("setdrops", drc);
-		this.commands.put("setdrop", drc);
-		this.commands.put("setd", drc);
-		this.commands.put("addeffect", aec);
-		this.commands.put("adde", aec);
-		this.commands.put("seteffect", sec);
-		this.commands.put("sete", sec);
-		this.commands.put("setpotiontype", ptc);
-		this.commands.put("potiontype", ptc);
-		this.commands.put("clearinventory", einc);
-		this.commands.put("clearinv", einc);
-		einc.addAlias("clearinv", "clearinventory");
-		this.commands.put("noinv", einc);
-		einc.addAlias("noinv", "clearinventory");
-		this.commands.put("addinventoryitem", einc);
-		this.commands.put("addinventory", einc);
-		einc.addAlias("addinventory", "addinventoryitem");
-		this.commands.put("addinv", einc);
-		einc.addAlias("addinv", "addinventoryitem");
-		this.commands.put("setinventory", einc);
-		this.commands.put("setinv", einc);
-		einc.addAlias("setinv", "setinventory");
-		this.commands.put("sethand", einc);
-		this.commands.put("sethelmet", einc);
-		this.commands.put("sethelm", einc);
-		einc.addAlias("sethelm", "sethelmet");
-		this.commands.put("sethat", einc);
-		einc.addAlias("sethat", "sethelmet");
-		this.commands.put("setchest", einc);
-		this.commands.put("setshirt", einc);
-		einc.addAlias("setshirt", "setchest");
-		this.commands.put("setleggings", einc);
-		this.commands.put("setpants", einc);
-		einc.addAlias("setpants", "setleggings");
-		this.commands.put("setboots", einc);
-		this.commands.put("setshoes", einc);
-		einc.addAlias("setshoes", "setboots");
-		this.commands.put("setwither", ewc);
-		this.commands.put("setvillager", evc);
+		create.setNeedsObject(false);
+		select.setNeedsObject(false);
+		
+		addCommand("addeffect", effects, new String[] {
+				"addeffects",
+				"neweffect",
+				"neweffects"
+		});
+		addCommand("seteffect", effects, new String[] {
+				"seteffects"
+		});
+		addCommand("cleareffect", effects, new String[] {
+				"cleareffects",
+				"noeffect",
+				"noeffects"
+		});
+		addCommand("setage", age, new String[] {
+				"age",
+				"howold",
+				"old"
+		});
+		addCommand("setair", air, new String[] {
+				"air",
+				"breath",
+				"oxygen"
+		});
+		addCommand("setangry", angry, new String[] {
+				"angry",
+				"mad",
+				"ticked"
+		});
+		addCommand("setblacklist", blacklist, new String[] {
+				"blacklist",
+				"black",
+				"immuneto"
+		});
+		addCommand("addblacklist", blacklist, new String[] {
+				"addblacklistitem",
+				"addblack",
+				"addb",
+				"addimmuneto"
+		});
+		addCommand("clearblacklist", blacklist, new String[] {
+				"clearblack",
+				"noblack",
+				"clearimmuneto"
+		});
+		addCommand("setcattype", cat, new String[] {
+				"setcat",
+				"cat",
+				"cattype"
+		});
+		addCommand("setcharged", charged, new String[] {
+				"setcharge",
+				"charge",
+				"crepp"
+		});
+		addCommand("setcolor", color, new String[] {
+				"color"
+		});
+		addCommand("create", create, new String[] {
+				"new",
+				"makenew",
+				"summon"
+		});
+		addCommand("setcustomdamage", damage, new String[] {
+				"usedamage",
+				"setusingcustomdamage",
+				"usingcustomdamage",
+				"usecustomdamage",
+				"norrismode"
+		});
+		addCommand("setdamageamount", damage, new String[] {
+				"setdamage",
+				"damage",
+				"punishvalue",
+				"ownedfactor",
+				"kdquotient"
+		});
+		addCommand("adddrop", drops, new String[] {
+				"adddrops",
+				"addd"
+		});
+		addCommand("setdrop", drops, new String[] {
+				"setdrops",
+				"setd",
+				"dropthis"
+		});
+		addCommand("cleardrop", drops, new String[] {
+				"cleardrops",
+				"cleard",
+				"nodrop",
+				"nodrops"
+		});
+		addCommand("usedrop", drops, new String[] {
+				"usedrops",
+				"setusingdrops",
+				"setusingcustomdrops",
+				"dropstuff"
+		});
+		addCommand("setendermanblock", ender, new String[] {
+				"setenderblock",
+				"endermanblock",
+				"enderblock",
+				"endermanholds"
+		});
+		addCommand("setdroppedexperience", experience, new String[] {
+				"setdroppedexp",
+				"setdroppedxp",
+				"setexperience",
+				"setexp",
+				"setxp",
+				"exp",
+				"xp"
+		});
+		addCommand("setfireticks", fire, new String[] {
+				"setfire",
+				"fireticks",
+				"fire"
+		});
+		addCommand("setfuseticks", fuse, new String[] {
+				"setfuse",
+				"fuseticks",
+				"fuse"
+		});
+		addCommand("sethealth", health, new String[] {
+				"health",
+				"sethp",
+				"hp",
+				"setlifepoints",
+				"setlife",
+				"setlp",
+				"lp"
+		});
+		addCommand("setincendiary", incendiary, new String[] {
+				"incendiary",
+				"setnapalm",
+				"napalm",
+				"setfireexplosion",
+				"fireexplosion",
+				"setfirebomb",
+				"firebomb"
+		});
+		addCommand("info", info, new String[] {
+				"getinfo",
+				"geti",
+				"i"
+		});
+		addCommand("clearinventory", inventory, new String[] {
+				"clearinv",
+				"noinventory",
+				"noinv"
+		});
+		addCommand("addinventoryitem", inventory, new String[] {
+				"addinvitem",
+				"addinv"
+		});
+		addCommand("setinventory", inventory, new String[] {
+				"setinv"
+		});
+		addCommand("sethand", inventory, new String[] {
+				"hand",
+				"setequippeditem",
+				"setequipped",
+				"setiteminhand"
+		});
+		addCommand("sethelmet", inventory, new String[] {
+				"helmet",
+				"sethat",
+				"hat",
+				"sethead",
+				"head"
+		});
+		addCommand("setchest", inventory, new String[] {
+				"chest",
+				"setshirt",
+				"shirt",
+				"settorso",
+				"torso",
+				"setchestplate",
+				"chestplate"
+		});
+		addCommand("setleggings", inventory, new String[] {
+				"leggings",
+				"setlegs",
+				"legs",
+				"setpants",
+				"pants"
+		});
+		addCommand("setboots", inventory, new String[] {
+				"boots",
+				"setshoes",
+				"shoes",
+				"setfeet",
+				"feet"
+		});
 	}
 
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
 		if(arg1.getName().equalsIgnoreCase("entities")) {
-			try {
-				
-				SpawnerCommand runThis = commands.get(arg3[0].toLowerCase());
-				
-				if(runThis == null) {
-					plugin.sendMessage(arg0, ChatColor.RED + "\"" + arg3[0].toLowerCase() + "\" is not a valid command for CustomSpawners.");
-				} else {
-					runThis.run(arg0, arg1, arg2, arg3);
-				}
-				
-			} catch(ArrayIndexOutOfBoundsException e) {
-				plugin.sendMessage(arg0, ChatColor.RED + "You entered an invalid number or arguments. Make sure you entered all the right parameters.");
-			} catch(Exception e) {
-				
-				e.printStackTrace();
-				plugin.sendMessage(arg0, SpawnerCommand.GENERAL_ERROR);
-				
+			
+			SpawnableEntity entityRef = null;
+			String sub = arg3[0].toLowerCase();
+			String objId = "";
+			String[] params;
+			
+			if(arg3.length > 1)
+				objId = arg3[1];
+
+			if(arg3.length == 0) {
+				PLUGIN.sendMessage(arg0, ChatColor.RED + "You must enter a command.");
+				return true;
 			}
 			
-			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCommand")) {
-				plugin.getFileManager().autosaveAll();
+			EntityCommand cmd = (EntityCommand) super.getCommand(sub);
+			
+			if(cmd == null) {
+				PLUGIN.sendMessage(arg0, ChatColor.RED + "\"" + sub + "\" is not valid for the entities command.");
+				return true;
+			}
+			
+			sub = cmd.getCommand(sub); //Aliases
+			
+			if(arg0 instanceof Player) {
+				Player p = (Player) arg0;
+				
+				if(!p.hasPermission(cmd.permission)) {
+					PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+					return true;
+				}
+				
+				if(!CustomSpawners.entitySelection.containsKey(p)) {
+					entityRef = CustomSpawners.getEntity(objId);
+					params = makeParams(arg3, 1);
+				} else {
+					entityRef = CustomSpawners.getEntity(CustomSpawners.spawnerSelection.get(p));
+					params = makeParams(arg3, 2);
+				}
+			} else {
+				if(CustomSpawners.consoleEntity == -1) {
+					entityRef = CustomSpawners.getEntity(objId);
+					params = makeParams(arg3, 1);
+				} else {
+					entityRef = CustomSpawners.getEntity(CustomSpawners.consoleEntity);
+					params = makeParams(arg3, 2);
+				}
+			}
+			
+			if(entityRef == null && cmd.needsObject()) {
+				PLUGIN.sendMessage(arg0, cmd.NO_ENTITY);
+				return true;
+			}
+			
+			try {
+				cmd.run(entityRef, arg0, sub, params);
+			} catch(ArrayIndexOutOfBoundsException e) {
+				PLUGIN.sendMessage(arg0, ChatColor.RED + "You entered invalid parameters.");
+				return true;
+			} catch(Exception e) {
+				PLUGIN.printDebugMessage(e.getMessage());
+				PLUGIN.sendMessage(arg0, cmd.GENERAL_ERROR);
+				return true;
+			}
+			
+			if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCommand")) {
+				PLUGIN.getFileManager().autosaveAll();
 			}
 			
 			return true;

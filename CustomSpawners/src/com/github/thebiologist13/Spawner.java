@@ -79,11 +79,22 @@ public class Spawner implements Serializable {
 	private List<Integer> typeData = new ArrayList<Integer>();
 	
 	public Spawner(SpawnableEntity type, Location loc, int id) {
-		init(type, loc, id);
+		this(type, loc, "", id);
 	}
 	
 	public Spawner(SpawnableEntity type, Location loc, String name, int id) {
-		init(type, loc, id);
+		SLocation[] areaPoints = new SLocation[2];
+		
+		areaPoints[0] = new SLocation(loc);
+		areaPoints[1] = new SLocation(loc);
+		
+		data.put("id", id);
+		data.put("loc", new SLocation(loc));
+		data.put("block", new SBlock(loc.getBlock()));
+		data.put("areaPoints", areaPoints);
+		typeData.add(type.getId());
+		data.put("converted", false);
+		data.put("useSpawnArea", false);
 		data.put("name", name);
 	}
 	
@@ -745,21 +756,6 @@ public class Spawner implements Serializable {
 		return spawnLoc;
 	}
 	
-	private void init(SpawnableEntity type, Location loc, int id) {
-		SLocation[] areaPoints = new SLocation[2];
-		
-		areaPoints[0] = new SLocation(loc);
-		areaPoints[1] = new SLocation(loc);
-		
-		data.put("id", id);
-		data.put("loc", new SLocation(loc));
-		data.put("block", new SBlock(loc.getBlock()));
-		data.put("areaPoints", areaPoints);
-		typeData.add(type.getId());
-		data.put("converted", false);
-		data.put("useSpawnArea", false);
-	}
-	
 	//Checks if a block is "empty"
 	private boolean isEmpty(Location loc1, boolean liquidsNotSolid) {
 		if(loc1.getBlock().isLiquid() && liquidsNotSolid) {
@@ -848,8 +844,8 @@ public class Spawner implements Serializable {
 	//Makes a spider jockey
 	private Skeleton makeJockey(Spider spider) {
 		Location spiderLoc = spider.getLocation();
-		Entity skele = spiderLoc.getWorld().spawnEntity(spiderLoc, EntityType.SKELETON);
-		((LivingEntity) skele).getEquipment().setItemInHand(new ItemStack(Material.BOW));
+		LivingEntity skele = (LivingEntity) spiderLoc.getWorld().spawn(spiderLoc, EntityType.SKELETON.getEntityClass());
+		skele.getEquipment().setItemInHand(new ItemStack(Material.BOW)); //TODO test this + made disable on block break. Also improve commands
 		spider.setPassenger(skele);
 		return (Skeleton) skele;
 	}

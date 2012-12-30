@@ -7,11 +7,11 @@ import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 
 import com.github.thebiologist13.serialization.SVector;;
 
-public class EntityVelocityCommand extends SpawnerCommand {
+public class EntityVelocityCommand extends SubCommand {
 
 	public EntityVelocityCommand(CustomSpawners plugin) {
 		super(plugin);

@@ -1,254 +1,90 @@
 package com.github.thebiologist13.commands.entities;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
 
-public class EntityDropsCommand extends SpawnerCommand {
+public class EntityDropsCommand extends EntityCommand {
 
 	public EntityDropsCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
+	public EntityDropsCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player
-		Player p = null;
-		//SpawnableEntity
-		SpawnableEntity s = null;
-		//Perms
-		String perm1 = "customspawners.entities.adddrop";
-		String perm2 = "customspawners.entities.setdrop";
-		String perm3 = "customspawners.entities.cleardrops";
-		String perm4 = "customspawners.entities.setusingdrops";
+	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
-		if(!(arg0 instanceof Player)) {
-			log.info(NO_CONSOLE);
-			return;
-		}
-
-		p = (Player) arg0;
+		final String NOT_INT_AMOUNT = ChatColor.RED + "You must input an integer for the amount.";
 		
-		if(p.hasPermission(perm1) && arg3[0].equalsIgnoreCase("adddrop")) {
+		String item = getValue(args, 0, "0");
+		String count = getValue(args, 1, "0");
+		
+		if(subCommand.equals("adddrop")) {
 			
-			ItemStack drop = null;
-			int amount = 1;
-			
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 3) {
-
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-				drop = plugin.getItemStack(arg3[1]);
-				
-				if(drop == null) {
-					p.sendMessage(ChatColor.RED + arg3[1] + " is not a valid item.");
-					return;
-				}
-				
-				if(!CustomSpawners.isInteger(arg3[2])) {
-					p.sendMessage(ChatColor.RED + "You must input an integer for the amount.");
-					return;
-				}
-				
-				amount = Integer.parseInt(arg3[2]);
-				
-			} else if(arg3.length == 3) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 4) {
-
-				s = CustomSpawners.getEntity(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				drop = plugin.getItemStack(arg3[2]);
-				
-				if(drop == null) {
-					p.sendMessage(ChatColor.RED + arg3[2] + " is not a valid item.");
-					return;
-				}
-				
-				if(!CustomSpawners.isInteger(arg3[3])) {
-					p.sendMessage(ChatColor.RED + "You must input an integer for the amount.");
-					return;
-				}
-				
-				amount = Integer.parseInt(arg3[3]);
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
+			if(!CustomSpawners.isInteger(count)) {
+				PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
 				return;
 			}
 			
-			//Carry out command
-			drop.setAmount(amount);
-			s.addDrop(drop);
+			ItemStack stack = PLUGIN.getItem(item, Integer.parseInt(count));
 			
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully added a drop to spawnable entity with ID " 
-					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "! Item Details: " + ChatColor.GOLD 
-					+ plugin.getItemName(drop) + ChatColor.GREEN + ".");
-			
-		} else if(p.hasPermission(perm2) && arg3[0].equalsIgnoreCase("setdrops")) {
-			
-			ItemStack drop = null;
-			int amount = 1;
-			
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 3) {
-
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-				drop = plugin.getItemStack(arg3[1]);
-				
-				if(drop == null) {
-					p.sendMessage(ChatColor.RED + arg3[1] + " is not a valid item.");
-					return;
-				}
-				
-				if(!CustomSpawners.isInteger(arg3[2])) {
-					p.sendMessage(ChatColor.RED + "You must input an integer for the amount.");
-					return;
-				}
-				
-				amount = Integer.parseInt(arg3[2]);
-				
-			} else if(arg3.length == 3) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 4) {
-
-				s = CustomSpawners.getEntity(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				drop = plugin.getItemStack(arg3[2]);
-				
-				if(drop == null) {
-					p.sendMessage(ChatColor.RED + arg3[2] + " is not a valid item.");
-					return;
-				}
-				
-				if(!CustomSpawners.isInteger(arg3[3])) {
-					p.sendMessage(ChatColor.RED + "You must input an integer for the amount.");
-					return;
-				}
-				
-				amount = Integer.parseInt(arg3[3]);
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
+			if(stack == null) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + item + " is not a valid item.");
 				return;
 			}
 			
-			//Carry out command
-			drop.setAmount(amount);
-			ArrayList<ItemStack> dropAsArray = new ArrayList<ItemStack>();
-			dropAsArray.add(drop);
-			s.setDrops(dropAsArray);
+			entity.addDrop(stack);
 			
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully set drop of spawnable entity with ID " 
-					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD 
-					+ plugin.getItemName(drop) + ChatColor.GREEN + "!");
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully added drop item " + ChatColor.GOLD + 
+					PLUGIN.getItemName(stack) + ChatColor.GREEN + " to entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
+					ChatColor.GREEN + "!");
 			
-		} else if(p.hasPermission(perm3) && arg3[0].equalsIgnoreCase("cleardrops")) {
+		} else if(subCommand.equals("setdrop")) {
 			
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
-
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-			} else if(arg3.length == 1) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 2) {
-
-				s = CustomSpawners.getEntity(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
+			if(!CustomSpawners.isInteger(count)) {
+				PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
 				return;
 			}
 			
-			//Carry out command
-			ArrayList<ItemStack> dropAsArray = new ArrayList<ItemStack>();
-			s.setDrops(dropAsArray);
+			ItemStack stack = PLUGIN.getItem(item, Integer.parseInt(count));
 			
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully cleared spawnable entity with ID " 
-					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "'s drops!");
-			
-		} else if(p.hasPermission(perm4) && arg3[0].equalsIgnoreCase("setusingdrops")) {
-			
-			boolean value = false;
-			
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
-				
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-				if(arg3[1].equalsIgnoreCase("true") || arg3[1].equalsIgnoreCase("false")) {
-					if(arg3[1].equals("true")) {
-						value = true;
-					}
-				} else {
-					p.sendMessage(MUST_BE_BOOLEAN);
-					return;
-				}
-				
-			} else if(arg3.length == 2) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 3) {
-				
-				s = CustomSpawners.getEntity(arg3[1]);
-				
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				if(arg3[2].equalsIgnoreCase("true") || arg3[2].equalsIgnoreCase("false")) {
-					if(arg3[2].equals("true")) {
-						value = true;
-					}
-				} else {
-					p.sendMessage(MUST_BE_BOOLEAN);
-					return;
-				}
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
+			if(stack == null) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + item + " is not a valid item.");
 				return;
 			}
 			
-			//Carry out command
-			s.setUsingCustomDrops(value);
+			List<ItemStack> drops = new ArrayList<ItemStack>();
+			drops.add(stack);
 			
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully set entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + 
-					ChatColor.GREEN + "'s custom drops value to " + ChatColor.GOLD + String.valueOf(value) + ChatColor.GREEN + "!");
+			entity.setDrops(drops);
 			
-		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully set drop item to " + ChatColor.GOLD + 
+					PLUGIN.getItemName(stack) + ChatColor.GREEN + " on entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
+					ChatColor.GREEN + "!");
+			
+		} else if(subCommand.equals("cleardrop")) {
+			
+			entity.setDrops(new ArrayList<ItemStack>());
+			
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared drops of entity " + 
+					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
+			
+		} else if(subCommand.equals("usedrop")) {
+			
+			String in = getValue(args, 0, "false");
+			entity.setUsingCustomDrops(Boolean.parseBoolean(in));
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "use drops", in));
+			
 		}
 		
 	}

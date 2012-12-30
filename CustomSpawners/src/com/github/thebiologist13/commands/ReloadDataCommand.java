@@ -1,55 +1,36 @@
 package com.github.thebiologist13.commands;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 
-public class ReloadDataCommand extends SpawnerCommand {
+
+/**
+ * This command reloads the data for the plugin.
+ * 
+ * @author thebiologist13
+ */
+public class ReloadDataCommand extends CustomSpawnersCommand {
 
 	public ReloadDataCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
+	
+	public ReloadDataCommand(CustomSpawners plugin, String perm) {
+		super(plugin, perm);
+	}
 
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+	public void run(CommandSender sender, String subCommand, String[] args) {
 
-		Player p = null;
-		
-		final String RELOAD_PERM = "customspawners.reload";
-		
-		if(arg0 instanceof Player) {
-			p = (Player) arg0;
+		try {
+			PLUGIN.getFileManager().reloadData();
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Data reloaded.");
+		} catch (Exception e) {
+			PLUGIN.printDebugMessage(e.getMessage(), this.getClass());
+			PLUGIN.sendMessage(sender, ChatColor.RED + "Failed to reload entities.");
 		}
 		
-		if(p == null) {
-			if(arg3.length == 1) {
-				try {
-					plugin.getFileManager().reloadData();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				log.info("Spawners and Entities reloaded.");
-			} else {
-				log.info(MORE_ARGS);
-			}
-		} else {
-			if(p.hasPermission(RELOAD_PERM)) {
-				if(arg3.length == 1) {
-					try {
-						plugin.getFileManager().reloadData();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					p.sendMessage(ChatColor.GREEN + "Spawners and Entities reloaded.");
-				} else {
-					log.info(MORE_ARGS);
-				}
-			} else {
-				p.sendMessage(NO_PERMISSION);
-			}
-		}
 	}
 }

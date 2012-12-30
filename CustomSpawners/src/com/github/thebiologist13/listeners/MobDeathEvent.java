@@ -57,7 +57,11 @@ public class MobDeathEvent implements Listener {
 			}
 			
 			//Exp
-			ev.setDroppedExp(e.getDroppedExp());
+			int xp = e.getDroppedExp();
+			
+			if(xp > 0) {
+				ev.setDroppedExp(xp);
+			}
 			
 		}
 		

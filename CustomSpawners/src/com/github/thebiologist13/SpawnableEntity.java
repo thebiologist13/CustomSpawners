@@ -3,6 +3,7 @@ package com.github.thebiologist13;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.EntityType;
@@ -27,16 +28,16 @@ public class SpawnableEntity implements Serializable {
 	
 	private static final long serialVersionUID = -60000847475741355L;
 	//Damage Blacklist
-	private ArrayList<String> blacklist = new ArrayList<String>();
+	private List<String> blacklist = new ArrayList<String>();
 	private Map<String, Object> data = new HashMap<String, Object>();
 	//Drops
-	private ArrayList<SItemStack> drops = new ArrayList<SItemStack>();
+	private List<SItemStack> drops = new ArrayList<SItemStack>();
 	//Basic Data
-	private ArrayList<SPotionEffect> effects = new ArrayList<SPotionEffect>();
+	private List<SPotionEffect> effects = new ArrayList<SPotionEffect>();
 	//Items that do or do not inflict damage
-	private ArrayList<SItemStack> itemDamage = new ArrayList<SItemStack>(); 
+	private List<SItemStack> itemDamage = new ArrayList<SItemStack>(); 
 	//Damage Whitelist
-	private ArrayList<String> whitelist = new ArrayList<String>();
+	private List<String> whitelist = new ArrayList<String>();
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
@@ -102,11 +103,11 @@ public class SpawnableEntity implements Serializable {
 		return (this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 2;
 	}
 	
-	public ArrayList<String> getDamageBlacklist() {
+	public List<String> getDamageBlacklist() {
 		return blacklist;
 	}
 	
-	public ArrayList<String> getDamageWhitelist() {
+	public List<String> getDamageWhitelist() {
 		return whitelist;
 	}
 	
@@ -114,9 +115,9 @@ public class SpawnableEntity implements Serializable {
 		return (this.data.containsKey("exp")) ? (Integer) this.data.get("exp") : 1;
 	}
 	
-	public ArrayList<ItemStack> getDrops() {
+	public List<ItemStack> getDrops() {
 		
-		ArrayList<ItemStack> drops1 = new ArrayList<ItemStack>();
+		List<ItemStack> drops1 = new ArrayList<ItemStack>();
 		
 		for(SItemStack i : drops) {
 			drops1.add(i.toItemStack());
@@ -125,12 +126,15 @@ public class SpawnableEntity implements Serializable {
 		return drops1;
 	}
 	
-	public ArrayList<SPotionEffect> getEffects() {
+	public List<SPotionEffect> getEffects() {
 		return effects;
 	}
 
 	public MaterialData getEndermanBlock() {
-		return (this.data.containsKey("enderBlock")) ? new MaterialData((Integer) this.data.get("enderBlock")) : new MaterialData(1);
+		int id = (this.data.containsKey("enderBlock")) ? (Integer) this.data.get("enderBlock") : 1;
+		byte damage = (this.data.containsKey("enderBlockDamage")) ? (Byte) this.data.get("enderBlockDamage") : 0;
+		MaterialData block = new MaterialData(id, damage);
+		return block;
 	}
 
 	public int getFireTicks() {
@@ -157,9 +161,9 @@ public class SpawnableEntity implements Serializable {
 		return (this.data.containsKey("inv")) ? (SInventory) this.data.get("inv") : new SInventory();
 	}
 
-	public ArrayList<ItemStack> getItemDamageList() {
+	public List<ItemStack> getItemDamageList() {
 		
-		ArrayList<ItemStack> damage1 = new ArrayList<ItemStack>();
+		List<ItemStack> damage1 = new ArrayList<ItemStack>();
 		
 		for(SItemStack i : itemDamage) {
 			damage1.add(i.toItemStack());
@@ -351,12 +355,12 @@ public class SpawnableEntity implements Serializable {
 		this.data.put("damage", damage);
 	}
 
-	public void setDamageBlacklist(ArrayList<String> damageBlacklist) {
-		this.blacklist = damageBlacklist;
+	public void setDamageBlacklist(List<String> blacklist2) {
+		this.blacklist = blacklist2;
 	}
 	
-	public void setDamageWhitelist(ArrayList<String> damageWhitelist) {
-		this.whitelist = damageWhitelist;
+	public void setDamageWhitelist(List<String> whitelist2) {
+		this.whitelist = whitelist2;
 	}
 
 	public void setData(Map<String, Object> data) {
@@ -385,23 +389,24 @@ public class SpawnableEntity implements Serializable {
 		this.data.put("exp", droppedExp);
 	}
 
-	public void setDrops(ArrayList<ItemStack> drops) {
+	public void setDrops(List<ItemStack> drops2) {
 		
 		ArrayList<SItemStack> drops1 = new ArrayList<SItemStack>();
 		
-		for(ItemStack i : drops) {
+		for(ItemStack i : drops2) {
 			drops1.add(new SItemStack(i));
 		}
 		
 		this.drops = drops1;
 	}
 
-	public void setEffects(ArrayList<SPotionEffect> effects) {
+	public void setEffects(List<SPotionEffect> effects) {
 		this.effects = effects;
 	}
 
 	public void setEndermanBlock(MaterialData endermanBlock) {
 		this.data.put("enderBlock", endermanBlock.getItemTypeId());
+		this.data.put("enderBlockDamage", endermanBlock.getData());
 	}
 	
 	public void setFireTicks(int fireTicks) {
@@ -432,11 +437,11 @@ public class SpawnableEntity implements Serializable {
 		this.data.put("invul", invulnerable);
 	}
 
-	public void setItemDamageList(ArrayList<ItemStack> itemDamage) {
+	public void setItemDamageList(List<ItemStack> list) {
 		
-		ArrayList<SItemStack> damage1 = new ArrayList<SItemStack>();
+		List<SItemStack> damage1 = new ArrayList<SItemStack>();
 		
-		for(ItemStack i : itemDamage) {
+		for(ItemStack i : list) {
 			damage1.add(new SItemStack(i));
 		}
 		

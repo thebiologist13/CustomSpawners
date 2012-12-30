@@ -8,9 +8,9 @@ import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 
-public class EntityJockeyCommand extends SpawnerCommand {
+public class EntityJockeyCommand extends SubCommand {
 
 	public EntityJockeyCommand(CustomSpawners plugin) {
 		super(plugin);

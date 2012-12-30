@@ -260,9 +260,20 @@ public class CustomSpawners extends JavaPlugin {
 		//Disable message
 		log.info("CustomSpawners by thebiologist13 has been disabled!");
 	}
+	
+	//Gets an entity
+	public static SpawnableEntity getEntity(int ref) {
+		return getEntity(String.valueOf(ref));
+	}
 
 	//Gets an entity
 	public static SpawnableEntity getEntity(String ref) {
+		
+		if(ref.isEmpty())
+			return null;
+		
+		ref = ref.toLowerCase();
+		
 		if(isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 
@@ -280,7 +291,7 @@ public class CustomSpawners extends JavaPlugin {
 
 		} else {
 
-			if(ref.equalsIgnoreCase("default"))
+			if(ref.equals("default"))
 				return defaultEntity;
 
 			Iterator<Integer> entityItr = entities.keySet().iterator();
@@ -331,7 +342,18 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	//Gets a spawner
+	public static Spawner getSpawner(int ref) {
+		return getSpawner(String.valueOf(ref));
+	}
+	
+	//Gets a spawner
 	public static Spawner getSpawner(String ref) {
+		
+		if(ref.isEmpty())
+			return null;
+		
+		ref = ref.toLowerCase();
+		
 		if(isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
@@ -550,9 +572,21 @@ public class CustomSpawners extends JavaPlugin {
 
 		return name;
 	}
+	
+	public ItemStack getItem(String item, int count) {
+		ItemStack stack = getItemStack(item);
+		
+		if(stack == null) {
+			return null;
+		}
+		
+		stack.setAmount(count);
+		
+		return stack;
+	}
 
 	//Gets a ItemStack from string with id and damage value
-	public ItemStack getItemStack(String value) {
+	public ItemStack getItemStack(String value) { //TODO make work with item names
 		//Format should be either <data value:damage value> or <data value>
 		int id = 0;
 		short damage = 0;
@@ -568,26 +602,42 @@ public class CustomSpawners extends JavaPlugin {
 
 			String itemId = value.substring(0, value.length());
 
-			if(!isInteger(itemId)) 
-				return null;
-
-			id = Integer.parseInt(itemId);
-
-			if(Material.getMaterial(id) == null)
-				return null;
+			if(!isInteger(itemId)) {
+				Material mat = Material.valueOf(itemId);
+				
+				if(mat == null) 
+					return null;
+				
+				id = mat.getId();
+			} else {
+				id = Integer.parseInt(itemId);
+				
+				if(Material.getMaterial(id) == null)
+					return null;
+			}
 
 		} else {
 			String itemId = value.substring(0, index);
 			String itemDamage = value.substring(index + 1, value.length());
 
-			if(!isInteger(itemId) || !isInteger(itemDamage)) 
+			if(!isInteger(itemId)) {
+				Material mat = Material.valueOf(itemId);
+				
+				if(mat == null) 
+					return null;
+				
+				id = mat.getId();
+			} else {
+				id = Integer.parseInt(itemId);
+				
+				if(Material.getMaterial(id) == null)
+					return null;
+			}
+			
+			if(!isInteger(itemDamage)) 
 				return null;
-
-			id = Integer.parseInt(itemId);
+			
 			damage = (short) Integer.parseInt(itemDamage);
-
-			if(Material.getMaterial(id) == null)
-				return null;
 		}
 
 		return new ItemStack(id, 1, damage);
@@ -725,8 +775,6 @@ public class CustomSpawners extends JavaPlugin {
 	public EntityType parseEntityType(String entityType, boolean hasOverride) {
 		EntityType type = null;
 
-		List<?> notAllowed = config.getList("mobs.blacklist");
-
 		if(entityType.equalsIgnoreCase("irongolem")) {
 
 			type = EntityType.IRON_GOLEM;
@@ -813,28 +861,43 @@ public class CustomSpawners extends JavaPlugin {
 
 			type = EntityType.WITHER;
 
-		} else if(entityType.equalsIgnoreCase("witherskeleton") || entityType.equalsIgnoreCase("wither_skeleton")
-				|| entityType.equalsIgnoreCase("nether_skeleton")) {
-
-			type = EntityType.SKELETON;
-
 		} else {
 
 			//Try to parse an entity type from input. Null if invalid.
 			type = EntityType.fromName(entityType);
 
-			if(type == null || !type.isSpawnable()) {
-				return null;
-			}
-
-		}
-
-		if(notAllowed.contains(type.getName()) && !hasOverride) {
-			return null;
 		}
 
 		return type;
 
+	}
+	
+	public boolean allowedEntity(EntityType type) {
+		String name = type.toString();
+		
+		List<?> notAllowed = config.getList("mobs.blacklist");
+		
+		if(notAllowed.contains(name)) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public void printDebugMessage(String[] message) {
+		if(debug) {
+			for(String s : message) {
+				printDebugMessage(s);
+			}
+		}
+	}
+	
+	public void printDebugMessage(String[] message, Class<?> clazz) {
+		if(debug) {
+			for(String s : message) {
+				printDebugMessage(s, clazz);
+			}
+		}
 	}
 
 	public void printDebugMessage(String message) {
@@ -857,7 +920,6 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	//Config stuff
-	//Credit goes to respective owners.
 	public void reloadCustomConfig() {
 		if (configFile == null) {
 			configFile = new File(getDataFolder(), "config.yml");

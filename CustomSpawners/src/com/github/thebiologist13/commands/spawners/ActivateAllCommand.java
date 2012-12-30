@@ -7,9 +7,9 @@ import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.commands.SpawnerCommand;
+import com.github.thebiologist13.commands.SubCommand;
 
-public class ActivateAllCommand extends SpawnerCommand {
+public class ActivateAllCommand extends SubCommand {
 
 	public ActivateAllCommand(CustomSpawners plugin) {
 		super(plugin);
@@ -34,7 +34,7 @@ public class ActivateAllCommand extends SpawnerCommand {
 				
 				p.sendMessage(ChatColor.GREEN + "All spawners set active.");
 			} else {
-				p.sendMessage(SpawnerCommand.NO_PERMISSION);
+				p.sendMessage(SubCommand.NO_PERMISSION);
 				return;
 			}
 		}
