@@ -3,123 +3,33 @@ package com.github.thebiologist13.commands.spawners;
 import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class InfoCommand extends SubCommand {
+public class InfoCommand extends SpawnerCommand {
 
 	public InfoCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player
-		Player p = null;
+	public InfoCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
+	@Override
+	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
-		//Spawner
-		Spawner s = null;
-		
-		if(arg0 instanceof Player) {
-			p = (Player) arg0;
+		if(spawner.isHidden() && !permissible(sender, "customspawners.spawners.info.hidden")) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "You are not allowed to view info on that spawner!");
+			return;
 		}
 		
-		if(p == null) {
-
-			//If the player wants to perform command with a selection.
-			if(CustomSpawners.consoleSpawner != -1 && arg3.length == 1) {
-
-				s = CustomSpawners.getSpawner(String.valueOf(CustomSpawners.consoleSpawner));
-
-				//Arguments are for selection, but none is selected
-			} else if(arg3.length == 1) {
-
-				plugin.sendMessage(arg0, NEEDS_SELECTION);
-				return;
-
-				//If the player wants to perform command on a specific spawner
-			} else if(arg3.length == 2) {
-
-				s = CustomSpawners.getSpawner(arg3[1]);
-
-				if(s == null) {
-					plugin.sendMessage(arg0, NO_ID);
-					return;
-				}
-
-				//General error
-			} else {
-
-				plugin.sendMessage(arg0, GENERAL_ERROR);
-				return;
-
-			}
-
-			//Send info
-			plugin.sendMessage(arg0, getInfo(s));
-			
-		} else {
-			
-			//Permission check
-			if(p.hasPermission("customspawners.spawners.info")) {
-				
-				//If the player wants to perform command with a selection.
-				if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 1) {
-					
-					s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
-					
-				//Arguments are for selection, but none is selected
-				} else if(arg3.length == 1) {
-					
-					plugin.sendMessage(p, NEEDS_SELECTION);
-					return;
-				
-				//If the player wants to perform command on a specific spawner
-				} else if(arg3.length == 2) {
-
-					s = CustomSpawners.getSpawner(arg3[1]);
-
-					if(s == null) {
-						plugin.sendMessage(p, NO_ID);
-						return;
-					}
-					
-				//General error
-				} else {
-					
-					plugin.sendMessage(arg0, GENERAL_ERROR);
-					return;
-					
-				}
-				
-				//Send info
-				if(!p.hasPermission("customspawners.spawners.info.hidden") && s.isHidden() == true) {
-					
-					plugin.sendMessage(p, ChatColor.RED + "You are not allowed to view info on that spawner!");
-					return;
-					
-				} else {
-					
-					plugin.sendMessage(p, getInfo(s));
-					
-				}
-				
-			} else {
-				
-				plugin.sendMessage(p, NO_PERMISSION);
-				return;
-				
-			}
-			
-		}
+		PLUGIN.sendMessage(sender, getInfo(spawner));
 		
 	}
-	
+
 	private String[] getInfo(Spawner s) {
 		String typesMessage = "";
 		ArrayList<SpawnableEntity> types = new ArrayList<SpawnableEntity>();

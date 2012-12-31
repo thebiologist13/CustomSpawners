@@ -31,10 +31,10 @@ public class EntityInventoryCommand extends EntityCommand {
 		}
 		
 		String item = getValue(args, 0, "0"); //TODO if it is a player, make it so it can clone the item in their hand to inventory.
-		String count = getValue(args, 1, "0");
+		String count = getValue(args, 1, "1");
 		
 		if(!CustomSpawners.isInteger(count)) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "You must input an integer for the amount.");
+			PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
 			return;
 		}
 		

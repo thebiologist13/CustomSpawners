@@ -1,63 +1,72 @@
 package com.github.thebiologist13.commands.spawners;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class ListNearCommand extends SubCommand {
+public class ListNearCommand extends SpawnerCommand {
 
 	public ListNearCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		Player p = null;
-		int near = config.getInt("players.maxNear", 25);
+	public ListNearCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
 
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
+	@Override
+	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) { //TODO Maybe add location of spawner to print out?
+		
+		if(!(sender instanceof Player)) {
+			PLUGIN.sendMessage(sender, NO_CONSOLE);
 			return;
 		}
-
-		p = (Player) arg0;
-
-		if(p.hasPermission("customspawners.spawners.listnear")) {
-			ArrayList<Spawner> nearbySpawners = new ArrayList<Spawner>();
-			for(Spawner s : CustomSpawners.spawners.values()) {
-				if(!p.hasPermission("customspawners.spawners.listnear.hidden")) {
-					if(s.getLoc().distance(p.getLocation()) < near && !s.isHidden()) {
-						 nearbySpawners.add(s);
-					}
-				} else {
-					if(s.getLoc().distance(p.getLocation()) < near) {
-						 nearbySpawners.add(s);
-					}
-				}
+		
+		Player player = (Player) sender;
+		int near = CONFIG.getInt("players.maxNear", 25);
+		List<Spawner> list = new ArrayList<Spawner>();
+		
+		Iterator<Spawner> itr = CustomSpawners.spawners.values().iterator();
+		while(itr.hasNext()) {
+			Spawner sp = itr.next();
+			
+			if(sp.getLoc().distance(player.getLocation()) <= near) {
+				
+				if(sp.isHidden() && player.hasPermission("customspawners.spawners.listnear.hidden")) {
+					list.add(sp);
+				} else if(!sp.isHidden()) {
+					list.add(sp);
+				}	
+				
 			}
-
-			if(nearbySpawners.size() == 0) {
-				p.sendMessage(ChatColor.GREEN + "There are no spawners within " + String.valueOf(near) + " blocks.");
-				return;
-			} else {
-				p.sendMessage(ChatColor.GOLD + "Nearby Spawners: ");
-				for(Spawner s : nearbySpawners) {
-					if(!s.getName().isEmpty()) {
-						p.sendMessage(ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + " with name " + ChatColor.GOLD + s.getName() + ChatColor.GREEN +
-								" at location (" + s.getLoc().getBlockX() + ", " + s.getLoc().getBlockY() + ", " + s.getLoc().getBlockZ() + ")");
-					} else {
-						p.sendMessage(ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + " at location (" + s.getLoc().getBlockX() + ", " 
-								+ s.getLoc().getBlockY() + ", " + s.getLoc().getBlockZ() + ")");
-					}
-				}
-			}
+			
 		}
+		
+		if(list.size() == 0) {
+			PLUGIN.sendMessage(player, ChatColor.RED + "There are no spawners within " + near + " blocks.");
+			return;
+		}
+		
+		PLUGIN.sendMessage(player, ChatColor.GOLD + "Nearby Spawners:");
+		for(Spawner sp : list) {
+			
+			String baseMessage =  ChatColor.GOLD + String.valueOf(sp.getId()) + 
+					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ")"; 
+			
+			if(sp.getName().isEmpty()) {
+				PLUGIN.sendMessage(sender, baseMessage + ChatColor.GREEN + " with name " + ChatColor.GOLD + sp.getName());
+			} else {
+				PLUGIN.sendMessage(sender, baseMessage);
+			}
+			
+		}
+		
 	}
 }

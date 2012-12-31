@@ -18,7 +18,9 @@ public class EntityAngryCommand extends EntityCommand {
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		String in = getValue(args, 0, "false");
-		entity.setAngry(Boolean.parseBoolean(in));
+		boolean value = Boolean.parseBoolean(in);
+		entity.setAngry(value);
+		entity.setTamed(!value);
 		
 		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "angry", in));
 	}

@@ -37,7 +37,7 @@ public class Executor {
 		int pLength = baseParams.length - offset;
 		
 		if(pLength < 1)
-			return baseParams;
+			return new String[0];
 		
 		String[] newParams = new String[pLength];
 		for(int i = 0; i < pLength; i++) {

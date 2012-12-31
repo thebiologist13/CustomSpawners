@@ -25,7 +25,7 @@ public class PlayerTargetEvent implements Listener {
 		//Target
 		Entity target = ev.getTarget();
 
-		if(target == null) return;
+		if(target == null) return; //TODO Not sure if this works
 
 		if(!(target instanceof Player)) return;
 		

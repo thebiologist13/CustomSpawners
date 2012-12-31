@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 
@@ -23,30 +21,19 @@ public class EntityBlackListCommand extends EntityCommand {
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
+		if(subCommand.equals("setuseblacklist")) {
+			String in = getValue(args, 0, "false");
+			entity.setUseBlacklist(Boolean.parseBoolean(in));
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "use blacklist", in));
+			return;
+		}
+		
 		String type = "";
 		
 		String in = getValue(args, 0, "void");
 		
-		if(in.equals("blockexplosion")) {
-			type = "BLOCK_EXPLOSION";
-		} else if(in.equals("entityexplosion") || in.equals("creeper")) {
-			type = "ENTITY_EXPLOSION";
-		} else if(in.equals("firetick") || in.equals("burning")) {
-			type = "FIRE_TICK";
-		} else if(in.equals("attack") || in.equals("entityattack")) {
-			type = "ENTITY_ATTACK";
-		} else if(in.equals("item") || in.equals("itemdamage")) {
-			type = "ITEM";
-		} else if(in.equals("spawnerfire") || in.equals("spawnerfireticks")) {
-			type = "SPAWNER_FIRE_TICKS";
-		} else {
-			for(DamageCause c : DamageCause.values()) {
-				if(c.toString().equalsIgnoreCase(in)) {
-					type = in;
-					break;
-				}
-			}
-		}
+		type = PLUGIN.getDamageCause(in);
 		
 		if(type.isEmpty()) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "\"" + in + "\" is not a valid damage cause.");

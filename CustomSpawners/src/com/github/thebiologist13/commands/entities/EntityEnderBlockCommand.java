@@ -19,12 +19,18 @@ public class EntityEnderBlockCommand extends EntityCommand {
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
-		String in = getValue(args, 0, "0");
+		String item = getValue(args, 0, "0");
+		String count = getValue(args, 1, "0");
 		
-		ItemStack stack = PLUGIN.getItemStack(in);
+		if(!CustomSpawners.isInteger(count)) {
+			PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
+			return;
+		}
+		
+		ItemStack stack = PLUGIN.getItem(item, Integer.parseInt(count));
 		
 		if(stack == null) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + in + " is not a valid item.");
+			PLUGIN.sendMessage(sender, ChatColor.RED + item + " is not a valid item.");
 			return;
 		}
 		

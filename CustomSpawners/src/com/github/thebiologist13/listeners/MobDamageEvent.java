@@ -24,7 +24,6 @@ public class MobDamageEvent implements Listener {
 			ev.setDamage(damage);
 		} else {
 			ev.setDamage(0);
-			ev.setCancelled(true);
 		}
 		
 	}

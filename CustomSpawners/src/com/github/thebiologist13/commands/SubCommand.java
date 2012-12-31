@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 
@@ -21,6 +23,7 @@ public class SubCommand {
 	public final String NO_ID = ChatColor.RED + "Object with that name or ID does not exist.";
 	public final String NO_PERMISSION = ChatColor.RED + "You do not have permission!";
 	public final String NOT_COMMAND = ChatColor.RED + "That is not a command for CustomSpawners.";
+	public final String NOT_INT_AMOUNT = ChatColor.RED + "You must input an integer for the amount.";
 	
 	public final FileConfiguration CONFIG;
 	public final Logger LOG;
@@ -64,6 +67,14 @@ public class SubCommand {
 	
 	public void removeAlias(String alias) {
 		this.aliases.remove(alias.toLowerCase());
+	}
+	
+	public boolean permissible(CommandSender sender, String perm) {
+		if(sender instanceof Player) {
+			return ((Player) sender).hasPermission(perm);
+		} else {
+			return true;
+		}
 	}
 
 	public void setAliases(Map<String, String> aliases) {

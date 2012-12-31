@@ -1,48 +1,30 @@
 package com.github.thebiologist13.commands.spawners;
 
+import java.util.Iterator;
+
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class ActivateAllCommand extends SubCommand {
+public class ActivateAllCommand extends SpawnerCommand {
 
 	public ActivateAllCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player 
-		Player p = null;
-		
-		//Check if player
-		if(arg0 instanceof Player) {
-			p = (Player) arg0;
+	public ActivateAllCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
+	@Override
+	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
+		Iterator<Spawner> itr = CustomSpawners.spawners.values().iterator();
+		while(itr.hasNext()) {
+			itr.next().setActive(true);
 		}
-		
-		if(p == null) {
-			activateSpawners();
-			
-			plugin.log.info("All spawners set active.");
-		} else {
-			if(p.hasPermission("customspawners.spawners.activateall")) {
-				activateSpawners();
-				
-				p.sendMessage(ChatColor.GREEN + "All spawners set active.");
-			} else {
-				p.sendMessage(SubCommand.NO_PERMISSION);
-				return;
-			}
-		}
+		PLUGIN.sendMessage(sender, ChatColor.GREEN + "All spawners set active.");
 	}
 	
-	private void activateSpawners() {
-		for(Spawner s : CustomSpawners.spawners.values()) {
-			s.setActive(true);
-		}
-	}
 }

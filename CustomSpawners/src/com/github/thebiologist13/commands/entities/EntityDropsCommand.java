@@ -23,10 +23,8 @@ public class EntityDropsCommand extends EntityCommand {
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
-		final String NOT_INT_AMOUNT = ChatColor.RED + "You must input an integer for the amount.";
-		
 		String item = getValue(args, 0, "0");
-		String count = getValue(args, 1, "0");
+		String count = getValue(args, 1, "1");
 		
 		if(subCommand.equals("adddrop")) {
 			

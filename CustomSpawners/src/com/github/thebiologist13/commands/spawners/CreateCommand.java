@@ -2,89 +2,79 @@ package com.github.thebiologist13.commands.spawners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class CreateCommand extends SubCommand {
+public class CreateCommand extends SpawnerCommand {
 
 	public CreateCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player
-		Player p = null;
-		//Type of entity for spawner
-		SpawnableEntity type = null;
-		//Target block to make spawner
-		Block target = null;
-		//ID of spawner to make
-		int id = 0;
+	public CreateCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
+	@Override
+	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
-		//Makes sure the command was from in-game
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
+		if(!(sender instanceof Player)) {
+			PLUGIN.sendMessage(sender, NO_CONSOLE);
 			return;
 		}
 		
-		p = (Player) arg0;
+		Player player = (Player) sender;
 		
-		//Permission check
-		if(p.hasPermission("customspawners.spawners.create")) {
-			//Try to get the target block after scanning the distance from config
-			target = p.getTargetBlock(null, config.getInt("players.maxDistance", 50));
-			
-			//If no target block was found
-			if(target == null) {
-				p.sendMessage(INVALID_BLOCK);
-				return;
-			}
-			
-			//Try to parse an entity type from input. Null if invalid.
-			type = CustomSpawners.getEntity(arg3[1]);
-			
-			if(type == null) {
-				p.sendMessage(NO_ID);
-				return;
-			}
-			
-			//Gets the next available ID for a spawner
-			id = plugin.getNextSpawnerId();
-			
-			//Creates a new instance of spawner using variables parsed from command
-			Spawner spawner = new Spawner(type, target.getLocation(), id);
-			
-			//Setting default properties from config
-			spawner.setRadius(config.getDouble("spawners.radius", 16));
-			spawner.setRedstoneTriggered(config.getBoolean("spawners.redstoneTriggered", false));
-			spawner.setMaxPlayerDistance(config.getInt("spawners.maxPlayerDistance", 128));
-			spawner.setMinPlayerDistance(config.getInt("spawners.minPlayerDistance", 0));
-			spawner.setActive(config.getBoolean("spawners.active", false));
-			spawner.setMaxLightLevel((byte) config.getInt("spawners.maxLightLevel", 7));
-			spawner.setMinLightLevel((byte) config.getInt("spawners.minLightLevel", 0));
-			spawner.setHidden(config.getBoolean("spawners.hidden", false));
-			spawner.setRate(config.getInt("spawners.rate", 120));
-			spawner.setMobsPerSpawn(config.getInt("spawners.mobsPerSpawn", 2));
-			spawner.setMaxMobs(config.getInt("spawners.maxMobs", 64));
-			
-			CustomSpawners.spawners.put(id, spawner);
-			
-			if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
-				plugin.getFileManager().autosave(spawner);
-			}
-			
-			plugin.sendMessage(arg0, ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + plugin.getFriendlyName(type) + ChatColor.GREEN + 
-					" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
-			
+		SpawnableEntity entity = null;
+		
+		String in = getValue(args, 0, "");
+		
+		if(in.isEmpty()) {
+			entity = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(player));
 		} else {
-			p.sendMessage(NO_PERMISSION);
+			entity = CustomSpawners.getEntity(in);
+		}
+		
+		if(entity == null) {
+			PLUGIN.sendMessage(sender, NO_ID);
 			return;
 		}
+		
+		Block target = player.getTargetBlock(null, CONFIG.getInt("players.maxDistance", 5));
+		
+		if(target == null) {
+			PLUGIN.sendMessage(player, ChatColor.RED + "You must look at a block to make a spawner there.");
+			return;
+		}
+		
+		int id = PLUGIN.getNextSpawnerId();
+		
+		Spawner newSpawner = new Spawner(entity, target.getLocation(), id);
+		
+		spawner.setRadius(CONFIG.getDouble("spawners.radius", 8));
+		spawner.setRedstoneTriggered(CONFIG.getBoolean("spawners.redstoneTriggered", false));
+		spawner.setMaxPlayerDistance(CONFIG.getInt("spawners.maxPlayerDistance", 16));
+		spawner.setMinPlayerDistance(CONFIG.getInt("spawners.minPlayerDistance", 0));
+		spawner.setActive(CONFIG.getBoolean("spawners.active", false));
+		spawner.setMaxLightLevel((byte) CONFIG.getInt("spawners.maxLightLevel", 7));
+		spawner.setMinLightLevel((byte) CONFIG.getInt("spawners.minLightLevel", 0));
+		spawner.setHidden(CONFIG.getBoolean("spawners.hidden", false));
+		spawner.setRate(CONFIG.getInt("spawners.rate", 120));
+		spawner.setMobsPerSpawn(CONFIG.getInt("spawners.mobsPerSpawn", 2));
+		spawner.setMaxMobs(CONFIG.getInt("spawners.maxMobs", 12));
+		
+		CustomSpawners.spawners.put(newSpawner.getId(), newSpawner);
+		
+		if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
+			PLUGIN.getFileManager().autosave(spawner);
+		}
+		
+		PLUGIN.sendMessage(player, ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + 
+				" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
+		
 	}
 }

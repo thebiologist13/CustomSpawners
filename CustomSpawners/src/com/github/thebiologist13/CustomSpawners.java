@@ -24,8 +24,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 
+import com.github.thebiologist13.listeners.BreakSpawnerEvent;
 import com.github.thebiologist13.listeners.DamageController;
 import com.github.thebiologist13.listeners.ExpBottleHitEvent;
 import com.github.thebiologist13.listeners.InteractEvent;
@@ -38,6 +40,7 @@ import com.github.thebiologist13.listeners.PlayerLogoutEvent;
 import com.github.thebiologist13.listeners.PlayerTargetEvent;
 import com.github.thebiologist13.listeners.PotionHitEvent;
 import com.github.thebiologist13.listeners.ProjectileFireEvent;
+import com.github.thebiologist13.listeners.SpawnerPowerEvent;
 import com.github.thebiologist13.serialization.SPotionEffect;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
@@ -156,6 +159,8 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new MobRegenEvent(this), this);
 		getServer().getPluginManager().registerEvents(new PotionHitEvent(this), this);
 		getServer().getPluginManager().registerEvents(new ProjectileFireEvent(this), this);
+		getServer().getPluginManager().registerEvents(new BreakSpawnerEvent(this), this);
+		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(this), this);
 
 		//Load entities from file
 		fileManager.loadEntities();
@@ -458,6 +463,33 @@ public class CustomSpawners extends JavaPlugin {
 			reloadCustomConfig();
 		}
 		return config;
+	}
+	
+	public String getDamageCause(String in) {
+		String type = "";
+		
+		if(in.equals("blockexplosion")) {
+			type = "BLOCK_EXPLOSION";
+		} else if(in.equals("entityexplosion") || in.equals("creeper")) {
+			type = "ENTITY_EXPLOSION";
+		} else if(in.equals("firetick") || in.equals("burning")) {
+			type = "FIRE_TICK";
+		} else if(in.equals("attack") || in.equals("entityattack")) {
+			type = "ENTITY_ATTACK";
+		} else if(in.equals("item") || in.equals("itemdamage")) {
+			type = "ITEM";
+		} else if(in.equals("spawnerfire") || in.equals("spawnerfireticks")) {
+			type = "SPAWNER_FIRE_TICKS";
+		} else {
+			for(DamageCause c : DamageCause.values()) {
+				if(c.toString().equalsIgnoreCase(in)) {
+					type = in;
+					break;
+				}
+			}
+		}
+		
+		return type;
 	}
 
 	public SpawnableEntity getEntityFromSpawner(Entity entity) {

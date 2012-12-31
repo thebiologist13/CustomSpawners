@@ -1,101 +1,42 @@
 package com.github.thebiologist13.commands.entities;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class EntitySlimeSizeCommand extends SubCommand {
+public class EntitySlimeSizeCommand extends EntityCommand {
 
 	public EntitySlimeSizeCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 	
+	public EntitySlimeSizeCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
-		//Command Syntax = /customspawners setslimesize [id] <size>
-		//Array Index with selection           0                1
-		//Without selection                    0        1       2
+		String in = getValue(args, 0, "1");
 		
-		//Player
-		Player p = null;
-		//Entity
-		SpawnableEntity s = null;
-		//Size
-		int slimeSize = 1;
-		//Permissions
-		String perm = "customspawners.entities.setslimesize";
-		
-		final String MUST_BE_INTEGER = ChatColor.RED + "The size of a slime must be an integer.";
-		final String INTEGER_OUT_OF_BOUNDS = ChatColor.RED + "A slime must be a size between 1 and 256.";
-
-		//Make sure a player issued command
-		if(!(arg0 instanceof Player)) {
-			log.info(NO_CONSOLE);
-			return;
-		} 
-
-		p = (Player) arg0;
-
-		//Permission check
-		if(p.hasPermission(perm)) {
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
-
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-				if(!CustomSpawners.isInteger(arg3[1])) {
-					p.sendMessage(MUST_BE_INTEGER);
-					return;
-				}
-				
-				slimeSize = Integer.parseInt(arg3[1]);
-				
-			} else if(arg3.length == 2) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 3) {
-
-				s = CustomSpawners.getEntity(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				if(!CustomSpawners.isInteger(arg3[2])) {
-					p.sendMessage(MUST_BE_INTEGER);
-					return;
-				}
-				
-				slimeSize = Integer.parseInt(arg3[2]);
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
-				return;
-			}
-			
-			//Carry out command
-			if(slimeSize < 1 || slimeSize > 256) {
-				p.sendMessage(INTEGER_OUT_OF_BOUNDS);
-				return;
-			}
-			
-			s.setSlimeSize(slimeSize);
-
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully set the slime size of spawnable entity with ID " 
-					+ ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD 
-					+ slimeSize + ChatColor.GREEN + "!");
-		} else {
-			p.sendMessage(NO_PERMISSION);
+		if(!CustomSpawners.isInteger(in)) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "The size of a slime must be an integer.");
 			return;
 		}
-
+		
+		int size = Integer.parseInt(in);
+		
+		if(size < 1 || size > 256) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "A slime must be a size between 1 and 256.");
+			return;
+		}
+		
+		entity.setSlimeSize(size);
+		
+		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "slime size", in));
+		
 	}
 
 }

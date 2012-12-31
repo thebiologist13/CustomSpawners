@@ -4,26 +4,30 @@ import java.util.Iterator;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.Spawner;
 
-public class DeactivateAllCommand extends SpawnerCommand {
+public class RemoveAllMobsCommand extends SpawnerCommand {
 
-	public DeactivateAllCommand(CustomSpawners plugin) {
+	public RemoveAllMobsCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	public DeactivateAllCommand(CustomSpawners plugin, String mainPerm) {
+	public RemoveAllMobsCommand(CustomSpawners plugin, String mainPerm) {
 		super(plugin, mainPerm);
 	}
 
 	@Override
 	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
+		
+		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Removing all spawned mobs...");
+		
 		Iterator<Spawner> itr = CustomSpawners.spawners.values().iterator();
 		while(itr.hasNext()) {
-			itr.next().setActive(false);
+			PLUGIN.removeMobs(itr.next());
 		}
-		PLUGIN.sendMessage(sender, ChatColor.GREEN + "All spawners set inactive.");
+		
 	}
-	
+
 }

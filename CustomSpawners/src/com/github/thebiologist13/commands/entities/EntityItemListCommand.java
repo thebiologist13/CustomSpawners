@@ -1,115 +1,55 @@
 package com.github.thebiologist13.commands.entities;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class EntityItemListCommand extends SubCommand {
+public class EntityItemListCommand extends EntityCommand {
 
 	public EntityItemListCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player
-		Player p = null;
-		//SpawnableEntity
-		SpawnableEntity s = null;
-		//Item ID
-		ItemStack item = null;
-		//Perms
-		String itemlistPerm = "customspawners.entitites.itemlist";
+	public EntityItemListCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
 
-		if(!(arg0 instanceof Player)) {
-			log.info(NO_CONSOLE);
+	@Override
+	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
+		
+		String item = getValue(args, 0, "0");
+		
+		ItemStack stack = PLUGIN.getItem(item, 1);
+		
+		if(stack == null) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + item + " is not a valid item.");
 			return;
 		}
-
-		p = (Player) arg0;
-
-		if(p.hasPermission(itemlistPerm) && arg3[0].equalsIgnoreCase("additem")) {
-
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
-
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-				String value = arg3[1];
-				item = plugin.getItemStack(value);
-				
-			} else if(arg3.length == 2) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 3) {
-
-				s = CustomSpawners.getEntity(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				String value = arg3[2];
-				item = plugin.getItemStack(value);
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
-				return;
-			}
-			
-			//Set
-			if(item == null) {
-				p.sendMessage(INVALID_ITEM);
-				return;
-			}
-			
-			s.addItemDamage(item);
-			
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Added item " + ChatColor.GOLD + plugin.getItemName(item) + ChatColor.GREEN + 
-					" to itemlist for entity " + ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "!");
-			
-		} else if(p.hasPermission(itemlistPerm) && arg3[0].equalsIgnoreCase("clearitems")) {
-
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 1) {
-
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-			} else if(arg3.length == 1) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 2) {
-
-				s = CustomSpawners.getEntity(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
-				return;
-			}
-			
-			//Clear
-			s.setItemDamageList(new ArrayList<ItemStack>());
-			
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Cleared itemlist for entity " +
-					ChatColor.GOLD + plugin.getFriendlyName(s) + ChatColor.GREEN + "!");
-			
-		} else {
-			p.sendMessage(NO_PERMISSION);
+		
+		if(subCommand.equals("clearitemdamage")) {
+			entity.setItemDamageList(new ArrayList<ItemStack>());
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared item list on entity " + 
+					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
+		} else if(subCommand.equals("additemdamage")) {
+			entity.addItemDamage(stack);
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully added item " + ChatColor.GOLD + 
+					PLUGIN.getItemName(stack) + ChatColor.GREEN + " to item list on entity " + 
+					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
+		} else if(subCommand.equals("setitemdamage")) {
+			List<ItemStack> list = new ArrayList<ItemStack>();
+			list.add(stack);
+			entity.setItemDamageList(list);
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully set item " + ChatColor.GOLD + 
+					PLUGIN.getItemName(stack) + ChatColor.GREEN + " as item list on entity " + 
+					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
 		}
-
+		
 	}
 
 }

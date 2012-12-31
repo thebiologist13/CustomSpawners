@@ -1,100 +1,39 @@
 package com.github.thebiologist13.commands.spawners;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class AddTypeCommand extends SubCommand {
+public class AddTypeCommand extends SpawnerCommand {
 
 	public AddTypeCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
+	public AddTypeCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player
-		Player p = null;
+	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
-		//New entity type
-		SpawnableEntity type = null;
+		String in = getValue(args, 0, "");
 		
-		//Spawner
-		Spawner s = null;
+		SpawnableEntity type = CustomSpawners.getEntity(in);
 		
-		//Make sure it is a player
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
+		if(type == null) {
+			PLUGIN.sendMessage(sender, NO_ID);
 			return;
 		}
 		
-		p = (Player) arg0;
+		spawner.addTypeData(type);
 		
-		if(p.hasPermission("customspawners.spawners.addtype")) {
-			//If they want to set the spawn type of a selected spawner
-			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
-				
-				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
-				
-				type = CustomSpawners.getEntity(arg3[1]);
-				
-				if(type == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-			//Argument length is for a selected spawner, but none is selected
-			} else if(arg3.length == 2) {
-				
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-				
-			//If they want to set spawn type by ID
-			} else if(arg3.length == 3) {
-			
-				type = CustomSpawners.getEntity(arg3[2]);
-				
-				if(type == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-
-				s = CustomSpawners.getSpawner(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-			//General error
-			} else {
-				
-				p.sendMessage(GENERAL_ERROR);
-				return;
-				
-			}
-			
-			//Set the new type
-			s.addTypeData(type);
-			
-			//Success message
-			if(!type.getName().isEmpty()) {
-				p.sendMessage(ChatColor.GREEN + "Added spawnable entity with ID " + ChatColor.GOLD + String.valueOf(type.getId()) + " (" + type.getName() + ")"
-						+ ChatColor.GREEN + " to spawner with ID " + ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + "!");
-			} else {
-				p.sendMessage(ChatColor.GREEN + "Added spawnable entity with ID " + ChatColor.GOLD + String.valueOf(type.getId()) 
-						+ ChatColor.GREEN + " to spawner with ID " + ChatColor.GOLD + String.valueOf(s.getId()) + ChatColor.GREEN + "!");
-			}
-			
-		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
-		}
+		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Added spawnable entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(type)
+				+ ChatColor.GREEN + " to spawner " + ChatColor.GOLD + PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + "!");
+		
 	}
 
 }

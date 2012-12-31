@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.server.v1_4_6.AxisAlignedBB;
+import net.minecraft.server.v1_4_6.EntityEgg;
 import net.minecraft.server.v1_4_6.EntityEnderPearl;
 import net.minecraft.server.v1_4_6.EntityLiving;
 import net.minecraft.server.v1_4_6.EntityPotion;
@@ -184,16 +185,16 @@ public class Spawner implements Serializable {
 		return (this.data.containsKey("maxMobs")) ? (Integer) this.data.get("maxMobs") : 0;
 	}
 
-	public int getMaxPlayerDistance() {
-		return (this.data.containsKey("maxDistance")) ? (Integer) this.data.get("maxDistance") : 0;
+	public double getMaxPlayerDistance() {
+		return (this.data.containsKey("maxDistance")) ? (Double) this.data.get("maxDistance") : 0.0d;
 	}
 
 	public byte getMinLightLevel() {
 		return (this.data.containsKey("minLight")) ? (Byte) this.data.get("minLight") : 0;
 	}
 
-	public int getMinPlayerDistance() {
-		return (this.data.containsKey("minDistance")) ? (Integer) this.data.get("minDistance") : 0;
+	public double getMinPlayerDistance() {
+		return (this.data.containsKey("minDistance")) ? (Double) this.data.get("minDistance") : 0.0d;
 	}
 
 	public Map<Integer, SpawnableEntity> getMobs() {
@@ -242,6 +243,10 @@ public class Spawner implements Serializable {
 
 	public boolean isRedstoneTriggered() {
 		return (this.data.containsKey("redstone")) ? (Boolean) this.data.get("redstone") : false;
+	}
+	
+	public boolean isSpawnOnRedstone() {
+		return (this.data.containsKey("spawnOnRedstone")) ? (Boolean) this.data.get("spawnOnRedstone") : false;
 	}
 
 	public boolean isUsingSpawnArea() {
@@ -336,7 +341,7 @@ public class Spawner implements Serializable {
 		this.data.put("maxMobs", maxMobs);
 	}
 	
-	public void setMaxPlayerDistance(int maxPlayerDistance) {
+	public void setMaxPlayerDistance(double maxPlayerDistance) {
 		this.data.put("maxDistance", maxPlayerDistance);
 	}
 
@@ -344,7 +349,7 @@ public class Spawner implements Serializable {
 		this.data.put("minLight", minLightLevel);
 	}
 
-	public void setMinPlayerDistance(int minPlayerDistance) {
+	public void setMinPlayerDistance(double minPlayerDistance) {
 		this.data.put("minDistance", minPlayerDistance);
 	}
 	
@@ -379,6 +384,10 @@ public class Spawner implements Serializable {
 	
 	public void setRedstoneTriggered(boolean redstoneTriggered) {
 		this.data.put("redstone", redstoneTriggered);
+	}
+	
+	public void setSpawnOnRedstone(boolean value) {
+		this.data.put("spawnOnRedstone", value);
 	}
 	
 	/*
@@ -969,7 +978,7 @@ public class Spawner implements Serializable {
 			return getLoc().getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) spawnType.getItemType().getDurability());
 		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) {
 			World world = getLoc().getWorld();
-			PotionType type = PotionType.getByEffect(spawnType.getPotionEffect().getType());
+			PotionType type = PotionType.getByEffect(spawnType.getPotionEffect().getType()); //TODO add the duration and level things.
 			Potion p = new Potion(type);
 			p.setSplash(true);
 			int data = p.toDamageValue();
@@ -988,7 +997,13 @@ public class Spawner implements Serializable {
 			nmsWorld.addEntity(ent);
 			return ent.getBukkitEntity();
 		} else if(spawnType.getType().equals(EntityType.EGG)) {
-			return getLoc().getWorld().spawnEntity(spawnLocation, EntityType.EGG);
+			World world = getLoc().getWorld();
+			 
+			net.minecraft.server.v1_4_6.World nmsWorld = ((CraftWorld) world).getHandle();
+			EntityEgg ent = new EntityEgg(nmsWorld);
+			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
+			nmsWorld.addEntity(ent);
+			return ent.getBukkitEntity();
 		} else {
 			return getLoc().getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
 		}

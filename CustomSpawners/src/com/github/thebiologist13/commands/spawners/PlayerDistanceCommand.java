@@ -1,163 +1,55 @@
 package com.github.thebiologist13.commands.spawners;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.commands.SubCommand;
 
-public class PlayerDistanceCommand extends SubCommand {
+public class PlayerDistanceCommand extends SpawnerCommand {
 
 	public PlayerDistanceCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		//Player
-		Player p = null;
+	public PlayerDistanceCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
+	@Override
+	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
-		//Spawner
-		Spawner s = null;
+		String in = getValue(args, 0, "0");
 		
-		if(!(arg0 instanceof Player)) {
-			plugin.log.info(NO_CONSOLE);
+		if(!CustomSpawners.isDouble(in)) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "The distance must be a number.");
 			return;
 		}
 		
-		p = (Player) arg0;
+		double dis = Double.parseDouble(in);
 		
-		//Permissions
-		if(p.hasPermission("customspawners.spawners.setmaxdistance") && arg3[0].equalsIgnoreCase("setmaxdistance")) {
-			
-			int maxDist = -1;
-			
-			//If the player wants to perform command with a selection.
-			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
-				
-				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
-				
-				if(!CustomSpawners.isInteger(arg3[1])) {
-					p.sendMessage(SPECIFY_NUMBER);
-					return;
-				}
-				
-				maxDist = Integer.parseInt(arg3[1]);
-				
-			//Arguments are for selection, but none is selected
-			} else if(arg3.length == 2) {
-				
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			
-			//If the player wants to perform command on a specific spawner
-			} else if(arg3.length == 3) {
-				
-				s = CustomSpawners.getSpawner(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				if(!CustomSpawners.isInteger(arg3[2])) {
-					p.sendMessage(SPECIFY_NUMBER);
-					return;
-				}
-				
-				maxDist = Integer.parseInt(arg3[2]);
-				
-			//General error
-			} else {
-				
-				p.sendMessage(GENERAL_ERROR);
-				return;
-				
-			}
-			
-			if(maxDist > plugin.getCustomConfig().getDouble("spawners.playerDistanceLimit", 128) || maxDist < 0) {
-				if(!p.hasPermission("customspawners.limitoverride")) {
-					p.sendMessage(INVALID_VALUES);
-					return;
-				}
-			}
-			
-			//Set the max player distance
-			s.setMaxPlayerDistance(maxDist);
-			
-			//Success message
-			p.sendMessage(ChatColor.GREEN + "Set the maximum player distance of spawner with ID " + ChatColor.GOLD +
-					plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(maxDist) + 
-					ChatColor.GREEN + "!");
-		} else if(p.hasPermission("customspawners.spawners.setmindistance") && arg3[0].equalsIgnoreCase("setmindistance")) {
-
-			int minDist = -1;
-			
-			//If the player wants to perform command with a selection.
-			if(CustomSpawners.spawnerSelection.containsKey(p) && arg3.length == 2) {
-				
-				s = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p).toString());
-				
-				if(!CustomSpawners.isInteger(arg3[1])) {
-					p.sendMessage(SPECIFY_NUMBER);
-					return;
-				}
-				
-				minDist = Integer.parseInt(arg3[1]);
-				
-			//Arguments are for selection, but none is selected
-			} else if(arg3.length == 2) {
-				
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			
-			//If the player wants to perform command on a specific spawner
-			} else if(arg3.length == 3) {
-
-				s = CustomSpawners.getSpawner(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				if(!CustomSpawners.isInteger(arg3[2])) {
-					p.sendMessage(SPECIFY_NUMBER);
-					return;
-				}
-				
-				minDist = Integer.parseInt(arg3[2]);
-				
-			//General error
-			} else {
-				
-				p.sendMessage(GENERAL_ERROR);
-				return;
-				
-			}
-			
-			if(minDist > plugin.getCustomConfig().getDouble("spawners.playerDistanceLimit", 128) || minDist < 0) {
-				if(!p.hasPermission("customspawners.limitoverride")) {
-					p.sendMessage(INVALID_VALUES);
-					return;
-				} else {
-					p.sendMessage(NO_PERMISSION);
-					return;
-				}
-			}
-			
-			//Set the min player distance
-			s.setMinPlayerDistance(minDist);
-			
-			//Success message
-			p.sendMessage(ChatColor.GREEN + "Set the minimum player distance of spawner with ID " + ChatColor.GOLD +
-					plugin.getFriendlyName(s) + ChatColor.GREEN + " to " + ChatColor.GOLD + String.valueOf(minDist) + 
-					ChatColor.GREEN + "!");
-		} else {
-			p.sendMessage(NO_PERMISSION);
+		if(dis < 0) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "The distance must be greater than zero.");
 			return;
 		}
+		
+		if(dis > CONFIG.getDouble("spawners.playerDistanceLimit", 128) && !permissible(sender, "customspawners.limitoverride")) {
+			PLUGIN.sendMessage(sender, NO_OVERRIDE);
+			return;
+		}
+		
+		if(subCommand.equals("setmaxdistance")) {
+			
+			spawner.setMaxPlayerDistance(dis);
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "max player distance", in));
+			
+		} else if(subCommand.equals("setmindistance")) {
+			
+			spawner.setMinPlayerDistance(dis);
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "min player distance", in));
+			
+		}
+		
 	}
 }

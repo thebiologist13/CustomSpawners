@@ -1,116 +1,49 @@
 package com.github.thebiologist13.commands.entities;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.commands.SubCommand;
-
 import com.github.thebiologist13.serialization.SVector;;
 
-public class EntityVelocityCommand extends SubCommand {
+public class EntityVelocityCommand extends EntityCommand {
 
 	public EntityVelocityCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 	
+	public EntityVelocityCommand(CustomSpawners plugin, String mainPerm) {
+		super(plugin, mainPerm);
+	}
+
 	@Override
-	public void run(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-
-		//Command Syntax = /customspawners setvelocity [id] <x,y,z>
-		//Array Index with selection           0               1
-		//Without selection                    0         1     2
+	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
-		//Player
-		Player p = null;
-		//Entity
-		SpawnableEntity s = null;
-		//Vector components
-		double x = 0;
-		double y = 0;
-		double z = 0;
-		//Permissions
-		String perm = "customspawners.entities.setvelocity";
+		double x,y,z;
 		
-		final String COMMAND_FORMAT = ChatColor.RED + "Invalid values for velocity. Please use the following format: " +
-				ChatColor.GOLD + "/entities setvelocity <x value>,<y value>,<z value>.";
-
-		if(!(arg0 instanceof Player)) {
-			log.info(NO_CONSOLE);
+		String in = getValue(args, 0, "0,0,0");
+		
+		int firstCommaIndex = in.indexOf(",");
+		int secondCommaIndex = in.indexOf(",", firstCommaIndex + 1);
+		
+		String xVal = in.substring(0, firstCommaIndex);
+		String yVal = in.substring(firstCommaIndex + 1, secondCommaIndex);
+		String zVal = in.substring(secondCommaIndex + 1, in.length());
+		
+		if(!CustomSpawners.isDouble(xVal) || !CustomSpawners.isDouble(yVal) || !CustomSpawners.isDouble(zVal)) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "Invalid values for velocity. Please use the following format: " +
+					ChatColor.GOLD + "/entities setvelocity <x value>,<y value>,<z value>.");
 			return;
 		}
-
-		p = (Player) arg0;
-
-		if(p.hasPermission(perm)) {
-			if(CustomSpawners.entitySelection.containsKey(p) && arg3.length == 2) {
-
-				s = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p).toString());
-				
-				int firstCommaIndex = arg3[1].indexOf(",");
-				int secondCommaIndex = arg3[1].indexOf(",", firstCommaIndex + 1);
-				
-				String xVal = arg3[1].substring(0, firstCommaIndex);
-				String yVal = arg3[1].substring(firstCommaIndex + 1, secondCommaIndex);
-				String zVal = arg3[1].substring(secondCommaIndex + 1, arg3[1].length());
-				
-				if(!CustomSpawners.isDouble(xVal) || !CustomSpawners.isDouble(yVal) || !CustomSpawners.isDouble(zVal)) {
-					p.sendMessage(COMMAND_FORMAT);
-					return;
-				}
-				
-				x = Double.parseDouble(xVal);
-				y = Double.parseDouble(yVal);
-				z = Double.parseDouble(zVal);
-				
-			} else if(arg3.length == 2) {
-				p.sendMessage(NEEDS_SELECTION);
-				return;
-			} else if(arg3.length == 3) {
-
-				s = CustomSpawners.getEntity(arg3[1]);
-
-				if(s == null) {
-					p.sendMessage(NO_ID);
-					return;
-				}
-				
-				int firstCommaIndex = arg3[2].indexOf(",");
-				int secondCommaIndex = arg3[2].indexOf(",", firstCommaIndex + 1);
-				
-				String xVal = arg3[2].substring(0, firstCommaIndex);
-				String yVal = arg3[2].substring(firstCommaIndex + 1, secondCommaIndex);
-				String zVal = arg3[2].substring(secondCommaIndex + 1, arg3[2].length());
-				
-				if(!CustomSpawners.isDouble(xVal) ||!CustomSpawners.isDouble(yVal) || !CustomSpawners.isDouble(zVal)) {
-					p.sendMessage(COMMAND_FORMAT);
-					return;
-				}
-				
-				x = Double.parseDouble(xVal);
-				y = Double.parseDouble(yVal);
-				z = Double.parseDouble(zVal);
-				
-			} else {
-				p.sendMessage(GENERAL_ERROR);
-				return;
-			}
-
-			//Carry out command
-			s.setVelocity(new SVector(x, y, z));
-
-			//Success
-			p.sendMessage(ChatColor.GREEN + "Successfully set the velocity of spawnable entity with ID " 
-					+ ChatColor.GOLD + s.getId() + ChatColor.GREEN + " to " + ChatColor.GOLD 
-					+ "(" + x + "," + y + "," + z + ")" + ChatColor.GREEN + "!");
-		} else {
-			p.sendMessage(NO_PERMISSION);
-			return;
-		}
-
+		
+		x = Integer.parseInt(xVal);
+		y = Integer.parseInt(yVal);
+		z = Integer.parseInt(zVal);
+		
+		entity.setVelocity(new SVector(x, y, z));
+		
+		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "velocity", "(" + in + ")"));
+		
 	}
 
 }

@@ -83,6 +83,7 @@ public class DamageController {
 			}
 			
 			if(e.isInvulnerable()) {
+				ev.setCancelled(true);
 				return 0;
 			}
 			

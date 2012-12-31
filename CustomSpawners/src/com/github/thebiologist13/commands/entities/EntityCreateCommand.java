@@ -72,6 +72,8 @@ public class EntityCreateCommand extends EntityCommand {
 				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
 				return;
 			}
+			
+			newEntity.setType(type);
 		}
 		
 		CustomSpawners.entities.put(newEntity.getId(), newEntity);

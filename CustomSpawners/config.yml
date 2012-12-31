@@ -10,14 +10,14 @@ spawners:
     # when it is created; they can be changed at any time.
     
     # Radius of area a spawner can spawn in.
-    radius: 16
+    radius: 8
     
     # If a spawner block needs to be powered to spawn mobs.
     redstoneTriggered: false
     
     # Maximum distance a player can be from a spawner for
     # it to spawn.
-    maxPlayerDistance: 32
+    maxPlayerDistance: 16
     
     # Minimum distance a player can be from a spawner for
     # it to spawn.
@@ -48,7 +48,7 @@ spawners:
     
     # What should the maximum amount of mobs that a spawner
     # have spawned at one time?
-    maxMobs: 64
+    maxMobs: 12
     
     
     

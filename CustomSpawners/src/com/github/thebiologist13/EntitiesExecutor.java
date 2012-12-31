@@ -52,8 +52,8 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand fuse = new EntityFuseCommand(plugin, "customspawners.entities.setfuseticks");
 		EntityCommand incendiary = new EntityIncendiaryCommand(plugin, "customspawners.entities.setincendiary");
 		EntityCommand yield = new EntityYieldCommand(plugin, "customspawners.entities.setyield");
-		EntityCommand itemtype = new EntityItemTypeCommand(plugin, "customspawners.entities.setitemtype");
-		EntityCommand potiontype = new EntityPotionTypeCommand(plugin, "customspawners.entities.setpotiontype");
+		EntityCommand itemType = new EntityItemTypeCommand(plugin, "customspawners.entities.setitemtype");
+		EntityCommand potionType = new EntityPotionTypeCommand(plugin, "customspawners.entities.setpotiontype");
 		EntityCommand invulnerable = new EntityInvulnerableCommand(plugin, "customspawners.entities.setinvulnerable");
 		EntityCommand inventory = new EntityInventoryCommand(plugin, "customspawners.entities.setinventory");
 		EntityCommand wither = new EntityWitherCommand(plugin, "customspawners.entities.setwither");
@@ -61,6 +61,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
+		list.setNeedsObject(false);
 		
 		addCommand("addeffect", effects, new String[] {
 				"addeffects",
@@ -89,6 +90,12 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"angry",
 				"mad",
 				"ticked"
+		});
+		addCommand("setuseblacklist", blacklist, new String[] {
+				"setusingblacklist",
+				"useblacklist",
+				"usingblacklist",
+				"useblack"
 		});
 		addCommand("setblacklist", blacklist, new String[] {
 				"blacklist",
@@ -119,7 +126,8 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		addCommand("setcolor", color, new String[] {
 				"color"
 		});
-		addCommand("create", create, new String[] {
+		addCommand("createentity", create, new String[] {
+				"create",
 				"new",
 				"makenew",
 				"summon"
@@ -214,7 +222,8 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		});
 		addCommand("addinventoryitem", inventory, new String[] {
 				"addinvitem",
-				"addinv"
+				"addinv",
+				"additem"
 		});
 		addCommand("setinventory", inventory, new String[] {
 				"setinv"
@@ -254,6 +263,175 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"shoes",
 				"setfeet",
 				"feet"
+		});
+		addCommand("setinvulnerable", invulnerable, new String[] {
+				"invulnerable",
+				"setinvul",
+				"invul",
+				"setinvincible",
+				"invincible",
+				"nohurt"
+		});
+		addCommand("additemdamage", itemlist, new String[] {
+				"additemlist"
+		});
+		addCommand("setitemdamage", itemlist, new String[] {
+				"setitemlist",
+				"itemlist"
+		});
+		addCommand("clearitemlist", itemlist, new String[] {
+				"clearitemdamage"
+		});
+		addCommand("setitemtype", itemType, new String[] {
+				"itemtype",
+				"item"
+		});
+		addCommand("setjockey", jockey, new String[] {
+				"jockey",
+				"spiderjockey",
+				"skeletonjockey",
+				"cowboyskeleton",
+				"ghostrider"
+		});
+		addCommand("listallentities", list, new String[] {
+				"listall",
+				"list",
+				"showentities",
+				"displayentities"
+		});
+		addCommand("setname", name, new String[] {
+				"name",
+				"callit",
+				"displayname"
+		});
+		addCommand("setpassive", passive, new String[] {
+				"passive",
+				"provokeattack",
+				"noattack"
+		});
+		addCommand("setpotiontype", potionType, new String[] {
+				"potiontype",
+				"potioneffect"
+		});
+		addCommand("setvillagerprofession", profession, new String[] {
+				"setprofession",
+				"profession",
+				"setvillagertype",
+				"setvillager",
+				"villagertype",
+				"villager",
+				"villagerjob",
+				"job"
+		});
+		addCommand("removeentity", remove, new String[] {
+				"remove",
+				"rem",
+				"deleteentity",
+				"delete",
+				"del"
+		});
+		addCommand("setsaddled", saddled, new String[] {
+				"saddled",
+				"setsaddle",
+				"saddle",
+				"cowboymode"
+		});
+		addCommand("selectentity", select, new String[] {
+				"select",
+				"sel",
+				"choose"
+		});
+		addCommand("setentitytype", type, new String[] {
+				"entitytype",
+				"settype",
+				"type",
+				"setentity",
+				"setmobtype",
+				"setmob",
+				"mobtype",
+				"mob",
+				"setmonstertype",
+				"setmonster",
+				"monster",
+				"setanimaltype",
+				"setanimal",
+				"animal"
+		});
+		addCommand("setsitting", sitting, new String[] {
+				"sitting",
+				"sit"
+		});
+		addCommand("setslimesize", slime, new String[] {
+				"slimesize",
+				"slime",
+				"setslime",
+				"setsize",
+				"size",
+				"howbig"
+		});
+		addCommand("settamed", tamed, new String[] {
+				"tamed",
+				"settame",
+				"tame",
+				"setdomesticated",
+				"domesticated",
+				"domesticate"
+		});
+		addCommand("setvelocity", vector, new String[] {
+				"velocity",
+				"velo",
+				"setvector",
+				"vector",
+				"vec",
+				"setdirection",
+				"direction",
+				"dir"
+		});
+		addCommand("setusewhitelist", whitelist, new String[] {
+				"setusingwhitelist",
+				"usewhitelist",
+				"usingwhitelist",
+				"usewhite"
+		});
+		addCommand("setwhitelist", whitelist, new String[] {
+				"whitelist",
+				"white",
+				"notimmuneto"
+		});
+		addCommand("addwhitelist", whitelist, new String[] {
+				"addwhitelistitem",
+				"addwhite",
+				"addb",
+				"addnotimmuneto"
+		});
+		addCommand("clearwhitelist", whitelist, new String[] {
+				"clearwhite",
+				"nowhite",
+				"clearnotimmuneto"
+		});
+		addCommand("setzombievillager", villager, new String[] {
+				"zombievillager",
+				"setzombienpc",
+				"zombienpc",
+				"setinfected",
+				"infected",
+				"setzombie",
+				"zombie",
+				"zombify"
+		});
+		addCommand("setwither", wither, new String[] {
+				"wither",
+				"setwitherskeleton",
+				"witherskeleton",
+				"setwitherskele",
+				"witherskele"
+		});
+		addCommand("setyield", yield, new String[] {
+				"yield",
+				"setexplosivepower",
+				"explosivepower",
+				"setexpower",
+				"expower"
 		});
 	}
 
@@ -296,7 +474,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 					entityRef = CustomSpawners.getEntity(objId);
 					params = makeParams(arg3, 1);
 				} else {
-					entityRef = CustomSpawners.getEntity(CustomSpawners.spawnerSelection.get(p));
+					entityRef = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p));
 					params = makeParams(arg3, 2);
 				}
 			} else {
@@ -309,9 +487,14 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				}
 			}
 			
-			if(entityRef == null && cmd.needsObject()) {
-				PLUGIN.sendMessage(arg0, cmd.NO_ENTITY);
-				return true;
+			if(entityRef == null) {
+				if(cmd.needsObject()) {
+					PLUGIN.sendMessage(arg0, cmd.NO_ENTITY);
+					return true;
+				}
+				
+				params = makeParams(arg3, 1);
+				
 			}
 			
 			try {
