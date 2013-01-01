@@ -10,23 +10,24 @@ import com.github.thebiologist13.Spawner;
 
 public class BreakSpawnerEvent implements Listener {
 
-	private CustomSpawners plugin = null;
+	private final CustomSpawners PLUGIN;
 	
 	public BreakSpawnerEvent(CustomSpawners plugin) {
-		this.plugin = plugin;
+		this.PLUGIN = plugin;
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent ev) {
 		
-		Spawner s = plugin.getSpawnerAt(ev.getBlock().getLocation());
+		Spawner s = PLUGIN.getSpawnerAt(ev.getBlock().getLocation());
 		
-		if(!plugin.getCustomConfig().getBoolean("deactivateOnBreak", true)) {
+		if(!PLUGIN.getCustomConfig().getBoolean("spawners.deactivateOnBreak", true)) {
 			return;
 		}
 		
-		if(s != null)
+		if(s != null) {
 			s.setActive(false);
+		}
 		
 	}
 	

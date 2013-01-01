@@ -34,9 +34,9 @@ public class EntityListAllCommand extends EntityCommand {
 		while(itr.hasNext()) {
 			SpawnableEntity ent = itr.next();
 			
-			String baseMessage =  ChatColor.GOLD + String.valueOf(ent.getId()) + "(" + ent.getType().toString() + ")"; 
+			String baseMessage =  ChatColor.GOLD + String.valueOf(ent.getId()) + " (" + ent.getType().toString() + ")"; 
 			
-			if(ent.getName().isEmpty()) {
+			if(!ent.getName().isEmpty()) {
 				PLUGIN.sendMessage(sender, baseMessage + ChatColor.GREEN + " with name " + ChatColor.GOLD + ent.getName());
 			} else {
 				PLUGIN.sendMessage(sender, baseMessage);

@@ -297,7 +297,9 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"listall",
 				"list",
 				"showentities",
-				"displayentities"
+				"displayentities",
+				"show",
+				"display"
 		});
 		addCommand("setname", name, new String[] {
 				"name",
@@ -462,39 +464,38 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 			
 			sub = cmd.getCommand(sub); //Aliases
 			
-			if(arg0 instanceof Player) {
-				Player p = (Player) arg0;
-				
-				if(!p.hasPermission(cmd.permission)) {
-					PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
-					return true;
-				}
-				
-				if(!CustomSpawners.entitySelection.containsKey(p)) {
-					entityRef = CustomSpawners.getEntity(objId);
-					params = makeParams(arg3, 1);
+			if(cmd.needsObject()) {
+				if(arg0 instanceof Player) {
+					Player p = (Player) arg0;
+					
+					if(!p.hasPermission(cmd.permission)) {
+						PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+						return true;
+					}
+					
+					if(!CustomSpawners.entitySelection.containsKey(p)) {
+						entityRef = CustomSpawners.getEntity(objId);
+						params = makeParams(arg3, 2);
+					} else {
+						entityRef = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p));
+						params = makeParams(arg3, 1);
+					}
 				} else {
-					entityRef = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(p));
-					params = makeParams(arg3, 2);
+					if(CustomSpawners.consoleEntity == -1) {
+						entityRef = CustomSpawners.getEntity(objId);
+						params = makeParams(arg3, 2);
+					} else {
+						entityRef = CustomSpawners.getEntity(CustomSpawners.consoleEntity);
+						params = makeParams(arg3, 1);
+					}
 				}
-			} else {
-				if(CustomSpawners.consoleEntity == -1) {
-					entityRef = CustomSpawners.getEntity(objId);
-					params = makeParams(arg3, 1);
-				} else {
-					entityRef = CustomSpawners.getEntity(CustomSpawners.consoleEntity);
-					params = makeParams(arg3, 2);
-				}
-			}
-			
-			if(entityRef == null) {
-				if(cmd.needsObject()) {
+				
+				if(entityRef == null) {
 					PLUGIN.sendMessage(arg0, cmd.NO_ENTITY);
 					return true;
 				}
-				
+			} else {
 				params = makeParams(arg3, 1);
-				
 			}
 			
 			try {
@@ -503,7 +504,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				PLUGIN.sendMessage(arg0, ChatColor.RED + "You entered invalid parameters.");
 				return true;
 			} catch(Exception e) {
-				PLUGIN.printDebugMessage(e.getMessage());
+				PLUGIN.printDebugTrace(e);
 				PLUGIN.sendMessage(arg0, cmd.GENERAL_ERROR);
 				return true;
 			}

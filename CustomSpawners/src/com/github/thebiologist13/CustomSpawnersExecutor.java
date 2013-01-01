@@ -89,7 +89,7 @@ public class CustomSpawnersExecutor extends Executor implements CommandExecutor 
 				PLUGIN.sendMessage(arg0, ChatColor.RED + "You entered invalid parameters.");
 				return true;
 			} catch(Exception e) {
-				PLUGIN.printDebugMessage(e.getMessage());
+				PLUGIN.printDebugTrace(e);
 				PLUGIN.sendMessage(arg0, cmd.GENERAL_ERROR);
 				return true;
 			}

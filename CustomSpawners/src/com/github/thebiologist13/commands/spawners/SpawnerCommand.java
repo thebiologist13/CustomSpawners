@@ -9,7 +9,7 @@ import com.github.thebiologist13.commands.SubCommand;
 
 public abstract class SpawnerCommand extends SubCommand {
 
-	public final String NO_SPAWNER = ChatColor.RED + "You must have a entity selected, or define an entity.";
+	public final String NO_SPAWNER = ChatColor.RED + "You must have a spawner selected, or define a spawner.";
 	public final String NO_OVERRIDE = ChatColor.RED + "Your entered values are not permissible.";
 	
 	private boolean needsObject = true;

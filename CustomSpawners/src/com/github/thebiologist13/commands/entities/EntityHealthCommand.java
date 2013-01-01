@@ -21,9 +21,9 @@ public class EntityHealthCommand extends EntityCommand {
 		String in = getValue(args, 0, "maximum");
 		
 		if(in.equals("maximum") || in.equals("max")) {
-			entity.setAir(-1);
+			entity.setHealth(-1);
 		} else if(in.equals("minimum") || in.equals("min")) {
-			entity.setAir(-2);
+			entity.setHealth(-2);
 		} else {
 			if(!CustomSpawners.isInteger(in)) {
 				PLUGIN.sendMessage(sender, ChatColor.RED + "Health value must be an integer, \"maximum\", or \"minimum\".");

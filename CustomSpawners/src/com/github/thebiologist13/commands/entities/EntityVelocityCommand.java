@@ -36,9 +36,9 @@ public class EntityVelocityCommand extends EntityCommand {
 			return;
 		}
 		
-		x = Integer.parseInt(xVal);
-		y = Integer.parseInt(yVal);
-		z = Integer.parseInt(zVal);
+		x = Double.parseDouble(xVal);
+		y = Double.parseDouble(yVal);
+		z = Double.parseDouble(zVal);
 		
 		entity.setVelocity(new SVector(x, y, z));
 		

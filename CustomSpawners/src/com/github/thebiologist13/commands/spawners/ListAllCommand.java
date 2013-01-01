@@ -29,6 +29,8 @@ public class ListAllCommand extends SpawnerCommand {
 			return;
 		}
 		
+		PLUGIN.sendMessage(sender, ChatColor.GOLD + "Created Spawners:");
+		
 		Iterator<Spawner> itr = spawners.iterator();
 		while(itr.hasNext()) {
 			
@@ -37,7 +39,7 @@ public class ListAllCommand extends SpawnerCommand {
 			String baseMessage =  ChatColor.GOLD + String.valueOf(sp.getId()) + 
 					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ")"; 
 			
-			if(sp.getName().isEmpty()) {
+			if(!sp.getName().isEmpty()) {
 				PLUGIN.sendMessage(sender, baseMessage + ChatColor.GREEN + " with name " + ChatColor.GOLD + sp.getName());
 			} else {
 				PLUGIN.sendMessage(sender, baseMessage);

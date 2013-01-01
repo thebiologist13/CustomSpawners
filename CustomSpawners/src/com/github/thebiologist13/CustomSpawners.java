@@ -439,7 +439,7 @@ public class CustomSpawners extends JavaPlugin {
 			seconds = ticks / 20;
 		}
 
-		return minutes + ":" + seconds;
+		return String.valueOf(minutes) + ":" + String.valueOf(seconds);
 	}
 
 	public void copy(InputStream in, File file) {
@@ -618,7 +618,7 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	//Gets a ItemStack from string with id and damage value
-	public ItemStack getItemStack(String value) { //TODO make work with item names
+	public ItemStack getItemStack(String value) {
 		//Format should be either <data value:damage value> or <data value>
 		int id = 0;
 		short damage = 0;
@@ -950,6 +950,13 @@ public class CustomSpawners extends JavaPlugin {
 		}
 
 	}
+	
+	public void printDebugTrace(Exception e) {
+		if(debug) {
+			log.severe("[CS_DEBUG] " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
 
 	//Config stuff
 	public void reloadCustomConfig() {
@@ -1151,7 +1158,7 @@ public class CustomSpawners extends JavaPlugin {
 			p = (Player) sender;
 
 		if(p == null) {
-			message = "[CUSTOMSPAWNERS] " + ChatColor.stripColor(message);
+			message = "[CustomSpawners] " + ChatColor.stripColor(message);
 			log.info(message);
 		} else {
 			p.sendMessage(message);
@@ -1172,7 +1179,7 @@ public class CustomSpawners extends JavaPlugin {
 		if(p == null) {
 
 			for(String s : message) {
-				s = "[CUSTOMSPAWNERS] " + ChatColor.stripColor(s);
+				s = "[CustomSpawners] " + ChatColor.stripColor(s);
 				log.info(s);
 			}
 

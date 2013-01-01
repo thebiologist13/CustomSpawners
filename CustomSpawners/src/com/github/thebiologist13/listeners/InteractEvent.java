@@ -22,7 +22,7 @@ public class InteractEvent implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onPlayerInteractEvent(PlayerInteractEvent ev) {
+	public void onPlayerInteractEvent(PlayerInteractEvent ev) { //TODO make the left click not break block
 		
 		//Player
 		Player p = ev.getPlayer();

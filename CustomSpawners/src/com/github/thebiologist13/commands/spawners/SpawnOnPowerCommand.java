@@ -18,7 +18,9 @@ public class SpawnOnPowerCommand extends SpawnerCommand {
 	@Override
 	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		String in = getValue(args, 0, "false");
-		spawner.setSpawnOnRedstone(Boolean.parseBoolean(in));
+		boolean value = Boolean.parseBoolean(in);
+		spawner.setSpawnOnRedstone(value);
+		spawner.setRedstoneTriggered(value);
 		
 		PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "spawn on redstone trigger", in));
 	}

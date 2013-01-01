@@ -84,11 +84,11 @@ public class SpawnableEntity implements Serializable {
 	}
 	
 	public int getAge() {
-		return (this.data.containsKey("age")) ? (Integer) this.data.get("age") : 0;
+		return (this.data.containsKey("age")) ? (Integer) this.data.get("age") : -1;
 	}
 	
 	public int getAir() {
-		return (this.data.containsKey("air")) ? (Integer) this.data.get("air") : 0;
+		return (this.data.containsKey("air")) ? (Integer) this.data.get("air") : -1;
 	}
 	
 	public String getCatType() {
@@ -146,7 +146,7 @@ public class SpawnableEntity implements Serializable {
 	}
 
 	public int getHealth() {
-		return (this.data.containsKey("health")) ? (Integer) this.data.get("health") : 1;
+		return (this.data.containsKey("health")) ? (Integer) this.data.get("health") : -1;
 	}
 	
 	public float getHeight() {

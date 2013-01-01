@@ -60,7 +60,7 @@ public class ListNearCommand extends SpawnerCommand {
 			String baseMessage =  ChatColor.GOLD + String.valueOf(sp.getId()) + 
 					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ")"; 
 			
-			if(sp.getName().isEmpty()) {
+			if(!sp.getName().isEmpty()) {
 				PLUGIN.sendMessage(sender, baseMessage + ChatColor.GREEN + " with name " + ChatColor.GOLD + sp.getName());
 			} else {
 				PLUGIN.sendMessage(sender, baseMessage);

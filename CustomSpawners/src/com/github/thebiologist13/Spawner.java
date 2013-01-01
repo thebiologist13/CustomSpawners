@@ -9,7 +9,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.server.v1_4_6.AxisAlignedBB;
-import net.minecraft.server.v1_4_6.EntityEgg;
 import net.minecraft.server.v1_4_6.EntityEnderPearl;
 import net.minecraft.server.v1_4_6.EntityLiving;
 import net.minecraft.server.v1_4_6.EntityPotion;
@@ -78,6 +77,8 @@ public class Spawner implements Serializable {
 	private int ticksLeft = -1; 
 	//Spawnable Mobs
 	private List<Integer> typeData = new ArrayList<Integer>();
+	//If the block was powered before
+	private boolean poweredBefore = false;
 	
 	public Spawner(SpawnableEntity type, Location loc, int id) {
 		this(type, loc, "", id);
@@ -186,7 +187,7 @@ public class Spawner implements Serializable {
 	}
 
 	public double getMaxPlayerDistance() {
-		return (this.data.containsKey("maxDistance")) ? (Double) this.data.get("maxDistance") : 0.0d;
+		return (this.data.containsKey("maxDistance")) ? Double.parseDouble(this.data.get("maxDistance").toString()) : 0;
 	}
 
 	public byte getMinLightLevel() {
@@ -194,7 +195,7 @@ public class Spawner implements Serializable {
 	}
 
 	public double getMinPlayerDistance() {
-		return (this.data.containsKey("minDistance")) ? (Double) this.data.get("minDistance") : 0.0d;
+		return (this.data.containsKey("minDistance")) ? Double.parseDouble(this.data.get("minDistance").toString()) : 0;
 	}
 
 	public Map<Integer, SpawnableEntity> getMobs() {
@@ -243,6 +244,10 @@ public class Spawner implements Serializable {
 
 	public boolean isRedstoneTriggered() {
 		return (this.data.containsKey("redstone")) ? (Boolean) this.data.get("redstone") : false;
+	}
+	
+	public boolean isPoweredBefore() {
+		return poweredBefore;
 	}
 	
 	public boolean isSpawnOnRedstone() {
@@ -372,7 +377,11 @@ public class Spawner implements Serializable {
 		
 		this.data.put(key, value);
 	}
-	
+
+	public void setPoweredBefore(boolean poweredBefore) {
+		this.poweredBefore = poweredBefore;
+	}
+
 	public void setRadius(double radius) {
 		this.data.put("radius", radius);
 	}
@@ -409,8 +418,6 @@ public class Spawner implements Serializable {
 	
 	//Spawn the mobs
 	public void spawn() {
-		//Are conditions valid for spawning?
-		boolean canSpawn = true;
 
 		//If the spawner is not active, return
 		if(!isActive()) {
@@ -423,29 +430,24 @@ public class Spawner implements Serializable {
 		 * This block checks if the conditions are met to spawn mobs
 		 */
 		if(isRedstoneTriggered() && !hasPower) {
-			canSpawn = false;
+			return;
 		} else if(!isPlayerNearby()) {
-			canSpawn = false;
-		} else if(mobs.size() >= getMaxMobs()) {
-			canSpawn = false;
+			return;
+		} else if(mobs.size() > getMaxMobs()) {
+			return;
 		}
-
-		//If we can spawn
-		if(canSpawn) {
 			
-			SpawnableEntity spawnType = randType();
-			mainSpawn(spawnType);
-			
-		}
+		SpawnableEntity spawnType = randType();
+		mainSpawn(spawnType);
 		
 	}
 	
 	//Tick the spawn rate down and spawn mobs if it is time to spawn. Return the ticks left.
 	public int tick() {
-		if(((Boolean) data.get("active")) && !(((Integer) data.get("rate")) <= 0)) {
+		if(!(getRate() <= 0)) {
 			ticksLeft--;
 			if(ticksLeft == 0) {
-				ticksLeft = ((Integer) data.get("rate"));
+				ticksLeft = getRate();
 				spawn();
 				return 0;
 			}
@@ -762,7 +764,7 @@ public class Spawner implements Serializable {
 			return spawnLoc;
 		}
 		
-		return spawnLoc;
+		return null;
 	}
 	
 	//Checks if a block is "empty"
@@ -783,7 +785,7 @@ public class Spawner implements Serializable {
 			
 			//Finds distance between spawner and player in 3D space.
 			double distance = p.getLocation().distance(getLoc());
-			if(distance <= ((Integer) data.get("maxDistance")) && distance >= ((Integer) data.get("minDistance"))) {
+			if(distance <= getMaxPlayerDistance() && distance >= getMinPlayerDistance()) {
 				return true;
 			}
 		}
@@ -795,7 +797,7 @@ public class Spawner implements Serializable {
 		//Loop to spawn until the mobs per spawn is reached
 		for(int i = 0; i < getMobsPerSpawn(); i++) {
 			
-			if(mobs.size() + i >= getMaxMobs()) {
+			if((mobs.size() + 1) > getMaxMobs()) {
 				return;
 			}
 			
@@ -806,6 +808,9 @@ public class Spawner implements Serializable {
 			if(spawnType.hasAllDimensions()) {
 				Location spawnLocation = getSpawningLocation(spawnType, spawnType.requiresBlockBelow(), 
 						spawnType.getHeight(), spawnType.getWidth(), spawnType.getLength());
+				
+				if(spawnLocation == null)
+					continue;
 				
 				if(!spawnLocation.getChunk().isLoaded())
 					continue;
@@ -835,6 +840,10 @@ public class Spawner implements Serializable {
 				spawnType.setBlockBelow(getBlockBelowFromEntity(e));
 				
 				Location spawnLocation = getSpawningLocation(spawnType, getBlockBelowFromEntity(e), nmEntity.height, nmEntity.width, nmEntity.length);
+				
+				if(spawnLocation == null)
+					continue;
+				
 				e.teleport(spawnLocation);
 			}
 			
@@ -854,7 +863,7 @@ public class Spawner implements Serializable {
 	private Skeleton makeJockey(Spider spider) {
 		Location spiderLoc = spider.getLocation();
 		LivingEntity skele = (LivingEntity) spiderLoc.getWorld().spawn(spiderLoc, EntityType.SKELETON.getEntityClass());
-		skele.getEquipment().setItemInHand(new ItemStack(Material.BOW)); //TODO test this + made disable on block break. Also improve commands
+		skele.getEquipment().setItemInHand(new ItemStack(Material.BOW)); //TODO test this
 		spider.setPassenger(skele);
 		return (Skeleton) skele;
 	}
@@ -993,14 +1002,6 @@ public class Spawner implements Serializable {
 			 
 			net.minecraft.server.v1_4_6.World nmsWorld = ((CraftWorld) world).getHandle();
 			EntityEnderPearl ent = new EntityEnderPearl(nmsWorld, nearPlayer);
-			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
-			nmsWorld.addEntity(ent);
-			return ent.getBukkitEntity();
-		} else if(spawnType.getType().equals(EntityType.EGG)) {
-			World world = getLoc().getWorld();
-			 
-			net.minecraft.server.v1_4_6.World nmsWorld = ((CraftWorld) world).getHandle();
-			EntityEgg ent = new EntityEgg(nmsWorld);
 			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
 			nmsWorld.addEntity(ent);
 			return ent.getBukkitEntity();

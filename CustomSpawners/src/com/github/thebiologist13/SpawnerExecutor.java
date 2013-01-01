@@ -117,7 +117,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 				"makenew",
 				"summon"
 		});
-		addCommand("deactivateallspawners", activateAll, new String[] {
+		addCommand("deactivateallspawners", deactivateAll, new String[] {
 				"deactivateall",
 				"allinactive",
 				"allspawnersinactive",
@@ -236,7 +236,8 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 		addCommand("removemobs", removeMobs, new String[] {
 				"deletemobs",
 				"killmobs",
-				"destroythemwithlasers"
+				"destroythemwithlasers",
+				"remmobs"
 		});
 		addCommand("selectspawner", select, new String[] {
 				"select",
@@ -279,7 +280,10 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 				"setpulsetriggered",
 				"pulsetriggered",
 				"setonpower",
-				"onpower"
+				"onpower",
+				"sot",
+				"sop",
+				"sor"
 		});
 		addCommand("setspawntype", setType, new String[] {
 				"spawntype",
@@ -301,7 +305,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
-		if(arg1.getName().equalsIgnoreCase("entities")) {
+		if(arg1.getName().equalsIgnoreCase("spawners")) {
 			
 			Spawner spawnerRef = null;
 			String sub = arg3[0].toLowerCase();
@@ -325,39 +329,39 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 			
 			sub = cmd.getCommand(sub); //Aliases
 			
-			if(arg0 instanceof Player) {
-				Player p = (Player) arg0;
+			if(cmd.needsObject()) {
 				
-				if(!p.hasPermission(cmd.permission)) {
-					PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
-					return true;
+				if(arg0 instanceof Player) {
+					Player p = (Player) arg0;
+					
+					if(!p.hasPermission(cmd.permission)) {
+						PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+						return true;
+					}
+					
+					if(!CustomSpawners.spawnerSelection.containsKey(p)) {
+						spawnerRef = CustomSpawners.getSpawner(objId);
+						params = makeParams(arg3, 2);
+					} else {
+						spawnerRef = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p));
+						params = makeParams(arg3, 1);
+					}
+				} else {
+					if(CustomSpawners.consoleEntity == -1) {
+						spawnerRef = CustomSpawners.getSpawner(objId);
+						params = makeParams(arg3, 2);
+					} else {
+						spawnerRef = CustomSpawners.getSpawner(CustomSpawners.consoleSpawner);
+						params = makeParams(arg3, 1);
+					}
 				}
 				
-				if(!CustomSpawners.entitySelection.containsKey(p)) {
-					spawnerRef = CustomSpawners.getSpawner(objId);
-					params = makeParams(arg3, 1);
-				} else {
-					spawnerRef = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p));
-					params = makeParams(arg3, 2);
-				}
-			} else {
-				if(CustomSpawners.consoleEntity == -1) {
-					spawnerRef = CustomSpawners.getSpawner(objId);
-					params = makeParams(arg3, 1);
-				} else {
-					spawnerRef = CustomSpawners.getSpawner(CustomSpawners.consoleSpawner);
-					params = makeParams(arg3, 2);
-				}
-			}
-			
-			if(spawnerRef == null) {
-				if(cmd.needsObject()) {
+				if(spawnerRef == null) {
 					PLUGIN.sendMessage(arg0, cmd.NO_SPAWNER);
 					return true;
 				}
-				
+			} else {
 				params = makeParams(arg3, 1);
-				
 			}
 			
 			try {
@@ -366,7 +370,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 				PLUGIN.sendMessage(arg0, ChatColor.RED + "You entered invalid parameters.");
 				return true;
 			} catch(Exception e) {
-				PLUGIN.printDebugMessage(e.getMessage());
+				PLUGIN.printDebugTrace(e);
 				PLUGIN.sendMessage(arg0, cmd.GENERAL_ERROR);
 				return true;
 			}

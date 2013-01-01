@@ -35,6 +35,8 @@ public class SetLocationCommand extends SpawnerCommand {
 			return;
 		}
 		
+		spawner.setLoc(target.getLocation());
+		
 		PLUGIN.sendMessage(player, ChatColor.GREEN + "Set the location of spawner " + 
 				ChatColor.GOLD + PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + 
 				" to " + ChatColor.GOLD + "(" + spawner.getLoc().getBlockX() + ", " + 
