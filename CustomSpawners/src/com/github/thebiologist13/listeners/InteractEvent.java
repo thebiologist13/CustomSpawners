@@ -22,7 +22,7 @@ public class InteractEvent implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onPlayerInteractEvent(PlayerInteractEvent ev) { //TODO make the left click not break block
+	public void onPlayerInteractEvent(PlayerInteractEvent ev) {
 		
 		//Player
 		Player p = ev.getPlayer();
@@ -38,7 +38,7 @@ public class InteractEvent implements Listener {
 		//Block
 		Location l = ev.getClickedBlock().getLocation();
 		//Perms
-		String perm = "customspawners.spawners.position";
+		String perm = "customspawners.spawners.pos";
 		
 		if(p.hasPermission(perm)) {
 			if(item.getTypeId() == config.getInt("players.selectionId")) {

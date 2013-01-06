@@ -29,6 +29,8 @@ public class DamageController {
 	//Map for aggroed mobs (entity id, spawnableEntity)
 	public static ConcurrentHashMap<Integer, Integer> angryMobs = new ConcurrentHashMap<Integer, Integer>();
 	
+	public static ConcurrentHashMap<Integer, CustomExplosion> explode = new ConcurrentHashMap<Integer, CustomExplosion>();
+	
 	private CustomSpawners plugin = null;
 	
 	public DamageController(CustomSpawners plugin) {
@@ -51,13 +53,19 @@ public class DamageController {
 				
 				SpawnableEntity e = plugin.getEntityFromSpawner(damager);
 				
+				if(!wgAllows(entity)) {
+					return 0;
+				}
+				
 				if(e != null) {
+					return e.getDamage();
+				} else {
+					int id = damager.getEntityId();
 					
-					if(!wgAllows(entity)) {
-						return 0;
+					if(explode.containsKey(id)) {
+						return explode.get(id).getDamage(); //TODO Test
 					}
 					
-					return e.getDamage();
 				}
 				
 			}
@@ -73,11 +81,16 @@ public class DamageController {
 			if(ev instanceof EntityDamageByEntityEvent) {
 				EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 				Entity damager = eve.getDamager();
+				int id = damager.getEntityId();
 				
 				if(damager instanceof Player) {
 					
 					angryMobs.put(mobId, e.getId());
 					
+				}
+				
+				if(explode.containsKey(id)) {
+					damage = explode.get(id).getDamage();
 				}
 				
 			}

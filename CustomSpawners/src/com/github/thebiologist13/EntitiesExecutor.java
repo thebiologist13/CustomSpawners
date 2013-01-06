@@ -33,7 +33,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand name = new EntityNameCommand(plugin, "customspawners.entities.setname");
 		EntityCommand profession = new EntityProfessionCommand(plugin, "customspawners.entities.setprofession");
 		EntityCommand remove = new EntityRemoveCommand(plugin, "customspawners.entities.remove");
-		EntityCommand saddled = new EntitySaddledCommand(plugin, "customspawners.entities.saddled");
+		EntityCommand saddled = new EntitySaddledCommand(plugin, "customspawners.entities.setsaddled");
 		EntityCommand select = new EntitySelectCommand(plugin, "customspawners.entities.select");
 		EntityCommand type = new EntitySetTypeCommand(plugin, "customspawners.entities.settype");
 		EntityCommand sitting = new EntitySittingCommand(plugin, "customspawners.entities.sitting");
@@ -46,7 +46,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand blacklist = new EntityBlackListCommand(plugin, "customspawners.entities.blacklist");
 		EntityCommand whitelist = new EntityWhiteListCommand(plugin, "customspawners.entities.whitelist");
 		EntityCommand itemlist = new EntityItemListCommand(plugin, "customspawners.entities.itemlist");
-		EntityCommand damage = new EntityDamageCommand(plugin, "customspawners.entities.setdamage");
+		EntityCommand damage = new EntityDamageCommand(plugin, "customspawners.entities.damage");
 		EntityCommand drops = new EntityDropsCommand(plugin, "customspawners.entities.drops");
 		EntityCommand experience = new EntityExpCommand(plugin, "customspawners.entities.setexp");
 		EntityCommand fuse = new EntityFuseCommand(plugin, "customspawners.entities.setfuseticks");
@@ -55,7 +55,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand itemType = new EntityItemTypeCommand(plugin, "customspawners.entities.setitemtype");
 		EntityCommand potionType = new EntityPotionTypeCommand(plugin, "customspawners.entities.setpotiontype");
 		EntityCommand invulnerable = new EntityInvulnerableCommand(plugin, "customspawners.entities.setinvulnerable");
-		EntityCommand inventory = new EntityInventoryCommand(plugin, "customspawners.entities.setinventory");
+		EntityCommand inventory = new EntityInventoryCommand(plugin, "customspawners.entities.inventory");
 		EntityCommand wither = new EntityWitherCommand(plugin, "customspawners.entities.setwither");
 		EntityCommand villager = new EntityVillagerCommand(plugin, "customspawners.entities.setvillager");
 		
@@ -313,7 +313,9 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		});
 		addCommand("setpotiontype", potionType, new String[] {
 				"potiontype",
-				"potioneffect"
+				"potioneffect",
+				"setpotion",
+				"potion"
 		});
 		addCommand("setvillagerprofession", profession, new String[] {
 				"setprofession",

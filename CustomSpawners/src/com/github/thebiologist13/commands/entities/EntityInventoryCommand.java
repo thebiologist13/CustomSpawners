@@ -2,6 +2,7 @@ package com.github.thebiologist13.commands.entities;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -30,15 +31,28 @@ public class EntityInventoryCommand extends EntityCommand {
 			return;
 		}
 		
-		String item = getValue(args, 0, "0"); //TODO if it is a player, make it so it can clone the item in their hand to inventory.
+		String item = getValue(args, 0, "0");
 		String count = getValue(args, 1, "1");
+		ItemStack stack = null;
 		
-		if(!CustomSpawners.isInteger(count)) {
-			PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
-			return;
+		if(item.equals("hand") || item.equals("holding")) {
+			if(!(sender instanceof Player)) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + "You need to be in-game to add you item in hand to a mob inventory.");
+				return;
+			}
+			
+			Player p = (Player) sender;
+			
+			stack = p.getItemInHand().clone();
+			
+		} else {
+			if(!CustomSpawners.isInteger(count)) {
+				PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
+				return;
+			}
+			
+			stack = PLUGIN.getItem(item, Integer.parseInt(count));
 		}
-		
-		ItemStack stack = PLUGIN.getItem(item, Integer.parseInt(count));
 		
 		if(stack == null) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + item + " is not a valid item.");
@@ -72,6 +86,8 @@ public class EntityInventoryCommand extends EntityCommand {
 			inv.setBoot(stack);
 			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "boots", PLUGIN.getItemName(stack)));
 		}
+		
+		entity.setInventory(inv);
 		
 	}
 

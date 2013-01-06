@@ -35,13 +35,19 @@ import com.github.thebiologist13.commands.spawners.SetTypeCommand;
 import com.github.thebiologist13.commands.spawners.SpawnAreaCommand;
 import com.github.thebiologist13.commands.spawners.SpawnOnPowerCommand;
 import com.github.thebiologist13.commands.spawners.SpawnerCommand;
+import com.github.thebiologist13.commands.spawners.ToggleWandCommand;
 
-public class SpawnerExecutor extends Executor implements CommandExecutor { //TODO make sure all permissions are in place.
+/**
+ * This executes commands related to /spawners command.
+ * 
+ * @author thebiologist13
+ */
+public class SpawnerExecutor extends Executor implements CommandExecutor {
 	
 	public SpawnerExecutor(CustomSpawners plugin) {
 		super(plugin);
 		
-		SpawnerCommand hidden = new HiddenCommand(plugin, "customspawners.spawners.sethidden");
+		SpawnerCommand hidden = new HiddenCommand(plugin, "customspawners.spawners.hidden");
 		SpawnerCommand activateAll = new ActivateAllCommand(plugin, "customspawners.spawners.activateall");
 		SpawnerCommand addType = new AddTypeCommand(plugin, "customspawners.spawners.addtype");
 		SpawnerCommand deactivateAll = new DeactivateAllCommand(plugin, "customspawners.spawners.deactivateall");
@@ -69,6 +75,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 		SpawnerCommand convert = new ConvertCommand(plugin, "customspawners.spawners.convert");
 		SpawnerCommand removeAllMobs = new RemoveAllMobsCommand(plugin, "customspawners.spawners.removeallmobs");
 		SpawnerCommand onPower = new SpawnOnPowerCommand(plugin, "customspawners.spawners.spawnonpower");
+		SpawnerCommand wand = new ToggleWandCommand(plugin, "customspawners.spawners.wand");
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -78,6 +85,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 		deactivateAll.setNeedsObject(false);
 		position.setNeedsObject(false);
 		removeAllMobs.setNeedsObject(false);
+		wand.setNeedsObject(false);
 		
 		addCommand("activateallspawners", activateAll, new String[] {
 				"activateall",
@@ -171,7 +179,8 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 		addCommand("setmaximummobs", maxMobs, new String[] {
 				"setmaxmobs",
 				"maxmobs",
-				"mobs"
+				"mobs",
+				"setmobs"
 		});
 		addCommand("setname", name, new String[] {
 				"name",
@@ -299,6 +308,11 @@ public class SpawnerExecutor extends Executor implements CommandExecutor { //TOD
 				"spawnarea",
 				"setspawnzone",
 				"spawnzone"
+		});
+		addCommand("togglewand", wand, new String[] {
+				"wand",
+				"areaselect",
+				"toggleareaselect"
 		});
 	}
 	

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -22,7 +23,7 @@ public class ListNearCommand extends SpawnerCommand {
 	}
 
 	@Override
-	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) { //TODO Maybe add location of spawner to print out?
+	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
 		if(!(sender instanceof Player)) {
 			PLUGIN.sendMessage(sender, NO_CONSOLE);
@@ -57,8 +58,11 @@ public class ListNearCommand extends SpawnerCommand {
 		PLUGIN.sendMessage(player, ChatColor.GOLD + "Nearby Spawners:");
 		for(Spawner sp : list) {
 			
+			Location loc = sp.getLoc();
+			
 			String baseMessage =  ChatColor.GOLD + String.valueOf(sp.getId()) + 
-					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ")"; 
+					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ") at (" +
+					loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")"; 
 			
 			if(!sp.getName().isEmpty()) {
 				PLUGIN.sendMessage(sender, baseMessage + ChatColor.GREEN + " with name " + ChatColor.GOLD + sp.getName());

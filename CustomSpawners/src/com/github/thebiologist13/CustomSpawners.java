@@ -27,7 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 
-import com.github.thebiologist13.listeners.BreakSpawnerEvent;
+import com.github.thebiologist13.listeners.BreakEvent;
 import com.github.thebiologist13.listeners.DamageController;
 import com.github.thebiologist13.listeners.ExpBottleHitEvent;
 import com.github.thebiologist13.listeners.InteractEvent;
@@ -45,45 +45,47 @@ import com.github.thebiologist13.serialization.SPotionEffect;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 /**
- * 
  * CustomSpawners is a plugin for making customizable spawners for Bukkit servers.
  * 
  * Licensed under GNU-GPLv3
  * 
  * @author thebiologist13
- *
+ * @version 0.1
  */
 public class CustomSpawners extends JavaPlugin {
 
-	//Selected entity by console
+	//Selected entity by console.
 	public static int consoleEntity = -1;
 
-	//Selected spawner by console
+	//Selected spawner by console.
 	public static int consoleSpawner = -1;
 
 	//Debug
 	public static boolean debug = false;
 
-	//Default Entity to use
+	//Default Entity to use.
 	public static SpawnableEntity defaultEntity = null;
 
-	//All of the entity types on the server
+	//All of the entity types on the server.
 	public static ConcurrentHashMap<Integer, SpawnableEntity> entities = new ConcurrentHashMap<Integer, SpawnableEntity>();
 
-	//Selected entities for players
+	//Selected entities for players.
 	public static ConcurrentHashMap<Player, Integer> entitySelection = new ConcurrentHashMap<Player, Integer>();
 
-	//Player selection area Point 1
+	//Player selection area Point 1.
 	public static ConcurrentHashMap<Player, Location> selectionPointOne = new ConcurrentHashMap<Player, Location>();
 
-	//Player selection area Point 2
+	//Player selection area Point 2.
 	public static ConcurrentHashMap<Player, Location> selectionPointTwo = new ConcurrentHashMap<Player, Location>();
 
 	//All the spawners in the server.
 	public static ConcurrentHashMap<Integer, Spawner> spawners = new ConcurrentHashMap<Integer, Spawner>();
 
-	//Selected spawners for players
+	//Selected spawners for players.
 	public static ConcurrentHashMap<Player, Integer> spawnerSelection = new ConcurrentHashMap<Player, Integer>();
+	
+	//Players not using selections.
+	public static ConcurrentHashMap<Player, Boolean> selectMode = new ConcurrentHashMap<Player, Boolean>();
 
 	//Logger
 	public Logger log = Logger.getLogger("Minecraft");
@@ -159,7 +161,7 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new MobRegenEvent(this), this);
 		getServer().getPluginManager().registerEvents(new PotionHitEvent(this), this);
 		getServer().getPluginManager().registerEvents(new ProjectileFireEvent(this), this);
-		getServer().getPluginManager().registerEvents(new BreakSpawnerEvent(this), this);
+		getServer().getPluginManager().registerEvents(new BreakEvent(this), this);
 		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(this), this);
 
 		//Load entities from file
@@ -425,21 +427,30 @@ public class CustomSpawners extends JavaPlugin {
 	public String convertTicksToTime(int ticks) {
 		int minutes = 0;
 		float seconds = 0;
+		float floatTick = (float) ticks;
 
-		if(ticks >= 1200) {
+		if(floatTick >= 1200) {
 
-			if((ticks % 1200) == 0) {
-				minutes = ticks / 1200;
+			if((floatTick % 1200) == 0) {
+				minutes = Math.round(floatTick / 1200);
 			} else {
-				seconds = (ticks % 1200) / 20;
-				minutes = (ticks - (ticks % 1200)) / 1200;
+				seconds = (floatTick % 1200) / 20;
+				minutes = Math.round((floatTick - (floatTick % 1200)) / 1200);
 			}
 
 		} else {
-			seconds = ticks / 20;
+			seconds = floatTick / 20;
 		}
 
-		return String.valueOf(minutes) + ":" + String.valueOf(seconds);
+		String strSec = "";
+		
+		if(seconds < 10) {
+			strSec = "0" + String.valueOf(seconds);
+		} else {
+			strSec = String.valueOf(seconds);
+		}
+		
+		return String.valueOf(minutes) + ":" + strSec;
 	}
 
 	public void copy(InputStream in, File file) {
@@ -785,7 +796,7 @@ public class CustomSpawners extends JavaPlugin {
 	public WorldGuardPlugin getWG() {
 		Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
 
-		if(wg != null || !(wg instanceof WorldGuardPlugin)) 
+		if(wg == null || !(wg instanceof WorldGuardPlugin)) 
 			return null;
 
 		return (WorldGuardPlugin) wg;

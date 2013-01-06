@@ -18,6 +18,11 @@ import com.github.thebiologist13.serialization.SItemStack;
 import com.github.thebiologist13.serialization.SPotionEffect;
 import com.github.thebiologist13.serialization.SVector;
 
+/**
+ * Represents an entity that can be spawned by CustomSpawners.
+ * 
+ * @author thebiologist13
+ */
 public class SpawnableEntity implements Serializable {
 	
 	/*

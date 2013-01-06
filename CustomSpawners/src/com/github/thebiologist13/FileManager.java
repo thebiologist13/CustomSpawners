@@ -28,6 +28,11 @@ import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.serialization.SVector;
 
+/**
+ * Manages file I/O for CustomSpawners.
+ * 
+ * @author thebiologist13
+ */
 public class FileManager {
 	
 	private CustomSpawners plugin = null;

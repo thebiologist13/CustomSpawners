@@ -29,94 +29,79 @@ permissions:
         description: Gives access to all of CustomSpawners' features.
         default: op
         children:
-            customspawners.customspawners: true
             customspawners.help: true
             customspawners.reload: true
             customspawners.io: true
-            customspawners.spawners.limitoverride: true
-            customspawners.spawners.activateall: true
-            customspawners.spawners.deactivateall: true
-            customspawners.spawners.forcespawn: true
-            customspawners.spawners.listnear: true
-            customspawners.spawners.listall: true
-            customspawners.spawners.listnear.hidden: true
-            customspawners.spawners.listall.hidden: true
-            customspawners.spawners.create: true
-            customspawners.spawners.remove: true
-            customspawners.spawners.select: true
-            customspawners.spawners.setactive: true
-            customspawners.spawners.setinactive: true
-            customspawners.spawners.sethidden: true
-            customspawners.spawners.setunhidden: true
-            customspawners.spawners.setmaxlight: true
-            customspawners.spawners.setminlight: true
-            customspawners.spawners.setmaxmobs: true
-            customspawners.spawners.setmobsperspawn: true
-            customspawners.spawners.setmaxdistance: true
-            customspawners.spawners.setmindistance: true
-            customspawners.spawners.setlocation: true
-            customspawners.spawners.setradius: true
-            customspawners.spawners.setrate: true
-            customspawners.spawners.setredstone: true
-            customspawners.spawners.addtype: true
-            customspawners.spawners.settype: true
-            customspawners.spawners.info: true
-            customspawners.spawners.info.hidden: true
-            customspawners.spawners.setname: true
-            customspawners.spawners.setspawnarea: true
-            customspawners.spawners.position: true
-            customspawners.spawners.convert: true
-            customspawners.entities.setpassive: true
-            customspawners.entities.create: true
-            customspawners.entities.select: true
-            customspawners.entities.remove: true
-            customspawners.entities.info: true
-            customspawners.entities.setname: true
-            customspawners.entities.settype: true
-            customspawners.entities.seteffect: true
-            customspawners.entities.addeffect: true
-            customspawners.entities.setage: true
-            customspawners.entities.setair: true
-            customspawners.entities.setangry: true
-            customspawners.entities.setcattype: true
-            customspawners.entities.setcharged: true
-            customspawners.entities.cleareffects: true
-            customspawners.entities.setcolor: true
-            customspawners.entities.setenderblock: true
-            customspawners.entities.sethealth: true
-            customspawners.entities.info: true
-            customspawners.entities.setjockey: true
-            customspawners.entities.setprofession: true
-            customspawners.entities.setsaddled: true
-            customspawners.entities.settype: true
-            customspawners.entities.setsitting: true
-            customspawners.entities.setslimesize: true
-            customspawners.entities.settamed: true
-            customspawners.entities.setvelocity: true
-            customspawners.entities.listall: true
-            customspawners.entities.setfireticks: true
-            customspawners.entities.blacklist: true
-            customspawners.entities.whitelist: true
-            customspawners.entities.itemlist: true
-            customspawners.entities.setcustomdamage: true
-            customspawners.entities.setdamageamount: true
-            customspawners.entities.adddrop: true
-            customspawners.entities.setdrop: true
-            customspawners.entities.cleardrop: true
-            customspawners.entities.setusingdrops: true
-            customspawners.entities.setpotiontype: true
-            customspawners.entities.setexp: true
-            customspawners.entities.setfuselength: true
-            customspawners.entities.setyield: true
-            customspawners.entities.setincendiary: true
-            customspawners.entities.setitemtype: true
-            customspawners.entities.setinvulnerable: true
-            customspawners.entities.inventory: true
-            customspawners.entities.setwither: true
-            customspawners.entities.setvillager: true
-    customspawners.customspawners:
-        description: Allows the user/group to use the "/customspawner" command. Does not cover all sub-commands. Use customspawners.* for that.
-        default: true
+            customspawners.spawners.limitoverride
+            customspawners.spawners.hidden
+            customspawners.spawners.activateall
+            customspawners.spawners.addtype
+            customspawners.spawners.deactivateall
+            customspawners.spawners.forcespawn
+            customspawners.spawners.removemobs
+            customspawners.spawners.setname
+            customspawners.spawners.listnear
+            customspawners.spawners.listall
+            customspawners.spawners.create
+            customspawners.spawners.select
+            customspawners.spawners.remove
+            customspawners.spawners.settype
+            customspawners.spawners.setlightlevel
+            customspawners.spawners.setmaxmobs
+            customspawners.spawners.setmobsperspawn
+            customspawners.spawners.setdistance
+            customspawners.spawners.setlocation
+            customspawners.spawners.setradius
+            customspawners.spawners.setrate
+            customspawners.spawners.setredstone
+            customspawners.spawners.info
+            customspawners.spawners.activation
+            customspawners.spawners.pos
+            customspawners.spawners.setspawnarea
+            customspawners.spawners.convert
+            customspawners.spawners.removeallmobs
+            customspawners.spawners.spawnonpower
+            customspawners.spawners.wand
+            customspawners.entities.effects
+            customspawners.entities.setage
+            customspawners.entities.setair
+            customspawners.entities.aetangry
+            customspawners.entities.setcattype
+            customspawners.entities.setcharged
+            customspawners.entities.setcolor
+            customspawners.entities.create
+            customspawners.entities.setenderblock
+            customspawners.entities.sethealth
+            customspawners.entities.info
+            customspawners.entities.setjockey
+            customspawners.entities.setname
+            customspawners.entities.setprofession
+            customspawners.entities.remove
+            customspawners.entities.setsaddled
+            customspawners.entities.select
+            customspawners.entities.settype
+            customspawners.entities.sitting
+            customspawners.entities.setslimesize
+            customspawners.entities.settamed
+            customspawners.entities.setvelocity
+            customspawners.entities.listall
+            customspawners.entities.setpassive
+            customspawners.entities.setfireticks
+            customspawners.entities.blacklist
+            customspawners.entities.whitelist
+            customspawners.entities.itemlist
+            customspawners.entities.drops
+            customspawners.entities.damage
+            customspawners.entities.setexp
+            customspawners.entities.setfuseticks
+            customspawners.entities.setincendiary
+            customspawners.entities.setyield
+            customspawners.entities.setitemtype
+            customspawners.entities.setpotiontype
+            customspawners.entities.setinvulnerable
+            customspawners.entities.inventory
+            customspawners.entities.setwither
+            customspawners.entities.setvillager
     customspawners.help:
         description: Allows the user/group to use the "/customspawner help" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -159,23 +144,14 @@ permissions:
     customspawners.spawners.limitoverride:
         description: Allows the user/group to ignore the spawner property limits from config.
         default: op
-    customspawners.spawners.setactive:
-        description: Allows the user/group to set spawners active.
+    customspawners.spawners.activation:
+        description: Allows the user/group to turn spawners on and off.
         default: op
-    customspawners.spawners.setinactive:
-        description: Allows the user/group to set spawners inactive.
-        default: op
-    customspawners.spawners.sethidden:
+    customspawners.spawners.hidden:
         description: Allows the user/group to set spawners hidden
         default: op
-    customspawners.spawners.setunhidden:
-        description: Allows the user/group to set spawners unhidden.
-        default: op
-    customspawners.spawners.setmaxlight:
-        description: Allows the user/group to set the maximum light level a spawner can spawn at.
-        default: op
-    customspawners.spawners.setminlight:
-        description: Allows the user/group to set the minimum light level a spawner can spawn at.
+    customspawners.spawners.setlightlevel:
+        description: Allows the user/group to set the light leveld a spawner can spawn at.
         default: op
     customspawners.spawners.setmaxmobs:
         description: Allows the user/group to set the maximum amount a mobs a single spawner can spawn.
@@ -183,11 +159,8 @@ permissions:
     customspawners.spawners.setmobsperspawn:
         description: Allows the user/group to set the mobs a spawner with spawn each time.
         default: op
-    customspawners.spawners.setmaxdistance:
-        description: Allows the user/group to set the maximum distance players can be from a spawner.
-        default: op
-    customspawners.spawners.setmindistance:
-        description: Allows the user/group to set the minimum distance players can be from a spawner.
+    customspawners.spawners.setdistance:
+        description: Allows the user/group to set the distance players can be from a spawner.
         default: op
     customspawners.spawners.setlocation:
         description: Allows the user/group to set a new location for a spawner.
@@ -219,12 +192,21 @@ permissions:
     customspawners.spawners.setspawnarea:
         description: Allows the user/group to set the spawn area of a spawner..
         default: op
-    customspawners.spawners.position:
+    customspawners.spawners.pos:
         description: Allows the user/group to set spawn area positions.
         default: op
     customspawners.spawners.convert:
         description: Allows the user/group to convert spawners.
         default: op
+    customspawners.spawners.removeallmobs:
+        description: Allows the user/group to remove all mobs spawned by custom spawners.
+        default: op
+    customspawners.spawners.spawnonpower:
+        description: Allows the user/group to set whether a spawner will spawn when power is pulsed to it.
+        default: op
+    customspawners.spawners.wand
+        description: Allows the user/group to toggle the spawn area wand on and off.
+        default: true
     customspawners.entities.setpassive:
         description: Allows the user/group to set the mobs passive.
         default: op
@@ -246,12 +228,6 @@ permissions:
     customspawners.entities.settype:
         description: Allows the user/group to set entity type of an entity.
         default: op
-    customspawners.entities.seteffect:
-        description: Allows the user/group to set potion effect of an entity.
-        default: op
-    customspawners.entities.addeffect:
-        description: Allows the user/group to set entity type of an entity.
-        default: op
     customspawners.entities.setage:
         description: Allows the user/group to set the age of an entity.
         default: op
@@ -267,8 +243,8 @@ permissions:
     customspawners.entities.setcharged:
         description: Allows the user/group to set the entity charged.
         default: op
-    customspawners.entities.cleareffects:
-        description: Allows the user/group to clear potion effects on an entity.
+    customspawners.entities.effects:
+        description: Allows the user/group to modify potion effects applied to an entity.
         default: op
     customspawners.entities.setcolor:
         description: Allows the user/group to set the color.
@@ -321,23 +297,11 @@ permissions:
     customspawners.entities.itemlist:
         description: Allows the user/group to set values on the item list.
         default: op
-    customspawners.entities.setcustomdamage:
-        description: Allows the user/group to set the entity to use custom damage values.
+    customspawners.entities.damage:
+        description: Allows the user/group to modify entity damage.
         default: op
-    customspawners.entities.setdamageamount:
-        description: Allows the user/group to set the amount of damage dealt by an entity.
-        default: op
-    customspawners.entities.adddrop:
-        description: Allows the user/group to add a drop for an entity.
-        default: op
-    customspawners.entities.setdrop:
-        description: Allows the user/group to set the drops of an entity.
-        default: op
-    customspawners.entities.cleardrop:
-        description: Allows the user/group to clear the entity drops.
-        default: op
-    customspawners.entities.setusingdrops:
-        description: Allows the user/group to change whether the entity uses customized drops.
+    customspawners.entities.drops:
+        description: Allows the user/group to modify drops.
         default: op
     customspawners.entities.setpotiontype:
         description: Allows the user/group to set the type of potion of a spawned potion.

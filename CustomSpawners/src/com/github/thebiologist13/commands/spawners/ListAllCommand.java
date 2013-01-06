@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -36,8 +37,11 @@ public class ListAllCommand extends SpawnerCommand {
 			
 			Spawner sp = itr.next();
 			
+			Location loc = sp.getLoc();
+			
 			String baseMessage =  ChatColor.GOLD + String.valueOf(sp.getId()) + 
-					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ")"; 
+					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ") at (" +
+					loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")"; 
 			
 			if(!sp.getName().isEmpty()) {
 				PLUGIN.sendMessage(sender, baseMessage + ChatColor.GREEN + " with name " + ChatColor.GOLD + sp.getName());

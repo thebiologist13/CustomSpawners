@@ -48,7 +48,7 @@ import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
  * @author thebiologist13
  * @version 1.1
  */
-public class NBTManager {
+public class NBTManager { //TODO Make sure all properties set. Potions do not set
 	
 	/**
 	 * Makes the properties similar to all Bukkit entities into NBT for Minecraft.

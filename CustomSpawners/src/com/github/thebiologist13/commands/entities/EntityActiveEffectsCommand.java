@@ -72,7 +72,7 @@ public class EntityActiveEffectsCommand extends EntityCommand {
 		String strEffect = effectType.getName() + " " + amplifier + " - " + PLUGIN.convertTicksToTime(duration);
 		effect = new SPotionEffect(effectType, duration, amplifier);
 		
-		if(subCommand.equals("addEffect")) { //TODO Maybe add additional permissions here?
+		if(subCommand.equals("addEffect")) {
 			entity.addPotionEffect(effect);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully added potion effect " + ChatColor.GOLD + 
 					strEffect + ChatColor.GREEN + " to entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 

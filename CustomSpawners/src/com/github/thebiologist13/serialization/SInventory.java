@@ -128,11 +128,11 @@ public class SInventory implements Serializable {
 	
 	public boolean isEmpty() {
 		
-		boolean mainInventoryEmpty = false;
+		boolean mainInventoryEmpty = true;
 		List<ItemStack> main = getMainInventory();
 		for(ItemStack i : main) {
 			if(!i.getType().equals(Material.AIR)) {
-				mainInventoryEmpty = true;
+				mainInventoryEmpty = false;
 			}
 		}
 		

@@ -6,6 +6,11 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.github.thebiologist13.commands.SubCommand;
 
+/**
+ * Superclass for command executors.
+ * 
+ * @author thebiologist13
+ */
 public class Executor {
 
 	public final FileConfiguration CONFIG;

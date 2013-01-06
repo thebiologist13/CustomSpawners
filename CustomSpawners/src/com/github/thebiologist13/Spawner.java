@@ -66,6 +66,11 @@ import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SLocation;
 import com.github.thebiologist13.serialization.SPotionEffect;
 
+/**
+ * Represents a spawner managed by CustomSpawners.
+ * 
+ * @author thebiologist13
+ */
 public class Spawner implements Serializable {
 	
 	private static final long serialVersionUID = -153105685313343476L;
@@ -783,6 +788,13 @@ public class Spawner implements Serializable {
 	private boolean isPlayerNearby() {
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			
+			World pWorld = p.getLocation().getWorld(); //TODO Test
+			World sWorld = getLoc().getWorld();
+			
+			if(!pWorld.equals(sWorld)) {
+				continue;
+			}
+			
 			//Finds distance between spawner and player in 3D space.
 			double distance = p.getLocation().distance(getLoc());
 			if(distance <= getMaxPlayerDistance() && distance >= getMinPlayerDistance()) {
@@ -965,6 +977,10 @@ public class Spawner implements Serializable {
 		
 		EntityEquipment ee = entity.getEquipment();
 		
+		if(ee == null) {
+			return;
+		}
+		
 		switch(entity.getType()) {
 		case SKELETON:
 			ee.setItemInHand(new ItemStack(Material.BOW));
@@ -987,8 +1003,20 @@ public class Spawner implements Serializable {
 			return getLoc().getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) spawnType.getItemType().getDurability());
 		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) {
 			World world = getLoc().getWorld();
-			PotionType type = PotionType.getByEffect(spawnType.getPotionEffect().getType()); //TODO add the duration and level things.
+			SPotionEffect effect = spawnType.getPotionEffect();
+			PotionType type = PotionType.getByEffect(effect.getType());
 			Potion p = new Potion(type);
+			try {
+				if(effect.getDuration() >= 9600) { //TODO Test Me!
+					if(!type.isInstant()) {
+						p.setHasExtendedDuration(true);
+					}
+				} else {
+					if(effect.getAmplifier() >= 2) {
+						p.setLevel(2);
+					}
+				}
+			} catch(IllegalArgumentException e) {}
 			p.setSplash(true);
 			int data = p.toDamageValue();
 			 
