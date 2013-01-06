@@ -32,76 +32,76 @@ permissions:
             customspawners.help: true
             customspawners.reload: true
             customspawners.io: true
-            customspawners.spawners.limitoverride
-            customspawners.spawners.hidden
-            customspawners.spawners.activateall
-            customspawners.spawners.addtype
-            customspawners.spawners.deactivateall
-            customspawners.spawners.forcespawn
-            customspawners.spawners.removemobs
-            customspawners.spawners.setname
-            customspawners.spawners.listnear
-            customspawners.spawners.listall
-            customspawners.spawners.create
-            customspawners.spawners.select
-            customspawners.spawners.remove
-            customspawners.spawners.settype
-            customspawners.spawners.setlightlevel
-            customspawners.spawners.setmaxmobs
-            customspawners.spawners.setmobsperspawn
-            customspawners.spawners.setdistance
-            customspawners.spawners.setlocation
-            customspawners.spawners.setradius
-            customspawners.spawners.setrate
-            customspawners.spawners.setredstone
-            customspawners.spawners.info
-            customspawners.spawners.activation
-            customspawners.spawners.pos
-            customspawners.spawners.setspawnarea
-            customspawners.spawners.convert
-            customspawners.spawners.removeallmobs
-            customspawners.spawners.spawnonpower
-            customspawners.spawners.wand
-            customspawners.entities.effects
-            customspawners.entities.setage
-            customspawners.entities.setair
-            customspawners.entities.aetangry
-            customspawners.entities.setcattype
-            customspawners.entities.setcharged
-            customspawners.entities.setcolor
-            customspawners.entities.create
-            customspawners.entities.setenderblock
-            customspawners.entities.sethealth
-            customspawners.entities.info
-            customspawners.entities.setjockey
-            customspawners.entities.setname
-            customspawners.entities.setprofession
-            customspawners.entities.remove
-            customspawners.entities.setsaddled
-            customspawners.entities.select
-            customspawners.entities.settype
-            customspawners.entities.sitting
-            customspawners.entities.setslimesize
-            customspawners.entities.settamed
-            customspawners.entities.setvelocity
-            customspawners.entities.listall
-            customspawners.entities.setpassive
-            customspawners.entities.setfireticks
-            customspawners.entities.blacklist
-            customspawners.entities.whitelist
-            customspawners.entities.itemlist
-            customspawners.entities.drops
-            customspawners.entities.damage
-            customspawners.entities.setexp
-            customspawners.entities.setfuseticks
-            customspawners.entities.setincendiary
-            customspawners.entities.setyield
-            customspawners.entities.setitemtype
-            customspawners.entities.setpotiontype
-            customspawners.entities.setinvulnerable
-            customspawners.entities.inventory
-            customspawners.entities.setwither
-            customspawners.entities.setvillager
+            customspawners.spawners.limitoverride: true
+            customspawners.spawners.hidden: true
+            customspawners.spawners.activateall: true
+            customspawners.spawners.addtype: true
+            customspawners.spawners.deactivateall: true
+            customspawners.spawners.forcespawn: true
+            customspawners.spawners.removemobs: true
+            customspawners.spawners.setname: true
+            customspawners.spawners.listnear: true
+            customspawners.spawners.listall: true
+            customspawners.spawners.create: true
+            customspawners.spawners.select: true
+            customspawners.spawners.remove: true
+            customspawners.spawners.settype: true
+            customspawners.spawners.setlightlevel: true
+            customspawners.spawners.setmaxmobs: true
+            customspawners.spawners.setmobsperspawn: true
+            customspawners.spawners.setdistance: true
+            customspawners.spawners.setlocation: true
+            customspawners.spawners.setradius: true
+            customspawners.spawners.setrate: true
+            customspawners.spawners.setredstone: true
+            customspawners.spawners.info: true
+            customspawners.spawners.activation: true
+            customspawners.spawners.pos: true
+            customspawners.spawners.setspawnarea: true
+            customspawners.spawners.convert: true
+            customspawners.spawners.removeallmobs: true
+            customspawners.spawners.spawnonpower: true
+            customspawners.spawners.wand: true
+            customspawners.entities.effects: true
+            customspawners.entities.setage: true
+            customspawners.entities.setair: true
+            customspawners.entities.aetangry: true
+            customspawners.entities.setcattype: true
+            customspawners.entities.setcharged: true
+            customspawners.entities.setcolor: true
+            customspawners.entities.create: true
+            customspawners.entities.setenderblock: true
+            customspawners.entities.sethealth: true
+            customspawners.entities.info: true
+            customspawners.entities.setjockey: true
+            customspawners.entities.setname: true
+            customspawners.entities.setprofession: true
+            customspawners.entities.remove: true
+            customspawners.entities.setsaddled: true
+            customspawners.entities.select: true
+            customspawners.entities.settype: true
+            customspawners.entities.sitting: true
+            customspawners.entities.setslimesize: true
+            customspawners.entities.settamed: true
+            customspawners.entities.setvelocity: true
+            customspawners.entities.listall: true
+            customspawners.entities.setpassive: true
+            customspawners.entities.setfireticks: true
+            customspawners.entities.blacklist: true
+            customspawners.entities.whitelist: true
+            customspawners.entities.itemlist: true
+            customspawners.entities.drops: true
+            customspawners.entities.damage: true
+            customspawners.entities.setexp: true
+            customspawners.entities.setfuseticks: true
+            customspawners.entities.setincendiary: true
+            customspawners.entities.setyield: true
+            customspawners.entities.setitemtype: true
+            customspawners.entities.setpotiontype: true
+            customspawners.entities.setinvulnerable: true
+            customspawners.entities.inventory: true
+            customspawners.entities.setwither: true
+            customspawners.entities.setvillager: true
     customspawners.help:
         description: Allows the user/group to use the "/customspawner help" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
