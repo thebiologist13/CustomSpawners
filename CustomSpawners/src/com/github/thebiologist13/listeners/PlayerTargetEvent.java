@@ -9,7 +9,6 @@ import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.Spawner;
 
 public class PlayerTargetEvent implements Listener {
 	
@@ -28,27 +27,19 @@ public class PlayerTargetEvent implements Listener {
 		//Target
 		Entity target = ev.getTarget();
 
-		if(!(target instanceof Player)) return;
-		
-		Spawner s = plugin.getSpawnerWithEntity(entity);
-		
-		if(s == null) return;
-		
-		SpawnableEntity type = null;
-		
-		if(s.getMobs().containsKey(id)) {
-			type = s.getMobs().get(id);
-		}
-		
-		if(type == null) {
+		if(!(target instanceof Player)) 
 			return;
-		}
+		
+		SpawnableEntity s = plugin.getEntityFromSpawner(id);
+		
+		if(s == null) 
+			return;
 		
 		if(ev.getReason().equals(TargetReason.FORGOT_TARGET)) {
-				ev.setCancelled(true);
+			ev.setCancelled(true);
 		}
 		
-		if(type.isPassive() && !DamageController.angryMobs.containsKey(id)) {
+		if(s.isPassive() && !DamageController.angryMobs.containsKey(id)) {
 			ev.setCancelled(true);
 		}
 		

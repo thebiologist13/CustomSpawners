@@ -75,7 +75,7 @@ public class SItemStack implements Serializable {
 		ItemMeta meta = stack.getItemMeta();
 		
 		if(meta != null && this.meta != null) {
-			meta.setDisplayName(this.meta.getDisplayName()); //TODO Test
+			meta.setDisplayName(this.meta.getDisplayName());
 			meta.setLore(this.meta.getLore());
 			
 			Map<CardboardEnchantment, Integer> metaEnchants = this.meta.getEnchants();

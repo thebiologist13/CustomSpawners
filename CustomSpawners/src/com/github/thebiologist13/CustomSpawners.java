@@ -102,6 +102,9 @@ public class CustomSpawners extends JavaPlugin {
 	//LogLevel
 	private byte logLevel;
 
+	//Save interval
+	private long saveInterval;
+	
 	//WorldGuard
 	private WorldGuardPlugin worldGuard = null;
 
@@ -123,6 +126,9 @@ public class CustomSpawners extends JavaPlugin {
 		//LogLevel
 		logLevel = (byte) config.getInt("data.logLevel", 2);
 
+		//Interval
+		saveInterval = (config.getLong("data.interval", 10) * 1200);
+		
 		//Setup WG
 		worldGuard = getWG();
 
@@ -236,8 +242,6 @@ public class CustomSpawners extends JavaPlugin {
 		 */
 		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnClock")) {
 
-			int interval = config.getInt("data.interval") * 1200;
-
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
 				@Override
@@ -247,11 +251,11 @@ public class CustomSpawners extends JavaPlugin {
 
 				}
 
-			}, 20, interval);
+			}, 20, saveInterval);
 		}
 
 		//Enable message
-		log.info("CustomSpawners by thebiologist13 has been enabled!");
+		log.info("[CustomSpawners] CustomSpawners by thebiologist13 has been enabled!");
 	}
 
 	public void onDisable() {
@@ -752,25 +756,37 @@ public class CustomSpawners extends JavaPlugin {
 		return null;
 
 	}
+	
+	public Spawner getSpawnerWithEntity(int id) {
+		
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
+
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+
+			while(mobItr.hasNext()) {
+				int currentMob = mobItr.next();
+
+				if(currentMob == id) {
+					return s;
+				}
+
+			}
+
+		}
+
+		return null;
+		
+	}
 
 	public Spawner getSpawnerWithEntity(Entity entity) {
-		EntityType type = entity.getType();
 		int entityId = entity.getEntityId();
-		ArrayList<Spawner> validSpawners = new ArrayList<Spawner>();
 		Iterator<Spawner> spawnerItr = spawners.values().iterator();
 
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 
-			for(Integer i : s.getTypeData()) {
-				if(CustomSpawners.getEntity(i.toString()).getType().equals(type)) {
-					validSpawners.add(s);
-					break;
-				}
-			}
-		}
-
-		for(Spawner s : validSpawners) {
 			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 
 			while(mobItr.hasNext()) {
@@ -785,7 +801,7 @@ public class CustomSpawners extends JavaPlugin {
 				}
 
 			}
-
+			
 		}
 
 		return null;
@@ -925,6 +941,13 @@ public class CustomSpawners extends JavaPlugin {
 		}
 		
 		return true;
+	}
+	
+	public Spawner cloneWithNewId(Spawner s) {
+		Spawner s1 = new Spawner(s.getMainEntity(), s.getLoc(), getNextSpawnerId());
+		s1.setData(s.getData());
+		s1.setTypeData(s.getTypeData());
+		return s1;
 	}
 	
 	public void printDebugMessage(String[] message) {

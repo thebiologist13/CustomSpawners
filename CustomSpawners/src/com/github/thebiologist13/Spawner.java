@@ -78,12 +78,14 @@ public class Spawner implements Serializable {
 	private Map<String, Object> data = new HashMap<String, Object>();
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
 	private ConcurrentHashMap<Integer, SpawnableEntity> mobs = new ConcurrentHashMap<Integer, SpawnableEntity>();
-	//Ticks left before next spawn
-	private int ticksLeft = -1; 
-	//Spawnable Mobs
-	private List<Integer> typeData = new ArrayList<Integer>();
 	//If the block was powered before
 	private boolean poweredBefore = false;
+	//Additional NBT data
+	private Map<String, Object> tag = new HashMap<String, Object>(); 
+	//Ticks left before next spawn
+	private int ticksLeft = -1;
+	//Spawnable Mobs
+	private List<Integer> typeData = new ArrayList<Integer>();
 	
 	public Spawner(SpawnableEntity type, Location loc, int id) {
 		this(type, loc, "", id);
@@ -124,14 +126,6 @@ public class Spawner implements Serializable {
 		this.data.put("areaPoints", ap1);
 	}
 	
-	public Spawner cloneWithNewId(int id) {
-		Spawner s = new Spawner(getMainEntity(), getLoc(), id);
-		s.setData(data);
-		s.setTypeData(typeData);
-		s.setMobs(mobs);
-		return s;
-	}
-
 	//Spawn the mobs
 	public void forceSpawn() {
 
@@ -146,7 +140,7 @@ public class Spawner implements Serializable {
 		mainSpawn(entity);
 		
 	}
-
+	
 	public Location[] getAreaPoints() {
 		
 		Location[] ap1 = new Location[2];
@@ -170,7 +164,11 @@ public class Spawner implements Serializable {
 	public int getBlockId() {
 		return ((SBlock) this.data.get("block")).getId();
 	}
-	
+
+	public Map<String, Object> getData() {
+		return data;
+	}
+
 	public int getId() {
 		return (Integer) this.data.get("id");
 	}
@@ -178,19 +176,19 @@ public class Spawner implements Serializable {
 	public Location getLoc() {
 		return ((SLocation) this.data.get("loc")).toLocation();
 	}
-
+	
 	public SpawnableEntity getMainEntity() {
 		return CustomSpawners.getEntity(this.typeData.get(0).toString());
 	}
-
+	
 	public byte getMaxLightLevel() {
 		return (this.data.containsKey("maxLight")) ? (Byte) this.data.get("maxLight") : 0;
 	}
-
+	
 	public int getMaxMobs() {
 		return (this.data.containsKey("maxMobs")) ? (Integer) this.data.get("maxMobs") : 0;
 	}
-
+	
 	public double getMaxPlayerDistance() {
 		return (this.data.containsKey("maxDistance")) ? Double.parseDouble(this.data.get("maxDistance").toString()) : 0;
 	}
@@ -227,12 +225,20 @@ public class Spawner implements Serializable {
 		return (this.data.containsKey("rate")) ? (Integer) this.data.get("rate") : 60;
 	}
 
+	public Map<String, Object> getTag() {
+		return this.tag;
+	}
+
 	public List<Integer> getTypeData() {
 		return this.typeData;
 	}
 
 	public boolean hasProp(String key) {
 		return this.data.containsKey(key);
+	}
+
+	public boolean hasTag(String key) {
+		return this.tag.containsKey(key);
 	}
 
 	public boolean isActive() {
@@ -247,14 +253,14 @@ public class Spawner implements Serializable {
 		return (this.data.containsKey("hidden")) ? (Boolean) this.data.get("hidden") : false;
 	}
 
-	public boolean isRedstoneTriggered() {
-		return (this.data.containsKey("redstone")) ? (Boolean) this.data.get("redstone") : false;
-	}
-	
 	public boolean isPoweredBefore() {
 		return poweredBefore;
 	}
-	
+
+	public boolean isRedstoneTriggered() {
+		return (this.data.containsKey("redstone")) ? (Boolean) this.data.get("redstone") : false;
+	}
+
 	public boolean isSpawnOnRedstone() {
 		return (this.data.containsKey("spawnOnRedstone")) ? (Boolean) this.data.get("spawnOnRedstone") : false;
 	}
@@ -262,7 +268,11 @@ public class Spawner implements Serializable {
 	public boolean isUsingSpawnArea() {
 		return (this.data.containsKey("useSpawnArea")) ? (Boolean) this.data.get("useSpawnArea") : false;
 	}
-
+	
+	public void putTag(String key, Object value) {
+		this.tag.put(key, value);
+	}
+	
 	//Remove the spawner
 	public void remove() {
 		/*
@@ -278,6 +288,10 @@ public class Spawner implements Serializable {
 	public void removeMob(int mobId) {
 		if(mobs.containsKey(mobId))
 			mobs.remove(mobId);
+	}
+
+	public void removeTag(String key) {
+		this.tag.remove(key);
 	}
 
 	public void removeTypeData(SpawnableEntity type) {
@@ -309,11 +323,11 @@ public class Spawner implements Serializable {
 		
 		this.data.put("areaPoints", ap1);
 	}
-	
+
 	public void setBlock(Block block) {
 		this.data.put("block", new SBlock(block));
 	}
-
+	
 	public void setConverted(boolean converted) {
 		this.data.put("converted", converted);
 	}
@@ -323,21 +337,20 @@ public class Spawner implements Serializable {
 		if(data == null)
 			return;
 		
-		if(this.data.containsKey("id")) {
-			data.put("id", (Integer) this.data.get("id"));
+		for(String s : data.keySet()) {
+			
+			if(s.equals("id") || s.equals("name"))
+				continue;
+			
+			this.data.put(s, data.get(s));
 		}
 		
-		if(this.data.containsKey("name")) {
-			data.put("name", (String) this.data.get("name"));
-		}
-		
-		this.data = data;
 	}
 
 	public void setHidden(boolean hidden) {
 		this.data.put("hidden", hidden);
 	}
-	
+
 	public void setLoc(Location loc) {
 		this.data.put("loc", new SLocation(loc));
 		setBlock(loc.getBlock());
@@ -354,7 +367,7 @@ public class Spawner implements Serializable {
 	public void setMaxPlayerDistance(double maxPlayerDistance) {
 		this.data.put("maxDistance", maxPlayerDistance);
 	}
-
+	
 	public void setMinLightLevel(byte minLightLevel) {
 		this.data.put("minLight", minLightLevel);
 	}
@@ -362,7 +375,7 @@ public class Spawner implements Serializable {
 	public void setMinPlayerDistance(double minPlayerDistance) {
 		this.data.put("minDistance", minPlayerDistance);
 	}
-	
+
 	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
 		this.mobs = (ConcurrentHashMap<Integer, SpawnableEntity>) mobParam;
 	}
@@ -375,6 +388,10 @@ public class Spawner implements Serializable {
 		this.data.put("name", name);
 	}
 	
+	public void setPoweredBefore(boolean poweredBefore) {
+		this.poweredBefore = poweredBefore;
+	}
+	
 	public void setProp(String key, Object value) {
 		if(key == null || value == null) {
 			return;
@@ -383,14 +400,10 @@ public class Spawner implements Serializable {
 		this.data.put(key, value);
 	}
 
-	public void setPoweredBefore(boolean poweredBefore) {
-		this.poweredBefore = poweredBefore;
-	}
-
 	public void setRadius(double radius) {
 		this.data.put("radius", radius);
 	}
-	
+
 	public void setRate(int rate) {
 		this.data.put("rate", rate);
 		this.ticksLeft = rate;
@@ -402,6 +415,10 @@ public class Spawner implements Serializable {
 	
 	public void setSpawnOnRedstone(boolean value) {
 		this.data.put("spawnOnRedstone", value);
+	}
+	
+	public void setTag(Map<String, Object> tag) {
+		this.tag = tag;
 	}
 	
 	/*
@@ -576,8 +593,7 @@ public class Spawner implements Serializable {
 				} else if(monster instanceof Spider) {
 					Spider s = (Spider) monster;
 					if(data.isJockey()) {
-						Skeleton skele = makeJockey(s);
-						setBasicProps(skele, data);
+						makeJockey(s);
 					}
 				} else if(monster instanceof Zombie) {
 					Zombie z = (Zombie) monster;
@@ -788,7 +804,7 @@ public class Spawner implements Serializable {
 	private boolean isPlayerNearby() {
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			
-			World pWorld = p.getLocation().getWorld(); //TODO Test
+			World pWorld = p.getLocation().getWorld();
 			World sWorld = getLoc().getWorld();
 			
 			if(!pWorld.equals(sWorld)) {
@@ -875,7 +891,7 @@ public class Spawner implements Serializable {
 	private Skeleton makeJockey(Spider spider) {
 		Location spiderLoc = spider.getLocation();
 		LivingEntity skele = (LivingEntity) spiderLoc.getWorld().spawn(spiderLoc, EntityType.SKELETON.getEntityClass());
-		skele.getEquipment().setItemInHand(new ItemStack(Material.BOW)); //TODO test this
+		skele.getEquipment().setItemInHand(new ItemStack(Material.BOW));
 		spider.setPassenger(skele);
 		return (Skeleton) skele;
 	}
@@ -1007,7 +1023,7 @@ public class Spawner implements Serializable {
 			PotionType type = PotionType.getByEffect(effect.getType());
 			Potion p = new Potion(type);
 			try {
-				if(effect.getDuration() >= 9600) { //TODO Test Me!
+				if(effect.getDuration() >= 9600) {
 					if(!type.isInstant()) {
 						p.setHasExtendedDuration(true);
 					}

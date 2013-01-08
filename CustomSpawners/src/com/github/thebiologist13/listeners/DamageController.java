@@ -50,20 +50,26 @@ public class DamageController {
 			if(ev instanceof EntityDamageByEntityEvent) {
 				EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 				Entity damager = eve.getDamager();
+				int id = damager.getEntityId();
 				
-				SpawnableEntity e = plugin.getEntityFromSpawner(damager);
-				
-				if(!wgAllows(entity)) {
-					return 0;
-				}
+				SpawnableEntity e = plugin.getEntityFromSpawner(id);
 				
 				if(e != null) {
+					
+					if(cause.equals(DamageCause.ENTITY_EXPLOSION)) {
+						ev.setCancelled(true);
+						return 0;
+					}
+					
 					return e.getDamage();
 				} else {
-					int id = damager.getEntityId();
 					
 					if(explode.containsKey(id)) {
-						return explode.get(id).getDamage(); //TODO Test
+						damage = explode.get(id).getDamage();
+						if(damage == -1) {
+							damage = ev.getDamage();
+						}
+						
 					}
 					
 				}
@@ -78,19 +84,33 @@ public class DamageController {
 				return damage;
 			}
 			
+			if(!wgAllows(entity)) {
+				ev.setCancelled(true);
+				return 0;
+			}
+			
 			if(ev instanceof EntityDamageByEntityEvent) {
 				EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 				Entity damager = eve.getDamager();
 				int id = damager.getEntityId();
 				
 				if(damager instanceof Player) {
-					
 					angryMobs.put(mobId, e.getId());
-					
+				}
+				
+				SpawnableEntity e1 = plugin.getEntityFromSpawner(id);
+				
+				if(e1 != null && cause.equals(DamageCause.ENTITY_EXPLOSION)) {
+					ev.setCancelled(true);
+					return 0;
 				}
 				
 				if(explode.containsKey(id)) {
 					damage = explode.get(id).getDamage();
+					if(damage == -1) {
+						damage = ev.getDamage();
+					}
+					
 				}
 				
 			}

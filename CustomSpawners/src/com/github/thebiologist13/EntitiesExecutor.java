@@ -466,14 +466,14 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 			
 			sub = cmd.getCommand(sub); //Aliases
 			
+			if(!cmd.permissible(arg0, null)) {
+				PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+				return true;
+			}
+			
 			if(cmd.needsObject()) {
 				if(arg0 instanceof Player) {
 					Player p = (Player) arg0;
-					
-					if(!p.hasPermission(cmd.permission)) {
-						PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
-						return true;
-					}
 					
 					if(!CustomSpawners.entitySelection.containsKey(p)) {
 						entityRef = CustomSpawners.getEntity(objId);

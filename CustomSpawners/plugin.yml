@@ -11,7 +11,7 @@ commands:
         usage: This command is used by /customspawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
         aliases: [cs, csplugin]
         permission: customspawners.customspawners
-        permission-message: You do not have permission to use the customspawner command.
+        permission-message: You do not have permission to use the customspawners command.
     spawners:
         description: This command executes spawner-related functions.
         usage: This command is used by /spawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
@@ -29,10 +29,14 @@ permissions:
         description: Gives access to all of CustomSpawners' features.
         default: op
         children:
+            customspawners.customspawners: true
+            customspawners.spawners: true
+            customspawners.entities: true
             customspawners.help: true
             customspawners.reload: true
             customspawners.io: true
             customspawners.spawners.limitoverride: true
+            customspawners.spawners.clone: true
             customspawners.spawners.hidden: true
             customspawners.spawners.activateall: true
             customspawners.spawners.addtype: true
@@ -102,8 +106,17 @@ permissions:
             customspawners.entities.inventory: true
             customspawners.entities.setwither: true
             customspawners.entities.setvillager: true
+    customspawners.customspawners:
+        description: Allows the user/group to use the "/customspawners" command. Does not cover all sub-commands. Use customspawners.* for that.
+        default: true
+    customspawners.spawners:
+        description: Allows the user/group to use the "/spawners" command. Does not cover all sub-commands. Use customspawners.* for that.
+        default: true
+    customspawners.entities:
+        description: Allows the user/group to use the "/entities" command. Does not cover all sub-commands. Use customspawners.* for that.
+        default: true
     customspawners.help:
-        description: Allows the user/group to use the "/customspawner help" command. Does not cover all sub-commands. Use customspawners.* for that.
+        description: Allows the user/group to use the "/customspawners help" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
     customspawners.reload:
         description: Allows the user/group to reload spawners from file.
@@ -204,8 +217,11 @@ permissions:
     customspawners.spawners.spawnonpower:
         description: Allows the user/group to set whether a spawner will spawn when power is pulsed to it.
         default: op
-    customspawners.spawners.wand
+    customspawners.spawners.wand:
         description: Allows the user/group to toggle the spawn area wand on and off.
+        default: true
+    customspawners.spawners.clone:
+        description: Allows the user/group to clone spawners.
         default: true
     customspawners.entities.setpassive:
         description: Allows the user/group to set the mobs passive.

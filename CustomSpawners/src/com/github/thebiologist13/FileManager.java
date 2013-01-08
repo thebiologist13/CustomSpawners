@@ -294,19 +294,19 @@ public class FileManager {
 			plugin.getServer().broadcastMessage(ChatColor.GOLD + config.getString("data.broadcastMessage", ""));
 		}
 
-		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
-		Iterator<SpawnableEntity> entityItr = CustomSpawners.entities.values().iterator();
+		Iterator<Integer> spawnerItr = CustomSpawners.spawners.keySet().iterator();
+		Iterator<Integer> entityItr = CustomSpawners.entities.keySet().iterator();
 
 		while(spawnerItr.hasNext()) {
-			Spawner s = spawnerItr.next();
+			int id = spawnerItr.next();
 
-			autosave(s);
+			autosave(CustomSpawners.getSpawner(id));
 		}
 
 		while(entityItr.hasNext()) {
-			SpawnableEntity e = entityItr.next();
+			int id = entityItr.next();
 
-			autosave(e);
+			autosave(CustomSpawners.getEntity(id));
 		}
 
 		if(config.getBoolean("data.broadcastAutosave")) {

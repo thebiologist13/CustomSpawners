@@ -22,12 +22,14 @@ public class BreakEvent implements Listener {
 		
 		Player p = ev.getPlayer();
 		
-		boolean doBreak = CustomSpawners.selectMode.get(p);
-		int configId = PLUGIN.getCustomConfig().getInt("players.selectionId");
-		
-		if((p.getItemInHand().getTypeId() == configId) && doBreak && p.hasPermission("customspawners.spawners.pos")) {
-			ev.setCancelled(true);
-			return;
+		if(CustomSpawners.selectMode.containsKey(p)) {
+			boolean doBreak = CustomSpawners.selectMode.get(p);
+			int configId = PLUGIN.getCustomConfig().getInt("players.selectionId");
+			
+			if((p.getItemInHand().getTypeId() == configId) && doBreak && p.hasPermission("customspawners.spawners.pos")) {
+				ev.setCancelled(true);
+				return;
+			}
 		}
 		
 		Spawner s = PLUGIN.getSpawnerAt(ev.getBlock().getLocation());

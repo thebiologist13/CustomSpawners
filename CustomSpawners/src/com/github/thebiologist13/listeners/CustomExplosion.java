@@ -37,7 +37,12 @@ public class CustomExplosion {
 	
 	public void detonate() {
 		TNTPrimed tnt = (TNTPrimed) location.getWorld().spawnEntity(location, EntityType.PRIMED_TNT);
-		tnt.setYield(power);
+		if(destroyBlocks == false) {
+			tnt.setYield(0);
+		} else {
+			tnt.setYield(power);
+		}
+		tnt.setIsIncendiary(fire);
 		tnt.setFuseTicks(0);
 		this.tnt = tnt.getEntityId();
 	}

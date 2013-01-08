@@ -48,7 +48,7 @@ import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
  * @author thebiologist13
  * @version 1.1
  */
-public class NBTManager { //TODO Make sure all properties set. Potions do not set
+public class NBTManager { //TODO Make sure all properties set. Potions do not set.
 	
 	/**
 	 * Makes the properties similar to all Bukkit entities into NBT for Minecraft.
@@ -473,6 +473,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		
 		// Spawner Data
 		
+		sData.setString("id", "MobSpawner");
 		sData.setInt("x", s.getLoc().getBlockX());
 		sData.setInt("y", s.getLoc().getBlockY());
 		sData.setInt("z", s.getLoc().getBlockZ());

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.github.thebiologist13.commands.spawners.ActivateAllCommand;
 import com.github.thebiologist13.commands.spawners.ActiveCommand;
 import com.github.thebiologist13.commands.spawners.AddTypeCommand;
+import com.github.thebiologist13.commands.spawners.CloneCommand;
 import com.github.thebiologist13.commands.spawners.ConvertCommand;
 import com.github.thebiologist13.commands.spawners.CreateCommand;
 import com.github.thebiologist13.commands.spawners.DeactivateAllCommand;
@@ -76,6 +77,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		SpawnerCommand removeAllMobs = new RemoveAllMobsCommand(plugin, "customspawners.spawners.removeallmobs");
 		SpawnerCommand onPower = new SpawnOnPowerCommand(plugin, "customspawners.spawners.spawnonpower");
 		SpawnerCommand wand = new ToggleWandCommand(plugin, "customspawners.spawners.wand");
+		SpawnerCommand clone = new CloneCommand(plugin, "customspawners.spawners.clone");
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -314,6 +316,11 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				"areaselect",
 				"toggleareaselect"
 		});
+		addCommand("clone", clone, new String[] {
+				"clonespawner",
+				"copy",
+				"copyspawner"
+		});
 	}
 	
 	@Override
@@ -343,15 +350,15 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 			
 			sub = cmd.getCommand(sub); //Aliases
 			
+			if(!cmd.permissible(arg0, null)) {
+				PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+				return true;
+			}
+			
 			if(cmd.needsObject()) {
 				
 				if(arg0 instanceof Player) {
 					Player p = (Player) arg0;
-					
-					if(!p.hasPermission(cmd.permission)) {
-						PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
-						return true;
-					}
 					
 					if(!CustomSpawners.spawnerSelection.containsKey(p)) {
 						spawnerRef = CustomSpawners.getSpawner(objId);

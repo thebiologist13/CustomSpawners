@@ -1,5 +1,6 @@
 package com.github.thebiologist13.listeners;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -31,7 +32,7 @@ public class MobExplodeEvent implements Listener {
 		int id = e.getEntityId();
 		
 		//SpawnableEntity
-		SpawnableEntity s = plugin.getEntityFromSpawner(e.getEntityId());
+		SpawnableEntity s = plugin.getEntityFromSpawner(id);
 		
 		if(s != null) {
 			
@@ -40,7 +41,14 @@ public class MobExplodeEvent implements Listener {
 			if(!wgAllows(e)) 
 				return;
 			
-			CustomExplosion ex = new CustomExplosion(ev.getLocation(), s.getYield(), id, 0, s.isIncendiary());
+			Location norm = ev.getLocation();
+			Location plusOne = new Location(norm.getWorld(), norm.getX(), norm.getY() + 1, norm.getZ() + 1);
+			CustomExplosion ex;
+			if(s.isUsingCustomDamage()) {
+				ex = new CustomExplosion(plusOne, s.getYield(), id, s.getDamage(), s.isIncendiary());
+			} else {
+				ex = new CustomExplosion(plusOne, s.getYield(), id, -1, s.isIncendiary());
+			}
 			ex.detonate();
 			
 			DamageController.explode.put(ex.getTNT(), ex);

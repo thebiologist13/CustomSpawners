@@ -1,5 +1,6 @@
 package com.github.thebiologist13.commands.spawners;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -30,6 +31,8 @@ public class ToggleWandCommand extends SpawnerCommand {
 		} else {
 			CustomSpawners.selectMode.put(player, false);
 		}
+		
+		PLUGIN.sendMessage(player, ChatColor.GREEN + "Toggled CustomSpawners spawn area selection to " + ChatColor.GOLD + CustomSpawners.selectMode.get(player));
 		
 	}
 

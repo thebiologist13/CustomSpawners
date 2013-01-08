@@ -89,7 +89,7 @@ public class SpawnerIOCommand extends CustomSpawnersCommand {
 					continue;
 				} else {
 					int nextId = PLUGIN.getNextSpawnerId();
-					Spawner s1 = s.cloneWithNewId(nextId);
+					Spawner s1 = PLUGIN.cloneWithNewId(s);
 					CustomSpawners.spawners.put(nextId, s1);
 					loaded.add(s1);
 				}
