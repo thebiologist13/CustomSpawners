@@ -1004,6 +1004,8 @@ public class Spawner implements Serializable {
 		case PIG_ZOMBIE:
 			ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
 			break;
+		default:
+			break;
 		} 
 		
 		ee.setItemInHand(data.getHand());

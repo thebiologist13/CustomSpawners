@@ -79,14 +79,14 @@ public class CustomSpawners extends JavaPlugin {
 	//Player selection area Point 2.
 	public static ConcurrentHashMap<Player, Location> selectionPointTwo = new ConcurrentHashMap<Player, Location>();
 
-	//All the spawners in the server.
-	public static ConcurrentHashMap<Integer, Spawner> spawners = new ConcurrentHashMap<Integer, Spawner>();
-
-	//Selected spawners for players.
-	public static ConcurrentHashMap<Player, Integer> spawnerSelection = new ConcurrentHashMap<Player, Integer>();
-	
 	//Players not using selections.
 	public static ConcurrentHashMap<Player, Boolean> selectMode = new ConcurrentHashMap<Player, Boolean>();
+
+	//All the spawners in the server.
+	public static ConcurrentHashMap<Integer, Spawner> spawners = new ConcurrentHashMap<Integer, Spawner>();
+	
+	//Selected spawners for players.
+	public static ConcurrentHashMap<Player, Integer> spawnerSelection = new ConcurrentHashMap<Player, Integer>();
 	
 	//Transparent Blocks to go through when getting the target location for a spawner.
 	public static HashSet<Byte> transparent = new HashSet<Byte>();
@@ -111,6 +111,622 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//WorldGuard
 	private WorldGuardPlugin worldGuard = null;
+
+	//Gets an entity
+	public static SpawnableEntity getEntity(int ref) {
+		return getEntity(String.valueOf(ref));
+	}
+
+	//Gets an entity
+	public static SpawnableEntity getEntity(String ref) {
+		
+		if(ref.isEmpty())
+			return null;
+		
+		ref = ref.toLowerCase();
+		
+		if(isInteger(ref)) {
+			int id = Integer.parseInt(ref);
+
+			if(id == -2)
+				return defaultEntity;
+
+			Iterator<Integer> entityItr = entities.keySet().iterator();
+			while(entityItr.hasNext()) {
+				int currentId = entityItr.next();
+
+				if(currentId == id) {
+					return entities.get(id);
+				}
+			}
+
+		} else {
+
+			if(ref.equals("default"))
+				return defaultEntity;
+
+			Iterator<Integer> entityItr = entities.keySet().iterator();
+			while(entityItr.hasNext()) {
+				Integer id = entityItr.next();
+				SpawnableEntity s = entities.get(id);
+				String name = s.getName();
+
+				if(name == null) {
+					return null;
+				}
+
+				if(name.equalsIgnoreCase(ref)) {
+					return s;
+				}
+			}
+		}
+
+		return null;
+	}
+	
+	//Gets the next available ID number in a list
+	public static int getNextID(List<Integer> set) {
+		int returnID = 0;
+		boolean taken = true;
+
+		while(taken) {
+
+			if(set.size() == 0) {
+				return 0;
+			}
+
+			for(Integer i : set) {
+				if(returnID == i) {
+					taken = true;
+					break;
+				} else {
+					taken = false;
+				}
+			}
+
+			if(taken) {
+				returnID++;
+			}
+		}
+
+		return returnID;
+	}
+
+	//Gets a spawner
+	public static Spawner getSpawner(int ref) {
+		return getSpawner(String.valueOf(ref));
+	}
+
+	//Gets a spawner
+	public static Spawner getSpawner(String ref) {
+		
+		if(ref.isEmpty())
+			return null;
+		
+		ref = ref.toLowerCase();
+		
+		if(isInteger(ref)) {
+			int id = Integer.parseInt(ref);
+			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
+
+			while(spawnerItr.hasNext()) {
+				int currentId = spawnerItr.next();
+
+				if(currentId == id) {
+					return spawners.get(id);
+				}
+			}
+		} else {
+			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
+
+			while(spawnerItr.hasNext()) {
+				Integer id = spawnerItr.next();
+				Spawner s = spawners.get(id);
+				String name = s.getName();
+
+				if(name == null) {
+					return null;
+				}
+
+				if(name.equalsIgnoreCase(ref)) {
+					return s;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	//Convenience method for accurately testing if a string can be parsed to an double.
+	public static boolean isDouble(String what) {
+		try {
+			Double.parseDouble(what);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
+	}
+	
+	//Convenience method for accurately testing if a string can be parsed to an double.
+	public static boolean isFloat(String what) {
+		try {
+			Float.parseFloat(what);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
+	}
+
+	//Convenience method for accurately testing if a string can be parsed to an integer.
+	public static boolean isInteger(String what) {
+		try {
+			Integer.parseInt(what);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
+	}
+
+	public boolean allowedEntity(EntityType type) {
+		String name = type.toString();
+		
+		List<?> notAllowed = config.getList("mobs.blacklist");
+		
+		if(notAllowed.contains(name)) {
+			return false;
+		}
+		
+		return true;
+	}
+
+	public Spawner cloneWithNewId(Spawner s) {
+		Spawner s1 = new Spawner(s.getMainEntity(), s.getLoc(), getNextSpawnerId());
+		s1.setData(s.getData());
+		s1.setTypeData(s.getTypeData());
+		return s1;
+	}
+
+	//Converts ticks to MM:SS
+	public String convertTicksToTime(int ticks) {
+		int minutes = 0;
+		float seconds = 0;
+		float floatTick = (float) ticks;
+
+		if(floatTick >= 1200) {
+
+			if((floatTick % 1200) == 0) {
+				minutes = Math.round(floatTick / 1200);
+			} else {
+				seconds = (floatTick % 1200) / 20;
+				minutes = Math.round((floatTick - (floatTick % 1200)) / 1200);
+			}
+
+		} else {
+			seconds = floatTick / 20;
+		}
+
+		String strSec = "";
+		
+		if(seconds < 10) {
+			strSec = "0" + String.valueOf(seconds);
+		} else {
+			strSec = String.valueOf(seconds);
+		}
+		
+		return String.valueOf(minutes) + ":" + strSec;
+	}
+
+	public void copy(InputStream in, File file) {
+		try {
+			OutputStream out = new FileOutputStream(file);
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+				out.write(buf, 0, len);
+			}
+			out.close();
+			in.close();
+		} catch (Exception e) {
+			log.severe("Could not copy config from jar!");
+			e.printStackTrace();
+		}
+	}
+
+	public FileConfiguration getCustomConfig() {
+		if (config == null) {
+			reloadCustomConfig();
+		}
+		return config;
+	}
+	
+	public String getDamageCause(String in) {
+		
+		in.toLowerCase();
+		
+		String type = "";
+		
+		if(in.equals("blockexplosion")) {
+			type = "BLOCK_EXPLOSION";
+		} else if(in.equals("entityexplosion") || in.equals("creeper")) {
+			type = "ENTITY_EXPLOSION";
+		} else if(in.equals("firetick") || in.equals("burning")) {
+			type = "FIRE_TICK";
+		} else if(in.equals("attack") || in.equals("entityattack")) {
+			type = "ENTITY_ATTACK";
+		} else if(in.equals("item") || in.equals("itemdamage")) {
+			type = "ITEM";
+		} else if(in.equals("spawnerfire") || in.equals("spawnerfireticks")) {
+			type = "SPAWNER_FIRE_TICKS";
+		} else {
+			for(DamageCause c : DamageCause.values()) {
+				if(c.toString().equalsIgnoreCase(in)) {
+					type = in;
+					break;
+				}
+			}
+		}
+		
+		return type;
+	}
+
+	public SpawnableEntity getEntityFromSpawner(Entity entity) {
+
+		if(entity == null) {
+			return null;
+		}
+
+		int entityId = entity.getEntityId();
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
+
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+
+			while(mobItr.hasNext()) {
+				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
+				
+				if(currentMob == null) {
+					continue;
+				}
+
+				if(currentMob.getEntityId() == entityId) {
+					return s.getMobs().get(currentMob);
+				}
+
+			}
+
+		}
+
+		return null;
+
+	}
+	
+	public SpawnableEntity getEntityFromSpawner(int id) {
+		
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
+
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+
+			while(mobItr.hasNext()) {
+				int currentMob = mobItr.next();
+
+				if(currentMob == id) {
+					return s.getMobs().get(currentMob);
+				}
+
+			}
+
+		}
+
+		return null;
+
+	}
+
+	public Entity getEntityFromWorld(int id, World w) {
+		
+		Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
+		while(entitiesInWorld.hasNext()) {
+			Entity e = entitiesInWorld.next();
+
+			if(e.getEntityId() == id) {
+				return e;
+			}
+
+		}
+
+		return null;
+	}
+
+	public FileManager getFileManager() {
+		return fileManager;
+	}
+
+	//Gets a string to represent the name of the entity (String version of ID or name)
+	public String getFriendlyName(SpawnableEntity e) {
+		if(e.getName().isEmpty()) {
+			return String.valueOf(e.getId());
+		} else {
+			return e.getName();
+		}
+	}
+
+	//Gets a string to represent the name of the spawner (String version of ID or name)
+	public String getFriendlyName(Spawner s) {
+		if(s.getName().isEmpty()) {
+			return String.valueOf(s.getId());
+		} else {
+			return s.getName();
+		}
+	}
+
+	//Gets a potion from an alias
+	public PotionEffectType getInputEffect(String effect) {
+		
+		PotionEffectType type = null;
+		effect.toLowerCase();
+		
+		if(effect.equals("damageresistance") || effect.equals("damage_resistance")) {
+			type = PotionEffectType.DAMAGE_RESISTANCE;
+		} else if(effect.equals("instanthealth") || effect.equals("instant_health")) {
+			type = PotionEffectType.HEAL;
+		} else if(effect.equals("instant_damage") || effect.equals("instantdamage")) {
+			type = PotionEffectType.HARM;
+		} else if(effect.equals("haste") || effect.equals("mining_haste") || effect.equals("mininghaste")) {
+			type = PotionEffectType.FAST_DIGGING;
+		} else if(effect.equals("fireresistance")) {
+			type = PotionEffectType.FIRE_RESISTANCE;
+		} else if(effect.equals("strength")) {
+			type = PotionEffectType.INCREASE_DAMAGE;
+		} else if(effect.equals("fatigue") || effect.equals("miningfatigue") || effect.equals("mining_fatigue")) {
+			type = PotionEffectType.SLOW_DIGGING;
+		} else if(effect.equals("slowness")) {
+			type = PotionEffectType.SLOW;
+		} else if(effect.equals("nightvision")) {
+			type = PotionEffectType.NIGHT_VISION;
+		} else if(effect.equals("waterbreathing")) {
+			type = PotionEffectType.WATER_BREATHING;
+		} else {
+			type = PotionEffectType.getByName(effect);
+		}
+		
+		return type;
+		
+	}
+	
+	public ItemStack getItem(String item, int count) {
+		ItemStack stack = getItemStack(item);
+		
+		if(stack == null) {
+			return null;
+		}
+		
+		stack.setAmount(count);
+		
+		return stack;
+	}
+
+	//Gets the proper name of an ItemStack
+	public String getItemName(ItemStack item) {
+		String name = "";
+
+		if(item == null) {
+			return "AIR (0)";
+		}
+
+		if(item.getType() != null) {
+			name += item.getType().toString() + " (" + item.getTypeId() + ")";
+		} else {
+			name += item.getTypeId();
+		}
+
+		if(item.getDurability() != 0) {
+			name += ":" + item.getDurability();
+		}
+
+		return name;
+	}
+
+	//Gets a ItemStack from string with id and damage value
+	public ItemStack getItemStack(String value) {
+		//Format should be either <data value:damage value> or <data value>
+		int id = 0;
+		short damage = 0;
+
+		//Version 0.0.5b - Tweaked this so it would register right
+		int index = value.indexOf(":");
+
+		if(index == -1) {
+			index = value.indexOf("-");
+		}
+
+		if(index == -1) {
+
+			String itemId = value.substring(0, value.length());
+
+			if(!isInteger(itemId)) {
+				Material mat = Material.valueOf(itemId);
+				
+				if(mat == null) 
+					return null;
+				
+				id = mat.getId();
+			} else {
+				id = Integer.parseInt(itemId);
+				
+				if(Material.getMaterial(id) == null)
+					return null;
+			}
+
+		} else {
+			String itemId = value.substring(0, index);
+			String itemDamage = value.substring(index + 1, value.length());
+
+			if(!isInteger(itemId)) {
+				Material mat = Material.valueOf(itemId);
+				
+				if(mat == null) 
+					return null;
+				
+				id = mat.getId();
+			} else {
+				id = Integer.parseInt(itemId);
+				
+				if(Material.getMaterial(id) == null)
+					return null;
+			}
+			
+			if(!isInteger(itemDamage)) 
+				return null;
+			
+			damage = (short) Integer.parseInt(itemDamage);
+		}
+
+		return new ItemStack(id, 1, damage);
+	}
+
+	//Gets the log level
+	public byte getLogLevel() {
+		return this.logLevel;
+	}
+
+	//Next available entity id
+	public int getNextEntityId() {
+		List<Integer> entityIDs = new ArrayList<Integer>();
+
+		Iterator<Integer> entityItr = entities.keySet().iterator();
+		while(entityItr.hasNext()) {
+			entityIDs.add(entityItr.next());
+		}
+
+		return getNextID(entityIDs);
+	}
+
+	//Next available spawner ID
+	public int getNextSpawnerId() {
+		List<Integer> spawnerIDs = new ArrayList<Integer>();
+
+		Iterator<Integer> spawnerItr = spawners.keySet().iterator();
+		while(spawnerItr.hasNext()) {
+			spawnerIDs.add(spawnerItr.next());
+		}
+
+		return getNextID(spawnerIDs);
+	}
+	
+	//Gets an EntityPotionEffect from format <PotionEffectType>_<level>_<minutes>:<seconds>
+	public SPotionEffect getPotion(String value) {
+		int index1 = value.indexOf("_");
+		int index2 = value.indexOf("_", index1 + 1);
+		int index3 = value.indexOf(":");
+		if(index1 == -1 || index2 == -1 || index3 == -1) {
+			value = "REGENERATION_1_0:0";
+			index1 = value.indexOf("_");
+			index2 = value.indexOf("_", index1 + 1);
+			index3 = value.indexOf(":");
+		}
+
+		PotionEffectType effectType = PotionEffectType.getByName(value.substring(0, index1));
+		int effectLevel = Integer.parseInt(value.substring(index1 + 1, index2));
+		int minutes = Integer.parseInt(value.substring(index2 + 1, index3));
+		int seconds = Integer.parseInt(value.substring(index3 + 1, value.length()));
+		int effectDuration = (minutes * 1200) + (seconds * 20);
+
+		return new SPotionEffect(effectType, effectDuration,  effectLevel);
+	}
+
+	//Gets a spawner from a location
+	public Spawner getSpawnerAt(Location loc) {
+		Iterator<Spawner> spItr = CustomSpawners.spawners.values().iterator();
+
+		while(spItr.hasNext()) {
+			Spawner s = spItr.next();
+
+			if(s.getLoc().equals(loc)) {
+				return s;
+			}
+
+		}
+
+		return null;
+
+	}
+	
+	public Spawner getSpawnerWithEntity(Entity entity) {
+		int entityId = entity.getEntityId();
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
+
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+
+			while(mobItr.hasNext()) {
+				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
+
+				if(currentMob == null) {
+					continue;
+				}
+				
+				if(currentMob.getEntityId() == entityId) {
+					return s;
+				}
+
+			}
+			
+		}
+
+		return null;
+
+	}
+
+	public Spawner getSpawnerWithEntity(int id) {
+		
+		Iterator<Spawner> spawnerItr = spawners.values().iterator();
+
+		while(spawnerItr.hasNext()) {
+			Spawner s = spawnerItr.next();
+			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+
+			while(mobItr.hasNext()) {
+				int currentMob = mobItr.next();
+
+				if(currentMob == id) {
+					return s;
+				}
+
+			}
+
+		}
+
+		return null;
+		
+	}
+
+	//Sets up WorldGuard
+	public WorldGuardPlugin getWG() {
+		Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
+
+		if(wg == null || !(wg instanceof WorldGuardPlugin)) 
+			return null;
+
+		return (WorldGuardPlugin) wg;
+	}
+
+	public void onDisable() {
+
+		//Saving Entities
+		fileManager.saveEntities();
+		//Saving spawners
+		fileManager.saveSpawners();
+
+		//Stop Tasks
+		getServer().getScheduler().cancelTasks(this);
+
+		//Disable message
+		log.info("CustomSpawners by thebiologist13 has been disabled!");
+	}
 
 	public void onEnable() {
 
@@ -267,567 +883,7 @@ public class CustomSpawners extends JavaPlugin {
 		//Enable message
 		log.info("[CustomSpawners] CustomSpawners by thebiologist13 has been enabled!");
 	}
-
-	public void onDisable() {
-
-		//Saving Entities
-		fileManager.saveEntities();
-		//Saving spawners
-		fileManager.saveSpawners();
-
-		//Stop Tasks
-		getServer().getScheduler().cancelTasks(this);
-
-		//Disable message
-		log.info("CustomSpawners by thebiologist13 has been disabled!");
-	}
 	
-	//Gets an entity
-	public static SpawnableEntity getEntity(int ref) {
-		return getEntity(String.valueOf(ref));
-	}
-
-	//Gets an entity
-	public static SpawnableEntity getEntity(String ref) {
-		
-		if(ref.isEmpty())
-			return null;
-		
-		ref = ref.toLowerCase();
-		
-		if(isInteger(ref)) {
-			int id = Integer.parseInt(ref);
-
-			if(id == -2)
-				return defaultEntity;
-
-			Iterator<Integer> entityItr = entities.keySet().iterator();
-			while(entityItr.hasNext()) {
-				int currentId = entityItr.next();
-
-				if(currentId == id) {
-					return entities.get(id);
-				}
-			}
-
-		} else {
-
-			if(ref.equals("default"))
-				return defaultEntity;
-
-			Iterator<Integer> entityItr = entities.keySet().iterator();
-			while(entityItr.hasNext()) {
-				Integer id = entityItr.next();
-				SpawnableEntity s = entities.get(id);
-				String name = s.getName();
-
-				if(name == null) {
-					return null;
-				}
-
-				if(name.equalsIgnoreCase(ref)) {
-					return s;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	//Gets the next available ID number in a list
-	public static int getNextID(List<Integer> set) {
-		int returnID = 0;
-		boolean taken = true;
-
-		while(taken) {
-
-			if(set.size() == 0) {
-				return 0;
-			}
-
-			for(Integer i : set) {
-				if(returnID == i) {
-					taken = true;
-					break;
-				} else {
-					taken = false;
-				}
-			}
-
-			if(taken) {
-				returnID++;
-			}
-		}
-
-		return returnID;
-	}
-
-	//Gets a spawner
-	public static Spawner getSpawner(int ref) {
-		return getSpawner(String.valueOf(ref));
-	}
-	
-	//Gets a spawner
-	public static Spawner getSpawner(String ref) {
-		
-		if(ref.isEmpty())
-			return null;
-		
-		ref = ref.toLowerCase();
-		
-		if(isInteger(ref)) {
-			int id = Integer.parseInt(ref);
-			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
-
-			while(spawnerItr.hasNext()) {
-				int currentId = spawnerItr.next();
-
-				if(currentId == id) {
-					return spawners.get(id);
-				}
-			}
-		} else {
-			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
-
-			while(spawnerItr.hasNext()) {
-				Integer id = spawnerItr.next();
-				Spawner s = spawners.get(id);
-				String name = s.getName();
-
-				if(name == null) {
-					return null;
-				}
-
-				if(name.equalsIgnoreCase(ref)) {
-					return s;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	//Convenience method for accurately testing if a string can be parsed to an double.
-	public static boolean isDouble(String what) {
-		try {
-			Double.parseDouble(what);
-			return true;
-		} catch(NumberFormatException e) {
-			return false;
-		}
-	}
-
-	//Convenience method for accurately testing if a string can be parsed to an double.
-	public static boolean isFloat(String what) {
-		try {
-			Float.parseFloat(what);
-			return true;
-		} catch(NumberFormatException e) {
-			return false;
-		}
-	}
-
-	//Convenience method for accurately testing if a string can be parsed to an integer.
-	public static boolean isInteger(String what) {
-		try {
-			Integer.parseInt(what);
-			return true;
-		} catch(NumberFormatException e) {
-			return false;
-		}
-	}
-
-	//Converts ticks to MM:SS
-	public String convertTicksToTime(int ticks) {
-		int minutes = 0;
-		float seconds = 0;
-		float floatTick = (float) ticks;
-
-		if(floatTick >= 1200) {
-
-			if((floatTick % 1200) == 0) {
-				minutes = Math.round(floatTick / 1200);
-			} else {
-				seconds = (floatTick % 1200) / 20;
-				minutes = Math.round((floatTick - (floatTick % 1200)) / 1200);
-			}
-
-		} else {
-			seconds = floatTick / 20;
-		}
-
-		String strSec = "";
-		
-		if(seconds < 10) {
-			strSec = "0" + String.valueOf(seconds);
-		} else {
-			strSec = String.valueOf(seconds);
-		}
-		
-		return String.valueOf(minutes) + ":" + strSec;
-	}
-
-	public void copy(InputStream in, File file) {
-		try {
-			OutputStream out = new FileOutputStream(file);
-			byte[] buf = new byte[1024];
-			int len;
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
-			}
-			out.close();
-			in.close();
-		} catch (Exception e) {
-			log.severe("Could not copy config from jar!");
-			e.printStackTrace();
-		}
-	}
-
-	public FileConfiguration getCustomConfig() {
-		if (config == null) {
-			reloadCustomConfig();
-		}
-		return config;
-	}
-	
-	public String getDamageCause(String in) {
-		String type = "";
-		
-		if(in.equals("blockexplosion")) {
-			type = "BLOCK_EXPLOSION";
-		} else if(in.equals("entityexplosion") || in.equals("creeper")) {
-			type = "ENTITY_EXPLOSION";
-		} else if(in.equals("firetick") || in.equals("burning")) {
-			type = "FIRE_TICK";
-		} else if(in.equals("attack") || in.equals("entityattack")) {
-			type = "ENTITY_ATTACK";
-		} else if(in.equals("item") || in.equals("itemdamage")) {
-			type = "ITEM";
-		} else if(in.equals("spawnerfire") || in.equals("spawnerfireticks")) {
-			type = "SPAWNER_FIRE_TICKS";
-		} else {
-			for(DamageCause c : DamageCause.values()) {
-				if(c.toString().equalsIgnoreCase(in)) {
-					type = in;
-					break;
-				}
-			}
-		}
-		
-		return type;
-	}
-
-	public SpawnableEntity getEntityFromSpawner(Entity entity) {
-
-		if(entity == null) {
-			return null;
-		}
-
-		int entityId = entity.getEntityId();
-		Iterator<Spawner> spawnerItr = spawners.values().iterator();
-
-		while(spawnerItr.hasNext()) {
-			Spawner s = spawnerItr.next();
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-
-			while(mobItr.hasNext()) {
-				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
-				
-				if(currentMob == null) {
-					continue;
-				}
-
-				if(currentMob.getEntityId() == entityId) {
-					return s.getMobs().get(currentMob);
-				}
-
-			}
-
-		}
-
-		return null;
-
-	}
-	
-	public SpawnableEntity getEntityFromSpawner(int id) {
-		
-		Iterator<Spawner> spawnerItr = spawners.values().iterator();
-
-		while(spawnerItr.hasNext()) {
-			Spawner s = spawnerItr.next();
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-
-			while(mobItr.hasNext()) {
-				int currentMob = mobItr.next();
-
-				if(currentMob == id) {
-					return s.getMobs().get(currentMob);
-				}
-
-			}
-
-		}
-
-		return null;
-
-	}
-
-	public Entity getEntityFromWorld(int id, World w) {
-		
-		Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
-		while(entitiesInWorld.hasNext()) {
-			Entity e = entitiesInWorld.next();
-
-			if(e.getEntityId() == id) {
-				return e;
-			}
-
-		}
-
-		return null;
-	}
-
-	public FileManager getFileManager() {
-		return fileManager;
-	}
-
-	//Gets a string to represent the name of the entity (String version of ID or name)
-	public String getFriendlyName(SpawnableEntity e) {
-		if(e.getName().isEmpty()) {
-			return String.valueOf(e.getId());
-		} else {
-			return e.getName();
-		}
-	}
-
-	//Gets a string to represent the name of the spawner (String version of ID or name)
-	public String getFriendlyName(Spawner s) {
-		if(s.getName().isEmpty()) {
-			return String.valueOf(s.getId());
-		} else {
-			return s.getName();
-		}
-	}
-
-	//Gets the proper name of an ItemStack
-	public String getItemName(ItemStack item) {
-		String name = "";
-
-		if(item == null) {
-			return "AIR (0)";
-		}
-
-		if(item.getType() != null) {
-			name += item.getType().toString() + " (" + item.getTypeId() + ")";
-		} else {
-			name += item.getTypeId();
-		}
-
-		if(item.getDurability() != 0) {
-			name += ":" + item.getDurability();
-		}
-
-		return name;
-	}
-	
-	public ItemStack getItem(String item, int count) {
-		ItemStack stack = getItemStack(item);
-		
-		if(stack == null) {
-			return null;
-		}
-		
-		stack.setAmount(count);
-		
-		return stack;
-	}
-
-	//Gets a ItemStack from string with id and damage value
-	public ItemStack getItemStack(String value) {
-		//Format should be either <data value:damage value> or <data value>
-		int id = 0;
-		short damage = 0;
-
-		//Version 0.0.5b - Tweaked this so it would register right
-		int index = value.indexOf(":");
-
-		if(index == -1) {
-			index = value.indexOf("-");
-		}
-
-		if(index == -1) {
-
-			String itemId = value.substring(0, value.length());
-
-			if(!isInteger(itemId)) {
-				Material mat = Material.valueOf(itemId);
-				
-				if(mat == null) 
-					return null;
-				
-				id = mat.getId();
-			} else {
-				id = Integer.parseInt(itemId);
-				
-				if(Material.getMaterial(id) == null)
-					return null;
-			}
-
-		} else {
-			String itemId = value.substring(0, index);
-			String itemDamage = value.substring(index + 1, value.length());
-
-			if(!isInteger(itemId)) {
-				Material mat = Material.valueOf(itemId);
-				
-				if(mat == null) 
-					return null;
-				
-				id = mat.getId();
-			} else {
-				id = Integer.parseInt(itemId);
-				
-				if(Material.getMaterial(id) == null)
-					return null;
-			}
-			
-			if(!isInteger(itemDamage)) 
-				return null;
-			
-			damage = (short) Integer.parseInt(itemDamage);
-		}
-
-		return new ItemStack(id, 1, damage);
-	}
-
-	//Gets the log level
-	public byte getLogLevel() {
-		return this.logLevel;
-	}
-
-	//Next available entity id
-	public int getNextEntityId() {
-		List<Integer> entityIDs = new ArrayList<Integer>();
-
-		Iterator<Integer> entityItr = entities.keySet().iterator();
-		while(entityItr.hasNext()) {
-			entityIDs.add(entityItr.next());
-		}
-
-		return getNextID(entityIDs);
-	}
-
-	//Next available spawner ID
-	public int getNextSpawnerId() {
-		List<Integer> spawnerIDs = new ArrayList<Integer>();
-
-		Iterator<Integer> spawnerItr = spawners.keySet().iterator();
-		while(spawnerItr.hasNext()) {
-			spawnerIDs.add(spawnerItr.next());
-		}
-
-		return getNextID(spawnerIDs);
-	}
-
-	//Gets an EntityPotionEffect from format <PotionEffectType>_<level>_<minutes>:<seconds>
-	public SPotionEffect getPotion(String value) {
-		int index1 = value.indexOf("_");
-		int index2 = value.indexOf("_", index1 + 1);
-		int index3 = value.indexOf(":");
-		if(index1 == -1 || index2 == -1 || index3 == -1) {
-			value = "REGENERATION_1_0:0";
-			index1 = value.indexOf("_");
-			index2 = value.indexOf("_", index1 + 1);
-			index3 = value.indexOf(":");
-		}
-
-		PotionEffectType effectType = PotionEffectType.getByName(value.substring(0, index1));
-		int effectLevel = Integer.parseInt(value.substring(index1 + 1, index2));
-		int minutes = Integer.parseInt(value.substring(index2 + 1, index3));
-		int seconds = Integer.parseInt(value.substring(index3 + 1, value.length()));
-		int effectDuration = (minutes * 1200) + (seconds * 20);
-
-		return new SPotionEffect(effectType, effectDuration,  effectLevel);
-	}
-
-	//Gets a spawner from a location
-	public Spawner getSpawnerAt(Location loc) {
-		Iterator<Spawner> spItr = CustomSpawners.spawners.values().iterator();
-
-		while(spItr.hasNext()) {
-			Spawner s = spItr.next();
-
-			if(s.getLoc().equals(loc)) {
-				return s;
-			}
-
-		}
-
-		return null;
-
-	}
-	
-	public Spawner getSpawnerWithEntity(int id) {
-		
-		Iterator<Spawner> spawnerItr = spawners.values().iterator();
-
-		while(spawnerItr.hasNext()) {
-			Spawner s = spawnerItr.next();
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-
-			while(mobItr.hasNext()) {
-				int currentMob = mobItr.next();
-
-				if(currentMob == id) {
-					return s;
-				}
-
-			}
-
-		}
-
-		return null;
-		
-	}
-
-	public Spawner getSpawnerWithEntity(Entity entity) {
-		int entityId = entity.getEntityId();
-		Iterator<Spawner> spawnerItr = spawners.values().iterator();
-
-		while(spawnerItr.hasNext()) {
-			Spawner s = spawnerItr.next();
-
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-
-			while(mobItr.hasNext()) {
-				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
-
-				if(currentMob == null) {
-					continue;
-				}
-				
-				if(currentMob.getEntityId() == entityId) {
-					return s;
-				}
-
-			}
-			
-		}
-
-		return null;
-
-	}
-
-	//Sets up WorldGuard
-	public WorldGuardPlugin getWG() {
-		Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
-
-		if(wg == null || !(wg instanceof WorldGuardPlugin)) 
-			return null;
-
-		return (WorldGuardPlugin) wg;
-	}
-
 	//Parses the entity name
 	public String parseEntityName(EntityType type) {
 		String nameOfType = type.getName();
@@ -839,7 +895,7 @@ public class CustomSpawners extends JavaPlugin {
 		}
 
 	}
-
+	
 	//Parses the entity type from it's name
 	public EntityType parseEntityType(String entityType, boolean hasOverride) {
 		EntityType type = null;
@@ -941,48 +997,13 @@ public class CustomSpawners extends JavaPlugin {
 
 	}
 	
-	public boolean allowedEntity(EntityType type) {
-		String name = type.toString();
-		
-		List<?> notAllowed = config.getList("mobs.blacklist");
-		
-		if(notAllowed.contains(name)) {
-			return false;
-		}
-		
-		return true;
-	}
-	
-	public Spawner cloneWithNewId(Spawner s) {
-		Spawner s1 = new Spawner(s.getMainEntity(), s.getLoc(), getNextSpawnerId());
-		s1.setData(s.getData());
-		s1.setTypeData(s.getTypeData());
-		return s1;
-	}
-	
-	public void printDebugMessage(String[] message) {
-		if(debug) {
-			for(String s : message) {
-				printDebugMessage(s);
-			}
-		}
-	}
-	
-	public void printDebugMessage(String[] message, Class<?> clazz) {
-		if(debug) {
-			for(String s : message) {
-				printDebugMessage(s, clazz);
-			}
-		}
-	}
-
 	public void printDebugMessage(String message) {
 		if(debug) {
 			log.info("[CS_DEBUG] " + message);
 		}
 
 	}
-
+	
 	public void printDebugMessage(String message, Class<?> clazz) {
 		if(debug) {
 			if(clazz != null) {
@@ -993,6 +1014,22 @@ public class CustomSpawners extends JavaPlugin {
 
 		}
 
+	}
+
+	public void printDebugMessage(String[] message) {
+		if(debug) {
+			for(String s : message) {
+				printDebugMessage(s);
+			}
+		}
+	}
+
+	public void printDebugMessage(String[] message, Class<?> clazz) {
+		if(debug) {
+			for(String s : message) {
+				printDebugMessage(s, clazz);
+			}
+		}
 	}
 	
 	public void printDebugTrace(Exception e) {
