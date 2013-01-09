@@ -27,7 +27,7 @@ public class CloneCommand extends SpawnerCommand {
 		
 		Player player = (Player) sender;
 		
-		Location target = player.getTargetBlock(null, CONFIG.getInt("players.maxDistance", 5)).getLocation();
+		Location target = player.getTargetBlock(CustomSpawners.transparent, CONFIG.getInt("players.maxDistance", 5)).getLocation();
 		
 		if(target == null) {
 			PLUGIN.sendMessage(player, ChatColor.RED + "You must look at a block to make a spawner there.");

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,6 +87,9 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//Players not using selections.
 	public static ConcurrentHashMap<Player, Boolean> selectMode = new ConcurrentHashMap<Player, Boolean>();
+	
+	//Transparent Blocks to go through when getting the target location for a spawner.
+	public static HashSet<Byte> transparent = new HashSet<Byte>();
 
 	//Logger
 	public Logger log = Logger.getLogger("Minecraft");
@@ -110,6 +114,12 @@ public class CustomSpawners extends JavaPlugin {
 
 	public void onEnable() {
 
+		//Transparent Blocks
+		transparent.add((byte) 8);
+		transparent.add((byte) 9);
+		transparent.add((byte) 10);
+		transparent.add((byte) 11);
+		
 		//Config
 		config = getCustomConfig();
 

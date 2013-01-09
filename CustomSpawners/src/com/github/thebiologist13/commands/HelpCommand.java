@@ -38,21 +38,21 @@ public class HelpCommand extends CustomSpawnersCommand {
 				ChatColor.GOLD + "/customspawners help [page]" + ChatColor.GREEN + " -> Displays this message.", 
 				ChatColor.GOLD + "/customspawners" + ChatColor.GREEN + " -> Displays the plugin info.", 
 				ChatColor.GOLD + "/customspawners reloadspawners" + ChatColor.GREEN + " -> Reloads spawners from file.",
+				ChatColor.GOLD + "/customspawners import" + ChatColor.GREEN + " -> Imports CustomSpawners from world folder.",
+				ChatColor.GOLD + "/customspawners export" + ChatColor.GREEN + " -> Exports CustomSpawners to world folder.",
 				ChatColor.GOLD + "/spawners create <type>" + ChatColor.GREEN + " -> Creates a new spawner of the specified entity.",
 				ChatColor.GOLD + "/spawners setname [id] <name>" + ChatColor.GREEN + " -> Names or renames the spawner for easier selection.",
 				ChatColor.GOLD + "/spawners remove [id]" + ChatColor.GREEN + " -> Removes a spawner.",
-				ChatColor.GOLD + "/spawners select <id>" + ChatColor.GREEN + " -> Selects a spawner so the ID does not need to be entered every time.",
-				ChatColor.GOLD + "/spawners listnear" + ChatColor.GREEN + " -> Displays nearby spawners with IDs and locations.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
 		final String[] HELP_MESSAGE_2 = {
 				ChatColor.GREEN + "* * * CustomSpawners Help Page 2 of 11 * * *",
+				ChatColor.GOLD + "/spawners select <id>" + ChatColor.GREEN + " -> Selects a spawner so the ID does not need to be entered every time.",
+				ChatColor.GOLD + "/spawners listnear" + ChatColor.GREEN + " -> Displays nearby spawners with IDs and locations.",
 				ChatColor.GOLD + "/spawners listall" + ChatColor.GREEN + " -> Displays all spawners with IDs and locations.",
 				ChatColor.GOLD + "/spawners setactive [id]" + ChatColor.GREEN + " -> Makes a spawner active so it spawns.",
 				ChatColor.GOLD + "/spawners setinactive [id]" + ChatColor.GREEN + " -> Makes a spawner inactive so it doesn't spawn.",
-				ChatColor.GOLD + "/spawners sethidden [id]" + ChatColor.GREEN + " -> Makes a spawner hidden.", 
-				ChatColor.GOLD + "/spawners setunhidden [id]" + ChatColor.GREEN + " -> Unhides a spawner.",
 				ChatColor.GOLD + "/spawners info [id]" + ChatColor.GREEN + " -> Displays information on a spawner.",
 				ChatColor.GOLD + "/spawners setmaxlight [id] <light level>" + ChatColor.GREEN + " -> Sets the maximum light before spawning.",
 				ChatColor.GOLD + "/spawners setminlight [id] <light level>" + ChatColor.GREEN + " -> Sets the minimum light before spawning.",
@@ -88,12 +88,12 @@ public class HelpCommand extends CustomSpawnersCommand {
 		
 		final String[] HELP_MESSAGE_5 = {
 				ChatColor.GREEN + "* * * CustomSpawners Help Page 5 of 11 * * *",
+				ChatColor.GOLD + "/spawners clone [id]" + ChatColor.GREEN + " -> Clones a spawner to a new location.",
+				ChatColor.GOLD + "/spawners sethidden [id]" + ChatColor.GREEN + " -> Makes a spawner hidden.", 
+				ChatColor.GOLD + "/spawners setunhidden [id]" + ChatColor.GREEN + " -> Unhides a spawner.",
 				ChatColor.GOLD + "/entities create <type>" + ChatColor.GREEN + " -> Creates a new spawnable entity that can be customized.",
 				ChatColor.GOLD + "/entities remove [id]" + ChatColor.GREEN + " -> Removes a spawnable entity so it can't be used by spawners.",
 				ChatColor.GOLD + "/entities select <id>" + ChatColor.GREEN + " -> Selects an entity so the entity ID doesn't need to be entered every time.",
-				ChatColor.GOLD + "/entities seteffect [id] <effect>" + ChatColor.GREEN + " -> Sets the potion effect on an entity.",
-				ChatColor.GOLD + "/entities cleareffects [id]" + ChatColor.GREEN + " -> Clear all the potion effects on a spawner.",
-				ChatColor.GOLD + "/entities addeffect [id] <effect>" + ChatColor.GREEN + " -> Adds a potion effect to a spawnable entity.",
 				ChatColor.GOLD + "/entities setvelocity [id] <x velocity,y velocity,z velocity>" + ChatColor.GREEN + " -> Sets the velocity of spawned entities.",
 				ChatColor.GOLD + "/entities setenderblock [id] <blockID>" + ChatColor.GREEN + " -> Sets the block ID held by spawned endermen.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
@@ -173,6 +173,10 @@ public class HelpCommand extends CustomSpawnersCommand {
 				ChatColor.GOLD + "/entities setboots [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
 				ChatColor.GOLD + "/entities addinv [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
 				ChatColor.GOLD + "/entities setwither [id] <dropped exp>" + ChatColor.GREEN + " -> Sets the dropped experience.",
+				ChatColor.GOLD + "/entities seteffect [id] <effect>" + ChatColor.GREEN + " -> Sets the potion effect on an entity.",
+				ChatColor.GOLD + "/entities cleareffects [id]" + ChatColor.GREEN + " -> Clear all the potion effects on a spawner.",
+				ChatColor.GOLD + "/entities addeffect [id] <effect>" + ChatColor.GREEN + " -> Adds a potion effect to a spawnable entity.",
+				ChatColor.GOLD + "/entities zombievillager [id] <effect>" + ChatColor.GREEN + " -> Makes a zombie a zombie villager.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
