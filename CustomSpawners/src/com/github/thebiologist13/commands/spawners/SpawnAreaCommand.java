@@ -33,7 +33,11 @@ public class SpawnAreaCommand extends SpawnerCommand {
 		
 		boolean useSpawnArea = Boolean.parseBoolean(in);
 		
-		if(CustomSpawners.selectionPointOne.containsKey(player) && 
+		if(!useSpawnArea) {
+			
+			spawner.setUseSpawnArea(useSpawnArea);
+			
+		} else if(CustomSpawners.selectionPointOne.containsKey(player) && 
 				CustomSpawners.selectionPointTwo.containsKey(player)) {
 			
 			World p1World = CustomSpawners.selectionPointOne.get(player).getWorld();
@@ -53,15 +57,15 @@ public class SpawnAreaCommand extends SpawnerCommand {
 			spawner.setAreaPoints(areaPoints);
 			spawner.setUseSpawnArea(useSpawnArea);
 			
-			//Success Message
-			PLUGIN.sendMessage(player, ChatColor.GREEN + "Set the spawn area of spawner " + 
-					ChatColor.GOLD + PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + " to " + ChatColor.GOLD +
-					String.valueOf(useSpawnArea) + ChatColor.GREEN + "!");
-			
 		} else {
 			PLUGIN.sendMessage(player, ChatColor.RED + "You must have an area selected for a spawner to use as the spawn area.");
 			return;
 		}
+		
+		//Success Message
+		PLUGIN.sendMessage(player, ChatColor.GREEN + "Set the spawn area of spawner " + 
+				ChatColor.GOLD + PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + " to " + ChatColor.GOLD +
+				String.valueOf(useSpawnArea) + ChatColor.GREEN + "!");
 		
 	}
 

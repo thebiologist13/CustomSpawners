@@ -609,7 +609,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 			eData.setShort("Age", (short) getAge(mainEntity));
 		}
 		
-		if(!mainEntity.getType().equals(EntityType.CREEPER)) {
+		if(mainEntity.getType().equals(EntityType.CREEPER)) {
 			eData.setShort("Fuse", (short) mainEntity.getFuseTicks());
 		} else {
 			eData.setByte("Fuse", (byte) mainEntity.getFuseTicks());
