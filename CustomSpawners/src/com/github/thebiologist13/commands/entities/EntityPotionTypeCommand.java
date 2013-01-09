@@ -30,7 +30,7 @@ public class EntityPotionTypeCommand extends EntityCommand {
 		String aIn = getValue(args, 1, 1);
 		String dIn = getValue(args, 2, 1200);
 		
-		effectType = PotionEffectType.getByName(eIn);
+		effectType = PLUGIN.getInputEffect(eIn);
 		
 		if(effectType == null) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + eIn + " is not a valid potion effect.");
