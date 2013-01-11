@@ -141,6 +141,13 @@ public class Spawner implements Serializable {
 		
 	}
 	
+	//Spawn a mob on the spawner.
+	public Entity forceSpawnOnLoc(SpawnableEntity entity, Location loc) {
+		
+		return spawnTheEntity(entity, loc);
+		
+	}
+	
 	public Location[] getAreaPoints() {
 		
 		Location[] ap1 = new Location[2];

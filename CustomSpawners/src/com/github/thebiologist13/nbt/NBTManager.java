@@ -1,33 +1,21 @@
 package com.github.thebiologist13.nbt;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.lang.reflect.Method;
 import java.util.List;
 
-import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
 import org.bukkit.craftbukkit.v1_4_6.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Ocelot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
-import com.github.thebiologist13.serialization.SInventory;
-import com.github.thebiologist13.serialization.SPotionEffect;
 
 import net.minecraft.server.v1_4_6.NBTTagCompound;
-import net.minecraft.server.v1_4_6.NBTTagDouble;
-import net.minecraft.server.v1_4_6.NBTTagFloat;
 import net.minecraft.server.v1_4_6.NBTTagList;
 import net.minecraft.server.v1_4_6.TileEntity;
 import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
@@ -51,99 +39,31 @@ import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
 public class NBTManager { //TODO Make sure all properties set. Potions do not set.
 	
 	/**
-	 * Makes the properties similar to all Bukkit entities into NBT for Minecraft.
+	 * Gets NBT data of a entity.
+	 * Credit goes to kyran_ <br>
+	 * <a href=http://forums.bukkit.org/threads/getting-entity-nbt-data.113049/>
+	 * http://forums.bukkit.org/threads/getting-entity-nbt-data.113049/</a>
 	 * 
-	 * @param e The entity to create a NBTTagCompound from.
-	 * @return A NBTTagCompound with information on the entity.
+	 * @author kyran_
+	 * @param object Entity to get NBT data from.
+	 * @return The NBT of the entity.
 	 */
-	public NBTTagCompound getEntityNBT(Entity e) {
-		NBTTagCompound nbt = new NBTTagCompound();
-		
-		NBTTagList pos = makeDoubleList(new double[] {
-				e.getLocation().getX(),
-				e.getLocation().getY(),
-				e.getLocation().getZ(),
-		});
-		NBTTagList mot = makeDoubleList(new double[] {
-				e.getVelocity().getX(),
-				e.getVelocity().getY(),
-				e.getVelocity().getZ(),
-		});
-		NBTTagList rot = makeFloatList(new float[] {
-				e.getLocation().getYaw(),
-				e.getLocation().getPitch()
-		});
-
-		nbt.setString("id", String.valueOf(e.getEntityId()));
-		nbt.set("Pos", pos);
-		nbt.set("Motion", mot);
-		nbt.set("Rotation", rot);
-		nbt.setShort("Fire", (short) e.getFireTicks());
-		
-		return nbt;
-	}
-	
-	/**
-	 * Makes the properties similar to all  Bukkit living entities into NBT for Minecraft.
-	 * 
-	 * @param e A Bukkit LivingEntity to create NBTTagCompound from.
-	 * @return A NBTTagCompound with information on the living entity.
-	 */
-	public NBTTagCompound getLivingEntityNBT(LivingEntity e) {
-		NBTTagCompound nbt = new NBTTagCompound();
-
-		//Gets the size of the collection of potion effects, then makes a new
-		//NBTTagCompound array of that size.
-		int size = e.getActivePotionEffects().size();
-		NBTTagCompound[] efArray = new NBTTagCompound[size];
-		
-		//Makes an iterator to get elements from the potion effect collection.
-		Iterator<PotionEffect> efItr = e.getActivePotionEffects().iterator();
-		
-		//Goes through to each element in efArray to add the potion effect
-		for(int i = 0; i < size; i++) {
-			PotionEffect pe = efItr.next();
-			efArray[i] = makePotionCompound((byte) pe.getType().getId(), (byte) pe.getAmplifier(), pe.getDuration());
-		}
-		
-		//Makes into NBTTagList of compounds
-		NBTTagList effects = makeCompoundList(efArray);
-		
-		nbt = getEntityNBT(e);
-		
-		nbt.setShort("Air", (short) e.getRemainingAir());
-		nbt.setShort("Health", (short) e.getHealth());
-		nbt.set("ActiveEffects", effects);	
-		
-		return nbt;
-	}
-	
-	/**
-	 * Makes the properties of a Bukkit block like a Furnace or Mob Spawner
-	 * into a TileEntity with NBT for Minecraft.
-	 * 
-	 * @param b The block to create a NBTTagCompound from.
-	 * @return A NBTTagCompound with information on the tile entity.
-	 * @throws NotTileEntityException when the given block is not a TileEntity.
-	 */
-	public NBTTagCompound getTileEntityNBT(Block b) throws NotTileEntityException {
-		NBTTagCompound nbt = new NBTTagCompound();
-		
-		if(!isTileEntity(b)) {
-			NotTileEntityException ex = new NotTileEntityException("Parameter block is not a tile entity.");
-			ex.fillInStackTrace();
-			throw ex;
-		}
-		
-		CraftWorld cw = (CraftWorld) b.getWorld();
-		TileEntity te = cw.getTileEntityAt(b.getX(), b.getY(), b.getZ());
-		
-		nbt.setInt("x", te.x);
-		nbt.setInt("y", te.y);
-		nbt.setInt("z", te.z);
-		
-		return nbt;
-	}
+	public <T extends Object> NBTTagCompound getTag(T object){
+        NBTTagCompound compound = new NBTTagCompound();
+        
+        Class<? extends Object> clazz = object.getClass();
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods){
+            if ((method.getName() == "b") && (method.getParameterTypes().length == 1) && (method.getParameterTypes()[0] == NBTTagCompound.class)){
+                try {
+                    method.invoke(object, compound);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return compound;
+    }
 	
 	/**
 	 * Makes the properties of a Bukkit ItemStack into a ItemStack with NBT
@@ -154,23 +74,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 	 */
 	public NBTTagCompound getItemNBT(ItemStack i) {
 		NBTTagCompound nbt = new NBTTagCompound();
-		NBTTagCompound tag = new NBTTagCompound();
-		
-		int enchSize = i.getEnchantments().size();
-		NBTTagCompound[] enchantments = new NBTTagCompound[enchSize];
-		int enchCount = 0;
-		
-		for(Enchantment e : i.getEnchantments().keySet()) {
-			enchantments[enchCount] = makeEnchantmentCompound((short) e.getId(), (short) i.getEnchantmentLevel(e));
-			enchCount++;
-		}
-		
-		tag.set("ench", makeCompoundList(enchantments));
-
-		nbt.setShort("id", (short) i.getTypeId());
-		nbt.setShort("Damage", (short) i.getDurability());
-		nbt.setByte("Count", (byte) i.getAmount());
-		nbt.setCompound("tag", tag);
+		CraftItemStack.asNMSCopy(i).save(nbt);
 		
 		return nbt;
 	}
@@ -178,14 +82,10 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 	/**
 	 * Sets the NBT of a entity to what you specify. 
 	 * 
-	 * @param e0 The entity to set the NBT to.
+	 * @param e The entity to set the NBT to.
 	 * @param n The NBTTagCompound containing the information to set.
 	 */
 	public void setEntityNBT(Entity e, NBTTagCompound n) {
-		/*
-		 * Looks like gibberish, but it isn't. This calls the c(NBTTagCompound nbttagcompound) 
-		 * method in net.minecraft.server.Entity, which applies all the NBT to the entity and its subclasses. 
-		 */
 		((CraftEntity) e).getHandle().c(n);
 	}
 	
@@ -230,17 +130,6 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 	}
 	
 	/**
-	 * Sets the NBT of a item to what you specify. n must include
-	 * id, count, damage, and tag, otherwise it throws a NPE.
-	 * 
-	 * @param i The item to set the NBT to.
-	 * @param n The NBTTagCompound containing the information to be set.
-	 */
-	public void setItemNBT(ItemStack i, NBTTagCompound n) {
-		CraftItemStack.asNMSCopy(i).c(n);
-	}
-	
-	/**
 	 * Finds whether a block is a tile entity or not.
 	 * 
 	 * @param b The block to test.
@@ -254,170 +143,6 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 			return true;
 		
 		return false;
-	}
-	
-	/**
-	 * Make a NBTTagList of doubles for positions, velocity, etc.
-	 * 
-	 * @param d0 Double array to make into NBTTagList
-	 * @return NBTTagList form of d0.
-	 */
-	public NBTTagList makeDoubleList(double[] d0) {
-		NBTTagList list = new NBTTagList();
-		int i = d0.length;
-
-		for(int j = 0; j < i; j++) {
-			double d = d0[j];
-
-			list.add(new NBTTagDouble((String) null, d));
-		}
-
-		return list;
-
-	}
-	
-	/**
-	 * Make a NBTTagList of floats for values like rotation.
-	 * 
-	 * @param f0 Float array to make into NBTTagList
-	 * @return NBTTagList form of f0.
-	 */
-	public NBTTagList makeFloatList(float[] f0) {
-		NBTTagList list = new NBTTagList();
-		int i = f0.length;
-
-		for(int j = 0; j < i; j++) {
-			float f = f0[j];
-
-			list.add(new NBTTagFloat((String) null, f));
-		}
-
-		return list;
-
-	}
-	
-	/**
-	 * Make a NBTTagList of NBTTagCompounds for values like potion effects.
-	 * 
-	 * @param m0 Compound array to make into NBTTagList
-	 * @return NBTTagList form of m0.
-	 */
-	public NBTTagList makeCompoundList(NBTTagCompound[] m0) {
-		NBTTagList list = new NBTTagList();
-		int i = m0.length;
-
-		for(int j = 0; j < i; j++) {
-			list.add(m0[j]);
-		}
-
-		return list;
-
-	}
-
-	/**
-	 * Makes a NBTTagCompound for a level 1 potion effect that lasts for 1 minute.
-	 * 
-	 * @param id The ID number of the potion effect.
-	 * @return NBTTagCompound with information about potion.
-	 */
-	public NBTTagCompound makePotionCompound(byte id) {
-		NBTTagCompound potion = new NBTTagCompound();
-
-		potion.setByte("Id", id);
-		potion.setByte("Amplifier", (byte) 1);
-		potion.setInt("Duration", 1200);
-		potion.setByte("Ambient", (byte) 0);
-
-		return potion;
-	}
-	
-	/**
-	 * Makes a NBTTagCompound for a potion effect that lasts for 1 minute.
-	 * 
-	 * @param id The ID number of the potion effect.
-	 * @param level The level of the potion effect.
-	 * @param dur The duration in ticks of the potion effect.
-	 * @return NBTTagCompound with information about potion.
-	 */
-	public NBTTagCompound makePotionCompound(byte id, byte level) {
-		NBTTagCompound potion = new NBTTagCompound();
-
-		potion.setByte("Id", id);
-		potion.setByte("Amplifier", level);
-		potion.setByte("Ambient", (byte) 0);
-
-		return potion;
-	}
-	
-	/**
-	 * Makes a NBTTagCompound for a potion effect.
-	 * 
-	 * @param id The ID number of the potion effect.
-	 * @param level The level of the potion effect.
-	 * @param dur The duration in ticks of the potion effect.
-	 * @return NBTTagCompound with information about potion.
-	 */
-	public NBTTagCompound makePotionCompound(byte id, byte level, int dur) {
-		NBTTagCompound potion = new NBTTagCompound();
-
-		potion.setByte("Id", id);
-		potion.setByte("Amplifier", level);
-		potion.setInt("Duration", dur);
-		potion.setByte("Ambient", (byte) 0);
-
-		return potion;
-	}
-	
-	/**
-	 * Makes a NBTTagCompound for a potion effect with an option to be ambient.
-	 * 
-	 * @param id The ID number of the potion effect.
-	 * @param level The level of the potion effect.
-	 * @param dur The duration in ticks of the potion effect.
-	 * @param ambient Whether or not the effect is ambient, like a beacon.
-	 * @return NBTTagCompound with information about potion.
-	 */
-	public NBTTagCompound makePotionCompound(byte id, byte level, int dur, boolean ambient) {
-		NBTTagCompound potion = new NBTTagCompound();
-		byte a = (byte) ((ambient) ? 1 : 0);
-
-		potion.setByte("Id", id);
-		potion.setByte("Amplifier", level);
-		potion.setInt("Duration", dur);
-		potion.setByte("Ambient", a);
-
-		return potion;
-	}
-	
-	/**
-	 * Make a enchantment into a NBTTagCompound.
-	 * 
-	 * @param id The ID number of the enchantment.
-	 * @return NBTTagCompound version of the enchantment
-	 */
-	public NBTTagCompound makeEnchantmentCompound(short id) {
-		NBTTagCompound ench = new NBTTagCompound();
-
-		ench.setShort("id", id);
-		ench.setShort("level", (short) 1);
-
-		return ench;
-	}
-	
-	/**
-	 * Make a enchantment into a NBTTagCompound.
-	 * 
-	 * @param id The ID number of the enchantment.
-	 * @param level The level of the enchantment.
-	 * @return NBTTagCompound version of the enchantment
-	 */
-	public NBTTagCompound makeEnchantmentCompound(short id, short level) {
-		NBTTagCompound ench = new NBTTagCompound();
-
-		ench.setShort("id", id);
-		ench.setShort("level", level);
-
-		return ench;
 	}
 	
 	/**
@@ -437,26 +162,22 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 			spawnLocation = s.getAreaPoints()[0]; //This can be changed. Really just needs a single point to spawn to. Should add option to disable.
 		}
 		
-		String id = "";
-		if(mainEntity.getType().equals(EntityType.SPLASH_POTION)) {
-			id = "ThrownPotion";
-		} else if(mainEntity.getType().equals(EntityType.ENDER_PEARL)) {
-			id = "ThrownEnderpearl";
-		} else {
-			id = mainEntity.getType().getName();
-		}
-		
 		if(s.getTypeData().size() == 1) {
-			eData = makeEntityData(mainEntity, spawnLocation, id);
+			Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
+			Entity e = s.forceSpawnOnLoc(mainEntity, pos);
+			eData = getTag(e);
 			sData.set("SpawnData", eData);
+			e.remove();
 		} else {
 			List<Integer> typeData = s.getTypeData();
 			NBTTagCompound[] potentials = new NBTTagCompound[typeData.size()];
 			
 			for(Integer i = 0; i < typeData.size(); i++) {
 				NBTTagCompound potentialData = new NBTTagCompound();
-				SpawnableEntity e = CustomSpawners.getEntity(typeData.get(i).toString());
-				NBTTagCompound eData2 = makeEntityData(e, spawnLocation, id);
+				SpawnableEntity se = CustomSpawners.getEntity(typeData.get(i).toString());
+				Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
+				Entity e = s.forceSpawnOnLoc(se, pos);
+				NBTTagCompound eData2 = getTag(e);
 				
 				if(i == 0) {
 					sData.set("SpawnData", eData2);
@@ -464,8 +185,10 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 				
 				potentialData.setCompound("Properties", eData2);
 				potentialData.setInt("Weight", i + 1);
-				potentialData.setString("Type", e.getType().getName());
+				potentialData.setString("Type", eData2.getString("id"));
 				potentials[i] = potentialData;
+				
+				e.remove();
 			}
 			
 			sData.set("SpawnPotentials", makeCompoundList(potentials));
@@ -477,7 +200,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		sData.setInt("x", s.getLoc().getBlockX());
 		sData.setInt("y", s.getLoc().getBlockY());
 		sData.setInt("z", s.getLoc().getBlockZ());
-		sData.setString("EntityId", id);
+		sData.setString("EntityId", eData.getString("id"));
 		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
 		sData.setShort("SpawnRange", (short) s.getRadius());
 		sData.setShort("Delay", (short) s.getRate());
@@ -490,11 +213,175 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 	}
 	
 	/**
+	 * Make a NBTTagList of NBTTagCompounds for values like potion effects.
+	 * 
+	 * @param m0 Compound array to make into NBTTagList
+	 * @return NBTTagList form of m0.
+	 */
+	private NBTTagList makeCompoundList(NBTTagCompound[] m0) {
+		NBTTagList list = new NBTTagList();
+		int i = m0.length;
+
+		for(int j = 0; j < i; j++) {
+			list.add(m0[j]);
+		}
+
+		return list;
+
+	}
+	
+	/**
+	 * Make a NBTTagList of doubles for positions, velocity, etc.
+	 * 
+	 * @param d0 Double array to make into NBTTagList
+	 * @return NBTTagList form of d0.
+	 *//*
+	public NBTTagList makeDoubleList(double[] d0) {
+		NBTTagList list = new NBTTagList();
+		int i = d0.length;
+
+		for(int j = 0; j < i; j++) {
+			double d = d0[j];
+
+			list.add(new NBTTagDouble((String) null, d));
+		}
+
+		return list;
+
+	}
+	
+	*//**
+	 * Make a NBTTagList of floats for values like rotation.
+	 * 
+	 * @param f0 Float array to make into NBTTagList
+	 * @return NBTTagList form of f0.
+	 *//*
+	public NBTTagList makeFloatList(float[] f0) {
+		NBTTagList list = new NBTTagList();
+		int i = f0.length;
+
+		for(int j = 0; j < i; j++) {
+			float f = f0[j];
+
+			list.add(new NBTTagFloat((String) null, f));
+		}
+
+		return list;
+
+	}
+
+	*//**
+	 * Makes a NBTTagCompound for a level 1 potion effect that lasts for 1 minute.
+	 * 
+	 * @param id The ID number of the potion effect.
+	 * @return NBTTagCompound with information about potion.
+	 *//*
+	public NBTTagCompound makePotionCompound(byte id) {
+		NBTTagCompound potion = new NBTTagCompound();
+
+		potion.setByte("Id", id);
+		potion.setByte("Amplifier", (byte) 1);
+		potion.setInt("Duration", 1200);
+		potion.setByte("Ambient", (byte) 0);
+
+		return potion;
+	}
+	
+	*//**
+	 * Makes a NBTTagCompound for a potion effect that lasts for 1 minute.
+	 * 
+	 * @param id The ID number of the potion effect.
+	 * @param level The level of the potion effect.
+	 * @param dur The duration in ticks of the potion effect.
+	 * @return NBTTagCompound with information about potion.
+	 *//*
+	public NBTTagCompound makePotionCompound(byte id, byte level) {
+		NBTTagCompound potion = new NBTTagCompound();
+
+		potion.setByte("Id", id);
+		potion.setByte("Amplifier", level);
+		potion.setByte("Ambient", (byte) 0);
+
+		return potion;
+	}
+	
+	*//**
+	 * Makes a NBTTagCompound for a potion effect.
+	 * 
+	 * @param id The ID number of the potion effect.
+	 * @param level The level of the potion effect.
+	 * @param dur The duration in ticks of the potion effect.
+	 * @return NBTTagCompound with information about potion.
+	 *//*
+	public NBTTagCompound makePotionCompound(byte id, byte level, int dur) {
+		NBTTagCompound potion = new NBTTagCompound();
+
+		potion.setByte("Id", id);
+		potion.setByte("Amplifier", level);
+		potion.setInt("Duration", dur);
+		potion.setByte("Ambient", (byte) 0);
+
+		return potion;
+	}
+	
+	*//**
+	 * Makes a NBTTagCompound for a potion effect with an option to be ambient.
+	 * 
+	 * @param id The ID number of the potion effect.
+	 * @param level The level of the potion effect.
+	 * @param dur The duration in ticks of the potion effect.
+	 * @param ambient Whether or not the effect is ambient, like a beacon.
+	 * @return NBTTagCompound with information about potion.
+	 *//*
+	public NBTTagCompound makePotionCompound(byte id, byte level, int dur, boolean ambient) {
+		NBTTagCompound potion = new NBTTagCompound();
+		byte a = (byte) ((ambient) ? 1 : 0);
+
+		potion.setByte("Id", id);
+		potion.setByte("Amplifier", level);
+		potion.setInt("Duration", dur);
+		potion.setByte("Ambient", a);
+
+		return potion;
+	}
+	
+	*//**
+	 * Make a enchantment into a NBTTagCompound.
+	 * 
+	 * @param id The ID number of the enchantment.
+	 * @return NBTTagCompound version of the enchantment
+	 *//*
+	public NBTTagCompound makeEnchantmentCompound(short id) {
+		NBTTagCompound ench = new NBTTagCompound();
+
+		ench.setShort("id", id);
+		ench.setShort("level", (short) 1);
+
+		return ench;
+	}
+	
+	*//**
+	 * Make a enchantment into a NBTTagCompound.
+	 * 
+	 * @param id The ID number of the enchantment.
+	 * @param level The level of the enchantment.
+	 * @return NBTTagCompound version of the enchantment
+	 *//*
+	public NBTTagCompound makeEnchantmentCompound(short id, short level) {
+		NBTTagCompound ench = new NBTTagCompound();
+
+		ench.setShort("id", id);
+		ench.setShort("level", level);
+
+		return ench;
+	}
+	
+	*//**
 	 * Makes a mob inventory into NBT.
 	 * 
 	 * @param i EntityInventory to use.
 	 * @return NBTTagList with inventory information.
-	 */
+	 *//*
 	public NBTTagList makeInventory(SInventory i) {
 		NBTTagList list = new NBTTagList();
 		ArrayList<ItemStack> mainInv = i.getMainInventory();
@@ -508,12 +395,12 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		return list;
 	}
 	
-	/**
+	*//**
 	 * Parses CustomSpawners health.
 	 * 
 	 * @param e SpawnableEntity to parse from.
 	 * @return The amount.
-	 */
+	 *//*
 	private int getHealth(SpawnableEntity e) {
 		
 		if(e.getHealth() == -2) {
@@ -526,12 +413,12 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		
 	}
 	
-	/**
+	*//**
 	 * Parses CustomSpawners age.
 	 * 
 	 * @param e SpawnableEntity to parse from.
 	 * @return The amount.
-	 */
+	 *//*
 	private int getAge(SpawnableEntity e) {
 		
 		if(e.getAge() == -2) {
@@ -544,12 +431,12 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		
 	}
 	
-	/**
+	*//**
 	 * Parses CustomSpawners air.
 	 * 
 	 * @param e SpawnableEntity to parse from.
 	 * @return The amount.
-	 */
+	 *//*
 	private int getAir(SpawnableEntity e) {
 
 		if(e.getAir() == -2) {
@@ -562,12 +449,12 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 				
 	}
 	
-	/**
+	*//**
 	 * Makes the Entity Data.
 	 * 
 	 * @param mainEntity The entity to make data from.
 	 * @return The data.
-	 */
+	 *//*
 	private NBTTagCompound makeEntityData(SpawnableEntity mainEntity, Location spawnLocation, String id) {
 		
 		NBTTagCompound eData = new NBTTagCompound();
@@ -663,6 +550,6 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		eData.setByte("isVillager", isVillager);
 		
 		return eData;
-	}
+	}*/
 	
 }
