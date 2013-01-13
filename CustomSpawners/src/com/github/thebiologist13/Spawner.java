@@ -1058,6 +1058,8 @@ public class Spawner implements Serializable {
 			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
 			nmsWorld.addEntity(ent);
 			return ent.getBukkitEntity();
+		} else if(spawnType.getType().equals(EntityType.LIGHTNING)) {
+			return getLoc().getWorld().strikeLightningEffect(spawnLocation);
 		} else {
 			return getLoc().getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
 		}

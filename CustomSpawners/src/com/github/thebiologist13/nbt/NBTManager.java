@@ -9,6 +9,7 @@ import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
 import org.bukkit.craftbukkit.v1_4_6.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
@@ -54,14 +55,20 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
         Class<? extends Object> clazz = object.getClass();
         Method[] methods = clazz.getMethods();
         for (Method method : methods){
-            if ((method.getName() == "b") && (method.getParameterTypes().length == 1) && (method.getParameterTypes()[0] == NBTTagCompound.class)){
+            if ((method.getName() == "d") && (method.getParameterTypes().length == 1) && (method.getParameterTypes()[0] == NBTTagCompound.class)){
+            	System.out.println("* * * * * Found Method");
                 try {
+                	method.setAccessible(true);
                     method.invoke(object, compound);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
+        
+        if(!compound.d())
+        	System.out.println("Got NBTTagCompound");
+        
         return compound;
     }
 	
@@ -151,7 +158,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 	 * @param s The Spawner to generate NBT from.
 	 * @return NBTTagCompound with data.
 	 */
-	public NBTTagCompound getSpawnerNBT(Spawner s) {
+	public NBTTagCompound getSpawnerNBT(Spawner s) { //TODO Broken
 		NBTTagCompound sData = new NBTTagCompound(); //Spawner NBT
 		NBTTagCompound eData = new NBTTagCompound(); //Entity NBT
 		SpawnableEntity mainEntity = s.getMainEntity(); //The primary entity of the spawner.
@@ -165,21 +172,62 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		if(s.getTypeData().size() == 1) {
 			Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
 			Entity e = s.forceSpawnOnLoc(mainEntity, pos);
-			eData = getTag(e);
+			net.minecraft.server.v1_4_6.Entity nmsEntity = ((CraftEntity) e).getHandle();
+			eData = getTag(nmsEntity);
+			
+			EntityType type = e.getType();
+			String id = type.getName();
+			
+			if(id == null || id.isEmpty()) {
+				switch(type) {
+				case SPLASH_POTION:
+					id = "ThrownPotion";
+					break;
+				case EGG:
+					id = "Egg";
+					break;
+				default:
+					return null;
+				}
+			}
+			
+			eData.setString("id", id);
+			
 			sData.set("SpawnData", eData);
 			e.remove();
 		} else {
 			List<Integer> typeData = s.getTypeData();
 			NBTTagCompound[] potentials = new NBTTagCompound[typeData.size()];
 			
-			for(Integer i = 0; i < typeData.size(); i++) {
+			for(int i = 0; i < typeData.size(); i++) {
 				NBTTagCompound potentialData = new NBTTagCompound();
 				SpawnableEntity se = CustomSpawners.getEntity(typeData.get(i).toString());
 				Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
 				Entity e = s.forceSpawnOnLoc(se, pos);
-				NBTTagCompound eData2 = getTag(e);
+				net.minecraft.server.v1_4_6.Entity nmsEntity = ((CraftEntity) e).getHandle();
+				
+				NBTTagCompound eData2 = getTag(nmsEntity);
+
+				EntityType type = e.getType();
+				String id = type.getName();
+				
+				if(id == null || id.isEmpty()) {
+					switch(type) {
+					case SPLASH_POTION:
+						id = "ThrownPotion";
+						break;
+					case EGG:
+						id = "Egg";
+						break;
+					default:
+						return null;
+					}
+				}
+				
+				eData2.setString("id", id);
 				
 				if(i == 0) {
+					eData = eData2;
 					sData.set("SpawnData", eData2);
 				}
 				
@@ -201,6 +249,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		sData.setInt("y", s.getLoc().getBlockY());
 		sData.setInt("z", s.getLoc().getBlockZ());
 		sData.setString("EntityId", eData.getString("id"));
+		System.out.println("EntityID: " + eData.getString("id")); //TODO GHdfahlnhrlhjtnhlrtaykeath
 		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
 		sData.setShort("SpawnRange", (short) s.getRadius());
 		sData.setShort("Delay", (short) s.getRate());

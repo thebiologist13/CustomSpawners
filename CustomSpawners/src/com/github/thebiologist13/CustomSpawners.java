@@ -41,6 +41,7 @@ import com.github.thebiologist13.listeners.PlayerLogoutEvent;
 import com.github.thebiologist13.listeners.PlayerTargetEvent;
 import com.github.thebiologist13.listeners.PotionHitEvent;
 import com.github.thebiologist13.listeners.ProjectileFireEvent;
+import com.github.thebiologist13.listeners.ReloadEvent;
 import com.github.thebiologist13.listeners.SpawnerPowerEvent;
 import com.github.thebiologist13.serialization.SPotionEffect;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -91,6 +92,9 @@ public class CustomSpawners extends JavaPlugin {
 	//Transparent Blocks to go through when getting the target location for a spawner.
 	public static HashSet<Byte> transparent = new HashSet<Byte>();
 
+	//Autosave Task ID
+	public int autosaveId;
+	
 	//Logger
 	public Logger log = Logger.getLogger("Minecraft");
 
@@ -731,6 +735,7 @@ public class CustomSpawners extends JavaPlugin {
 	public void onEnable() {
 
 		//Transparent Blocks
+		transparent.add((byte) 0);
 		transparent.add((byte) 8);
 		transparent.add((byte) 9);
 		transparent.add((byte) 10);
@@ -795,6 +800,7 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new ProjectileFireEvent(this), this);
 		getServer().getPluginManager().registerEvents(new BreakEvent(this), this);
 		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(this), this);
+		getServer().getPluginManager().registerEvents(new ReloadEvent(this), this);
 
 		//Load entities from file
 		fileManager.loadEntities();
@@ -868,7 +874,7 @@ public class CustomSpawners extends JavaPlugin {
 		 */
 		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnClock")) {
 
-			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			autosaveId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
 				@Override
 				public void run() {

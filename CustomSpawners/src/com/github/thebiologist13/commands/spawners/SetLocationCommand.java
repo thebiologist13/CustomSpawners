@@ -28,7 +28,7 @@ public class SetLocationCommand extends SpawnerCommand {
 		
 		Player player = (Player) sender;
 		
-		Block target = player.getTargetBlock(null, CONFIG.getInt("players.maxDistance", 5));
+		Block target = player.getTargetBlock(CustomSpawners.transparent, CONFIG.getInt("players.maxDistance", 5));
 		
 		if(target == null) {
 			PLUGIN.sendMessage(player, ChatColor.RED + "You must look at a block to set the location there.");

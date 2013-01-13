@@ -224,8 +224,11 @@ public class SpawnableEntity implements Serializable {
 		for(EntityType e1 : EntityType.values()) {
 			if(e1.toString().equalsIgnoreCase(name)) {
 				return e1;
+			} else if(e1.getName().equalsIgnoreCase(name)) {
+				return e1;
 			}
 		}
+		
 		return null;
 	}
 
