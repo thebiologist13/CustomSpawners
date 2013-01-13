@@ -550,7 +550,7 @@ public class CustomSpawners extends JavaPlugin {
 			String itemId = value.substring(0, value.length());
 
 			if(!isInteger(itemId)) {
-				Material mat = Material.valueOf(itemId);
+				Material mat = Material.getMaterial(itemId.toUpperCase());
 				
 				if(mat == null) 
 					return null;
@@ -568,7 +568,7 @@ public class CustomSpawners extends JavaPlugin {
 			String itemDamage = value.substring(index + 1, value.length());
 
 			if(!isInteger(itemId)) {
-				Material mat = Material.valueOf(itemId);
+				Material mat = Material.getMaterial(itemId.toUpperCase());
 				
 				if(mat == null) 
 					return null;
