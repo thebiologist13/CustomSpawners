@@ -137,11 +137,14 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"setusingcustomdamage",
 				"usingcustomdamage",
 				"usecustomdamage",
+				"setusedamage",
+				"setusecustomdamage",
 				"norrismode"
 		});
 		addCommand("setdamageamount", damage, new String[] {
 				"setdamage",
 				"damage",
+				"damageamount",
 				"punishvalue",
 				"ownedfactor",
 				"kdquotient"
@@ -230,6 +233,9 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		});
 		addCommand("sethand", inventory, new String[] {
 				"hand",
+				"setholding",
+				"holding",
+				"hold",
 				"setequippeditem",
 				"setequipped",
 				"setiteminhand"
@@ -239,7 +245,9 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"sethat",
 				"hat",
 				"sethead",
-				"head"
+				"head",
+				"sethelm",
+				"helm"
 		});
 		addCommand("setchest", inventory, new String[] {
 				"chest",
@@ -421,7 +429,9 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"infected",
 				"setzombie",
 				"zombie",
-				"zombify"
+				"zombify",
+				"setvillagerzombie",
+				"villagerzombie"
 		});
 		addCommand("setwither", wither, new String[] {
 				"wither",
