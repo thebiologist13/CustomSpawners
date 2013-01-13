@@ -1,8 +1,5 @@
 package com.github.thebiologist13.commands.spawners;
 
-//import java.lang.reflect.Method;
-//import java.util.Map;
-
 import net.minecraft.server.v1_4_6.NBTTagCompound;
 import net.minecraft.server.v1_4_6.TileEntity;
 import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
@@ -55,31 +52,6 @@ public class ConvertCommand extends SpawnerCommand {
 					return;
 				}
 				
-				/*Class<? extends Object> clazz = NBTTagCompound.class;
-		        Method[] methods = clazz.getMethods();
-		        for (Method method : methods){
-		        	PLUGIN.printDebugMessage("Iterating in methods.");
-		        	PLUGIN.printDebugMessage("    Method: " + method.getName());
-		            if ((method.getName() == "a") && (method.getParameterTypes().length == 1) 
-		            		&& (method.getParameterTypes()[0] == NBTTagCompound.class)) {
-		            	PLUGIN.printDebugMessage("Has method.");
-		            	method.setAccessible(true);
-		                try {
-		                	PLUGIN.printDebugMessage("Invoking...");
-		                    Object o = method.invoke(testCom);
-		                    if(o instanceof Map) {
-		                    	PLUGIN.printDebugMessage("Is map.");
-		                    	Map<?,?> map = (Map<?,?>) o;
-		                    	for(Object o1 : map.keySet()) {
-		                    		PLUGIN.printDebugMessage("Iterating in keyset");
-		                    		System.out.println(o1.toString());
-		                    	}
-		                    }
-		                } catch (Exception e) {
-		                    e.printStackTrace();
-		                }
-		            }
-		        }*/
 				nbtMan.setTileEntityMobSpawnerNBT(spawner.getLoc().getBlock(), nbt);
 			} catch (NotTileEntityException e) {
 				

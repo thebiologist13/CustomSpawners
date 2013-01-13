@@ -17,6 +17,7 @@ import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
 
 import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagDouble;
 import net.minecraft.server.v1_4_6.NBTTagList;
 import net.minecraft.server.v1_4_6.TileEntity;
 import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
@@ -56,7 +57,6 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
         Method[] methods = clazz.getMethods();
         for (Method method : methods){
             if ((method.getName() == "d") && (method.getParameterTypes().length == 1) && (method.getParameterTypes()[0] == NBTTagCompound.class)){
-            	System.out.println("* * * * * Found Method");
                 try {
                 	method.setAccessible(true);
                     method.invoke(object, compound);
@@ -65,9 +65,6 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
                 }
             }
         }
-        
-        if(!compound.d())
-        	System.out.println("Got NBTTagCompound");
         
         return compound;
     }
@@ -193,6 +190,14 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 			
 			eData.setString("id", id);
 			
+			if(eData.hasKey("Pos") && spawnLocation == null) {
+				eData.o("Pos");
+			}
+			
+			eData.set("Motion", makeDoubleList(new double[] 
+					{mainEntity.getXVelocity(), mainEntity.getYVelocity(), mainEntity.getZVelocity()}
+			));
+			
 			sData.set("SpawnData", eData);
 			e.remove();
 		} else {
@@ -225,6 +230,14 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 				}
 				
 				eData2.setString("id", id);
+				
+				if(eData2.hasKey("Pos") && spawnLocation == null) {
+					eData2.o("Pos");
+				}
+				
+				eData2.set("Motion", makeDoubleList(new double[] 
+						{se.getXVelocity(), se.getYVelocity(), se.getZVelocity()}
+				));
 				
 				if(i == 0) {
 					eData = eData2;
@@ -284,7 +297,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 	 * 
 	 * @param d0 Double array to make into NBTTagList
 	 * @return NBTTagList form of d0.
-	 *//*
+	 */
 	public NBTTagList makeDoubleList(double[] d0) {
 		NBTTagList list = new NBTTagList();
 		int i = d0.length;
@@ -299,7 +312,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 
 	}
 	
-	*//**
+	/**
 	 * Make a NBTTagList of floats for values like rotation.
 	 * 
 	 * @param f0 Float array to make into NBTTagList

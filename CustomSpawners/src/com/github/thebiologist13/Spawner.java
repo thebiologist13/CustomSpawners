@@ -144,7 +144,9 @@ public class Spawner implements Serializable {
 	//Spawn a mob on the spawner.
 	public Entity forceSpawnOnLoc(SpawnableEntity entity, Location loc) {
 		
-		return spawnTheEntity(entity, loc);
+		Entity e = spawnTheEntity(entity, loc);
+		assignMobProps(e, entity);
+		return e;
 		
 	}
 	
