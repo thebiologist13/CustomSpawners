@@ -38,7 +38,7 @@ import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
  * @author thebiologist13
  * @version 1.1
  */
-public class NBTManager { //TODO Make sure all properties set. Potions do not set.
+public class NBTManager {
 	
 	/**
 	 * Gets NBT data of a entity.
@@ -155,7 +155,7 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 	 * @param s The Spawner to generate NBT from.
 	 * @return NBTTagCompound with data.
 	 */
-	public NBTTagCompound getSpawnerNBT(Spawner s) { //TODO Broken
+	public NBTTagCompound getSpawnerNBT(Spawner s) {
 		NBTTagCompound sData = new NBTTagCompound(); //Spawner NBT
 		NBTTagCompound eData = new NBTTagCompound(); //Entity NBT
 		SpawnableEntity mainEntity = s.getMainEntity(); //The primary entity of the spawner.
@@ -171,6 +171,10 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 			Entity e = s.forceSpawnOnLoc(mainEntity, pos);
 			net.minecraft.server.v1_4_6.Entity nmsEntity = ((CraftEntity) e).getHandle();
 			eData = getTag(nmsEntity);
+			
+			if(eData.d()) { //If empty
+				return null;
+			}
 			
 			EntityType type = e.getType();
 			String id = type.getName();
@@ -212,6 +216,9 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 				net.minecraft.server.v1_4_6.Entity nmsEntity = ((CraftEntity) e).getHandle();
 				
 				NBTTagCompound eData2 = getTag(nmsEntity);
+				if(eData2.d()) { //If empty
+					return null;
+				}
 
 				EntityType type = e.getType();
 				String id = type.getName();
@@ -262,7 +269,6 @@ public class NBTManager { //TODO Make sure all properties set. Potions do not se
 		sData.setInt("y", s.getLoc().getBlockY());
 		sData.setInt("z", s.getLoc().getBlockZ());
 		sData.setString("EntityId", eData.getString("id"));
-		System.out.println("EntityID: " + eData.getString("id")); //TODO GHdfahlnhrlhjtnhlrtaykeath
 		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
 		sData.setShort("SpawnRange", (short) s.getRadius());
 		sData.setShort("Delay", (short) s.getRate());

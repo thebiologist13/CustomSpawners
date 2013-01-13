@@ -1161,7 +1161,7 @@ public class CustomSpawners extends JavaPlugin {
 
 	//Resets selections if a spawner is removed
 	public void resetSpawnerSelections(int id) {
-		Iterator<Player> pItr = entitySelection.keySet().iterator();
+		Iterator<Player> pItr = spawnerSelection.keySet().iterator();
 
 		while(pItr.hasNext()) {
 			Player p = pItr.next();

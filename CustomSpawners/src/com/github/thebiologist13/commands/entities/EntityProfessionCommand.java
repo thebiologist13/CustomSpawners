@@ -22,10 +22,19 @@ public class EntityProfessionCommand extends EntityCommand {
 		
 		String in = getValue(args, 0, "farmer");
 		
-		Profession prof = Profession.valueOf(in.toUpperCase());
+		final String INVALID = ChatColor.RED + in + " is not a valid villager profession.";
+		
+		Profession prof = null;
+		
+		try {
+			prof = Profession.valueOf(in.toUpperCase());
+		} catch(Exception e) {
+			PLUGIN.sendMessage(sender, INVALID);
+			return;
+		}
 		
 		if(prof == null) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + in + " is not a valid villager profession.");
+			PLUGIN.sendMessage(sender, INVALID);
 			return;
 		}
 		

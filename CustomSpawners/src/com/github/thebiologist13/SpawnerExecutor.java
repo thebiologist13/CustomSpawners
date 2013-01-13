@@ -361,19 +361,39 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 					Player p = (Player) arg0;
 					
 					if(!CustomSpawners.spawnerSelection.containsKey(p)) {
-						spawnerRef = CustomSpawners.getSpawner(objId);
-						params = makeParams(arg3, 2);
+						if(objId.startsWith("t:")) {
+							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
+							params = makeParams(arg3, 2);
+						} else {
+							spawnerRef = CustomSpawners.getSpawner(objId);
+							params = makeParams(arg3, 2);
+						}
 					} else {
-						spawnerRef = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p));
-						params = makeParams(arg3, 1);
+						if(objId.startsWith("t:")) { //If they want to target a specific object
+							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
+							params = makeParams(arg3, 2);
+						} else {
+							spawnerRef = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p));
+							params = makeParams(arg3, 1);
+						}
 					}
 				} else {
 					if(CustomSpawners.consoleEntity == -1) {
-						spawnerRef = CustomSpawners.getSpawner(objId);
-						params = makeParams(arg3, 2);
+						if(objId.startsWith("t:")) {
+							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
+							params = makeParams(arg3, 2);
+						} else {
+							spawnerRef = CustomSpawners.getSpawner(objId);
+							params = makeParams(arg3, 2);
+						}
 					} else {
-						spawnerRef = CustomSpawners.getSpawner(CustomSpawners.consoleSpawner);
-						params = makeParams(arg3, 1);
+						if(objId.startsWith("t:")) { //If they want to target a specific object
+							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
+							params = makeParams(arg3, 2);
+						} else {
+							spawnerRef = CustomSpawners.getSpawner(CustomSpawners.consoleSpawner);
+							params = makeParams(arg3, 1);
+						}
 					}
 				}
 				
@@ -392,6 +412,8 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				return true;
 			} catch(Exception e) {
 				PLUGIN.printDebugTrace(e);
+				PLUGIN.sendMessage(arg0, "An error has occurred. Crash report saved to " + 
+						PLUGIN.getFileManager().saveCrash(cmd.getClass(), e));
 				PLUGIN.sendMessage(arg0, cmd.GENERAL_ERROR);
 				return true;
 			}

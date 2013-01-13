@@ -34,7 +34,14 @@ public class EntityActiveEffectsCommand extends EntityCommand {
 		int amplifier;
 		int duration;
 		
-		String eIn = getValue(args, 0, PotionEffectType.REGENERATION);
+		if(subCommand.equals("cleareffect")) {
+			entity.setEffects(new ArrayList<SPotionEffect>());
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared potion effects on entity " + 
+					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
+			return;
+		}
+		
+		String eIn = getValue(args, 0, "regeneration");
 		String aIn = getValue(args, 1, 1);
 		String dIn = getValue(args, 2, 1200);
 		
@@ -72,7 +79,7 @@ public class EntityActiveEffectsCommand extends EntityCommand {
 		String strEffect = effectType.getName() + " " + amplifier + " - " + PLUGIN.convertTicksToTime(duration);
 		effect = new SPotionEffect(effectType, duration, amplifier);
 		
-		if(subCommand.equals("addEffect")) {
+		if(subCommand.equals("addeffect")) {
 			entity.addPotionEffect(effect);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully added potion effect " + ChatColor.GOLD + 
 					strEffect + ChatColor.GREEN + " to entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
@@ -82,11 +89,6 @@ public class EntityActiveEffectsCommand extends EntityCommand {
 			toSet.add(effect);
 			entity.setEffects(toSet);
 			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "effect", strEffect));
-		} else if(subCommand.equals("cleareffects")) {
-			entity.setEffects(new ArrayList<SPotionEffect>());
-			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared potion effects " + ChatColor.GOLD + 
-					strEffect + ChatColor.GREEN + " on entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
-					ChatColor.GREEN + "!");
 		}
 		
 	}

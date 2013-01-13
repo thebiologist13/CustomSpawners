@@ -34,11 +34,10 @@ public class CloneCommand extends SpawnerCommand {
 			return;
 		}
 		
-		int id = PLUGIN.getNextSpawnerId();
 		Spawner spawner1 = PLUGIN.cloneWithNewId(spawner);
 		spawner1.setName("");
 		spawner1.setLoc(target);
-		CustomSpawners.spawners.put(id, spawner1);
+		CustomSpawners.spawners.put(spawner1.getId(), spawner1);
 		
 		if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
 			PLUGIN.getFileManager().autosave(spawner1);

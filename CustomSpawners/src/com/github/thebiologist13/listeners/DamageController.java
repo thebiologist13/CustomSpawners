@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
@@ -152,10 +153,11 @@ public class DamageController {
 						
 						Player p = (Player) damager;
 						
-						if(e.getItemDamageList().contains(p.getItemInHand())) {
-							
-							return 0;
-							
+						for(ItemStack i : e.getItemDamageList()) {
+							ItemStack hand = p.getItemInHand();
+							if(hand.getTypeId() == i.getTypeId() && hand.getData().getData() == i.getData().getData()) {
+								return 0;
+							}
 						}
 						
 					}
@@ -195,10 +197,11 @@ public class DamageController {
 						
 						Player p = (Player) damager;
 						
-						if(e.getItemDamageList().contains(p.getItemInHand())) {
-							
-							return 0;
-							
+						for(ItemStack i : e.getItemDamageList()) {
+							ItemStack hand = p.getItemInHand();
+							if(hand.getTypeId() == i.getTypeId() && hand.getData().getData() == i.getData().getData()) {
+								return 0;
+							}
 						}
 						
 					}

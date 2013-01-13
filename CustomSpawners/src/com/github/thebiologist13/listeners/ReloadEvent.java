@@ -7,7 +7,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 
 import com.github.thebiologist13.CustomSpawners;
 
-public class ReloadEvent implements Listener { //TODO *futurama fry* Not sure if working, or just stupid.
+public class ReloadEvent implements Listener {
 
 	private final CustomSpawners PLUGIN;
 	

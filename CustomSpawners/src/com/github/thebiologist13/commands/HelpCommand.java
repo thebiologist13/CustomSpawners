@@ -28,8 +28,8 @@ public class HelpCommand extends CustomSpawnersCommand {
 				ChatColor.GREEN + "* * * CustomSpawners Help * * *",
 				ChatColor.GOLD + "Use /customspawners help [page #] to see a help page.",
 				ChatColor.GOLD + "Arguments in " + ChatColor.AQUA + "[] are optional" + ChatColor.GOLD + ", they are often to identify a",
-				ChatColor.GOLD + "object by ID number. Arguments in " + ChatColor.DARK_RED + "<> are required" + ChatColor.GOLD + ". They are",
-				ChatColor.GOLD + "usually the value to set.",
+				ChatColor.GOLD + "object by ID number. Prefix these IDs with \"t:\". Arguments in " + ChatColor.DARK_RED + "<> are required" +
+				ChatColor.GOLD + ". They are usually the value to set.",
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 		
