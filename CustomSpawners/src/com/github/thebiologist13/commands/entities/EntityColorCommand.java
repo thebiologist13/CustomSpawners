@@ -26,14 +26,17 @@ public class EntityColorCommand extends EntityCommand {
 		
 		if(in.equals("lightblue")) {
 			color = DyeColor.LIGHT_BLUE;
-		} else if(in.equals("lightgreen")) {
+		} else if(in.equals("lightgreen") || in.equals("limegreen") || 
+				in.equals("light_green") || in.equals("lime_green")) {
 			color = DyeColor.LIME;
 		} else if(in.equals("lightgrey") || in.equals("lightgray")) {
 			color = DyeColor.SILVER;
 		} else if(in.equals("grey")) {
 			color = DyeColor.GRAY;
 		} else {
-			color = DyeColor.valueOf(in.toUpperCase());
+			try {
+				color = DyeColor.valueOf(in.toUpperCase());
+			} catch(Exception e) {}
 		}
 		
 		if(color == null) {

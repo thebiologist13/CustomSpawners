@@ -1,13 +1,12 @@
 package com.github.thebiologist13;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -38,27 +37,27 @@ import com.github.thebiologist13.serialization.SVector;
  * @author thebioLOGist13
  */
 public class FileManager {
-	
+
 	private final String ch = File.separator;
-	
+
 	private final FileConfiguration CONFIG;
-	
+
 	private final String CRASH_PATH;
-	
+
 	private final String ENTITY_PATH;
-	
+
 	private final Logger LOG;
-	
+
 	private final byte LOG_LEVEL;
-	
+
 	private final String NOT_DAT = "CustomSpawners has switched to using .dat files for saving. Sorry for any inconvenience.";
-	
+
 	private final CustomSpawners PLUGIN;
-	
+
 	private final String SPAWNER_PATH;
-	
+
 	private final String SWITCHED_FORMAT = "CustomSpawners has switched to save in .dat files. As much data as possible will be carried over into the new format.";
-	
+
 	public FileManager(CustomSpawners plugin) {
 		this.PLUGIN = plugin;
 		this.LOG = plugin.log;
@@ -68,13 +67,13 @@ public class FileManager {
 		this.ENTITY_PATH = plugin.getDataFolder() + File.separator + "Entities";
 		this.CRASH_PATH = plugin.getDataFolder() + File.separator + "Crashes";
 	}
-	
+
 	//Autosaves an entity
 	public synchronized void autosave(SpawnableEntity e) {
 
 		String path = ENTITY_PATH + ch + e.getId() + ".dat";
 		File file = new File(path);
-		
+
 		saveEntity(e, file);
 
 	}
@@ -84,7 +83,7 @@ public class FileManager {
 
 		String path = SPAWNER_PATH + ch + s.getId() + ".dat";
 		File file = new File(path);
-		
+
 		saveSpawner(s, file);
 
 	}
@@ -132,48 +131,48 @@ public class FileManager {
 	}
 
 	public boolean isDat(File f) {
-		
+
 		if(f.getName().endsWith(".dat")) 
 			return true;
-		
+
 		return false;
-		
+
 	}
 
 	public boolean isYaml(File f) {
-		
+
 		if(f.getName().endsWith(".yml")) 
 			return true;
-		
+
 		return false;
-		
+
 	}
 
 	//Load entities from file
 	public void loadEntities() {
 		if(LOG_LEVEL > 0)
 			LOG.info("Loading entities from directory " + ENTITY_PATH);
-		
+
 		File sDir = new File(ENTITY_PATH);
 		if(!sDir.exists()) {
 			sDir.mkdirs();
 		}
 		File[] sFiles = sDir.listFiles();
-		
+
 		if(LOG_LEVEL > 1)
 			LOG.info(String.valueOf(sFiles.length) + " total entities.");
-		
+
 		for(File f : sFiles) {
-			
+
 			SpawnableEntity e = loadEntity(f);
-			
+
 			if(e == null) {
 				LOG.info("Failed to load from " + f.getPath());
 				continue;
 			}
-			
+
 			CustomSpawners.entities.put(e.getId(), e);
-			
+
 		}
 
 		if(LOG_LEVEL > 0)
@@ -182,27 +181,27 @@ public class FileManager {
 
 	//Loads a SpawnableEntity from a YAML file
 	public SpawnableEntity loadEntity(File f) {
-		
+
 		if(isDat(f)) {
-			
+
 			try {
 				FileInputStream fIn = new FileInputStream(f);
 				ObjectInputStream oIn = new ObjectInputStream(fIn);
-				
+
 				SpawnableEntity e = (SpawnableEntity) oIn.readObject();
-				
+
 				oIn.close();
 				fIn.close();
-				
+
 				return e;
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				LOG.severe("Failed to load entity from" + f.getPath() + "!");
 			}
-			
+
 		} else if(isYaml(f)) {
-			
+
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
 
 			int id = yaml.getInt("id");
@@ -233,7 +232,7 @@ public class FileManager {
 			boolean useBlack = yaml.getBoolean("useBlacklist", CONFIG.getBoolean("entities.useBlacklist", true));
 			boolean useWhite = yaml.getBoolean("useWhitelist", !CONFIG.getBoolean("entities.useBlacklist", true));
 			List<?> dropList = yaml.getList("drops", new ArrayList<ItemStack>());
-			
+
 			boolean usingCustomDamage = yaml.getBoolean("useCustomDamage", CONFIG.getBoolean("entities.useCustomDamage", false));
 			int damage = yaml.getInt("damage", CONFIG.getInt("entities.dealtDamage", 2));
 			int droppedExp = yaml.getInt("droppedExp", CONFIG.getInt("entities.experienceDropped", 1));
@@ -249,7 +248,7 @@ public class FileManager {
 				LOG.info("Cannot load ID from entity! Please check that " + f.getName() + " has a valid ID.");
 				return null;
 			}
-			
+
 			if(strType == null) {
 				LOG.info("Cannot load type of entity in file " + f.getName() + "! Using default type. ");
 				strType = "PIG";
@@ -268,14 +267,14 @@ public class FileManager {
 					whitelistStrings.add((String) o);
 				}
 			}
-			
+
 			ArrayList<ItemStack> itemlistStacks = new ArrayList<ItemStack>();
 			for(Object o : itemlist) {
 				if(o instanceof ItemStack) {
 					itemlistStacks.add((ItemStack) o);
 				}
 			}
-			
+
 			ArrayList<ItemStack> dropListStacks = new ArrayList<ItemStack>();
 			for(Object o : dropList) {
 				if(o instanceof ItemStack) {
@@ -325,42 +324,42 @@ public class FileManager {
 			e.setItemType(itemType);
 			e.setUsingCustomDrops(usingCustomDrops);
 			e.setInvulnerable(invulnerable);
-			
+
 			LOG.info(SWITCHED_FORMAT);
 			f.delete();
 
 			return e;
 		}
-		
+
 		return null;
-		
+
 	}
 
 	//Loads a Spawner from a YAML file
 	public Spawner loadSpawner(File f) {
-		
+
 		if(isDat(f)) {
-			
+
 			try {
 				FileInputStream fIn = new FileInputStream(f);
 				ObjectInputStream oIn = new ObjectInputStream(fIn);
-				
+
 				Spawner s = (Spawner) oIn.readObject();
-				
+
 				oIn.close();
 				fIn.close();
-				
+
 				return s;
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				LOG.severe("Failed to load spawner from" + f.getPath() + "!");
 			}
-			
+
 		} else if(isYaml(f)) {
-			
+
 			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-			
+
 			int id = yaml.getInt("id");
 			String name = yaml.getString("name", "");
 			double radius = yaml.getDouble("radius", CONFIG.getDouble("spawners.radius", 32));
@@ -420,25 +419,25 @@ public class FileManager {
 					int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
 
 					SpawnableEntity e = CustomSpawners.getEntity(String.valueOf(value));
-					
+
 					Iterator<World> worlds = Bukkit.getWorlds().iterator();
 					while(worlds.hasNext()) {
 						World w = worlds.next();
-						
+
 						Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
 						while(entitiesInWorld.hasNext()) {
 							Entity en = entitiesInWorld.next();
-							
+
 							if(en.getEntityId() == key) {
 								mobsMap.put(key, e);
 							}
-							
+
 						}
-						
+
 					}
 
 				}
-				
+
 			}
 
 			//Location
@@ -471,11 +470,11 @@ public class FileManager {
 				baseEntity = CustomSpawners.getEntity(i.toString());
 				break;
 			}
-			
+
 			block = loc.getWorld().getBlockAt(loc);
 			String blockType = yaml.getString("block", "49-0");
 			int dashIndex = blockType.indexOf("-");
-			
+
 			try {
 				blockID = Integer.parseInt(blockType.substring(0, dashIndex));
 				blockData = Byte.parseByte(blockType.substring(dashIndex + 1, blockType.length()));
@@ -484,9 +483,9 @@ public class FileManager {
 				blockID = 49;
 				blockData = 0;
 			}
-			
+
 			block.setTypeIdAndData(blockID, blockData, false);
-			
+
 
 			Spawner s = new Spawner(baseEntity, loc, name, id);
 			s.setRadius(radius);
@@ -509,41 +508,41 @@ public class FileManager {
 
 			LOG.info(SWITCHED_FORMAT);
 			f.delete();
-			
+
 			return s;
-			
+
 		}
-		
+
 		return null;
-		
+
 	}
 
 	//Loads spawners from file
 	public void loadSpawners() {
-		
+
 		if(LOG_LEVEL > 0)
 			LOG.info("Loading spawners from directory " + SPAWNER_PATH);
-		
+
 		File sDir = new File(SPAWNER_PATH);
 		if(!sDir.exists()) {
 			sDir.mkdirs();
 		}
 		File[] sFiles = sDir.listFiles();
-		
+
 		if(LOG_LEVEL > 1) 
 			LOG.info(String.valueOf(sFiles.length) + " total spawners.");
-		
+
 		for(File f : sFiles) {
-			
+
 			Spawner s = loadSpawner(f);
-			
+
 			if(s == null) {
 				LOG.info("Failed to load from " + f.getPath());
 				continue;
 			}
-			
+
 			CustomSpawners.spawners.put(s.getId(), s);
-			
+
 		}
 
 		if(LOG_LEVEL > 0)
@@ -563,86 +562,90 @@ public class FileManager {
 		saveEntities();
 		loadEntities();
 	}
-	
+
 	//Saves then loads spawners from file
 	public void reloadSpawners() {
 		saveSpawners();
 		loadSpawners();
 	}
-	
+
 	//Removes a spawner or entity's data file
 	public void removeDataFile(int id, boolean isSpawner) {
-		
+
 		File file = null;
 
 		if(isSpawner) {
-			
+
 			String path = SPAWNER_PATH + ch + id + ".dat";
 			file = new File(path);
-			
+
 			if(!file.exists()) {
 				PLUGIN.printDebugMessage("Spawner File Does Not Exist. Path => " + path);
 				return;
 			}
-			
+
 			file.delete();
-			
+
 			for(World w : PLUGIN.getServer().getWorlds()) {
 				File spawner = new File(w.getWorldFolder() + ch + "cs_data" + ch + "spawners" + ch + id + ".dat");
-				
+
 				if(!spawner.exists()) {
 					return;
 				}
-				
+
 				spawner.delete();
-				
+
 			}
-			
+
 		} else {
-			
+
 			String path = ENTITY_PATH + ch + id + ".dat";
 			file = new File(path);
-			
+
 			if(!file.exists()) {
 				PLUGIN.printDebugMessage("Entity File Does Not Exist. Path => " + path);
 				return;
 			}
-			
+
 			file.delete();
-			
+
 			for(World w : PLUGIN.getServer().getWorlds()) {
 				File entity = new File(w.getWorldFolder() + ch + "cs_data" + ch + "entites" + ch + id + ".dat");
-				
+
 				if(!entity.exists()) {
 					return;
 				}
-				
+
 				entity.delete();
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	//Saves a crash report to file
 	public String saveCrash(Class<?> clazz, Exception e) {
 		Calendar c = Calendar.getInstance();
-		String path = CRASH_PATH + ch + c.get(Calendar.DATE) + "_" +
-				(c.get(Calendar.MONTH) + 1) + "_" + c.get(Calendar.YEAR) + ".txt";
-		File file = new File(path);
-		
-		if(!file.exists()) {
-			file.mkdirs();
-		}
-		
+		String path = CRASH_PATH + "crash-" + String.valueOf(c.get(Calendar.DATE)) + "-" +
+				String.valueOf((c.get(Calendar.MONTH) + 1)) + "-" + 
+				String.valueOf(c.get(Calendar.YEAR)) + "-" + 
+				String.valueOf(System.currentTimeMillis()) + ".txt";
+
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			
+
+			File f = new File(path);
+
+			if(!f.exists())
+				if(f.getParentFile() != null)
+					f.getParentFile().mkdirs();
+
+			PrintWriter out = new PrintWriter(new FileOutputStream(f));
+
 			write("CustomSpawners Error on " + c.get(Calendar.DATE) + "/" +
-				c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR), out);
+					(c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.YEAR), out);
 			write("Time of Error: " + c.get(Calendar.HOUR_OF_DAY) + ":" + 
-				c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND), out);
+					c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND), out);
 			write("", out);
 			write("Please report this error to thebiologist13 via a PM on BukkitDev or an email (thebiologist13@gmail.com).", out);
 			write("* * * * * SEND THE CONTENTS OF THIS WHOLE FILE * * * * *", out);
@@ -655,106 +658,105 @@ public class FileManager {
 				writeTabify(el.toString(), out);
 			}
 			write("", out);
-			Plugin[] plugins = PLUGIN.getServer().getPluginManager().getPlugins();
-			write("Plugins (" + plugins.length + "): ", out);
-			for(Plugin p : plugins) {
+			write("Plugins: ", out);
+			for(Plugin p : PLUGIN.getServer().getPluginManager().getPlugins()) {
 				writeTabify(p.getName(), out);
 			}
 			write("", out);
 			write("* * * End Report * * *", out);
-			
+
 			out.flush();
 			out.close();
-			
+
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		return path;
 	}
-	
+
 	//Save entities to file
 	public void saveEntities() {
-		
+
 		if(LOG_LEVEL > 0)
 			LOG.info("Saving entities...");
-		
+
 		if(LOG_LEVEL > 1)
 			LOG.info(String.valueOf(CustomSpawners.entities.size()) + " entities to save.");
-		
+
 		Iterator<SpawnableEntity> entityItr = CustomSpawners.entities.values().iterator();
 
 		while(entityItr.hasNext()) {
 			SpawnableEntity e = entityItr.next();
 
 			String path = ENTITY_PATH + ch + String.valueOf(e.getId()) + ".dat";
-			
+
 			if(LOG_LEVEL > 1)
 				LOG.info("Saving entity " + String.valueOf(e.getId()) + " to " + path);
-			
+
 			File saveFile = new File(path);
 			saveEntity(e, saveFile);
-			
+
 		}
 
 		clearEntities();
-		
+
 		if(LOG_LEVEL > 0)
 			LOG.info("Save complete!");	
 	}
-	
+
 	//Saves a SpawnableEntity to YAML file
 	public void saveEntity(SpawnableEntity e, File f) {
-		
+
 		if(isDat(f)) {
-			
+
 			try {
 				FileOutputStream fOut = new FileOutputStream(f);
 				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
-				
+
 				oOut.writeObject(e);
-				
+
 				oOut.close();
 				fOut.close();
-				
+
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				LOG.severe("Failed to save entity " + String.valueOf(e.getId()) + "!");
 			}
-			
+
 			return;
 		}
-		
+
 	}
-	
+
 	//Saves a Spawner to a YAML file
 	public void saveSpawner(Spawner s, File f) {
-		
+
 		if(isDat(f)) {
-			
+
 			try {
 				FileOutputStream fOut = new FileOutputStream(f);
 				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
-				
+
 				oOut.writeObject(s);
-				
+
 				oOut.close();
 				fOut.close();
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				LOG.severe("Failed to save spawner " + String.valueOf(s.getId()) + "!");
 			}
-			
+
 			return;
 		} else {
 			LOG.info(NOT_DAT);
 		}
-		
+
 		FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
 
 		yaml.options().header("DO NOT MODIFY THIS FILE!");
-		
+
 		List<String> mobIDs = new ArrayList<String>();
 		Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
 		while(mobItr.hasNext()) {
@@ -808,28 +810,28 @@ public class FileManager {
 			e.printStackTrace();
 			LOG.severe("Failed to save spawner " + String.valueOf(s.getId()) + "!");
 		}
-		
+
 	}
-	
+
 	//Saves spawners to file
 	public void saveSpawners() {
 		if(LOG_LEVEL > 0)
 			LOG.info("Saving spawners...");
-		
+
 		if(LOG_LEVEL > 1)
 			LOG.info(String.valueOf(CustomSpawners.spawners.size()) + " spawners to save.");
-		
+
 		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
 
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			boolean killOnReload = CONFIG.getBoolean("spawners.killOnReload", false);
-			
+
 			String path = SPAWNER_PATH + ch + String.valueOf(s.getId()) + ".dat";
-			
+
 			if(LOG_LEVEL > 1)
 				LOG.info("Saving spawner " + String.valueOf(s.getId()) + " to " + path);
-			
+
 			if(killOnReload) {
 				for(Integer e : s.getMobs().keySet()) {
 					List<Entity> entities = PLUGIN.getServer().getWorld(s.getLoc().getWorld().getName()).getEntities();
@@ -841,27 +843,25 @@ public class FileManager {
 				}
 				s.getMobs().clear();
 			}
-			
+
 			File saveFile = new File(path);
-			
+
 			saveSpawner(s, saveFile);
-			
+
 		}
 
 		clearSpawners();
-		
+
 		if(LOG_LEVEL > 0)
 			LOG.info("Save complete!");	
 	}
-	
-	private void write(String s, BufferedWriter w) throws IOException {
-		w.write(s);
-		w.newLine();
+
+	private void write(String s, PrintWriter w) throws IOException {
+		w.println(s);
 	}
-	
-	private void writeTabify(String s, BufferedWriter w) throws IOException {
-		w.write("\t" + s);
-		w.newLine();
+
+	private void writeTabify(String s, PrintWriter w) throws IOException {
+		w.println("\t" + s);
 	}
-	
+
 }
