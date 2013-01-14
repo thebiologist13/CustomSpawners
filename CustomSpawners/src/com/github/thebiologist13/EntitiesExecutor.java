@@ -537,7 +537,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				return true;
 			} catch(Exception e) {
 				PLUGIN.printDebugTrace(e);
-				PLUGIN.sendMessage(arg0, "An error has occurred. Crash report saved to " + 
+				PLUGIN.sendMessage(arg0, ChatColor.RED + "An error has occurred. Crash report saved to " + 
 						PLUGIN.getFileManager().saveCrash(cmd.getClass(), e));
 				PLUGIN.sendMessage(arg0, cmd.GENERAL_ERROR);
 				return true;

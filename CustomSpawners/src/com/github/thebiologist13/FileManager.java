@@ -629,8 +629,12 @@ public class FileManager {
 	public String saveCrash(Class<?> clazz, Exception e) {
 		Calendar c = Calendar.getInstance();
 		String path = CRASH_PATH + ch + c.get(Calendar.DATE) + "_" +
-				c.get(Calendar.MONTH) + "_" + c.get(Calendar.YEAR) + ".txt";
+				(c.get(Calendar.MONTH) + 1) + "_" + c.get(Calendar.YEAR) + ".txt";
 		File file = new File(path);
+		
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(file));

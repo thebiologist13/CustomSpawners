@@ -33,7 +33,7 @@ public class EntityColorCommand extends EntityCommand {
 		} else if(in.equals("grey")) {
 			color = DyeColor.GRAY;
 		} else {
-			color = DyeColor.valueOf(in);
+			color = DyeColor.valueOf(in.toUpperCase());
 		}
 		
 		if(color == null) {
