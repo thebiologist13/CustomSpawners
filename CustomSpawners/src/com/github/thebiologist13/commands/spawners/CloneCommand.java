@@ -35,13 +35,7 @@ public class CloneCommand extends SpawnerCommand {
 		}
 		
 		Spawner spawner1 = PLUGIN.cloneWithNewId(spawner);
-		spawner1.setName("");
 		spawner1.setLoc(target);
-		CustomSpawners.spawners.put(spawner1.getId(), spawner1);
-		
-		if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
-			PLUGIN.getFileManager().autosave(spawner1);
-		}
 		
 		PLUGIN.sendMessage(player, ChatColor.GREEN + "Cloned spawner " + ChatColor.GOLD + 
 				PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + " to " + ChatColor.GOLD + 

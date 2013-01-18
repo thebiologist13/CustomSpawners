@@ -452,7 +452,14 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
+		final String INVALID_PARAMS = ChatColor.RED + "You entered invalid parameters.";
+		
 		if(arg1.getName().equalsIgnoreCase("entities")) {
+			
+			if(arg3.length < 1) {
+				PLUGIN.sendMessage(arg0, INVALID_PARAMS);
+				return true;
+			}
 			
 			SpawnableEntity entityRef = null;
 			String sub = arg3[0].toLowerCase();
@@ -533,7 +540,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 			try {
 				cmd.run(entityRef, arg0, sub, params);
 			} catch(ArrayIndexOutOfBoundsException e) {
-				PLUGIN.sendMessage(arg0, ChatColor.RED + "You entered invalid parameters.");
+				PLUGIN.sendMessage(arg0, INVALID_PARAMS);
 				return true;
 			} catch(Exception e) {
 				PLUGIN.printDebugTrace(e);

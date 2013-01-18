@@ -51,30 +51,10 @@ public class CreateCommand extends SpawnerCommand {
 			return;
 		}
 		
-		int id = PLUGIN.getNextSpawnerId();
-		
-		Spawner newSpawner = new Spawner(entity, target.getLocation(), id);
-		
-		newSpawner.setRadius(CONFIG.getDouble("spawners.radius", 8));
-		newSpawner.setRedstoneTriggered(CONFIG.getBoolean("spawners.redstoneTriggered", false));
-		newSpawner.setMaxPlayerDistance(CONFIG.getInt("spawners.maxPlayerDistance", 16));
-		newSpawner.setMinPlayerDistance(CONFIG.getInt("spawners.minPlayerDistance", 0));
-		newSpawner.setActive(CONFIG.getBoolean("spawners.active", false));
-		newSpawner.setMaxLightLevel((byte) CONFIG.getInt("spawners.maxLightLevel", 7));
-		newSpawner.setMinLightLevel((byte) CONFIG.getInt("spawners.minLightLevel", 0));
-		newSpawner.setHidden(CONFIG.getBoolean("spawners.hidden", false));
-		newSpawner.setRate(CONFIG.getInt("spawners.rate", 120));
-		newSpawner.setMobsPerSpawn(CONFIG.getInt("spawners.mobsPerSpawn", 2));
-		newSpawner.setMaxMobs(CONFIG.getInt("spawners.maxMobs", 12));
-		
-		CustomSpawners.spawners.put(newSpawner.getId(), newSpawner);
-		
-		if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
-			PLUGIN.getFileManager().autosave(newSpawner);
-		}
+		Spawner newSpawner = PLUGIN.createSpawner(entity, target.getLocation());
 		
 		PLUGIN.sendMessage(player, ChatColor.GREEN + "Successfully created a " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + 
-				" spawner with ID " + ChatColor.GOLD + id + ChatColor.GREEN + "!");
+				" spawner with ID " + ChatColor.GOLD + PLUGIN.getFriendlyName(newSpawner) + ChatColor.GREEN + "!");
 		
 	}
 }

@@ -37,7 +37,7 @@ public class NameCommand extends SpawnerCommand {
 		
 		spawner.setName(in);
 		
-		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Renamed entity to be " +
+		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Renamed spawner to be " +
 				ChatColor.GOLD + PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + "!");
 		
 	}

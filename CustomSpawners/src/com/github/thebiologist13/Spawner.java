@@ -80,13 +80,15 @@ public class Spawner implements Serializable {
 	private ConcurrentHashMap<Integer, SpawnableEntity> mobs = new ConcurrentHashMap<Integer, SpawnableEntity>();
 	//If the block was powered before
 	private boolean poweredBefore = false;
-	//Additional NBT data
-	private Map<String, Object> tag = new HashMap<String, Object>(); 
+	//Secondary Mobs (passenger, projectiles, etc.). Key is mobId, value is associated mob from "mobs".
+	private ConcurrentHashMap<Integer, Integer> secondaryMobs = new ConcurrentHashMap<Integer, Integer>();
+	//Additional data
+	private Map<String, Object> tag = new HashMap<String, Object>();
+
 	//Ticks left before next spawn
-	private int ticksLeft = -1;
+	private int ticksLeft = -1; 
 	//Spawnable Mobs
 	private List<Integer> typeData = new ArrayList<Integer>();
-	
 	public Spawner(SpawnableEntity type, Location loc, int id) {
 		this(type, loc, "", id);
 	}
@@ -111,6 +113,10 @@ public class Spawner implements Serializable {
 		mobs.put(mobId, entity);
 	}
 	
+	public void addSecondaryMob(int mobId, int boundTo) {
+		secondaryMobs.put(mobId, boundTo);
+	}
+
 	public void addTypeData(SpawnableEntity data) {
 		typeData.add(data.getId());
 	}
@@ -125,19 +131,12 @@ public class Spawner implements Serializable {
 		
 		this.data.put("areaPoints", ap1);
 	}
-	
+
 	//Spawn the mobs
 	public void forceSpawn() {
 
 		SpawnableEntity spawnType = randType();
 		mainSpawn(spawnType);
-		
-	}
-
-	//Spawn the mobs
-	public void forceSpawnType(SpawnableEntity entity) {
-
-		mainSpawn(entity);
 		
 	}
 	
@@ -147,6 +146,13 @@ public class Spawner implements Serializable {
 		Entity e = spawnTheEntity(entity, loc);
 		assignMobProps(e, entity);
 		return e;
+		
+	}
+	
+	//Spawn the mobs
+	public void forceSpawnType(SpawnableEntity entity) {
+
+		mainSpawn(entity);
 		
 	}
 	
@@ -165,7 +171,7 @@ public class Spawner implements Serializable {
 	public Block getBlock() {
 		return ((SBlock) this.data.get("block")).toBlock();
 	}
-	
+
 	public byte getBlockData() {
 		return ((SBlock) this.data.get("block")).getData();
 	}
@@ -173,15 +179,15 @@ public class Spawner implements Serializable {
 	public int getBlockId() {
 		return ((SBlock) this.data.get("block")).getId();
 	}
-
+	
 	public Map<String, Object> getData() {
 		return data;
 	}
-
+	
 	public int getId() {
 		return (Integer) this.data.get("id");
 	}
-
+	
 	public Location getLoc() {
 		return ((SLocation) this.data.get("loc")).toLocation();
 	}
@@ -189,31 +195,31 @@ public class Spawner implements Serializable {
 	public SpawnableEntity getMainEntity() {
 		return CustomSpawners.getEntity(this.typeData.get(0).toString());
 	}
-	
+
 	public byte getMaxLightLevel() {
 		return (this.data.containsKey("maxLight")) ? (Byte) this.data.get("maxLight") : 0;
 	}
-	
+
 	public int getMaxMobs() {
 		return (this.data.containsKey("maxMobs")) ? (Integer) this.data.get("maxMobs") : 0;
 	}
-	
+
 	public double getMaxPlayerDistance() {
 		return (this.data.containsKey("maxDistance")) ? Double.parseDouble(this.data.get("maxDistance").toString()) : 0;
 	}
-
+	
 	public byte getMinLightLevel() {
 		return (this.data.containsKey("minLight")) ? (Byte) this.data.get("minLight") : 0;
 	}
-
+	
 	public double getMinPlayerDistance() {
 		return (this.data.containsKey("minDistance")) ? Double.parseDouble(this.data.get("minDistance").toString()) : 0;
 	}
-
-	public Map<Integer, SpawnableEntity> getMobs() {
-		return this.mobs;
-	}
-
+	
+//	public Map<Integer, SpawnableEntity> getMobs() {
+//		return this.mobs;
+//	}
+	
 	public int getMobsPerSpawn() {
 		return (this.data.containsKey("mobsPerSpawn")) ? (Integer) this.data.get("mobsPerSpawn") : 0;
 	}
@@ -232,6 +238,10 @@ public class Spawner implements Serializable {
 
 	public int getRate() {
 		return (this.data.containsKey("rate")) ? (Integer) this.data.get("rate") : 60;
+	}
+
+	public Map<Integer, Integer> getSecondaryMobs() {
+		return secondaryMobs;
 	}
 
 	public Map<String, Object> getTag() {
@@ -277,11 +287,11 @@ public class Spawner implements Serializable {
 	public boolean isUsingSpawnArea() {
 		return (this.data.containsKey("useSpawnArea")) ? (Boolean) this.data.get("useSpawnArea") : false;
 	}
-	
+
 	public void putTag(String key, Object value) {
 		this.tag.put(key, value);
 	}
-	
+
 	//Remove the spawner
 	public void remove() {
 		/*
@@ -293,10 +303,20 @@ public class Spawner implements Serializable {
 		data.put("id", -1);
 		data.put("active", false);
 	}
-
+	
 	public void removeMob(int mobId) {
 		if(mobs.containsKey(mobId))
 			mobs.remove(mobId);
+	}
+	
+	public void removePrimaryOrSecondaryMob(int mobId) {
+		removeMob(mobId);
+		removeSecondaryMob(mobId);
+	}
+	
+	public void removeSecondaryMob(int mobId) {
+		if(secondaryMobs.containsKey(mobId))
+			secondaryMobs.remove(mobId);
 	}
 
 	public void removeTag(String key) {
@@ -336,11 +356,11 @@ public class Spawner implements Serializable {
 	public void setBlock(Block block) {
 		this.data.put("block", new SBlock(block));
 	}
-	
+
 	public void setConverted(boolean converted) {
 		this.data.put("converted", converted);
 	}
-
+	
 	public void setData(Map<String, Object> data) {
 		
 		if(data == null)
@@ -364,7 +384,7 @@ public class Spawner implements Serializable {
 		this.data.put("loc", new SLocation(loc));
 		setBlock(loc.getBlock());
 	}
-	
+
 	public void setMaxLightLevel(byte maxLightLevel) {
 		this.data.put("maxLight", maxLightLevel);
 	}
@@ -380,7 +400,7 @@ public class Spawner implements Serializable {
 	public void setMinLightLevel(byte minLightLevel) {
 		this.data.put("minLight", minLightLevel);
 	}
-
+	
 	public void setMinPlayerDistance(double minPlayerDistance) {
 		this.data.put("minDistance", minPlayerDistance);
 	}
@@ -388,7 +408,7 @@ public class Spawner implements Serializable {
 	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
 		this.mobs = (ConcurrentHashMap<Integer, SpawnableEntity>) mobParam;
 	}
-	
+
 	public void setMobsPerSpawn(int mobsPerSpawn) {
 		this.data.put("mobsPerSpawn", mobsPerSpawn);
 	}
@@ -408,7 +428,7 @@ public class Spawner implements Serializable {
 		
 		this.data.put(key, value);
 	}
-
+	
 	public void setRadius(double radius) {
 		this.data.put("radius", radius);
 	}
@@ -417,9 +437,13 @@ public class Spawner implements Serializable {
 		this.data.put("rate", rate);
 		this.ticksLeft = rate;
 	}
-	
+
 	public void setRedstoneTriggered(boolean redstoneTriggered) {
 		this.data.put("redstone", redstoneTriggered);
+	}
+	
+	public void setSecondaryMobs(Map<Integer, Integer> secondaryMobs) {
+		this.secondaryMobs = (ConcurrentHashMap<Integer, Integer>) secondaryMobs;
 	}
 	
 	public void setSpawnOnRedstone(boolean value) {
@@ -902,6 +926,7 @@ public class Spawner implements Serializable {
 		LivingEntity skele = (LivingEntity) spiderLoc.getWorld().spawn(spiderLoc, EntityType.SKELETON.getEntityClass());
 		skele.getEquipment().setItemInHand(new ItemStack(Material.BOW));
 		spider.setPassenger(skele);
+		addSecondaryMob(skele.getEntityId(), spider.getEntityId());
 		return (Skeleton) skele;
 	}
 	
@@ -1006,19 +1031,26 @@ public class Spawner implements Serializable {
 			return;
 		}
 		
-		switch(entity.getType()) {
-		case SKELETON:
-			ee.setItemInHand(new ItemStack(Material.BOW));
-			break;
-		case PIG_ZOMBIE:
-			ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
-			break;
-		default:
-			break;
-		} 
-		
-		ee.setItemInHand(data.getHand());
-		ee.setArmorContents(data.getArmor());  
+		if(data.isEmpty()) {
+			switch(entity.getType()) {
+			case SKELETON:
+				if(((Skeleton) entity).getSkeletonType().equals(SkeletonType.NORMAL)) {
+					ee.setItemInHand(new ItemStack(Material.BOW));
+				} else {
+					ee.setItemInHand(new ItemStack(Material.STONE_SWORD));
+				}
+				break;
+			case PIG_ZOMBIE:
+				ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
+				break;
+			default:
+				break;
+			} 
+			
+		} else {
+			ee.setItemInHand(data.getHand());
+			ee.setArmorContents(data.getArmor());  
+		}
 		
 	}
 	

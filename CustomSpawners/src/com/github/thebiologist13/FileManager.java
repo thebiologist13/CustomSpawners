@@ -627,7 +627,7 @@ public class FileManager {
 	//Saves a crash report to file
 	public String saveCrash(Class<?> clazz, Exception e) {
 		Calendar c = Calendar.getInstance();
-		String path = CRASH_PATH + "crash-" + String.valueOf(c.get(Calendar.DATE)) + "-" +
+		String path = CRASH_PATH + ch + "crash-" + String.valueOf(c.get(Calendar.DATE)) + "-" +
 				String.valueOf((c.get(Calendar.MONTH) + 1)) + "-" + 
 				String.valueOf(c.get(Calendar.YEAR)) + "-" + 
 				String.valueOf(System.currentTimeMillis()) + ".txt";
@@ -649,6 +649,11 @@ public class FileManager {
 			write("", out);
 			write("Please report this error to thebiologist13 via a PM on BukkitDev or an email (thebiologist13@gmail.com).", out);
 			write("* * * * * SEND THE CONTENTS OF THIS WHOLE FILE * * * * *", out);
+			write("", out);
+			write("* * * Server Info * * *", out);
+			write("", out);
+			write("Bukkit Build: " + PLUGIN.getServer().getBukkitVersion(), out);
+			write("CustomSpawners Build: " + PLUGIN.getDescription().getVersion(), out);
 			write("", out);
 			write("* * * Begin Report * * *", out);
 			write("Class Error Occurred In: " + clazz.getName(), out);

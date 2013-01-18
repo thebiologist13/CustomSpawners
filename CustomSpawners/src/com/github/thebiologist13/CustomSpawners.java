@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -115,7 +116,7 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//WorldGuard
 	private WorldGuardPlugin worldGuard = null;
-
+	
 	//Gets an entity
 	public static SpawnableEntity getEntity(int ref) {
 		return getEntity(String.valueOf(ref));
@@ -283,13 +284,14 @@ public class CustomSpawners extends JavaPlugin {
 		return true;
 	}
 
-	public Spawner cloneWithNewId(Spawner s) {
-		Spawner s1 = new Spawner(s.getMainEntity(), s.getLoc(), getNextSpawnerId());
-		s1.setData(s.getData());
-		s1.setTypeData(s.getTypeData());
-		return s1;
+	public Spawner cloneWithNewId(Spawner spawner) {
+		Spawner spawner1 = createSpawner(spawner.getMainEntity(), spawner.getLoc());
+		spawner1.setTypeData(spawner.getTypeData());
+		spawner1.setData(spawner.getData());
+		spawner1.setActive(false);
+		return spawner1;
 	}
-
+	
 	//Converts ticks to MM:SS
 	public String convertTicksToTime(int ticks) {
 		int minutes = 0;
@@ -334,6 +336,31 @@ public class CustomSpawners extends JavaPlugin {
 			log.severe("Could not copy config from jar!");
 			e.printStackTrace();
 		}
+	}
+	
+	public Spawner createSpawner(SpawnableEntity e, Location loc) {
+		Spawner newSpawner = new Spawner(e, loc, getNextSpawnerId());
+		
+		newSpawner.setRadius(config.getDouble("spawners.radius", 8));
+		newSpawner.setRedstoneTriggered(config.getBoolean("spawners.redstoneTriggered", false));
+		newSpawner.setMaxPlayerDistance(config.getInt("spawners.maxPlayerDistance", 16));
+		newSpawner.setMinPlayerDistance(config.getInt("spawners.minPlayerDistance", 0));
+		newSpawner.setActive(config.getBoolean("spawners.active", false));
+		newSpawner.setMaxLightLevel((byte) config.getInt("spawners.maxLightLevel", 7));
+		newSpawner.setMinLightLevel((byte) config.getInt("spawners.minLightLevel", 0));
+		newSpawner.setHidden(config.getBoolean("spawners.hidden", false));
+		newSpawner.setRate(config.getInt("spawners.rate", 120));
+		newSpawner.setMobsPerSpawn(config.getInt("spawners.mobsPerSpawn", 2));
+		newSpawner.setMaxMobs(config.getInt("spawners.maxMobs", 12));
+		
+		spawners.put(newSpawner.getId(), newSpawner);
+		
+		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
+			getFileManager().autosave(newSpawner);
+		}
+		
+		return spawners.get(newSpawner.getId());
+		
 	}
 
 	public FileConfiguration getCustomConfig() {
@@ -384,7 +411,11 @@ public class CustomSpawners extends JavaPlugin {
 
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+			
+			Set<Integer> mobList = s.getMobs().keySet();
+			Set<Integer> sMobList = s.getSecondaryMobs().keySet();
+			mobList.addAll(sMobList);
+			Iterator<Integer> mobItr = mobList.iterator();
 
 			while(mobItr.hasNext()) {
 				Entity currentMob = getEntityFromWorld(mobItr.next(), s.getLoc().getWorld());
@@ -1089,7 +1120,10 @@ public class CustomSpawners extends JavaPlugin {
 		while(itr.hasNext()) {
 			Spawner s = itr.next();
 
-			Iterator<Integer> mobs = s.getMobs().keySet().iterator();
+			Set<Integer> mobList = s.getMobs().keySet();
+			Set<Integer> sMobList = s.getSecondaryMobs().keySet();
+			mobList.addAll(sMobList);
+			Iterator<Integer> mobs = mobList.iterator();
 
 			while(mobs.hasNext()) {
 				Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
@@ -1099,7 +1133,7 @@ public class CustomSpawners extends JavaPlugin {
 				}
 				
 				if(spawnerMob.getEntityId() == entityId) {
-					mobs.remove();
+					s.removePrimaryOrSecondaryMob(entityId);
 					if(DamageController.extraHealthEntities.containsKey(spawnerMob)) 
 						DamageController.extraHealthEntities.remove(spawnerMob);
 				}
@@ -1112,7 +1146,10 @@ public class CustomSpawners extends JavaPlugin {
 
 	//Removes mobs spawned by a certain spawner
 	public synchronized void removeMobs(final Spawner s) { //Called in the removemobs command
-		Iterator<Integer> mobs = s.getMobs().keySet().iterator();
+		Set<Integer> mobList = s.getMobs().keySet();
+		Set<Integer> sMobList = s.getSecondaryMobs().keySet();
+		mobList.addAll(sMobList);
+		Iterator<Integer> mobs = mobList.iterator();
 
 		while(mobs.hasNext()) {
 			Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
@@ -1121,14 +1158,14 @@ public class CustomSpawners extends JavaPlugin {
 				continue;
 			}
 			
-			if(spawnerMob.getPassenger() != null)
-				spawnerMob.getPassenger().remove();
+//			if(spawnerMob.getPassenger() != null)
+//				spawnerMob.getPassenger().remove();
 
 			if(DamageController.extraHealthEntities.containsKey(spawnerMob)) 
 				DamageController.extraHealthEntities.remove(spawnerMob);
 
+			s.removePrimaryOrSecondaryMob(spawnerMob.getEntityId());
 			spawnerMob.remove();
-			mobs.remove();
 
 		}
 
