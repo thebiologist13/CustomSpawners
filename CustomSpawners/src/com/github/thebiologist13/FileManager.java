@@ -838,15 +838,7 @@ public class FileManager {
 				LOG.info("Saving spawner " + String.valueOf(s.getId()) + " to " + path);
 
 			if(killOnReload) {
-				for(Integer e : s.getMobs().keySet()) {
-					List<Entity> entities = PLUGIN.getServer().getWorld(s.getLoc().getWorld().getName()).getEntities();
-					for(Entity le : entities) {
-						if(le.getEntityId() == e) {
-							le.remove();
-						}
-					}
-				}
-				s.getMobs().clear();
+				PLUGIN.removeMobs(s);
 			}
 
 			File saveFile = new File(path);
