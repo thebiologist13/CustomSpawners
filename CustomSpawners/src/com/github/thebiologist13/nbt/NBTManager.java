@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -16,11 +16,11 @@ import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
 
-import net.minecraft.server.v1_4_6.NBTTagCompound;
-import net.minecraft.server.v1_4_6.NBTTagDouble;
-import net.minecraft.server.v1_4_6.NBTTagList;
-import net.minecraft.server.v1_4_6.TileEntity;
-import net.minecraft.server.v1_4_6.TileEntityMobSpawner;
+import net.minecraft.server.v1_4_R1.NBTTagCompound;
+import net.minecraft.server.v1_4_R1.NBTTagDouble;
+import net.minecraft.server.v1_4_R1.NBTTagList;
+import net.minecraft.server.v1_4_R1.TileEntity;
+import net.minecraft.server.v1_4_R1.TileEntityMobSpawner;
 
 /**
  * NBTManager (will be) a library for Bukkit and Minecraft for
@@ -169,10 +169,10 @@ public class NBTManager {
 		if(s.getTypeData().size() == 1) {
 			Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
 			Entity e = s.forceSpawnOnLoc(mainEntity, pos);
-			net.minecraft.server.v1_4_6.Entity nmsEntity = ((CraftEntity) e).getHandle();
+			net.minecraft.server.v1_4_R1.Entity nmsEntity = ((CraftEntity) e).getHandle();
 			eData = getTag(nmsEntity);
 			
-			if(eData.d()) { //If empty
+			if(eData.isEmpty()) { //If empty
 				return null;
 			}
 			
@@ -195,7 +195,7 @@ public class NBTManager {
 			eData.setString("id", id);
 			
 			if(eData.hasKey("Pos") && spawnLocation == null) {
-				eData.o("Pos");
+				eData.remove("Pos");
 			}
 			
 			eData.set("Motion", makeDoubleList(new double[] 
@@ -213,10 +213,10 @@ public class NBTManager {
 				SpawnableEntity se = CustomSpawners.getEntity(typeData.get(i).toString());
 				Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
 				Entity e = s.forceSpawnOnLoc(se, pos);
-				net.minecraft.server.v1_4_6.Entity nmsEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_4_R1.Entity nmsEntity = ((CraftEntity) e).getHandle();
 				
 				NBTTagCompound eData2 = getTag(nmsEntity);
-				if(eData2.d()) { //If empty
+				if(eData2.isEmpty()) { //If empty
 					return null;
 				}
 
@@ -239,7 +239,7 @@ public class NBTManager {
 				eData2.setString("id", id);
 				
 				if(eData2.hasKey("Pos") && spawnLocation == null) {
-					eData2.o("Pos");
+					eData2.remove("Pos");
 				}
 				
 				eData2.set("Motion", makeDoubleList(new double[] 

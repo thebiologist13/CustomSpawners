@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.minecraft.server.v1_4_6.AxisAlignedBB;
-import net.minecraft.server.v1_4_6.EntityEnderPearl;
-import net.minecraft.server.v1_4_6.EntityLiving;
-import net.minecraft.server.v1_4_6.EntityPotion;
+import net.minecraft.server.v1_4_R1.AxisAlignedBB;
+import net.minecraft.server.v1_4_R1.EntityEnderPearl;
+import net.minecraft.server.v1_4_R1.EntityLiving;
+import net.minecraft.server.v1_4_R1.EntityPotion;
 
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -19,9 +19,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_4_6.CraftWorld;
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_4_6.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_4_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
@@ -216,9 +216,9 @@ public class Spawner implements Serializable {
 		return (this.data.containsKey("minDistance")) ? Double.parseDouble(this.data.get("minDistance").toString()) : 0;
 	}
 	
-//	public Map<Integer, SpawnableEntity> getMobs() {
-//		return this.mobs;
-//	}
+	public Map<Integer, SpawnableEntity> getMobs() {
+		return this.mobs;
+	}
 	
 	public int getMobsPerSpawn() {
 		return (this.data.containsKey("mobsPerSpawn")) ? (Integer) this.data.get("mobsPerSpawn") : 0;
@@ -878,7 +878,7 @@ public class Spawner implements Serializable {
 				
 				e = spawnTheEntity(spawnType, spawnLocation);
 
-				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_4_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
 				
 				AxisAlignedBB bb = nmEntity.boundingBox;
 				
@@ -893,7 +893,7 @@ public class Spawner implements Serializable {
 				
 				e = spawnTheEntity(spawnType, spLoc);
 				
-				net.minecraft.server.v1_4_6.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_4_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
 				
 				spawnType.setHeight(nmEntity.height);
 				spawnType.setWidth(nmEntity.width);
@@ -1060,7 +1060,7 @@ public class Spawner implements Serializable {
 			return getLoc().getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {
 			return getLoc().getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) spawnType.getItemType().getDurability());
-		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) {
+		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) { //TODO Explicitly set NBT to make custom potions
 			World world = getLoc().getWorld();
 			SPotionEffect effect = spawnType.getPotionEffect();
 			PotionType type = PotionType.getByEffect(effect.getType());
@@ -1079,15 +1079,15 @@ public class Spawner implements Serializable {
 			p.setSplash(true);
 			int data = p.toDamageValue();
 			 
-			net.minecraft.server.v1_4_6.World nmsWorld = ((CraftWorld) world).getHandle();
-			EntityPotion ent = new EntityPotion(nmsWorld, spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), new net.minecraft.server.v1_4_6.ItemStack(373, 1, data));
+			net.minecraft.server.v1_4_R1.World nmsWorld = ((CraftWorld) world).getHandle();
+			EntityPotion ent = new EntityPotion(nmsWorld, spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), new net.minecraft.server.v1_4_R1.ItemStack(373, 1, data));
 			nmsWorld.addEntity(ent);
 			return ent.getBukkitEntity();
 		} else if(spawnType.getType().equals(EntityType.ENDER_PEARL)) {
 			World world = getLoc().getWorld();
 			EntityLiving nearPlayer = ((CraftLivingEntity) getNearbyPlayers(getLoc(), getMaxPlayerDistance() + 1).get(0)).getHandle();
 			 
-			net.minecraft.server.v1_4_6.World nmsWorld = ((CraftWorld) world).getHandle();
+			net.minecraft.server.v1_4_R1.World nmsWorld = ((CraftWorld) world).getHandle();
 			EntityEnderPearl ent = new EntityEnderPearl(nmsWorld, nearPlayer);
 			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
 			nmsWorld.addEntity(ent);
