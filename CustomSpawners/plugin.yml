@@ -45,7 +45,9 @@ permissions:
             customspawners.spawners.removemobs: true
             customspawners.spawners.setname: true
             customspawners.spawners.listnear: true
+            customspawners.spawners.listnear.hidden: true
             customspawners.spawners.listall: true
+            customspawners.spawners.listall.hidden: true
             customspawners.spawners.create: true
             customspawners.spawners.select: true
             customspawners.spawners.remove: true
@@ -66,6 +68,8 @@ permissions:
             customspawners.spawners.removeallmobs: true
             customspawners.spawners.spawnonpower: true
             customspawners.spawners.wand: true
+            customspawners.spawners.spawntime: true
+            customspawners.spawners.modifiers: true
             customspawners.entities.effects: true
             customspawners.entities.setage: true
             customspawners.entities.setair: true
@@ -225,6 +229,12 @@ permissions:
         default: true
     customspawners.entities.setpassive:
         description: Allows the user/group to set the mobs passive.
+        default: op
+    customspawners.spawners.spawntime:
+        description: Allows the user/group to set the spawn times of a spawner.
+        default: op
+    customspawners.spawners.modifiers:
+        description: Allows the user/group to set spawn modifiers.
         default: op
     customspawners.entities.create:
         description: Allows the user/group to create a spawnable entity.

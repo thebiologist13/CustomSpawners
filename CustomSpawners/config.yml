@@ -82,7 +82,7 @@ spawners:
     # This saves time saving and loading spawners.
     killOnReload: false
     
-    # Should spawners be disabled when thier block is
+    # Should spawners be disabled when their block is
     # destroyed?
     deactivateOnBreak: true
     

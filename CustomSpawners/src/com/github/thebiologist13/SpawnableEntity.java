@@ -32,22 +32,31 @@ public class SpawnableEntity implements Serializable {
 	 */
 	
 	private static final long serialVersionUID = -60000847475741355L;
+	
 	//Damage Blacklist
-	private List<String> blacklist = new ArrayList<String>();
-	private Map<String, Object> data = new HashMap<String, Object>();
+	private List<String> blacklist;
+	private Map<String, Object> data;
 	//Drops
-	private List<SItemStack> drops = new ArrayList<SItemStack>();
+	private List<SItemStack> drops;
 	//Basic Data
-	private List<SPotionEffect> effects = new ArrayList<SPotionEffect>();
+	private List<SPotionEffect> effects;
 	//Items that do or do not inflict damage
-	private List<SItemStack> itemDamage = new ArrayList<SItemStack>(); 
-	//Additional data to be added to NBT
-	private Map<String, Object> tag = new HashMap<String, Object>();
+	private List<SItemStack> itemDamage; 
+	//Modifiers
+	private Map<String, String> modifiers;
 	//Damage Whitelist
-	private List<String> whitelist = new ArrayList<String>();
+	private List<String> whitelist;
 	
 	//Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
+		this.blacklist = new ArrayList<String>();
+		this.data = new HashMap<String, Object>();
+		this.drops = new ArrayList<SItemStack>();
+		this.itemDamage = new ArrayList<SItemStack>();
+		this.effects = new ArrayList<SPotionEffect>();
+		this.whitelist = new ArrayList<String>();
+		this.setModifiers(new HashMap<String, String>());
+		
 		this.data.put("type", type.getName());
 		this.data.put("id", id);
 		this.data.put("useWhitelist", false);
@@ -119,7 +128,7 @@ public class SpawnableEntity implements Serializable {
 	}
 	
 	public int getDroppedExp() {
-		return (this.data.containsKey("exp")) ? (Integer) this.data.get("exp") : 1;
+		return (this.data.containsKey("exp")) ? (Integer) this.data.get("exp") : 0;
 	}
 	
 	public List<ItemStack> getDrops() {
@@ -195,6 +204,14 @@ public class SpawnableEntity implements Serializable {
 		return (this.data.containsKey("maxHealth")) ? (Integer) this.data.get("maxHealth") : 20;
 	}
 
+	public String getModifier(String key) {
+		return modifiers.get(key);
+	}
+	
+	public Map<String, String> getModifiers() {
+		return modifiers;
+	}
+
 	public String getName() {
 		return (this.data.containsKey("name")) ? (String) this.data.get("name") : "";
 	}
@@ -213,10 +230,6 @@ public class SpawnableEntity implements Serializable {
 
 	public int getSlimeSize() {
 		return (this.data.containsKey("slimeSize")) ? (Integer) this.data.get("slimeSize") : 1;
-	}
-
-	public Map<String, Object> getTag() {
-		return tag;
 	}
 
 	public EntityType getType() {
@@ -269,12 +282,12 @@ public class SpawnableEntity implements Serializable {
 				this.data.containsKey("length")) ? true : false;
 	}
 
+	public boolean hasModifier(String key) {
+		return modifiers.containsKey(key);
+	}
+	
 	public boolean hasProp(String key) {
 		return this.data.containsKey(key);
-	}
-
-	public boolean hasTag(String key) {
-		return this.tag.containsKey(key);
 	}
 
 	public boolean isAngry() {
@@ -332,23 +345,15 @@ public class SpawnableEntity implements Serializable {
 	public boolean isUsingWhitelist() {
 		return (this.data.containsKey("useWhitelist")) ? (Boolean) this.data.get("useWhitelist") : false;
 	}
-
-	public void putTag(String key, Object value) {
-		this.tag.put(key, value);
-	}
-
+	
 	public void remove() {
 		this.data.put("id", -1);
-	}
-
-	public void removeTag(String key) {
-		this.tag.remove(key);
 	}
 	
 	public boolean requiresBlockBelow() {
 		return (this.data.containsKey("blockBelow")) ? (Boolean) this.data.get("blockBelow") : true;
 	}
-	
+
 	public void setAge(int age) {
 		this.data.put("age", age);
 	}
@@ -364,11 +369,11 @@ public class SpawnableEntity implements Serializable {
 	public void setBlockBelow(boolean value) {
 		this.data.put("blockBelow", value);
 	}
-
+	
 	public void setCatType(String catType) {
 		this.data.put("catType", catType);
 	}
-	
+
 	public void setCharged(boolean isCharged) {
 		this.data.put("charged", isCharged);
 	}
@@ -376,11 +381,11 @@ public class SpawnableEntity implements Serializable {
 	public void setColor(String color) {
 		this.data.put("color", color);
 	}
-
+	
 	public void setDamage(int damage) {
 		this.data.put("damage", damage);
 	}
-	
+
 	public void setDamageBlacklist(List<String> blacklist2) {
 		this.blacklist = blacklist2;
 	}
@@ -425,11 +430,11 @@ public class SpawnableEntity implements Serializable {
 		
 		this.drops = drops1;
 	}
-
+	
 	public void setEffects(List<SPotionEffect> effects) {
 		this.effects = effects;
 	}
-	
+
 	public void setEndermanBlock(MaterialData endermanBlock) {
 		this.data.put("enderBlock", endermanBlock.getItemTypeId());
 		this.data.put("enderBlockDamage", endermanBlock.getData());
@@ -495,10 +500,14 @@ public class SpawnableEntity implements Serializable {
 		this.data.put("maxHealth", maxHealth);
 	}
 
+	public void setModifiers(Map<String, String> modifiers) {
+		this.modifiers = modifiers;
+	}
+
 	public void setName(String name) {
 		this.data.put("name", name);
 	}
-
+	
 	public void setPassive(boolean passive) {
 		this.data.put("passive", passive);
 	}
@@ -506,7 +515,7 @@ public class SpawnableEntity implements Serializable {
 	public void setPotionEffect(SPotionEffect potionEffect) {
 		this.data.put("potionEffect", potionEffect);
 	}
-	
+
 	public void setProfession(Villager.Profession villagerProfession) {
 		this.data.put("profession", villagerProfession.toString());
 	}
@@ -525,10 +534,6 @@ public class SpawnableEntity implements Serializable {
 
 	public void setSlimeSize(int slimeSize) {
 		this.data.put("slimeSize", slimeSize);
-	}
-
-	public void setTag(Map<String, Object> tag) {
-		this.tag = tag;
 	}
 
 	public void setTamed(boolean isTamed) {
@@ -571,7 +576,7 @@ public class SpawnableEntity implements Serializable {
 		setYVelocity(velocity.getY());
 		setZVelocity(velocity.getZ());
 	}
-
+	
 	public void setWidth(float width) {
 		this.data.put("width", width);
 	}
@@ -579,7 +584,7 @@ public class SpawnableEntity implements Serializable {
 	public void setXVelocity(double xVelocity) {
 		this.data.put("xVelo", xVelocity);
 	}
-	
+
 	public void setYield(float yield) {
 		this.data.put("yield", (double) yield);
 	}

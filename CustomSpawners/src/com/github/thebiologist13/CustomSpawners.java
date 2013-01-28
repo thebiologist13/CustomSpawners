@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import net.astesana.javaluator.DoubleEvaluator;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -52,7 +54,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * Licensed under GNU-GPLv3
  * 
  * @author thebiologist13
- * @version 0.1
+ * @version 0.2
  */
 public class CustomSpawners extends JavaPlugin {
 
@@ -115,6 +117,15 @@ public class CustomSpawners extends JavaPlugin {
 	
 	//WorldGuard
 	private WorldGuardPlugin worldGuard = null;
+	
+	public static double evaluate(String expr) throws IllegalArgumentException {
+		DoubleEvaluator eval = new DoubleEvaluator();
+		try {
+			return eval.evaluate(expr);
+		} catch(Exception e) {
+			throw new IllegalArgumentException();
+		}
+	}
 	
 	//Gets an entity
 	public static SpawnableEntity getEntity(int ref) {
@@ -740,7 +751,7 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	public void onEnable() {
-
+		
 		//Transparent Blocks
 		transparent.add((byte) 0);
 		transparent.add((byte) 8);
@@ -863,7 +874,7 @@ public class CustomSpawners extends JavaPlugin {
 						}
 						
 						if(e.getLocation().distance(s.getLoc()) > 192) {
-							s.removeMob(e.getEntityId());
+							s.removeMob(spId);
 							e.remove();
 						}
 
@@ -881,7 +892,7 @@ public class CustomSpawners extends JavaPlugin {
 						}
 						
 						if(e.getLocation().distance(s.getLoc()) > 192) {
-							s.removeSecondaryMob(e.getEntityId());
+							s.removeSecondaryMob(id);
 							e.remove();
 						}
 						
@@ -1155,9 +1166,6 @@ public class CustomSpawners extends JavaPlugin {
 			}
 			
 			int id = spawnerMob.getEntityId();
-			
-//			if(spawnerMob.getPassenger() != null) //TODO secondary mobs
-//				spawnerMob.getPassenger().remove();
 				
 			DamageController.extraHealthEntities.remove(id);
 
@@ -1247,8 +1255,8 @@ public class CustomSpawners extends JavaPlugin {
 
 		String ch = File.separator;
 		String worldDir = w.getWorldFolder() + ch + "cs_data" + ch;
-		String entityDir = worldDir + ch + "entity";
-		String spawnerDir = worldDir + ch + "spawner";
+		String entityDir = worldDir + "entity";
+		String spawnerDir = worldDir + "spawner";
 
 		String spawnerPath = spawnerDir + ch + data.getId() + ".dat";
 
@@ -1260,11 +1268,12 @@ public class CustomSpawners extends JavaPlugin {
 
 		File[] entityFilesList = entityFilesDir.listFiles();
 		ArrayList<String> entityFiles = new ArrayList<String>();
-
-		for(File f : entityFilesList) {
-			entityFiles.add(f.getPath());
+		if(entityFilesList != null) {
+			for(File f : entityFilesList) {
+				entityFiles.add(f.getPath());
+			}
 		}
-
+		
 		Iterator<Integer> tItr = types.iterator();
 		while(tItr.hasNext()) {
 			int i = tItr.next();
@@ -1281,7 +1290,7 @@ public class CustomSpawners extends JavaPlugin {
 			}
 		}
 
-		printDebugMessage("World Folder: " + spawnerFile.getPath());
+		printDebugMessage("World Folder: " + worldDir);
 
 		fileManager.saveSpawner(data, spawnerFile);
 	}

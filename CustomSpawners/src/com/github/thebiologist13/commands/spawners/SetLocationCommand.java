@@ -1,6 +1,7 @@
 package com.github.thebiologist13.commands.spawners;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,6 +33,11 @@ public class SetLocationCommand extends SpawnerCommand {
 		
 		if(target == null) {
 			PLUGIN.sendMessage(player, ChatColor.RED + "You must look at a block to set the location there.");
+			return;
+		}
+		
+		if(target.getType().equals(Material.AIR)) {
+			PLUGIN.sendMessage(player, ChatColor.RED + "You must look at a block to make a spawner there.");
 			return;
 		}
 		

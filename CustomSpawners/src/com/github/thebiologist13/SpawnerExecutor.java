@@ -20,6 +20,7 @@ import com.github.thebiologist13.commands.spawners.LightLevelCommand;
 import com.github.thebiologist13.commands.spawners.ListAllCommand;
 import com.github.thebiologist13.commands.spawners.ListNearCommand;
 import com.github.thebiologist13.commands.spawners.MaxMobsCommand;
+import com.github.thebiologist13.commands.spawners.ModifierCommand;
 import com.github.thebiologist13.commands.spawners.NameCommand;
 import com.github.thebiologist13.commands.spawners.PerSpawnCommand;
 import com.github.thebiologist13.commands.spawners.PlayerDistanceCommand;
@@ -35,6 +36,7 @@ import com.github.thebiologist13.commands.spawners.SetRedstoneCommand;
 import com.github.thebiologist13.commands.spawners.SetTypeCommand;
 import com.github.thebiologist13.commands.spawners.SpawnAreaCommand;
 import com.github.thebiologist13.commands.spawners.SpawnOnPowerCommand;
+import com.github.thebiologist13.commands.spawners.SpawnTimesCommand;
 import com.github.thebiologist13.commands.spawners.SpawnerCommand;
 import com.github.thebiologist13.commands.spawners.ToggleWandCommand;
 
@@ -78,6 +80,8 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		SpawnerCommand onPower = new SpawnOnPowerCommand(plugin, "customspawners.spawners.spawnonpower");
 		SpawnerCommand wand = new ToggleWandCommand(plugin, "customspawners.spawners.wand");
 		SpawnerCommand clone = new CloneCommand(plugin, "customspawners.spawners.clone");
+		SpawnerCommand times = new SpawnTimesCommand(plugin, "customspawners.spawners.spawntime"); //TODO Add to wiki
+		SpawnerCommand modify = new ModifierCommand(plugin, "customspawners.spawners.modifiers"); //TODO Add to wiki
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -320,6 +324,51 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				"clonespawner",
 				"copy",
 				"copyspawner"
+		});
+		addCommand("setspawntime", times, new String[] {
+				"setspawntimes",
+				"spawntime",
+				"spawntimes",
+				"spawnat",
+				"whentospawn"
+		});
+		addCommand("addspawntime", times, new String[] {
+				"addspawntimes",
+				"addtime",
+				"addtimes",
+				"addspawnat"
+		});
+		addCommand("clearspawntime", times, new String[] {
+				"clearspawntimes",
+				"cleartime",
+				"cleartimes"
+		});
+		addCommand("setmodifier", modify, new String[] {
+				"modifier",
+				"setmodifiers",
+				"modifiers",
+				"setdynamicproperty",
+				"dynamicproperty",
+				"setdynamic",
+				"mod",
+				"setmod",
+				"modify"
+		});
+		addCommand("addmodifier", modify, new String[] {
+				"adddynamicproperty",
+				"adddynamic",
+				"addmod",
+				"addmodifiers",
+				"addmods"
+		});
+		addCommand("clearmodifier", modify, new String[] {
+				"nomodifiers",
+				"nomodifier",
+				"clearmodifiers",
+				"clearmods",
+				"clearmod",
+				"nomods",
+				"nomod"
 		});
 	}
 	

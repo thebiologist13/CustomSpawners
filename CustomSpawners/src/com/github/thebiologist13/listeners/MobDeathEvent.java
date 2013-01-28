@@ -27,8 +27,6 @@ public class MobDeathEvent implements Listener {
 		Entity entity = ev.getEntity();
 		SpawnableEntity e = plugin.getEntityFromSpawner(entity.getEntityId());
 		
-		plugin.removeMob(entity);
-		
 		DamageController.angryMobs.remove(entity.getEntityId());
 		
 		if(e != null) {
@@ -64,6 +62,8 @@ public class MobDeathEvent implements Listener {
 			}
 			
 		}
+		
+		plugin.removeMob(entity);
 		
 	}
 	

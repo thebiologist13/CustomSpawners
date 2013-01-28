@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -193,10 +194,15 @@ public class FileManager {
 				oIn.close();
 				fIn.close();
 
+				if(e.getModifiers() == null) {
+					e.setModifiers(new HashMap<String, String>());
+				}
+				
 				return e;
 
 			} catch (Exception e) {
 				e.printStackTrace();
+				saveCrash(this.getClass(), e);
 				LOG.severe("Failed to load entity from" + f.getPath() + "!");
 			}
 
@@ -348,11 +354,33 @@ public class FileManager {
 
 				oIn.close();
 				fIn.close();
+				
+				if(s.getMobs() == null) {
+					s.setMobs(new ConcurrentHashMap<Integer, SpawnableEntity>());
+				}
+				
+				if(s.getModifiers() == null) {
+					s.setModifiers(new HashMap<String, String>());
+				}
+				
+				if(s.getSecondaryMobs() == null) {
+					s.setSecondaryMobs(new ConcurrentHashMap<Integer, Integer>());
+				}
+				
+				if(s.getSpawnTimes() == null) {
+					s.setSpawnTimes(new ArrayList<Integer>());
+				}
+				
+				if(s.getTypeData() == null) {
+					s.setTypeData(new ArrayList<Integer>());
+					s.addTypeData(CustomSpawners.defaultEntity);
+				}
 
 				return s;
 
 			} catch (Exception e) {
 				e.printStackTrace();
+				saveCrash(this.getClass(), e);
 				LOG.severe("Failed to load spawner from" + f.getPath() + "!");
 			}
 
@@ -631,6 +659,8 @@ public class FileManager {
 				String.valueOf((c.get(Calendar.MONTH) + 1)) + "-" + 
 				String.valueOf(c.get(Calendar.YEAR)) + "-" + 
 				String.valueOf(System.currentTimeMillis()) + ".txt";
+		int minInt = c.get(Calendar.MINUTE);
+		String minute = (minInt < 10) ? "0" + minInt : "" + minInt; 
 
 		try {
 
@@ -645,7 +675,7 @@ public class FileManager {
 			write("CustomSpawners Error on " + c.get(Calendar.DATE) + "/" +
 					(c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.YEAR), out);
 			write("Time of Error: " + c.get(Calendar.HOUR_OF_DAY) + ":" + 
-					c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND), out);
+					minute + ":" + c.get(Calendar.SECOND), out);
 			write("", out);
 			write("Please report this error to thebiologist13 via a PM on BukkitDev or an email (thebiologist13@gmail.com).", out);
 			write("* * * * * SEND THE CONTENTS OF THIS WHOLE FILE * * * * *", out);
@@ -711,7 +741,7 @@ public class FileManager {
 	}
 
 	//Saves a SpawnableEntity to YAML file
-	public void saveEntity(SpawnableEntity e, File f) {
+	public void saveEntity(SpawnableEntity s, File f) {
 
 		if(isDat(f)) {
 
@@ -719,14 +749,15 @@ public class FileManager {
 				FileOutputStream fOut = new FileOutputStream(f);
 				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 
-				oOut.writeObject(e);
+				oOut.writeObject(s);
 
 				oOut.close();
 				fOut.close();
 
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				LOG.severe("Failed to save entity " + String.valueOf(e.getId()) + "!");
+			} catch (Exception e) {
+				e.printStackTrace();
+				saveCrash(this.getClass(), e);
+				LOG.severe("Failed to save entity " + String.valueOf(s.getId()) + "!");
 			}
 
 			return;
@@ -750,6 +781,7 @@ public class FileManager {
 
 			} catch (Exception e) {
 				e.printStackTrace();
+				saveCrash(this.getClass(), e);
 				LOG.severe("Failed to save spawner " + String.valueOf(s.getId()) + "!");
 			}
 

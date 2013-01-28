@@ -60,6 +60,14 @@ public class EntityCreateCommand extends EntityCommand {
 				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
 				return;
 			}
+		} else if(in.equals("chargedcreeper") || in.equals("charged_creeper") ||
+				in.equals("powercreeper") || in.equals("power_creeper")) {
+			newEntity.setType(EntityType.CREEPER);
+			newEntity.setCharged(true);
+			if(notAllowed.contains("creeper") && !hasOverride) {
+				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
+				return;
+			}
 		} else {
 			EntityType type = PLUGIN.parseEntityType(in, hasOverride);
 			

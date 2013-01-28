@@ -188,12 +188,16 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		addCommand("setfireticks", fire, new String[] {
 				"setfire",
 				"fireticks",
-				"fire"
+				"fire",
+				"setfirelength",
+				"firelength"
 		});
 		addCommand("setfuseticks", fuse, new String[] {
 				"setfuse",
 				"fuseticks",
-				"fuse"
+				"fuse",
+				"setfuselength",
+				"fuselength"
 		});
 		addCommand("sethealth", health, new String[] {
 				"health",

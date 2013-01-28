@@ -126,6 +126,7 @@ public class DamageController {
 				
 				if(black.contains(cause.name().toUpperCase())) {
 					
+					ev.setCancelled(true);
 					return 0;
 					
 				} else if(black.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
@@ -142,6 +143,7 @@ public class DamageController {
 						negatedFireImmunity.put(mobId, e.getFireTicks());
 					}
 					
+					ev.setCancelled(true);
 					return 0;
 					
 				} else if(black.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
@@ -156,6 +158,7 @@ public class DamageController {
 						for(ItemStack i : e.getItemDamageList()) {
 							ItemStack hand = p.getItemInHand();
 							if(hand.getTypeId() == i.getTypeId() && hand.getData().getData() == i.getData().getData()) {
+								ev.setCancelled(true);
 								return 0;
 							}
 						}
@@ -170,6 +173,7 @@ public class DamageController {
 				
 				if(!white.contains(cause.name().toUpperCase())) {
 					
+					ev.setCancelled(true);
 					return 0;
 					
 				} else if(!white.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
@@ -186,6 +190,7 @@ public class DamageController {
 						negatedFireImmunity.put(mobId, e.getFireTicks());
 					}
 					
+					ev.setCancelled(true);
 					return 0;
 					
 				} else if(!white.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
@@ -200,6 +205,7 @@ public class DamageController {
 						for(ItemStack i : e.getItemDamageList()) {
 							ItemStack hand = p.getItemInHand();
 							if(hand.getTypeId() == i.getTypeId() && hand.getData().getData() == i.getData().getData()) {
+								ev.setCancelled(true);
 								return 0;
 							}
 						}
