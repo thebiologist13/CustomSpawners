@@ -1,4 +1,4 @@
-package com.github.thebiologist13.commands.spawners;
+package com.github.thebiologist13.commands.entities;
 
 import java.util.HashMap;
 
@@ -6,26 +6,26 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import com.github.thebiologist13.CustomSpawners;
-import com.github.thebiologist13.Spawner;
+import com.github.thebiologist13.SpawnableEntity;
 
-public class ModifierCommand extends SpawnerCommand {
+public class EntityModifierCommand extends EntityCommand {
 
-	public ModifierCommand(CustomSpawners plugin) {
+	public EntityModifierCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	public ModifierCommand(CustomSpawners plugin, String mainPerm) {
+	public EntityModifierCommand(CustomSpawners plugin, String mainPerm) {
 		super(plugin, mainPerm);
 	}
 
 	@Override
-	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
+	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
 		if(subCommand.equals("clearmodifier")) {
 			
-			spawner.setModifiers(new HashMap<String, String>());
-			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Cleared modifiers of spawner " + 
-					ChatColor.GOLD + PLUGIN.getFriendlyName(spawner));
+			entity.setModifiers(new HashMap<String, String>());
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Cleared modifiers of entity " + 
+					ChatColor.GOLD + PLUGIN.getFriendlyName(entity));
 			return;
 		}
 		
@@ -49,7 +49,7 @@ public class ModifierCommand extends SpawnerCommand {
 			moddedProp = in.split("=")[0].toLowerCase();
 			expression = in.split("=")[1].toLowerCase();
 			
-			spawner.evaluate(expression);
+			entity.evaluate(expression);
 		} catch(Exception e) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "You entered an invalid expression, make sure " +
 					"you have valid opertors and the right format. The format is: <property>=<expression>");
@@ -58,16 +58,16 @@ public class ModifierCommand extends SpawnerCommand {
 		
 		if(subCommand.equals("addmodifier")) {
 			
-			spawner.addModifier(moddedProp, expression);
+			entity.addModifier(moddedProp, expression);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Added modifier " + ChatColor.GOLD + in + ChatColor.GREEN + 
-					" to spawn algorithm of spawner " + ChatColor.GOLD + PLUGIN.getFriendlyName(spawner));
+					" to entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity));
 			
 		} else if(subCommand.equals("setmodifier")) {
 			
-			spawner.setModifiers(new HashMap<String, String>());
-			spawner.addModifier(moddedProp, expression);
+			entity.setModifiers(new HashMap<String, String>());
+			entity.addModifier(moddedProp, expression);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Set modifier " + ChatColor.GOLD + in + ChatColor.GREEN + 
-					" of spawn algorithm on spawner " + ChatColor.GOLD + PLUGIN.getFriendlyName(spawner));
+					" of entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity));
 			
 		}
 		

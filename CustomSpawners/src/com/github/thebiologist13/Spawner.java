@@ -70,6 +70,9 @@ import com.github.thebiologist13.serialization.SBlock;
 import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SLocation;
 import com.github.thebiologist13.serialization.SPotionEffect;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
 /**
  * Represents a spawner managed by CustomSpawners.
@@ -156,6 +159,29 @@ public class Spawner implements Serializable {
 		this.data.put("areaPoints", ap1);
 	}
 	
+	public double evaluate(String expr) {
+		double maxDis = (this.data.containsKey("maxDistance")) ? Double.parseDouble(this.data.get("maxDistance").toString()) : 0;
+		expr = expr.replaceAll("@mobs", "" + mobs.size());
+		expr = expr.replaceAll("@mps", "" + 
+				((this.data.containsKey("mobsPerSpawn")) ? (Integer) this.data.get("mobsPerSpawn") : 1));
+		expr = expr.replaceAll("@maxdis", "" + maxDis);
+		expr = expr.replaceAll("@mindis", "" + 
+				((this.data.containsKey("minDistance")) ? Double.parseDouble(this.data.get("minDistance").toString()) : 0));
+		expr = expr.replaceAll("@maxlight", "" + 
+				((this.data.containsKey("maxLight")) ? (Byte) this.data.get("maxLight") : 0));
+		expr = expr.replaceAll("@minlight", "" + 
+				((this.data.containsKey("minLight")) ? (Byte) this.data.get("minLight") : 0));
+		expr = expr.replaceAll("@radius", "" + 
+				((this.data.containsKey("radius")) ? Double.parseDouble(this.data.get("radius").toString()) : 0));
+		expr = expr.replaceAll("@rate", "" + 
+				((this.data.containsKey("rate")) ? (Integer) this.data.get("rate") : 60));
+		expr = expr.replaceAll("@players", "" + Bukkit.getServer().getOnlinePlayers().length);
+		expr = expr.replaceAll("@nearplayers", "" + getNearbyPlayers(getLoc(), maxDis));
+		expr = expr.replaceAll("@light", "" + getLoc().getBlock().getLightLevel());
+		
+		return CustomSpawners.evaluate(expr);
+	}
+	
 	//Spawn the mobs
 	public void forceSpawn() {
 
@@ -195,7 +221,7 @@ public class Spawner implements Serializable {
 	public Block getBlock() {
 		return ((SBlock) this.data.get("block")).toBlock();
 	}
-	
+
 	public byte getBlockData() {
 		return ((SBlock) this.data.get("block")).getData();
 	}
@@ -207,7 +233,7 @@ public class Spawner implements Serializable {
 	public Map<String, Object> getData() {
 		return data;
 	}
-
+	
 	public int getId() {
 		return (Integer) this.data.get("id");
 	}
@@ -244,7 +270,7 @@ public class Spawner implements Serializable {
 		}
 		return maxMobs;
 	}
-	
+
 	public double getMaxPlayerDistance() {
 		double value = (this.data.containsKey("maxDistance")) ? Double.parseDouble(this.data.get("maxDistance").toString()) : 0;
 		if(hasModifier("maxdistance")) {
@@ -280,7 +306,7 @@ public class Spawner implements Serializable {
 		}
 		return value;
 	}
-
+	
 	public Map<Integer, SpawnableEntity> getMobs() {
 		return this.mobs;
 	}
@@ -296,24 +322,24 @@ public class Spawner implements Serializable {
 		return value;
 	}
 	
-	public Map<String, String> getModifiers() {
-		return modifiers;
-	}
-	
 	public String getModifier(String prop) {
 		return modifiers.get(prop);
+	}
+	
+	public Map<String, String> getModifiers() {
+		return modifiers;
 	}
 	
 	public String getName() {
 		return (this.data.containsKey("name")) ? (String) this.data.get("name") : "";
 	}
-	
+
 	public Object getProp(String key) {
 		return (this.data.containsKey(key)) ? this.data.get(key) : null;
 	}
 
 	public double getRadius() {
-		double value = (this.data.containsKey("radius")) ? (Double) this.data.get("radius") : 0d;
+		double value = (this.data.containsKey("radius")) ? Double.parseDouble(this.data.get("radius").toString()) : 0;
 		if(hasModifier("radius")) {
 			String expr = getModifier("radius");
 			try {
@@ -347,7 +373,7 @@ public class Spawner implements Serializable {
 	public List<Integer> getSpawnTimes() {
 		return times;
 	}
-
+	
 	public List<Integer> getTypeData() {
 		return this.typeData;
 	}
@@ -355,7 +381,7 @@ public class Spawner implements Serializable {
 	public boolean hasModifier(String property) {
 		return modifiers.containsKey(property);
 	}
-	
+
 	public boolean hasProp(String key) {
 		return this.data.containsKey(key);
 	}
@@ -389,11 +415,11 @@ public class Spawner implements Serializable {
 	public boolean isSpawnOnRedstone() {
 		return (this.data.containsKey("spawnOnRedstone")) ? (Boolean) this.data.get("spawnOnRedstone") : false;
 	}
-
+	
 	public boolean isUsingSpawnArea() {
 		return (this.data.containsKey("useSpawnArea")) ? (Boolean) this.data.get("useSpawnArea") : false;
 	}
-	
+
 	//Remove the spawner
 	public void remove() {
 		/*
@@ -444,11 +470,11 @@ public class Spawner implements Serializable {
 		
 		this.data.put("areaPoints", ap1);
 	}
-
+	
 	public void setBlock(Block block) {
 		this.data.put("block", new SBlock(block));
 	}
-	
+
 	public void setConverted(boolean converted) {
 		this.data.put("converted", converted);
 	}
@@ -471,7 +497,7 @@ public class Spawner implements Serializable {
 	public void setHidden(boolean hidden) {
 		this.data.put("hidden", hidden);
 	}
-
+	
 	public void setLoc(Location loc) {
 		this.data.put("loc", new SLocation(loc));
 		setBlock(loc.getBlock());
@@ -488,7 +514,7 @@ public class Spawner implements Serializable {
 	public void setMaxPlayerDistance(double maxPlayerDistance) {
 		this.data.put("maxDistance", maxPlayerDistance);
 	}
-	
+
 	public void setMinLightLevel(byte minLightLevel) {
 		this.data.put("minLight", minLightLevel);
 	}
@@ -496,7 +522,7 @@ public class Spawner implements Serializable {
 	public void setMinPlayerDistance(double minPlayerDistance) {
 		this.data.put("minDistance", minPlayerDistance);
 	}
-
+	
 	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
 		this.mobs = (ConcurrentHashMap<Integer, SpawnableEntity>) mobParam;
 	}
@@ -512,7 +538,7 @@ public class Spawner implements Serializable {
 	public void setName(String name) {
 		this.data.put("name", name);
 	}
-	
+
 	public void setPoweredBefore(boolean poweredBefore) {
 		this.poweredBefore = poweredBefore;
 	}
@@ -524,20 +550,20 @@ public class Spawner implements Serializable {
 		
 		this.data.put(key, value);
 	}
-
+	
 	public void setRadius(double radius) {
 		this.data.put("radius", radius);
-	}
-	
-	public void setRate(int rate) {
-		this.data.put("rate", rate);
-		this.ticksLeft = rate;
 	}
 	
 	/*
 	 * Methods for spawning, timing, etc.
 	 */
 
+	public void setRate(int rate) {
+		this.data.put("rate", rate);
+		this.ticksLeft = rate;
+	}
+	
 	public void setRedstoneTriggered(boolean redstoneTriggered) {
 		this.data.put("redstone", redstoneTriggered);
 	}
@@ -554,6 +580,10 @@ public class Spawner implements Serializable {
 		this.times = times;
 	}
 	
+	/*
+	 * Methods for choosing locations, checking things, etc.
+	 */
+	
 	public void setTypeData(List<Integer> typeDataParam) {
 		
 		if(typeDataParam == null) {
@@ -562,10 +592,6 @@ public class Spawner implements Serializable {
 		
 		this.typeData = typeDataParam;
 	}
-	
-	/*
-	 * Methods for choosing locations, checking things, etc.
-	 */
 	
 	public void setUseSpawnArea(boolean useSpawnArea) {
 		this.data.put("useSpawnArea", useSpawnArea);
@@ -726,6 +752,7 @@ public class Spawner implements Serializable {
 					if(data.isAngry()) {
 						p.setAngry(true);
 					}
+					p.setBaby((data.getAge() < -1) ? true : false);
 				} else if(monster instanceof Spider) {
 					Spider s = (Spider) monster;
 					if(data.isJockey()) {
@@ -821,22 +848,6 @@ public class Spawner implements Serializable {
 			
 		}
 		
-	}
-	
-	private double evaluate(String expr) {
-		expr = expr.replaceAll("@mobs", "" + mobs.size());
-		expr = expr.replaceAll("@mps", "" + getMobsPerSpawn());
-		expr = expr.replaceAll("@maxdis", "" + getMaxPlayerDistance());
-		expr = expr.replaceAll("@mindis", "" + getMinPlayerDistance());
-		expr = expr.replaceAll("@maxlight", "" + getMaxLightLevel());
-		expr = expr.replaceAll("@minlight", "" + getMinLightLevel());
-		expr = expr.replaceAll("@radius", "" + getRadius());
-		expr = expr.replaceAll("@rate", "" + getRate());
-		expr = expr.replaceAll("@players", "" + Bukkit.getServer().getOnlinePlayers().length);
-		expr = expr.replaceAll("@nearplayers", "" + getNearbyPlayers(getLoc(), getMaxPlayerDistance()));
-		expr = expr.replaceAll("@light", "" + getLoc().getBlock().getLightLevel());
-		
-		return CustomSpawners.evaluate(expr);
 	}
 	
 	private boolean getBlockBelowFromEntity(Entity e) {
@@ -1009,6 +1020,10 @@ public class Spawner implements Serializable {
 				
 				if(!spawnLocation.getChunk().isLoaded())
 					continue;
+				
+				if(!wgAllows(spawnLocation)) {
+					return;
+				}
 				
 				e = spawnTheEntity(spawnType, spawnLocation);
 
@@ -1203,6 +1218,7 @@ public class Spawner implements Serializable {
 
 	//Spawns the actual entity
 	private Entity spawnTheEntity(SpawnableEntity spawnType, Location spawnLocation) {
+		
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return getLoc().getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {
@@ -1253,6 +1269,20 @@ public class Spawner implements Serializable {
 			return getLoc().getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());
 		}
 		
+	}
+	
+	private boolean wgAllows(Location loc) {
+		WorldGuardPlugin wg = CustomSpawners.getWG();
+		
+		if(wg == null)
+			return true;
+		
+		ApplicableRegionSet set = wg.getRegionManager(loc.getWorld()).getApplicableRegions(loc);
+		
+		if(!set.allows(DefaultFlag.MOB_SPAWNING))
+			return false;
+		
+		return true;
 	}
 	
 }

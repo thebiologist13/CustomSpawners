@@ -1,5 +1,5 @@
 name: CustomSpawners
-version: 0.2
+version: 0.2.1
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
@@ -110,6 +110,7 @@ permissions:
             customspawners.entities.inventory: true
             customspawners.entities.setwither: true
             customspawners.entities.setvillager: true
+            customspawners.entities.modifiers: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawners" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -358,4 +359,7 @@ permissions:
         default: op
     customspawners.entities.setvillager:
         description: Allows the user/group to set if spawned zombies should be villagers.
+        default: op
+    customspawners.entities.modifiers:
+        description: Allows the user/group to set entity modifiers.
         default: op

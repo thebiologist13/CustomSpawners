@@ -58,6 +58,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand inventory = new EntityInventoryCommand(plugin, "customspawners.entities.inventory");
 		EntityCommand wither = new EntityWitherCommand(plugin, "customspawners.entities.setwither");
 		EntityCommand villager = new EntityVillagerCommand(plugin, "customspawners.entities.setvillager");
+		EntityCommand modify = new EntityModifierCommand(plugin, "customspawners.entities.modifiers"); //TODO Add to wiki
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -450,6 +451,33 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"explosivepower",
 				"setexpower",
 				"expower"
+		});
+		addCommand("setmodifier", modify, new String[] {
+				"modifier",
+				"setmodifiers",
+				"modifiers",
+				"setdynamicproperty",
+				"dynamicproperty",
+				"setdynamic",
+				"mod",
+				"setmod",
+				"modify"
+		});
+		addCommand("addmodifier", modify, new String[] {
+				"adddynamicproperty",
+				"adddynamic",
+				"addmod",
+				"addmodifiers",
+				"addmods"
+		});
+		addCommand("clearmodifier", modify, new String[] {
+				"nomodifiers",
+				"nomodifier",
+				"clearmodifiers",
+				"clearmods",
+				"clearmod",
+				"nomods",
+				"nomod"
 		});
 	}
 

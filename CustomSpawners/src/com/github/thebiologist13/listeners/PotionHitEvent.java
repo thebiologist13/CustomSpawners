@@ -55,7 +55,7 @@ public class PotionHitEvent implements Listener {
 	
 	private boolean wgAllows(Entity e) {
 		
-		WorldGuardPlugin wg = plugin.getWG();
+		WorldGuardPlugin wg = CustomSpawners.getWG();
 		
 		if(wg == null)
 			return true;

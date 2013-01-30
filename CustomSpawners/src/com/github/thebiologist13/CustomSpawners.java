@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import net.astesana.javaluator.DoubleEvaluator;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -252,6 +253,16 @@ public class CustomSpawners extends JavaPlugin {
 		return null;
 	}
 
+	//Sets up WorldGuard
+	public static WorldGuardPlugin getWG() {
+		Plugin wg = Bukkit.getPluginManager().getPlugin("WorldGuard");
+
+		if(wg == null || !(wg instanceof WorldGuardPlugin)) 
+			return null;
+
+		return (WorldGuardPlugin) wg;
+	}
+	
 	//Convenience method for accurately testing if a string can be parsed to an double.
 	public static boolean isDouble(String what) {
 		try {
@@ -261,7 +272,7 @@ public class CustomSpawners extends JavaPlugin {
 			return false;
 		}
 	}
-	
+
 	//Convenience method for accurately testing if a string can be parsed to an double.
 	public static boolean isFloat(String what) {
 		try {
@@ -293,7 +304,7 @@ public class CustomSpawners extends JavaPlugin {
 		
 		return true;
 	}
-
+	
 	public Spawner cloneWithNewId(Spawner spawner) {
 		Spawner spawner1 = createSpawner(spawner.getMainEntity(), spawner.getLoc());
 		spawner1.setTypeData(spawner.getTypeData());
@@ -301,7 +312,7 @@ public class CustomSpawners extends JavaPlugin {
 		spawner1.setActive(false);
 		return spawner1;
 	}
-	
+
 	//Converts ticks to MM:SS
 	public String convertTicksToTime(int ticks) {
 		int minutes = 0;
@@ -331,7 +342,7 @@ public class CustomSpawners extends JavaPlugin {
 		
 		return String.valueOf(minutes) + ":" + strSec;
 	}
-
+	
 	public void copy(InputStream in, File file) {
 		try {
 			OutputStream out = new FileOutputStream(file);
@@ -347,7 +358,7 @@ public class CustomSpawners extends JavaPlugin {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public Spawner createSpawner(SpawnableEntity e, Location loc) {
 		Spawner newSpawner = new Spawner(e, loc, getNextSpawnerId());
 		
@@ -372,14 +383,14 @@ public class CustomSpawners extends JavaPlugin {
 		return spawners.get(newSpawner.getId());
 		
 	}
-
+	
 	public FileConfiguration getCustomConfig() {
 		if (config == null) {
 			reloadCustomConfig();
 		}
 		return config;
 	}
-	
+
 	public String getDamageCause(String in) {
 		
 		in.toLowerCase();
@@ -409,7 +420,7 @@ public class CustomSpawners extends JavaPlugin {
 		
 		return type;
 	}
-
+	
 	public SpawnableEntity getEntityFromSpawner(Entity entity) {
 
 		if(entity == null) {
@@ -421,7 +432,7 @@ public class CustomSpawners extends JavaPlugin {
 		return getEntityFromSpawner(entityId);
 
 	}
-	
+
 	public SpawnableEntity getEntityFromSpawner(int id) {
 		
 		Iterator<Spawner> spawnerItr = spawners.values().iterator();
@@ -492,7 +503,7 @@ public class CustomSpawners extends JavaPlugin {
 			return s.getName();
 		}
 	}
-
+	
 	//Gets a potion from an alias
 	public PotionEffectType getInputEffect(String effect) {
 		
@@ -526,7 +537,7 @@ public class CustomSpawners extends JavaPlugin {
 		return type;
 		
 	}
-	
+
 	public ItemStack getItem(String item, int count) {
 		ItemStack stack = getItemStack(item);
 		
@@ -634,7 +645,7 @@ public class CustomSpawners extends JavaPlugin {
 
 		return getNextID(entityIDs);
 	}
-
+	
 	//Next available spawner ID
 	public int getNextSpawnerId() {
 		List<Integer> spawnerIDs = new ArrayList<Integer>();
@@ -646,7 +657,7 @@ public class CustomSpawners extends JavaPlugin {
 
 		return getNextID(spawnerIDs);
 	}
-	
+
 	//Gets an EntityPotionEffect from format <PotionEffectType>_<level>_<minutes>:<seconds>
 	public SPotionEffect getPotion(String value) {
 		int index1 = value.indexOf("_");
@@ -667,7 +678,7 @@ public class CustomSpawners extends JavaPlugin {
 
 		return new SPotionEffect(effectType, effectDuration,  effectLevel);
 	}
-
+	
 	//Gets a spawner from a location
 	public Spawner getSpawnerAt(Location loc) {
 		Iterator<Spawner> spItr = CustomSpawners.spawners.values().iterator();
@@ -684,7 +695,7 @@ public class CustomSpawners extends JavaPlugin {
 		return null;
 
 	}
-	
+
 	public Spawner getSpawnerWithEntity(Entity entity) {
 		int entityId = entity.getEntityId();
 		
@@ -724,16 +735,6 @@ public class CustomSpawners extends JavaPlugin {
 
 		return null;
 		
-	}
-
-	//Sets up WorldGuard
-	public WorldGuardPlugin getWG() {
-		Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
-
-		if(wg == null || !(wg instanceof WorldGuardPlugin)) 
-			return null;
-
-		return (WorldGuardPlugin) wg;
 	}
 	
 	public void onDisable() {

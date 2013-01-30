@@ -60,7 +60,7 @@ public class MobExplodeEvent implements Listener {
 	//WorldGuard explosives 
 	private boolean wgAllows(Entity e) {
 		
-		WorldGuardPlugin wg = plugin.getWG();
+		WorldGuardPlugin wg = CustomSpawners.getWG();
 		
 		if(wg == null)
 			return true;
