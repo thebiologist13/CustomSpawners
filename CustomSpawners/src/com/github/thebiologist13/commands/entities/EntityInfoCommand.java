@@ -126,6 +126,29 @@ public class EntityInfoCommand extends EntityCommand {
 			isVillager = (Boolean) s.getProp("zombie");
 		}
 		
+		String health = "" + s.getHealth();
+		if(s.hasModifier("health") || s.hasModifier("hp")) {
+			health += " (Dynamic)";
+		}
+		
+		String age = "" + s.getAge();
+		age = (s.hasModifier("age")) ? age + " (Dynamic)" : age;
+		
+		String air = "" + s.getAir();
+		air = (s.hasModifier("air")) ? air + " (Dynamic)" : air;
+		
+		String damage = "" + s.getDamage();
+		damage = (s.hasModifier("damage")) ? damage + " (Dynamic)" : damage;
+		
+		String x = "" + s.getXVelocity();
+		x = (s.hasModifier("x")) ? x + " (Dynamic)" : x;
+		
+		String y = "" + s.getYVelocity();
+		y = (s.hasModifier("y")) ? y + " (Dynamic)" : y;
+		
+		String z = "" + s.getZVelocity();
+		z = (s.hasModifier("z")) ? z + " (Dynamic)" : z;
+		
 		//Send info
 		String[] message = {
 				"",
@@ -134,12 +157,12 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Type: " + nameOfType,
 				ChatColor.GOLD + "Name: " + s.getName(),
 				ChatColor.GOLD + "Effects: " + effectMessage,
-				ChatColor.GOLD + "X Velocity: " + s.getXVelocity(),
-				ChatColor.GOLD + "Y Velocity: " + s.getYVelocity(),
-				ChatColor.GOLD + "Z Velocity: " + s.getZVelocity(),
-				ChatColor.GOLD + "Age: " + s.getAge(),
-				ChatColor.GOLD + "Health: " + s.getHealth(),
-				ChatColor.GOLD + "Air: " + s.getAir(),
+				ChatColor.GOLD + "X Velocity: " + x,
+				ChatColor.GOLD + "Y Velocity: " + y,
+				ChatColor.GOLD + "Z Velocity: " + z,
+				ChatColor.GOLD + "Age: " + age,
+				ChatColor.GOLD + "Health: " + health,
+				ChatColor.GOLD + "Air: " + air,
 				ChatColor.GOLD + "Profession: " + s.getProfession().toString(),
 				ChatColor.GOLD + "Enderman Block: " + PLUGIN.getItemName(s.getEndermanBlock().toItemStack()),
 				ChatColor.GOLD + "Saddled: " + s.isSaddled(),
@@ -159,11 +182,11 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Damage Whitelist: " + whiteListMsg,
 				ChatColor.GOLD + "Damage Itemlist: " + itemListMsg,
 				ChatColor.GOLD + "Using Custom Damage: " + s.isUsingCustomDamage(),
-				ChatColor.GOLD + "Damage Dealt: " + s.getDamage(),
+				ChatColor.GOLD + "Damage Dealt: " + damage,
 				ChatColor.GOLD + "Potion Type: " + epe.getType().getName() + " " + epe.getAmplifier() + " - " + PLUGIN.convertTicksToTime(epe.getDuration()),
 				ChatColor.GOLD + typeOfExpDrop + s.getDroppedExp(),
-				ChatColor.GOLD + "Fuse Ticks: " + s.getFuseTicks(),
-				ChatColor.GOLD + "Explosive Yield: " + s.getYield(),
+				ChatColor.GOLD + "Fuse Ticks: " + s.getFuseTicks(), //TODO Modifier for this?
+				ChatColor.GOLD + "Explosive Yield: " + s.getYield(), //TODO Modifier for this?
 				ChatColor.GOLD + "Incendiary: " + s.isIncendiary(),
 				ChatColor.GOLD + "Item Type: " + PLUGIN.getItemName(s.getItemType()),
 				ChatColor.GOLD + "Using Custom Drops: " + s.isUsingCustomDrops(),
