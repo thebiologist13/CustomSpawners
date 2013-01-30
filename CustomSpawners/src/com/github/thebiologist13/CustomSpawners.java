@@ -180,6 +180,18 @@ public class CustomSpawners extends JavaPlugin {
 		return null;
 	}
 	
+	//Check if players are nearby
+	public static ArrayList<Player> getNearbyPlayers(Location source, double max) {
+		ArrayList<Player> players = new ArrayList<Player>();
+		for(Player p : Bukkit.getOnlinePlayers()) {
+			double distance = p.getLocation().distance(source);
+			if(distance <= max) {
+				players.add(p);
+			}
+		}
+		return players;
+	}
+	
 	//Gets the next available ID number in a list
 	public static int getNextID(List<Integer> set) {
 		int returnID = 0;

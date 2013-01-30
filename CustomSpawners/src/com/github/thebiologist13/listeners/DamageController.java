@@ -62,7 +62,7 @@ public class DamageController {
 						return 0;
 					}
 					
-					return e.getDamage();
+					return e.getDamage(damager);
 				} else {
 					
 					if(explode.containsKey(id)) {

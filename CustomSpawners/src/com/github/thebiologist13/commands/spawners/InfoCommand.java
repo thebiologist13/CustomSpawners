@@ -96,7 +96,7 @@ public class InfoCommand extends SpawnerCommand {
 		mps = (s.hasModifier("mps")) ? mps + " (Dynamic)" : mps;
 		
 		String mobs = "" + s.getMaxMobs();
-		mobs = (s.hasModifier("mobs")) ? mobs + " (Dynamic)" : mobs;
+		mobs = (s.hasModifier("maxmobs")) ? mobs + " (Dynamic)" : mobs;
 		
 		String maxL = "" + s.getMaxLightLevel();
 		maxL = (s.hasModifier("maxlight")) ? maxL + " (Dynamic)" : maxL;

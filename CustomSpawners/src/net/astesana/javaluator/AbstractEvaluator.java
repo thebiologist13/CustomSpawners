@@ -30,7 +30,6 @@ public abstract class AbstractEvaluator<T> {
 	 * So, changes made to the parameters after the call to this constructor are ignored by the instance. 
 	 */
 	protected AbstractEvaluator(Parameters parameters) {
-		//TODO if constants, operators, functions are duplicated => error
 		final ArrayList<String> tokenDelimitersBuilder = new ArrayList<String>();
 		this.functions = new HashMap<String, Function>();
 		this.operators = new HashMap<String, List<Operator>>();
@@ -64,7 +63,6 @@ public abstract class AbstractEvaluator<T> {
 		boolean needFunctionSeparator = false;
 		if (parameters.getFunctions()!=null) {
 			for (Function function : parameters.getFunctions()) {
-				//TODO if function name contains operators or reserved chars => error
 				this.functions.put(parameters.getTranslation(function.getName()), function);
 				if (function.getMaximumArgumentCount()>1) needFunctionSeparator = true;
 			}			

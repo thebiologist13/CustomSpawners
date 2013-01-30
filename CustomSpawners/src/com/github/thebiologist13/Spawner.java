@@ -87,7 +87,7 @@ public class Spawner implements Serializable {
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
 	private ConcurrentHashMap<Integer, SpawnableEntity> mobs;
 	//Modifiers. Key is modified property, value is expression.
-	private Map<String, String> modifiers; //TODO Test
+	private Map<String, String> modifiers;
 	//If the block was powered before
 	private boolean poweredBefore;
 	//Secondary Mobs (passenger, projectiles, etc.). Key is mobId, value is associated mob from "mobs".
@@ -95,7 +95,7 @@ public class Spawner implements Serializable {
 	//Ticks left before next spawn
 	private int ticksLeft; 
 	//Times to spawn at
-	private List<Integer> times; //TODO Test
+	private List<Integer> times;
 	//Spawnable Mobs
 	private List<Integer> typeData;
 	
@@ -176,8 +176,8 @@ public class Spawner implements Serializable {
 		expr = expr.replaceAll("@rate", "" + 
 				((this.data.containsKey("rate")) ? (Integer) this.data.get("rate") : 60));
 		expr = expr.replaceAll("@players", "" + Bukkit.getServer().getOnlinePlayers().length);
-		expr = expr.replaceAll("@nearplayers", "" + getNearbyPlayers(getLoc(), maxDis));
-		expr = expr.replaceAll("@light", "" + getLoc().getBlock().getLightLevel());
+		expr = expr.replaceAll("@nearplayers", "" + CustomSpawners.getNearbyPlayers(getLoc(), maxDis).size());
+		expr = expr.replaceAll("@light", "" + getLight());
 		
 		return CustomSpawners.evaluate(expr);
 	}
@@ -599,14 +599,17 @@ public class Spawner implements Serializable {
 	
 	//Spawn the mobs
 	public void spawn() {
-		
+		spawn(isActive());
+	}
+	
+	public void spawn(boolean isActive) {
 		//If the spawner is not active, return
-		if(!isActive()) {
+		if(!isActive) {
 			return;
 		}
 
 		boolean hasPower = getBlock().isBlockPowered() || getBlock().isBlockIndirectlyPowered();
-		
+
 		/*
 		 * This block checks if the conditions are met to spawn mobs
 		 */
@@ -616,17 +619,26 @@ public class Spawner implements Serializable {
 			return;
 		} else if(mobs.size() > getMaxMobs()) {
 			return;
+		} else if(!((getLight() <= getMaxLightLevel()) && (getLight() >= getMinLightLevel()))) {
+			return;
 		}
-			
+
 		SpawnableEntity spawnType = randType();
 		mainSpawn(spawnType);
-		
 	}
 	
 	//Tick the spawn rate down and spawn mobs if it is time to spawn. Return the ticks left.
 	public int tick() {
 		
 		int rate = getRate();
+		int time = (int) getLoc().getWorld().getTime();
+		for(Integer i : times) {
+			if(i.intValue() == time) {
+				ticksLeft = rate;
+				spawn(true);
+				return 0;
+			}
+		}
 		
 		if(!(rate <= 0)) {
 			ticksLeft--;
@@ -635,10 +647,6 @@ public class Spawner implements Serializable {
 				spawn();
 				return 0;
 			}
-		} else if(times.contains((int) getLoc().getWorld().getTime())) { //Spawns on world time.
-			ticksLeft = rate;
-			spawn();
-			return 0;
 		}
 		
 		return ticksLeft;
@@ -707,7 +715,7 @@ public class Spawner implements Serializable {
 					w.setTamed(data.isTamed());
 					if(data.isTamed()) {
 						
-						ArrayList<Player> nearPlayers = getNearbyPlayers(w.getLocation(), 16);
+						ArrayList<Player> nearPlayers = CustomSpawners.getNearbyPlayers(w.getLocation(), 16);
 						int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
 						if(nearPlayers != null) {
 							w.setOwner(nearPlayers.get(index));
@@ -723,7 +731,7 @@ public class Spawner implements Serializable {
 						Ocelot.Type catType = Ocelot.Type.valueOf(data.getCatType());
 						o.setCatType(catType);
 						
-						ArrayList<Player> nearPlayers = getNearbyPlayers(o.getLocation(), 16);
+						ArrayList<Player> nearPlayers = CustomSpawners.getNearbyPlayers(o.getLocation(), 16);
 						int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
 						if(nearPlayers != null) {
 							o.setOwner(nearPlayers.get(index));
@@ -781,7 +789,7 @@ public class Spawner implements Serializable {
 				if(golem instanceof IronGolem) {
 					IronGolem i = (IronGolem) golem;
 					if(data.isAngry()) {
-						ArrayList<Player> nearPlayers = getNearbyPlayers(i.getLocation(), 16);
+						ArrayList<Player> nearPlayers = CustomSpawners.getNearbyPlayers(i.getLocation(), 16);
 						int index = (int) Math.round(Math.rint(nearPlayers.size() - 1));
 						if(nearPlayers != null) {
 							i.setPlayerCreated(false);
@@ -806,7 +814,7 @@ public class Spawner implements Serializable {
 			
 			if(pro instanceof EnderPearl) {
 				EnderPearl e = (EnderPearl) pro;
-				ArrayList<Player> players = getNearbyPlayers(e.getLocation(), getMaxPlayerDistance() + 1);
+				ArrayList<Player> players = CustomSpawners.getNearbyPlayers(e.getLocation(), getMaxPlayerDistance() + 1);
 				int index = (int) Math.round(randomGenRange(0, players.size()));
 				e.setShooter(players.get(index));
 			} else if(pro instanceof Fireball) {
@@ -882,18 +890,26 @@ public class Spawner implements Serializable {
 		
 	}
 	
-	//Check if players are nearby
-	private ArrayList<Player> getNearbyPlayers(Location source, double max) {
-		ArrayList<Player> players = new ArrayList<Player>();
-		for(Player p : Bukkit.getOnlinePlayers()) {
-			//Finds distance between spawner and player is 3D space.
-			double distance = p.getLocation().distance(source);
-			
-			if(distance <= max) {
-				players.add(p);
+	private byte getLight() {
+		byte highest = 0;
+		int x = getBlock().getX();
+		int y = getBlock().getY();
+		int z = getBlock().getZ();
+		Block north = getLoc().getWorld().getBlockAt(x, y, z - 1);
+		Block south = getLoc().getWorld().getBlockAt(x, y, z + 1);
+		Block east = getLoc().getWorld().getBlockAt(x + 1, y, z);
+		Block west = getLoc().getWorld().getBlockAt(x - 1, y, z);
+		Block up = getLoc().getWorld().getBlockAt(x, y + 1, z);
+		Block down = getLoc().getWorld().getBlockAt(x, y - 1, z);
+		Block[] blocks = {north, south, east, west, up, down};
+		for(Block b : blocks) {
+			byte level = b.getLightLevel();
+			if(level > highest) {
+				highest = level;
 			}
 		}
-		return players;
+		
+		return highest;
 	}
 	
 	//Determines a valid spawn location
@@ -954,7 +970,7 @@ public class Spawner implements Serializable {
 			}
 			
 			//Light leveling
-			if(!((getBlock().getLightLevel() <= getMaxLightLevel()) && (getBlock().getLightLevel() >= getMinLightLevel())))
+			if(!((getLight() <= getMaxLightLevel()) && (getLight() >= getMinLightLevel())))
 				continue;
 			
 			if(!((spawnLoc.getBlock().getLightLevel() <= getMaxLightLevel()) && (spawnLoc.getBlock().getLightLevel() >= getMinLightLevel())))
@@ -1256,7 +1272,8 @@ public class Spawner implements Serializable {
 			return ent.getBukkitEntity();
 		} else if(spawnType.getType().equals(EntityType.ENDER_PEARL)) {
 			World world = getLoc().getWorld();
-			EntityLiving nearPlayer = ((CraftLivingEntity) getNearbyPlayers(getLoc(), getMaxPlayerDistance() + 1).get(0)).getHandle();
+			EntityLiving nearPlayer = 
+					((CraftLivingEntity) CustomSpawners.getNearbyPlayers(getLoc(), getMaxPlayerDistance() + 1).get(0)).getHandle();
 			 
 			net.minecraft.server.v1_4_R1.World nmsWorld = ((CraftWorld) world).getHandle();
 			EntityEnderPearl ent = new EntityEnderPearl(nmsWorld, nearPlayer);

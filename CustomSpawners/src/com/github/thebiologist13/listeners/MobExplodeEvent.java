@@ -45,9 +45,9 @@ public class MobExplodeEvent implements Listener {
 			Location plusOne = new Location(norm.getWorld(), norm.getX(), norm.getY() + 1, norm.getZ() + 1);
 			CustomExplosion ex;
 			if(s.isUsingCustomDamage()) {
-				ex = new CustomExplosion(plusOne, s.getYield(), id, s.getDamage(), s.isIncendiary());
+				ex = new CustomExplosion(plusOne, s.getYield(), id, s.getDamage(e), s.isIncendiary());
 			} else {
-				ex = new CustomExplosion(plusOne, s.getYield(), id, -1, s.isIncendiary());
+				ex = new CustomExplosion(plusOne, s.getYield(), id, 0, s.isIncendiary());
 			}
 			ex.detonate();
 			

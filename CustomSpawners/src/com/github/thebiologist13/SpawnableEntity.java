@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
@@ -127,13 +130,59 @@ public class SpawnableEntity implements Serializable {
 		return CustomSpawners.evaluate(expr);
 	}
 	
+	public double evaluateForEntity(String expr, Entity entity) {
+		int hp = (this.data.containsKey("health")) ? (Integer) this.data.get("health") : -1;
+		double x = (this.data.containsKey("xVelo")) ? Double.parseDouble(this.data.get("xVelo").toString()) : 0d;
+		double y = (this.data.containsKey("yVelo")) ? Double.parseDouble(this.data.get("yVelo").toString()) : 0d;
+		double z = (this.data.containsKey("zVelo")) ? Double.parseDouble(this.data.get("zVelo").toString()) : 0d;
+		int age = (this.data.containsKey("age")) ? (Integer) this.data.get("age") : -1;
+		int air = (this.data.containsKey("air")) ? (Integer) this.data.get("air") : -1;
+		
+		if(entity instanceof LivingEntity) {
+			LivingEntity le = (LivingEntity) entity;
+			hp = le.getHealth();
+			air = le.getRemainingAir();
+			if(le instanceof Ageable) {
+				age = ((Ageable) le).getAge();
+			}
+		}
+		
+		expr = expr.replaceAll("@hp", "" + hp);
+		expr = expr.replaceAll("@health", "" + hp);
+		expr = expr.replaceAll("@age", "" + age);
+		expr = expr.replaceAll("@air", "" + air);
+		expr = expr.replaceAll("@damage", "" + 
+				((this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 1));
+		expr.replaceAll("@x", "" + x);
+		expr.replaceAll("@y", "" + y);
+		expr.replaceAll("@z", "" + z);
+		expr = expr.replaceAll("@players", "" + Bukkit.getServer().getOnlinePlayers().length);
+		expr = expr.replaceAll("@nearplayers", "" + CustomSpawners.getNearbyPlayers(entity.getLocation(), 16).size());
+		
+		return CustomSpawners.evaluate(expr);
+	}
+	
 	public int getAge() {
 		int value = (this.data.containsKey("age")) ? (Integer) this.data.get("age") : -1;
 		String expr = "";
 		if(hasModifier("age")) {
 			expr = getModifier("age");
 			try {
-				return (int) Math.abs(Math.round(evaluate(expr)));
+				return (int) Math.round(evaluate(expr));
+			} catch(IllegalArgumentException e) {}
+			
+		}
+		
+		return value;
+	}
+	
+	public int getAge(Entity en) {
+		int value = (this.data.containsKey("age")) ? (Integer) this.data.get("age") : -1;
+		String expr = "";
+		if(hasModifier("age")) {
+			expr = getModifier("age");
+			try {
+				return (int) Math.round(evaluateForEntity(expr, en));
 			} catch(IllegalArgumentException e) {}
 			
 		}
@@ -170,6 +219,20 @@ public class SpawnableEntity implements Serializable {
 			expr = getModifier("damage");
 			try {
 				return (int) Math.abs(Math.round(evaluate(expr)));
+			} catch(IllegalArgumentException e) {}
+			
+		}
+		
+		return value;
+	}
+	
+	public int getDamage(Entity en) {
+		int value = (this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 1;
+		String expr = "";
+		if(hasModifier("damage")) {
+			expr = getModifier("damage");
+			try {
+				return (int) Math.abs(Math.round(evaluateForEntity(expr, en)));
 			} catch(IllegalArgumentException e) {}
 			
 		}
@@ -333,7 +396,7 @@ public class SpawnableEntity implements Serializable {
 		if(hasModifier("x")) {
 			String expr = getModifier("x");
 			try {
-				value = CustomSpawners.evaluate(expr);
+				value = evaluate(expr);
 			} catch(IllegalArgumentException e) {}
 			
 		}
@@ -356,7 +419,7 @@ public class SpawnableEntity implements Serializable {
 		if(hasModifier("y")) {
 			String expr = getModifier("y");
 			try {
-				value = CustomSpawners.evaluate(expr);
+				value = evaluate(expr);
 			} catch(IllegalArgumentException e) {}
 			
 		}
@@ -368,7 +431,7 @@ public class SpawnableEntity implements Serializable {
 		if(hasModifier("z")) {
 			String expr = getModifier("z");
 			try {
-				value = CustomSpawners.evaluate(expr);
+				value = evaluate(expr);
 			} catch(IllegalArgumentException e) {}
 			
 		}
