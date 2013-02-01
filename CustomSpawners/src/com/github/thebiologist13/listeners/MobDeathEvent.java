@@ -2,6 +2,7 @@ package com.github.thebiologist13.listeners;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
@@ -34,8 +35,20 @@ public class MobDeathEvent implements Listener {
 			//Custom Drops
 			if(e.isUsingCustomDrops()) {
 				ev.getDrops().clear();
-				Iterator<ItemStack> itr = e.getDrops().iterator();
-				while(itr.hasNext()) ev.getDrops().add(itr.next());
+				Random rand = new Random();
+				float value = rand.nextFloat() * 100;
+				Iterator<SItemStack> itr = e.getSItemStackDrops().iterator();
+				while(itr.hasNext()) {
+					SItemStack stack = itr.next();
+					float chance = stack.getDropChance();
+					if(chance != 0.0) {
+						if(value < chance) {
+							ev.getDrops().add(stack.toItemStack());
+						}
+					} else {
+						ev.getDrops().add(stack.toItemStack());
+					}
+				}
 			} else if(!e.getInventory().isEmpty()) {
 				ev.getDrops().clear();
 				SInventory inv = e.getInventory();

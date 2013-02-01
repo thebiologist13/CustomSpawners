@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
+import com.github.thebiologist13.serialization.SItemStack;
 
 public class EntityDropsCommand extends EntityCommand {
 
@@ -24,8 +25,25 @@ public class EntityDropsCommand extends EntityCommand {
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
+		if(subCommand.equals("usedrop")) {
+			
+			String in = getValue(args, 0, "false");
+			entity.setUsingCustomDrops(Boolean.parseBoolean(in));
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "use drops", in));
+			
+			return;
+		}
+		
 		String item = getValue(args, 0, "0");
 		String count = getValue(args, 1, "1");
+		String chance = "";
+		String[] split = item.split("%");
+		
+		if(split.length == 2) {
+			item = split[0];
+			chance = split[1];
+		}
 		
 		ItemStack stack = null;
 		
@@ -48,6 +66,28 @@ public class EntityDropsCommand extends EntityCommand {
 			stack = PLUGIN.getItem(item, Integer.parseInt(count));
 		}
 		
+		SItemStack newStack = new SItemStack(stack);
+		float toDrop = 100.0f;
+		
+		if(!chance.isEmpty() && split.length == 2) {
+			if(!CustomSpawners.isFloat(chance)) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + "Drop chances must be a decimal number.");
+				return;
+			}
+			
+			toDrop = Float.parseFloat(chance);
+			
+			if(toDrop < 0 || toDrop > 100) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + "Drop chances must be between 0 and 100.");
+				return;
+			}
+			
+			newStack.setDropChance(toDrop);
+		} else if(chance.isEmpty() && split.length == 2) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "You must input a number for the drop chance.");
+			return;
+		}
+		
 		if(subCommand.equals("adddrop")) {
 			
 			if(!CustomSpawners.isInteger(count)) {
@@ -60,7 +100,7 @@ public class EntityDropsCommand extends EntityCommand {
 				return;
 			}
 			
-			entity.addDrop(stack);
+			entity.addDrop(newStack);
 			
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully added drop item " + ChatColor.GOLD + 
 					PLUGIN.getItemName(stack) + ChatColor.GREEN + " to entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
@@ -78,10 +118,10 @@ public class EntityDropsCommand extends EntityCommand {
 				return;
 			}
 			
-			List<ItemStack> drops = new ArrayList<ItemStack>();
-			drops.add(stack);
+			List<SItemStack> drops = new ArrayList<SItemStack>();
+			drops.add(newStack);
 			
-			entity.setDrops(drops);
+			entity.setSItemStackDrops(drops);
 			
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully set drop item to " + ChatColor.GOLD + 
 					PLUGIN.getItemName(stack) + ChatColor.GREEN + " on entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
@@ -89,17 +129,10 @@ public class EntityDropsCommand extends EntityCommand {
 			
 		} else if(subCommand.equals("cleardrop")) {
 			
-			entity.setDrops(new ArrayList<ItemStack>());
+			entity.setSItemStackDrops(new ArrayList<SItemStack>());
 			
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared drops of entity " + 
 					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
-			
-		} else if(subCommand.equals("usedrop")) {
-			
-			String in = getValue(args, 0, "false");
-			entity.setUsingCustomDrops(Boolean.parseBoolean(in));
-			
-			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "use drops", in));
 			
 		}
 		

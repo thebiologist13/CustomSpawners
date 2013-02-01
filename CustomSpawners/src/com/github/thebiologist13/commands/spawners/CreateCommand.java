@@ -35,7 +35,12 @@ public class CreateCommand extends SpawnerCommand {
 		String in = getValue(args, 0, "");
 		
 		if(in.isEmpty()) {
-			entity = CustomSpawners.getEntity(CustomSpawners.entitySelection.get(player));
+			Integer selection = CustomSpawners.entitySelection.get(player);
+			if(selection == null) {
+				PLUGIN.sendMessage(sender, NO_ID);
+				return;
+			}
+			entity = CustomSpawners.getEntity(selection);
 		} else {
 			entity = CustomSpawners.getEntity(in);
 		}

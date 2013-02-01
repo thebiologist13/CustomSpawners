@@ -1,5 +1,5 @@
 name: CustomSpawners
-version: 0.2.1
+version: 0.3
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners

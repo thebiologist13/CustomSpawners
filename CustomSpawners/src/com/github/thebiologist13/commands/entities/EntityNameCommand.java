@@ -18,6 +18,14 @@ public class EntityNameCommand extends EntityCommand {
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
+		if(subCommand.equals("showname")) { //TODO Add to wiki
+			String in = getValue(args, 0, "false");
+			entity.setShowName(Boolean.parseBoolean(in));
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "show custom name", in));
+			return;
+		}
+		
 		String in = getValue(args, 0, "");
 		
 		if(in.isEmpty()) {

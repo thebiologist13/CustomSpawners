@@ -66,6 +66,7 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.listeners.DamageController;
+import com.github.thebiologist13.nbt.NBTManager;
 import com.github.thebiologist13.serialization.SBlock;
 import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SLocation;
@@ -686,6 +687,7 @@ public class Spawner implements Serializable {
 		
 		baseEntity.setVelocity(data.getVelocity().clone());
 		baseEntity.setFireTicks(data.getFireTicks());
+		setNBT(baseEntity, data);
 		
 		if(baseEntity instanceof LivingEntity) {
 			LivingEntity entity = (LivingEntity) baseEntity;
@@ -1230,6 +1232,18 @@ public class Spawner implements Serializable {
 			ee.setArmorContents(data.getArmor());  
 		}
 		
+	}
+	
+	//Sets data unimplemented by Bukkit
+	private void setNBT(Entity entity, SpawnableEntity data) {
+		//Custom name
+		if(data.showCustomName()) {
+			NBTManager nbt = new NBTManager();
+			NBTTagCompound nbtComp = nbt.getTag(entity);
+			nbtComp.setString("CustomName", data.getName());
+			nbtComp.setBoolean("CustomNameVisible", true);
+			nbt.setEntityNBT(entity, nbtComp);
+		}
 	}
 
 	//Spawns the actual entity

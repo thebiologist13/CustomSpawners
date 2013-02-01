@@ -67,7 +67,7 @@ public class NBTManager {
         }
         
         return compound;
-    }
+	}
 	
 	/**
 	 * Makes the properties of a Bukkit ItemStack into a ItemStack with NBT

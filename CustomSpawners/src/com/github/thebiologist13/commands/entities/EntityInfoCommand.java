@@ -175,7 +175,7 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Slime Size: " + s.getSlimeSize(),
 				ChatColor.GOLD + "Color: " + s.getColor(),
 				ChatColor.GOLD + "Passive: " + String.valueOf(s.isPassive()),
-				ChatColor.GOLD + "Fire Ticks: " + s.getFireTicks(),
+				ChatColor.GOLD + "Fire Ticks: " + s.getFireTicks(), //TODO Modifier for this?
 				ChatColor.GOLD + "Using Blacklist: " + s.isUsingBlacklist(),
 				ChatColor.GOLD + "Using Whitelist: " + s.isUsingWhitelist(),
 				ChatColor.GOLD + "Damage Blacklist: " + blackListMsg,

@@ -80,8 +80,8 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		SpawnerCommand onPower = new SpawnOnPowerCommand(plugin, "customspawners.spawners.spawnonpower");
 		SpawnerCommand wand = new ToggleWandCommand(plugin, "customspawners.spawners.wand");
 		SpawnerCommand clone = new CloneCommand(plugin, "customspawners.spawners.clone");
-		SpawnerCommand times = new SpawnTimesCommand(plugin, "customspawners.spawners.spawntime"); //TODO Add to wiki
-		SpawnerCommand modify = new ModifierCommand(plugin, "customspawners.spawners.modifiers"); //TODO Add to wiki
+		SpawnerCommand times = new SpawnTimesCommand(plugin, "customspawners.spawners.spawntime");
+		SpawnerCommand modify = new ModifierCommand(plugin, "customspawners.spawners.modifiers");
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);

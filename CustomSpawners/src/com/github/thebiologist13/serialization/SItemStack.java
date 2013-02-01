@@ -14,6 +14,9 @@ public class SItemStack implements Serializable {
 	private short data;
 	private int id;
 	private SItemMeta meta;
+	
+	//A drop chance. 100 is guaranteed.
+	private float dropChance;
 
 	public SItemStack(int id) {
 		this(id, (short) 0, 1);
@@ -46,6 +49,10 @@ public class SItemStack implements Serializable {
 		return data;
 	}
 
+	public float getDropChance() {
+		return dropChance;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -57,11 +64,15 @@ public class SItemStack implements Serializable {
 	public void setCount(int count) {
 		this.count = count;
 	}
-
+	
 	public void setData(short data) {
 		this.data = data;
 	}
-	
+
+	public void setDropChance(float dropChance) {
+		this.dropChance = dropChance;
+	}
+
 	public void setId(int id) {
 		this.id = id;
 	}

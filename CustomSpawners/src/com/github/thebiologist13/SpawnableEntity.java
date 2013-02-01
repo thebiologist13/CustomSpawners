@@ -78,6 +78,10 @@ public class SpawnableEntity implements Serializable {
 	public void addDrop(ItemStack drop) {
 		drops.add(new SItemStack(drop));
 	}
+	
+	public void addDrop(SItemStack drop) {
+		drops.add(drop);
+	}
 
 	public void addInventoryItem(ItemStack stack) {
 		SInventory newInv = getInventory();
@@ -263,6 +267,10 @@ public class SpawnableEntity implements Serializable {
 		return drops1;
 	}
 	
+	public List<SItemStack> getSItemStackDrops() {
+		return drops;
+	}
+	
 	public List<SPotionEffect> getEffects() {
 		return effects;
 	}
@@ -275,11 +283,27 @@ public class SpawnableEntity implements Serializable {
 	}
 	
 	public int getFireTicks() {
-		return (this.data.containsKey("fire")) ? (Integer) this.data.get("fire") : 0;
+		int value = (this.data.containsKey("fireTicks")) ? (Integer) this.data.get("fireTicks") : 0; //TODO Add to wiki
+		if(hasModifier("fire")) {
+			String expr = getModifier("fire");
+			try {
+				value = (int) Math.abs(Math.round(evaluate(expr)));
+			} catch(IllegalArgumentException e) {}
+		}
+		
+		return value;
 	}
 
 	public int getFuseTicks() {
-		return (this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 80;
+		int value = (this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 80; //TODO Add to wiki
+		if(hasModifier("fuse")) {
+			String expr = getModifier("fuse");
+			try {
+				value = (int) Math.abs(Math.round(evaluate(expr)));
+			} catch(IllegalArgumentException e) {}
+		}
+		
+		return value;
 	}
 
 	public int getHealth() {
@@ -403,15 +427,17 @@ public class SpawnableEntity implements Serializable {
 		return value;
 	}
 
-	public float getYield() {
+	public float getYield() { //TODO Add to wiki
+		double value = (this.data.containsKey("yield")) ? (Double) this.data.get("yield") : 4.0f;
 		
-		if(this.data.containsKey("yield")) {
-			double d = (Double) this.data.get("yield");
-			return (float) d;
-		} else {
-			return 4.0f;
+		if(hasModifier("yield")) {
+			String expr = getModifier("yield");
+			try {
+				value = evaluate(expr);
+			} catch(IllegalArgumentException e) {}
 		}
 		
+		return (float) value;
 	}
 
 	public double getYVelocity() {
@@ -592,6 +618,10 @@ public class SpawnableEntity implements Serializable {
 		
 		this.drops = drops1;
 	}
+	
+	public void setSItemStackDrops(List<SItemStack> drops2) {
+		this.drops = drops2;
+	}
 
 	public void setEffects(List<SPotionEffect> effects) {
 		this.effects = effects;
@@ -689,6 +719,10 @@ public class SpawnableEntity implements Serializable {
 	public void setSaddled(boolean isSaddled) {
 		this.data.put("saddle", isSaddled);
 	}
+	
+	public void setShowName(boolean show) {
+		this.data.put("showname", show);
+	}
 
 	public void setSitting(boolean isSitting) {
 		this.data.put("sit", isSitting);
@@ -757,6 +791,10 @@ public class SpawnableEntity implements Serializable {
 	
 	public void setZVelocity(double zVelocity) {
 		this.data.put("zVelo", zVelocity);
+	}
+	
+	public boolean showCustomName() {
+		return (Boolean) ((this.data.containsKey("showname")) ? this.data.get("showname") : false);
 	}
 
 }
