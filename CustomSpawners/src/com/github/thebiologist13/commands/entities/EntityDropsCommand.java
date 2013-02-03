@@ -35,6 +35,17 @@ public class EntityDropsCommand extends EntityCommand {
 			return;
 		}
 		
+		if(subCommand.equals("cleardrop")) {
+			
+			entity.setSItemStackDrops(new ArrayList<SItemStack>());
+			
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared drops of entity " + 
+					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
+			
+			return;
+			
+		}
+		
 		String item = getValue(args, 0, "0");
 		String count = getValue(args, 1, "1");
 		String chance = "";
@@ -126,13 +137,6 @@ public class EntityDropsCommand extends EntityCommand {
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully set drop item to " + ChatColor.GOLD + 
 					PLUGIN.getItemName(stack) + ChatColor.GREEN + " on entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
 					ChatColor.GREEN + "!");
-			
-		} else if(subCommand.equals("cleardrop")) {
-			
-			entity.setSItemStackDrops(new ArrayList<SItemStack>());
-			
-			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared drops of entity " + 
-					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
 			
 		}
 		

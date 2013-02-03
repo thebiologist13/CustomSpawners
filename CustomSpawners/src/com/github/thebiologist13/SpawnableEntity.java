@@ -129,6 +129,12 @@ public class SpawnableEntity implements Serializable {
 		expr.replaceAll("@x", "" + x);
 		expr.replaceAll("@y", "" + y);
 		expr.replaceAll("@z", "" + z);
+		expr.replaceAll("@fire", "" +
+				((this.data.containsKey("fireTicks")) ? (Integer) this.data.get("fireTicks") : 0));
+		expr.replaceAll("@fuse", "" + 
+				((this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 0));
+		expr.replaceAll("@yield", "" +
+				((this.data.containsKey("yield")) ? (Double) this.data.get("yield") : 4.0f));
 		expr = expr.replaceAll("@players", "" + Bukkit.getServer().getOnlinePlayers().length);
 		
 		return CustomSpawners.evaluate(expr);
@@ -160,6 +166,12 @@ public class SpawnableEntity implements Serializable {
 		expr.replaceAll("@x", "" + x);
 		expr.replaceAll("@y", "" + y);
 		expr.replaceAll("@z", "" + z);
+		expr.replaceAll("@fire", "" +
+				((this.data.containsKey("fireTicks")) ? (Integer) this.data.get("fireTicks") : 0));
+		expr.replaceAll("@fuse", "" + 
+				((this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 0));
+		expr.replaceAll("@yield", "" +
+				((this.data.containsKey("yield")) ? (Double) this.data.get("yield") : 4.0f));
 		expr = expr.replaceAll("@players", "" + Bukkit.getServer().getOnlinePlayers().length);
 		expr = expr.replaceAll("@nearplayers", "" + CustomSpawners.getNearbyPlayers(entity.getLocation(), 16).size());
 		

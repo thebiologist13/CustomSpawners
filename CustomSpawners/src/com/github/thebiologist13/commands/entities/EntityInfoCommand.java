@@ -156,6 +156,7 @@ public class EntityInfoCommand extends EntityCommand {
 				"",
 				ChatColor.GOLD + "Type: " + nameOfType,
 				ChatColor.GOLD + "Name: " + s.getName(),
+				ChatColor.GOLD + "Show Name: " + s.showCustomName(),
 				ChatColor.GOLD + "Effects: " + effectMessage,
 				ChatColor.GOLD + "X Velocity: " + x,
 				ChatColor.GOLD + "Y Velocity: " + y,

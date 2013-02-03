@@ -27,14 +27,20 @@ public class SItemMeta implements Serializable {
 	}
 	
 	public SItemMeta(ItemStack stack) {
-		ItemMeta meta = stack.getItemMeta();
-		displayName = meta.getDisplayName();
-		lore = meta.getLore();
-		enchants = new HashMap<CardboardEnchantment, Integer>();
-		
-		Map<Enchantment, Integer> eFromMeta = meta.getEnchants();
-		for(Enchantment e : eFromMeta.keySet()) {
-			enchants.put(new CardboardEnchantment(e), eFromMeta.get(e));
+		if(stack.hasItemMeta()) {
+			ItemMeta meta = stack.getItemMeta();
+			displayName = meta.getDisplayName();
+			lore = meta.getLore();
+			enchants = new HashMap<CardboardEnchantment, Integer>();
+
+			Map<Enchantment, Integer> eFromMeta = meta.getEnchants();
+			for(Enchantment e : eFromMeta.keySet()) {
+				enchants.put(new CardboardEnchantment(e), eFromMeta.get(e));
+			}
+		} else {
+			displayName = "";
+			lore = new ArrayList<String>();
+			enchants = new HashMap<CardboardEnchantment, Integer>();
 		}
 		
 	}

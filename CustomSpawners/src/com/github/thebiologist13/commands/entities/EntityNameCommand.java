@@ -18,7 +18,7 @@ public class EntityNameCommand extends EntityCommand {
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
-		if(subCommand.equals("showname")) { //TODO Add to wiki
+		if(subCommand.equals("showname")) {
 			String in = getValue(args, 0, "false");
 			entity.setShowName(Boolean.parseBoolean(in));
 			
