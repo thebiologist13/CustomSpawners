@@ -175,7 +175,7 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Slime Size: " + s.getSlimeSize(),
 				ChatColor.GOLD + "Color: " + s.getColor(),
 				ChatColor.GOLD + "Passive: " + String.valueOf(s.isPassive()),
-				ChatColor.GOLD + "Fire Ticks: " + s.getFireTicks(), //TODO Modifier for this?
+				ChatColor.GOLD + "Fire Ticks: " + s.getFireTicks(),
 				ChatColor.GOLD + "Using Blacklist: " + s.isUsingBlacklist(),
 				ChatColor.GOLD + "Using Whitelist: " + s.isUsingWhitelist(),
 				ChatColor.GOLD + "Damage Blacklist: " + blackListMsg,
@@ -185,8 +185,8 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Damage Dealt: " + damage,
 				ChatColor.GOLD + "Potion Type: " + epe.getType().getName() + " " + epe.getAmplifier() + " - " + PLUGIN.convertTicksToTime(epe.getDuration()),
 				ChatColor.GOLD + typeOfExpDrop + s.getDroppedExp(),
-				ChatColor.GOLD + "Fuse Ticks: " + s.getFuseTicks(), //TODO Modifier for this?
-				ChatColor.GOLD + "Explosive Yield: " + s.getYield(), //TODO Modifier for this?
+				ChatColor.GOLD + "Fuse Ticks: " + s.getFuseTicks(),
+				ChatColor.GOLD + "Explosive Yield: " + s.getYield(),
 				ChatColor.GOLD + "Incendiary: " + s.isIncendiary(),
 				ChatColor.GOLD + "Item Type: " + PLUGIN.getItemName(s.getItemType()),
 				ChatColor.GOLD + "Using Custom Drops: " + s.isUsingCustomDrops(),

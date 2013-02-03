@@ -20,6 +20,9 @@ public class RemoveCommand extends SpawnerCommand {
 		
 		int id = spawner.getId();
 		
+		if(CONFIG.getBoolean("spawners.killOnRemove", true))
+			PLUGIN.removeMobs(spawner);
+		
 		PLUGIN.removeSpawner(spawner);
 		PLUGIN.getFileManager().removeDataFile(id, true);
 		

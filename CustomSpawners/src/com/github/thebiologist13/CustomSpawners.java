@@ -55,7 +55,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * Licensed under GNU-GPLv3
  * 
  * @author thebiologist13
- * @version 0.2
+ * @version 0.3
  */
 public class CustomSpawners extends JavaPlugin {
 

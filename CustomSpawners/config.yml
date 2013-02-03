@@ -86,6 +86,10 @@ spawners:
     # destroyed?
     deactivateOnBreak: true
     
+    # Should mobs created by a spawner
+    # be removed when that spawner is removed?
+    killOnRemove: true
+    
 mobs:
 
     # Which mob types for entities should be 

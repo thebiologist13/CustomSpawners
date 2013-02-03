@@ -959,6 +959,12 @@ public class Spawner implements Serializable {
 				continue;
 			}
 			
+			if(type.getType().equals(EntityType.SQUID) && 
+					!(spawnLoc.getBlock().getType().equals(Material.STATIONARY_WATER) ||
+					spawnLoc.getBlock().getType().equals(Material.WATER))) {
+						continue;
+					}
+			
 			if(!areaEmpty(spawnLoc, spawnInWater, height, width, length))
 				continue;
 			
