@@ -90,6 +90,10 @@ spawners:
     # be removed when that spawner is removed?
     killOnRemove: true
     
+    # Should the spawner be removed when its block
+    # is broken?
+    removeOnBreak: false
+    
 mobs:
 
     # Which mob types for entities should be 

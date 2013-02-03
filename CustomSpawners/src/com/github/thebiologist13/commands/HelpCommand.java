@@ -169,10 +169,16 @@ public class HelpCommand extends CustomSpawnersCommand {
 		}
 		totalPages = length / 8;
 		
-		String[] showThis = new String[10];
+		int arraySize = 10;
+		if((HELP_MESSAGE_MAIN.length - startIndex) < 8) {
+			arraySize = (HELP_MESSAGE_MAIN.length - startIndex) + 1;
+		}
+		String[] showThis = new String[arraySize];
 		showThis[0] = ChatColor.GREEN + "* * * CustomSpawners Help Page " + page + " of " + totalPages + " * * *";
-		showThis[9] = ChatColor.GREEN + "* * * * * * * * * * * * * * * *";
-		for(int i = 1; i < 9; i++) {
+		showThis[arraySize - 1] = ChatColor.GREEN + "* * * * * * * * * * * * * * * *";
+		for(int i = 1; i < (arraySize - 1); i++) {
+			if((startIndex + i) > (HELP_MESSAGE_MAIN.length - 1))
+				break;
 			showThis[i] = HELP_MESSAGE_MAIN[startIndex + i];
 		}
 		

@@ -57,7 +57,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * @author thebiologist13
  * @version 0.3
  */
-public class CustomSpawners extends JavaPlugin {
+public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (for now :D )
 
 	//Selected entity by console.
 	public static int consoleEntity = -1;
