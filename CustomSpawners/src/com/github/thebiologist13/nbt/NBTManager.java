@@ -90,7 +90,20 @@ public class NBTManager {
 	 * @param n The NBTTagCompound containing the information to set.
 	 */
 	public void setEntityNBT(Entity e, NBTTagCompound n) {
-		((CraftEntity) e).getHandle().c(n);
+		net.minecraft.server.v1_4_R1.Entity nms = ((CraftEntity) e).getHandle();
+		Class<?> entityClass = nms.getClass();
+		Method[] methods = entityClass.getMethods();
+        for (Method method : methods){
+            if ((method.getName() == "a") && (method.getParameterTypes().length == 1) && (method.getParameterTypes()[0] == NBTTagCompound.class)){
+                try {
+                	method.setAccessible(true);
+                    method.invoke(nms, n);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        
 	}
 	
 	/**

@@ -1247,7 +1247,7 @@ public class Spawner implements Serializable {
 			NBTManager nbt = new NBTManager();
 			NBTTagCompound nbtComp = nbt.getTag(entity);
 			nbtComp.setString("CustomName", data.getName());
-			nbtComp.setBoolean("CustomNameVisible", true);
+			nbtComp.setByte("CustomNameVisible", (byte) ((data.showCustomName()) ? 1 : 0));
 			nbt.setEntityNBT(entity, nbtComp);
 		}
 	}
