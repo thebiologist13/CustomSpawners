@@ -763,7 +763,7 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 		log.info("CustomSpawners by thebiologist13 has been disabled!");
 	}
 
-	public void onEnable() {
+	public void onEnable() { //TODO Surround in try/catch w/ crash reporting.
 		
 		//Transparent Blocks
 		transparent.add((byte) 0);
@@ -833,11 +833,18 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(this), this);
 		getServer().getPluginManager().registerEvents(new ReloadEvent(this), this);
 
-		//Load entities from file
-		fileManager.loadEntities();
+		try {
+			//Load entities from file
+			fileManager.loadEntities();
 
-		//Load spawners from files
-		fileManager.loadSpawners();
+			//Load spawners from files
+			fileManager.loadSpawners();
+		} catch(Exception e) {
+			fileManager.saveCrash(getClass(), e);
+			log.severe("Failed to load all Spawners and Entities from file. Are they all in the new .dat file format?" +
+					"Crash saved to " + getDataFolder().getPath() + File.separator + "CustomSpawners" + File.separator +
+					"Crashes");
+		}
 
 		/*
 		 * Spawning Thread
