@@ -15,10 +15,10 @@ import com.github.thebiologist13.CustomSpawners;
 
 public class InteractEvent implements Listener {
 	
-	private FileConfiguration config = null;
+	private final FileConfiguration CONFIG;
 	
 	public InteractEvent(CustomSpawners plugin) {
-		this.config = plugin.getCustomConfig();
+		this.CONFIG = plugin.getCustomConfig();
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -35,13 +35,24 @@ public class InteractEvent implements Listener {
 		
 		if(item == null) {return;}
 		
+		if(CustomSpawners.selectMode.containsKey(p)) {
+			boolean doBreak = CustomSpawners.selectMode.get(p);
+			int configId = CONFIG.getInt("players.selectionId");
+			
+			if((p.getItemInHand().getTypeId() == configId) && doBreak && p.hasPermission("customspawners.spawners.pos")) {
+				ev.setCancelled(true);
+				return;
+			}
+			
+		}
+		
 		//Block
 		Location l = ev.getClickedBlock().getLocation();
 		//Perms
 		String perm = "customspawners.spawners.pos";
 		
 		if(p.hasPermission(perm)) {
-			if(item.getTypeId() == config.getInt("players.selectionId")) {
+			if(item.getTypeId() == CONFIG.getInt("players.selectionId")) {
 				if(a.equals(Action.LEFT_CLICK_BLOCK)) {
 					CustomSpawners.selectionPointOne.put(p, l);
 					p.sendMessage(ChatColor.GREEN + "Set spawn area selection point one to: " + ChatColor.GOLD + "(" +
