@@ -763,7 +763,7 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 		log.info("CustomSpawners by thebiologist13 has been disabled!");
 	}
 
-	public void onEnable() { //TODO Surround in try/catch w/ crash reporting.
+	public void onEnable() {
 		
 		//Transparent Blocks
 		transparent.add((byte) 0);

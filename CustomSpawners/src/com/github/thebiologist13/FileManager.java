@@ -15,22 +15,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Villager;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
-
-import com.github.thebiologist13.serialization.SVector;
 
 /**
  * Manages file I/O for CustomSpawners.
@@ -57,7 +47,7 @@ public class FileManager {
 
 	private final String SPAWNER_PATH;
 
-	private final String SWITCHED_FORMAT = "CustomSpawners has switched to save in .dat files. As much data as possible will be carried over into the new format.";
+	private final String SWITCHED_FORMAT = "CustomSpawners has switched to save in .dat files and cannot load .yml files.";
 
 	public FileManager(CustomSpawners plugin) {
 		this.PLUGIN = plugin;
@@ -208,133 +198,9 @@ public class FileManager {
 
 		} else if(isYaml(f)) {
 
-			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-
-			int id = yaml.getInt("id");
-			String name = yaml.getString("name", "");
-			String strType = yaml.getString("type");
-			double xVelocity = yaml.getDouble("xVelocity", 0);
-			double yVelocity = yaml.getDouble("yVelocity", 0);
-			double zVelocity = yaml.getDouble("zVelocity", 0);
-			int age = yaml.getInt("age", -1);
-			int health = yaml.getInt("health", -1);
-			int air = yaml.getInt("air", -1);
-			String strProfession = yaml.getString("profession", CONFIG.getString("entities.profession", "FARMER"));
-			int endermanBlockId = yaml.getInt("endermanBlock", CONFIG.getInt("entities.endermanBlock", 2));
-			boolean isSaddled = yaml.getBoolean("saddled", CONFIG.getBoolean("entities.isSaddled", false));
-			boolean isCharged = yaml.getBoolean("charged", CONFIG.getBoolean("entities.isCharged", false));
-			boolean isJockey = yaml.getBoolean("jockey", CONFIG.getBoolean("entities.isJockey", false));
-			boolean isTamed = yaml.getBoolean("tame", CONFIG.getBoolean("entities.isTamed", false));
-			boolean angry = yaml.getBoolean("angry", CONFIG.getBoolean("entities.isAngry", false));
-			boolean isSitting = yaml.getBoolean("sitting", CONFIG.getBoolean("entities.isSitting", false)); 
-			String catType = yaml.getString("catType", CONFIG.getString("entities.catType", "WILD_OCELOT"));
-			int slimeSize = yaml.getInt("slimeSize", CONFIG.getInt("entities.slimeSize", 1));
-			String color = yaml.getString("color", CONFIG.getString("entities.color", "WHITE"));
-			boolean passive = yaml.getBoolean("passive", CONFIG.getBoolean("entities.passive", false)); 
-			int fireTicks = yaml.getInt("fireTicks", 0);
-			List<?> blacklist = yaml.getList("blacklist", new ArrayList<String>());
-			List<?> whitelist = yaml.getList("whitelist", new ArrayList<String>());
-			List<?> itemlist = yaml.getList("itemlist", new ArrayList<ItemStack>());
-			boolean useBlack = yaml.getBoolean("useBlacklist", CONFIG.getBoolean("entities.useBlacklist", true));
-			boolean useWhite = yaml.getBoolean("useWhitelist", !CONFIG.getBoolean("entities.useBlacklist", true));
-			List<?> dropList = yaml.getList("drops", new ArrayList<ItemStack>());
-
-			boolean usingCustomDamage = yaml.getBoolean("useCustomDamage", CONFIG.getBoolean("entities.useCustomDamage", false));
-			int damage = yaml.getInt("damage", CONFIG.getInt("entities.dealtDamage", 2));
-			int droppedExp = yaml.getInt("droppedExp", CONFIG.getInt("entities.experienceDropped", 1));
-			int fuseTicks = yaml.getInt("fuseTicks", CONFIG.getInt("entities.fuseTicks", 80));
-			float yield = (float) yaml.getDouble("yield", CONFIG.getDouble("entities.yield", 5.0d));
-			boolean incendiary = yaml.getBoolean("incendiary", CONFIG.getBoolean("entities.incendiary", false));
-			ItemStack itemType = yaml.getItemStack("itemType", PLUGIN.getItemStack(CONFIG.getString("itemType", "1:0")));
-			boolean usingCustomDrops = yaml.getBoolean("useCustomDrops", CONFIG.getBoolean("entities.useCustomDrops", false));
-			boolean invulnerable = yaml.getBoolean("invulnerable", CONFIG.getBoolean("entities.invulnerable", false));
-
-			//Make sure no values are null 
-			if(Integer.valueOf(id) == null) {
-				LOG.info("Cannot load ID from entity! Please check that " + f.getName() + " has a valid ID.");
-				return null;
-			}
-
-			if(strType == null) {
-				LOG.info("Cannot load type of entity in file " + f.getName() + "! Using default type. ");
-				strType = "PIG";
-			}
-
-			ArrayList<String> blacklistStrings = new ArrayList<String>();
-			for(Object o : blacklist) {
-				if(o instanceof String) {
-					blacklistStrings.add((String) o);
-				}
-			}
-
-			ArrayList<String> whitelistStrings = new ArrayList<String>();
-			for(Object o : whitelist) {
-				if(o instanceof String) {
-					whitelistStrings.add((String) o);
-				}
-			}
-
-			ArrayList<ItemStack> itemlistStacks = new ArrayList<ItemStack>();
-			for(Object o : itemlist) {
-				if(o instanceof ItemStack) {
-					itemlistStacks.add((ItemStack) o);
-				}
-			}
-
-			ArrayList<ItemStack> dropListStacks = new ArrayList<ItemStack>();
-			for(Object o : dropList) {
-				if(o instanceof ItemStack) {
-					dropListStacks.add((ItemStack) o);
-				}
-			}
-
-			EntityType type = PLUGIN.parseEntityType(strType, true);
-
-			Vector velocity = new Vector(xVelocity, yVelocity, zVelocity);
-
-			Villager.Profession profession = Villager.Profession.valueOf(strProfession);
-
-			MaterialData endermanBlock = new MaterialData(endermanBlockId);
-
-			SpawnableEntity e = new SpawnableEntity(type, id);
-			e.setName(name);
-			e.setVelocity(new SVector(velocity));
-			e.setAge(age);
-			e.setHealth(health);
-			e.setAir(air);
-			e.setProfession(profession);
-			e.setEndermanBlock(endermanBlock);
-			e.setSaddled(isSaddled);
-			e.setCharged(isCharged);
-			e.setJockey(isJockey);
-			e.setTamed(isTamed);
-			e.setAngry(angry);
-			e.setSitting(isSitting);
-			e.setCatType(catType);
-			e.setSlimeSize(slimeSize);
-			e.setColor(color);
-			e.setPassive(passive);
-			e.setFireTicks(fireTicks);
-			e.setDamageBlacklist(blacklistStrings);
-			e.setDamageWhitelist(whitelistStrings);
-			e.setItemDamageList(itemlistStacks);
-			e.setUseBlacklist(useBlack);
-			e.setUseWhitelist(useWhite);
-			e.setDrops(dropListStacks);
-			e.setUsingCustomDamage(usingCustomDamage);
-			e.setDamage(damage);
-			e.setDroppedExp(droppedExp);
-			e.setFuseTicks(fuseTicks);
-			e.setYield(yield);
-			e.setIncendiary(incendiary);
-			e.setItemType(itemType);
-			e.setUsingCustomDrops(usingCustomDrops);
-			e.setInvulnerable(invulnerable);
-
 			LOG.info(SWITCHED_FORMAT);
 			f.delete();
-
-			return e;
+			
 		}
 
 		return null;
@@ -386,158 +252,8 @@ public class FileManager {
 
 		} else if(isYaml(f)) {
 
-			FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-
-			int id = yaml.getInt("id");
-			String name = yaml.getString("name", "");
-			double radius = yaml.getDouble("radius", CONFIG.getDouble("spawners.radius", 32));
-			boolean redstoneTriggered = yaml.getBoolean("redstone",CONFIG.getBoolean("spawners.redstoneTriggered", false));
-			int maxPlayerDistance = yaml.getInt("maxDistance", CONFIG.getInt("spawners.maxPlayerDistance", 32));
-			int minPlayerDistance = yaml.getInt("minDistance", CONFIG.getInt("spawners.minPlayerDistance", 0));
-			boolean active = yaml.getBoolean("active", CONFIG.getBoolean("spawners.hidden", false));
-			byte maxLightLevel = (byte) yaml.getInt("maxLight", (byte) CONFIG.getInt("spawners.maxLightLevel", 7));
-			byte minLightLevel = (byte) yaml.getInt("minLight", (byte) CONFIG.getInt("spawners.minLightLevel", 0));
-			boolean hidden = yaml.getBoolean("hidden", CONFIG.getBoolean("spawners.hidden", false));
-			int mobsPerSpawn = yaml.getInt("mobsPerSpawn", CONFIG.getInt("spawners.mobsPerSpawn", 2)); 
-			int maxMobs = yaml.getInt("maxMobs", CONFIG.getInt("spawners.maxMobs", 64)); 
-			List<?> mobs = yaml.getList("mobs"); 
-			int rate = yaml.getInt("rate", CONFIG.getInt("spawners.rate", 120));
-			boolean usingSpawnArea = yaml.getBoolean("useSpawnArea", false);
-			String locWorld = yaml.getString("location.world");
-			int locX = yaml.getInt("location.x", 0);
-			int locY = yaml.getInt("location.y", 0);
-			int locZ = yaml.getInt("location.z", 0);
-			String p1World = yaml.getString("p1.world");
-			int p1x = yaml.getInt("p1.x", 0);
-			int p1y = yaml.getInt("p1.y", 0);
-			int p1z = yaml.getInt("p1.z", 0);
-			String p2World = yaml.getString("p2.world");
-			int p2x = yaml.getInt("p2.x", 0);
-			int p2y = yaml.getInt("p2.y", 0);
-			int p2z = yaml.getInt("p2.z", 0);
-			boolean converted = yaml.getBoolean("converted", false);
-			Block block = null;
-			int blockID = 0;
-			byte blockData = 0;
-
-			//Make sure no values are null 
-			if(Integer.valueOf(id) == null) {
-				LOG.info("Cannot load ID from spawner! Please check that " + f.getName() + " has a valid ID.");
-				return null;
-			}
-			if(locWorld == null) {
-				LOG.info("Cannot load world that spawner is from file " + f.getName() + "! Using default world. " + PLUGIN.getServer().getWorlds().get(0).getName());
-				locWorld = PLUGIN.getServer().getWorlds().get(0).getName();
-			}
-			if(p1World == null || p2World == null) {
-				LOG.info("Cannot load spawn area world locations in file " + f.getName() + "! Using default world. " + PLUGIN.getServer().getWorlds().get(0).getName());
-				locWorld = PLUGIN.getServer().getWorlds().get(0).getName();
-			}
-
-			//Convert Raw yaml list of mobs to ArrayList<Integer>
-			Iterator<?> mobItr = mobs.iterator();
-			HashMap<Integer, SpawnableEntity> mobsMap = new HashMap<Integer, SpawnableEntity>();
-
-			while(mobItr.hasNext()) {
-				Object o = mobItr.next();
-
-				if(o instanceof String) {
-					String pair = (String) o;
-					int key = Integer.parseInt(pair.substring(0, pair.indexOf("_")));
-					int value = Integer.parseInt(pair.substring(pair.indexOf("_") + 1, pair.length()));
-
-					SpawnableEntity e = CustomSpawners.getEntity(String.valueOf(value));
-
-					Iterator<World> worlds = Bukkit.getWorlds().iterator();
-					while(worlds.hasNext()) {
-						World w = worlds.next();
-
-						Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
-						while(entitiesInWorld.hasNext()) {
-							Entity en = entitiesInWorld.next();
-
-							if(en.getEntityId() == key) {
-								mobsMap.put(key, e);
-							}
-
-						}
-
-					}
-
-				}
-
-			}
-
-			//Location
-			Location loc = new Location(PLUGIN.getServer().getWorld(locWorld), locX, locY, locZ);
-
-			//Spawn Area Points
-			Location[] areaPoints = new Location[2];
-
-			//Point 1
-			Location p1 = new Location(PLUGIN.getServer().getWorld(p1World), p1x, p1y, p1z);
-
-			//Point 2
-			Location p2 = new Location(PLUGIN.getServer().getWorld(p2World), p2x, p2y, p2z);
-
-			areaPoints[0] = p1;
-			areaPoints[1] = p2;
-
-			//Mob types
-			List<?> listType = yaml.getList("spawnableEntities");
-			List<Integer> entities = new ArrayList<Integer>();
-			for(Object o : listType) {
-				if(o instanceof Integer) {
-					int entityID = (Integer) o;
-					entities.add(entityID);
-				}
-			}
-
-			SpawnableEntity baseEntity = null;
-			for(Integer i : entities) {
-				baseEntity = CustomSpawners.getEntity(i.toString());
-				break;
-			}
-
-			block = loc.getWorld().getBlockAt(loc);
-			String blockType = yaml.getString("block", "49-0");
-			int dashIndex = blockType.indexOf("-");
-
-			try {
-				blockID = Integer.parseInt(blockType.substring(0, dashIndex));
-				blockData = Byte.parseByte(blockType.substring(dashIndex + 1, blockType.length()));
-			} catch(NumberFormatException e) {
-				LOG.info("Error loading spawner block type. Check that it is in the format <block id>-<block data>. Using obsidian as default.");
-				blockID = 49;
-				blockData = 0;
-			}
-
-			block.setTypeIdAndData(blockID, blockData, false);
-
-
-			Spawner s = new Spawner(baseEntity, loc, name, id);
-			s.setRadius(radius);
-			s.setRedstoneTriggered(redstoneTriggered);
-			s.setMaxPlayerDistance(maxPlayerDistance);
-			s.setMinPlayerDistance(minPlayerDistance);
-			s.setActive(active);
-			s.setMaxLightLevel(maxLightLevel);
-			s.setMinLightLevel(minLightLevel);
-			s.setHidden(hidden);
-			s.setMobsPerSpawn(mobsPerSpawn);
-			s.setMaxMobs(maxMobs);
-			s.setRate(rate);
-			s.setUseSpawnArea(usingSpawnArea);
-			s.setAreaPoints(areaPoints);
-			s.setTypeData(entities);
-			s.setMobs(mobsMap);
-			s.setBlock(block);
-			s.setConverted(converted);
-
 			LOG.info(SWITCHED_FORMAT);
 			f.delete();
-
-			return s;
 
 		}
 

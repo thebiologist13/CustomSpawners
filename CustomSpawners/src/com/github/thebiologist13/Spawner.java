@@ -32,6 +32,7 @@ import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Explosive;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Flying;
@@ -39,6 +40,7 @@ import org.bukkit.entity.Golem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Pig;
@@ -1242,14 +1244,24 @@ public class Spawner implements Serializable {
 	
 	//Sets data unimplemented by Bukkit
 	private void setNBT(Entity entity, SpawnableEntity data) {
+		NBTManager nbt = new NBTManager();
+		NBTTagCompound nbtComp = nbt.getTag(entity);
 		//Custom name
 		if(data.showCustomName()) {
-			NBTManager nbt = new NBTManager();
-			NBTTagCompound nbtComp = nbt.getTag(entity);
 			nbtComp.setString("CustomName", data.getName());
 			nbtComp.setByte("CustomNameVisible", (byte) ((data.showCustomName()) ? 1 : 0));
-			nbt.setEntityNBT(entity, nbtComp);
 		}
+		
+		if(entity instanceof Minecart) {
+			Minecart m = (Minecart) entity;
+			//TODO Lots of stuff here
+			//TODO Use UUID instead of entity ID?
+		} else if(entity instanceof FallingBlock) {
+			
+		}
+		
+		nbt.setEntityNBT(entity, nbtComp);
+		
 	}
 
 	//Spawns the actual entity

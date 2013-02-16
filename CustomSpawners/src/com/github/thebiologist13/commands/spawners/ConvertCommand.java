@@ -26,6 +26,13 @@ public class ConvertCommand extends SpawnerCommand {
 	@Override
 	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
+		String in = getValue(args, 0, "");
+		
+		if(in.equals("minecart")) {
+			//TODO Spawner minecart & falling block spawners.
+			return;
+		}
+		
 		CraftWorld cw = (CraftWorld) spawner.getLoc().getWorld();
 		TileEntity te = cw.getTileEntityAt(spawner.getLoc().getBlockX(), spawner.getLoc().getBlockY(), spawner.getLoc().getBlockZ());
 		Block blk = cw.getBlockAt(spawner.getLoc());

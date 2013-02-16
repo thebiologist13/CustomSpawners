@@ -388,6 +388,10 @@ public class SpawnableEntity implements Serializable {
 	public String getName() {
 		return (this.data.containsKey("name")) ? (String) this.data.get("name") : "";
 	}
+	
+	public Spawner getSpawnerData() {
+		return (this.data.containsKey("spawner")) ? (Spawner) this.data.get("spawner") : null;
+	}
 
 	public SPotionEffect getPotionEffect() {
 		return (this.data.containsKey("potionEffect")) ? (SPotionEffect) this.data.get("potionEffect") : new SPotionEffect(PotionEffectType.REGENERATION, 1, 0);
@@ -742,6 +746,10 @@ public class SpawnableEntity implements Serializable {
 
 	public void setSlimeSize(int slimeSize) {
 		this.data.put("slimeSize", slimeSize);
+	}
+	
+	public void setSpawnerData(Spawner spawner) {
+		this.data.put("spawner", spawner);		
 	}
 
 	public void setTamed(boolean isTamed) {
