@@ -1,5 +1,7 @@
 package com.github.thebiologist13.listeners;
 
+import java.util.UUID;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -29,7 +31,7 @@ public class MobExplodeEvent implements Listener {
 		if(e == null) 
 			return;
 		
-		int id = e.getEntityId();
+		UUID id = e.getUniqueId();
 		
 		//SpawnableEntity
 		SpawnableEntity s = plugin.getEntityFromSpawner(id);

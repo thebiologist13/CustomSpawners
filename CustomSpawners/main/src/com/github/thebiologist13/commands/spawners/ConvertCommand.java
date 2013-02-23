@@ -8,7 +8,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_4_R1.CraftWorld;
+import org.bukkit.entity.EntityType;
+
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.nbt.NBTManager;
 import com.github.thebiologist13.nbt.NotTileEntityException;
@@ -29,8 +32,34 @@ public class ConvertCommand extends SpawnerCommand {
 		String in = getValue(args, 0, "");
 		
 		if(in.equals("minecart")) {
-			//TODO Spawner minecart & falling block spawners.
+			SpawnableEntity minecart = new SpawnableEntity(EntityType.MINECART, PLUGIN.getNextEntityId());
+			minecart.setSpawnerData(spawner);
+			
+			CustomSpawners.entities.put(minecart.getId(), minecart);
+			
+			if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
+				PLUGIN.getFileManager().autosave(minecart);
+			}
+			
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully converted spawner " + ChatColor.GOLD + 
+					PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + " to a new minecart entity with ID number " + ChatColor.GOLD + 
+					minecart.getId() + ChatColor.GREEN + "!");
+			
 			return;
+		} else if(in.equals("falling_block") || in.equals("fallingblock")) {
+			SpawnableEntity falling = new SpawnableEntity(EntityType.FALLING_BLOCK, PLUGIN.getNextEntityId());
+			falling.setSpawnerData(spawner);
+			
+			CustomSpawners.entities.put(falling.getId(), falling);
+			
+			if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
+				PLUGIN.getFileManager().autosave(falling);
+			}
+			
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully converted spawner " + ChatColor.GOLD + 
+					PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + " to a new falling block entity with ID number " + ChatColor.GOLD + 
+					falling.getId() + ChatColor.GREEN + "!");
+			
 		}
 		
 		CraftWorld cw = (CraftWorld) spawner.getLoc().getWorld();

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.server.v1_4_R1.AxisAlignedBB;
@@ -88,13 +89,13 @@ public class Spawner implements Serializable {
 	//Main Data
 	private Map<String, Object> data;
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
-	private ConcurrentHashMap<Integer, SpawnableEntity> mobs;
+	private ConcurrentHashMap<UUID, SpawnableEntity> mobs;
 	//Modifiers. Key is modified property, value is expression.
 	private Map<String, String> modifiers;
 	//If the block was powered before
 	private boolean poweredBefore;
 	//Secondary Mobs (passenger, projectiles, etc.). Key is mobId, value is associated mob from "mobs".
-	private ConcurrentHashMap<Integer, Integer> secondaryMobs;
+	private ConcurrentHashMap<UUID, UUID> secondaryMobs;
 	//Ticks left before next spawn
 	private int ticksLeft; 
 	//Times to spawn at
@@ -108,10 +109,10 @@ public class Spawner implements Serializable {
 	
 	public Spawner(SpawnableEntity type, Location loc, String name, int id) {
 		this.data = new HashMap<String, Object>();
-		this.mobs = new ConcurrentHashMap<Integer, SpawnableEntity>();
+		this.mobs = new ConcurrentHashMap<UUID, SpawnableEntity>();
 		this.modifiers = new HashMap<String, String>();
 		this.poweredBefore = false;
-		this.secondaryMobs = new ConcurrentHashMap<Integer, Integer>();
+		this.secondaryMobs = new ConcurrentHashMap<UUID, UUID>();
 		this.ticksLeft = -1;
 		this.times = new ArrayList<Integer>();
 		this.typeData = new ArrayList<Integer>();
@@ -131,7 +132,7 @@ public class Spawner implements Serializable {
 		data.put("name", name);
 	}
 	
-	public void addMob(int mobId, SpawnableEntity entity) {
+	public void addMob(UUID mobId, SpawnableEntity entity) {
 		mobs.put(mobId, entity);
 	}
 	
@@ -139,7 +140,7 @@ public class Spawner implements Serializable {
 		modifiers.put(property, expression);
 	}
 
-	public void addSecondaryMob(int secId, int mobId) {
+	public void addSecondaryMob(UUID secId, UUID mobId) {
 		secondaryMobs.put(secId, mobId);
 	}
 	
@@ -310,7 +311,7 @@ public class Spawner implements Serializable {
 		return value;
 	}
 	
-	public Map<Integer, SpawnableEntity> getMobs() {
+	public Map<UUID, SpawnableEntity> getMobs() {
 		return this.mobs;
 	}
 	
@@ -364,10 +365,10 @@ public class Spawner implements Serializable {
 		return value;
 	}
 
-	public Map<Integer, Integer> getSecondaryMobs() {
+	public Map<UUID, UUID> getSecondaryMobs() {
 		
 		if(this.secondaryMobs == null) {
-			this.secondaryMobs = new ConcurrentHashMap<Integer, Integer>();
+			this.secondaryMobs = new ConcurrentHashMap<UUID, UUID>();
 		}
 		
 		return this.secondaryMobs;
@@ -435,12 +436,12 @@ public class Spawner implements Serializable {
 		data.put("active", false);
 	}
 
-	public void removeMob(int mobId) {
+	public void removeMob(UUID mobId) {
 		if(mobs.containsKey(mobId))
 			mobs.remove(mobId);
 	}
 
-	public void removeSecondaryMob(int secId) {
+	public void removeSecondaryMob(UUID secId) {
 		secondaryMobs.remove(secId);
 	}
 
@@ -526,8 +527,8 @@ public class Spawner implements Serializable {
 		this.data.put("minDistance", minPlayerDistance);
 	}
 	
-	public void setMobs(Map<Integer, SpawnableEntity> mobParam) {
-		this.mobs = (ConcurrentHashMap<Integer, SpawnableEntity>) mobParam;
+	public void setMobs(Map<UUID, SpawnableEntity> mobParam) {
+		this.mobs = (ConcurrentHashMap<UUID, SpawnableEntity>) mobParam;
 	}
 	
 	public void setMobsPerSpawn(int mobsPerSpawn) {
@@ -571,8 +572,8 @@ public class Spawner implements Serializable {
 		this.data.put("redstone", redstoneTriggered);
 	}
 	
-	public void setSecondaryMobs(Map<Integer, Integer> secondaryMobs) {
-		this.secondaryMobs = (ConcurrentHashMap<Integer, Integer>) secondaryMobs;
+	public void setSecondaryMobs(Map<UUID, UUID> secondaryMobs) {
+		this.secondaryMobs = (ConcurrentHashMap<UUID, UUID>) secondaryMobs;
 	}
 	
 	public void setSpawnOnRedstone(boolean value) {
@@ -858,6 +859,13 @@ public class Spawner implements Serializable {
 				
 			} 
 			
+		} else if(baseEntity instanceof Minecart) {
+			
+			Minecart m = (Minecart) baseEntity;
+			if(data.hasProp("minecartSpeed")) {
+				m.setMaxSpeed((Double) data.getProp("minecartSpeed"));
+			}
+			
 		}
 		
 	}
@@ -953,7 +961,7 @@ public class Spawner implements Serializable {
 				randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
 			}
 
-			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ, randRot(), 0);
+			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ, 0, 0);
 			
 			//loc is the location of the spawner block
 			//spawnLoc is the location being tested to spawn in
@@ -1087,7 +1095,7 @@ public class Spawner implements Serializable {
 				
 				assignMobProps(e, spawnType);
 				
-				mobs.put(e.getEntityId(), spawnType);
+				mobs.put(e.getUniqueId(), spawnType);
 				
 			}
 			
@@ -1102,7 +1110,7 @@ public class Spawner implements Serializable {
 		assignMobProps(skele, data);
 		setInventory(skele, data.getInventory());
 		spider.setPassenger(skele);
-		addSecondaryMob(skele.getEntityId(), spider.getEntityId());
+		addSecondaryMob(skele.getUniqueId(), spider.getUniqueId());
 		return (Skeleton) skele;
 	}
 	
@@ -1253,11 +1261,20 @@ public class Spawner implements Serializable {
 		}
 		
 		if(entity instanceof Minecart) {
-			Minecart m = (Minecart) entity;
-			//TODO Lots of stuff here
-			//TODO Use UUID instead of entity ID?
+			if(!data.getItemType().getType().equals(Material.AIR)) {
+				nbtComp.setInt("DisplayTile", data.getItemType().getTypeId());
+				nbtComp.setInt("DisplayData", (int) data.getItemType().getDurability());
+				nbtComp.setByte("CustomDisplayTile", (byte) 1);
+				if(data.getSpawnerData() != null) {
+					nbtComp.setInt("DisplayTile", 52);
+					nbtComp.setInt("DisplayData", 0);
+					nbtComp.setCompound("", nbt.getSpawnerNBT((Spawner) data.getSpawnerData()));
+				}
+			}
 		} else if(entity instanceof FallingBlock) {
-			
+			if(data.getSpawnerData() != null) {
+				nbtComp.setCompound("TileEntityData", nbt.getSpawnerNBT((Spawner) data.getSpawnerData()));
+			}
 		}
 		
 		nbt.setEntityNBT(entity, nbtComp);
@@ -1266,6 +1283,8 @@ public class Spawner implements Serializable {
 
 	//Spawns the actual entity
 	private Entity spawnTheEntity(SpawnableEntity spawnType, Location spawnLocation) {
+		
+		spawnLocation.setYaw(randRot());
 		
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return getLoc().getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());

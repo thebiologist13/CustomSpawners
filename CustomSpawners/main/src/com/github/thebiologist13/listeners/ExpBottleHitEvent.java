@@ -21,7 +21,7 @@ public class ExpBottleHitEvent implements Listener {
 		//Entity
 		Entity entity = ev.getEntity();
 		//SpawnableEntity
-		SpawnableEntity e = plugin.getEntityFromSpawner(entity.getEntityId());
+		SpawnableEntity e = plugin.getEntityFromSpawner(entity.getUniqueId());
 
 		if(e != null) {
 

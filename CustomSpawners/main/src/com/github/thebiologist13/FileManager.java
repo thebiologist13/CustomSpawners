@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -83,7 +83,16 @@ public class FileManager {
 	public synchronized void autosaveAll() {
 
 		if(CONFIG.getBoolean("data.broadcastAutosave")) {
-			PLUGIN.getServer().broadcastMessage(ChatColor.GOLD + CONFIG.getString("data.broadcastMessage", ""));
+			if(CONFIG.getBoolean("data.broadcastOnlyOp")) {
+				for(OfflinePlayer p : PLUGIN.getServer().getOperators()) {
+					if(p instanceof Player) {
+						Player p1 = (Player) p;
+						PLUGIN.sendMessage(p1, ChatColor.GOLD + CONFIG.getString("data.broadcastMessage", ""));
+					}
+				}
+			} else {
+				PLUGIN.getServer().broadcastMessage(ChatColor.GOLD + CONFIG.getString("data.broadcastMessage", ""));
+			}
 		}
 
 		Iterator<Integer> spawnerItr = CustomSpawners.spawners.keySet().iterator();
@@ -102,7 +111,16 @@ public class FileManager {
 		}
 
 		if(CONFIG.getBoolean("data.broadcastAutosave")) {
-			PLUGIN.getServer().broadcastMessage(ChatColor.GREEN + CONFIG.getString("data.broadcastMessageEnd", ""));
+			if(CONFIG.getBoolean("data.broadcastOnlyOp")) {
+				for(OfflinePlayer p : PLUGIN.getServer().getOperators()) {
+					if(p instanceof Player) {
+						Player p1 = (Player) p;
+						PLUGIN.sendMessage(p1, ChatColor.GOLD + CONFIG.getString("data.broadcastMessageEnd", ""));
+					}
+				}
+			} else {
+				PLUGIN.getServer().broadcastMessage(ChatColor.GOLD + CONFIG.getString("data.broadcastMessageEnd", ""));
+			}
 		}
 
 	}
@@ -222,7 +240,7 @@ public class FileManager {
 				fIn.close();
 				
 				if(s.getMobs() == null) {
-					s.setMobs(new ConcurrentHashMap<Integer, SpawnableEntity>());
+					s.setMobs(new ConcurrentHashMap<UUID, SpawnableEntity>());
 				}
 				
 				if(s.getModifiers() == null) {
@@ -230,7 +248,7 @@ public class FileManager {
 				}
 				
 				if(s.getSecondaryMobs() == null) {
-					s.setSecondaryMobs(new ConcurrentHashMap<Integer, Integer>());
+					s.setSecondaryMobs(new ConcurrentHashMap<UUID, UUID>());
 				}
 				
 				if(s.getSpawnTimes() == null) {
@@ -504,64 +522,6 @@ public class FileManager {
 			return;
 		} else {
 			LOG.info(NOT_DAT);
-		}
-
-		FileConfiguration yaml = YamlConfiguration.loadConfiguration(f);
-
-		yaml.options().header("DO NOT MODIFY THIS FILE!");
-
-		List<String> mobIDs = new ArrayList<String>();
-		Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
-		while(mobItr.hasNext()) {
-			int mobId = mobItr.next();
-			int entityId = s.getMobs().get(mobId).getId();
-			String toYaml = mobId + "_" + entityId;
-
-			mobIDs.add(toYaml);
-		}
-
-		Location[] areaPoints = s.getAreaPoints();
-
-		if(yaml.getList("mobs") == null) {
-			yaml.set("mobs", null);
-		}
-
-		yaml.set("id", s.getId());
-		yaml.set("name", s.getName());
-		yaml.set("spawnableEntities", s.getTypeData());
-		yaml.set("active", s.isActive());
-		yaml.set("hidden", s.isHidden());
-		yaml.set("radius", s.getRadius());
-		yaml.set("useSpawnArea", s.isUsingSpawnArea());
-		yaml.set("redstone", s.isRedstoneTriggered());
-		yaml.set("maxDistance", s.getMaxPlayerDistance());
-		yaml.set("minDistance", s.getMinPlayerDistance());
-		yaml.set("maxLight", s.getMaxLightLevel());
-		yaml.set("minLight", s.getMinLightLevel());
-		yaml.set("mobsPerSpawn", s.getMobsPerSpawn());
-		yaml.set("maxMobs", s.getMaxMobs());
-		yaml.set("location.world", s.getLoc().getWorld().getName());
-		yaml.set("location.x", s.getLoc().getBlockX());
-		yaml.set("location.y", s.getLoc().getBlockY());
-		yaml.set("location.z", s.getLoc().getBlockZ());
-		yaml.set("p1.world", areaPoints[0].getWorld().getName());
-		yaml.set("p1.x", areaPoints[0].getBlockX());
-		yaml.set("p1.y", areaPoints[0].getBlockY());
-		yaml.set("p1.z", areaPoints[0].getBlockZ());
-		yaml.set("p2.world", areaPoints[1].getWorld().getName());
-		yaml.set("p2.x", areaPoints[1].getBlockX());
-		yaml.set("p2.y", areaPoints[1].getBlockY());
-		yaml.set("p2.z", areaPoints[1].getBlockZ());
-		yaml.set("rate", s.getRate());
-		yaml.set("mobs", mobIDs);
-		yaml.set("block", s.getBlock().getTypeId() + "-" + s.getBlock().getData());
-		yaml.set("converted", s.isConverted());
-
-		try {
-			yaml.save(f);
-		} catch (IOException e) {
-			e.printStackTrace();
-			LOG.severe("Failed to save spawner " + String.valueOf(s.getId()) + "!");
 		}
 
 	}

@@ -31,7 +31,7 @@ public class ProjectileFireEvent implements Listener {
 			Spawner s = plugin.getSpawnerWithEntity(launcher);
 				
 			if(s != null) {
-				s.addSecondaryMob(pro.getEntityId(), launcher.getEntityId());
+				s.addSecondaryMob(pro.getUniqueId(), launcher.getUniqueId());
 			}
 			
 		}

@@ -196,6 +196,7 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Invincible: " + s.isInvulnerable(),
 				ChatColor.GOLD + "Wither: " + String.valueOf(isWither),
 				ChatColor.GOLD + "Villager: " + String.valueOf(isVillager),
+				ChatColor.GOLD + "Spawner: " + PLUGIN.getFriendlyName(s.getSpawnerData()),
 				ChatColor.GREEN + "Scroll Up for More Properties."
 		};
 		

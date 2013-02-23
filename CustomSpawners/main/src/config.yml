@@ -149,6 +149,9 @@ data:
     # Broadcast a save message to the server when saving?
     broadcastAutosave: true
     
+    # Should the save message only be broadcast to OPs?
+    broadcastOnlyOp: true
+    
     # Broadcast Message for start of save.
     broadcastMessage: CustomSpawners is saving spawners and entities! Expect some lag!
     

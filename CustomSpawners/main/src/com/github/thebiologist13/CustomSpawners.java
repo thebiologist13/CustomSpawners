@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -57,7 +58,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * @author thebiologist13
  * @version 0.3
  */
-public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (for now :D )
+public class CustomSpawners extends JavaPlugin {
 
 	//Selected entity by console.
 	public static int consoleEntity = -1;
@@ -439,35 +440,35 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 			return null;
 		}
 
-		int entityId = entity.getEntityId();
+		UUID entityId = entity.getUniqueId();
 
 		return getEntityFromSpawner(entityId);
 
 	}
 
-	public SpawnableEntity getEntityFromSpawner(int id) {
+	public SpawnableEntity getEntityFromSpawner(UUID id) {
 		
 		Iterator<Spawner> spawnerItr = spawners.values().iterator();
 
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+			Iterator<UUID> mobItr = s.getMobs().keySet().iterator();
 
 			while(mobItr.hasNext()) {
-				int currentMob = mobItr.next();
+				UUID currentMob = mobItr.next();
 
-				if(currentMob == id) {
+				if(currentMob.equals(id)) {
 					return s.getMobs().get(currentMob);
 				}
 
 			}
 			
-			Iterator<Integer> itr = s.getSecondaryMobs().keySet().iterator();
+			Iterator<UUID> itr = s.getSecondaryMobs().keySet().iterator();
 
 			while(itr.hasNext()) {
-				int currentMob = itr.next();
+				UUID currentMob = itr.next();
 
-				if(currentMob == id) {
+				if(currentMob.equals(id)) {
 					return s.getMobs().get(s.getSecondaryMobs().get(currentMob));
 				}
 
@@ -479,13 +480,13 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 
 	}
 
-	public Entity getEntityFromWorld(int id, World w) {
+	public Entity getEntityFromWorld(UUID id, World w) {
 		
 		Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
 		while(entitiesInWorld.hasNext()) {
 			Entity e = entitiesInWorld.next();
 
-			if(e.getEntityId() == id) {
+			if(e.getUniqueId().equals(id)) {
 				return e;
 			}
 
@@ -721,23 +722,23 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
-			Iterator<Integer> mobItr = s.getMobs().keySet().iterator();
+			Iterator<UUID> mobItr = s.getMobs().keySet().iterator();
 
 			while(mobItr.hasNext()) {
-				int currentMob = mobItr.next();
+				UUID currentMob = mobItr.next();
 
-				if(currentMob == id) {
+				if(currentMob.equals(id)) {
 					return s;
 				}
 
 			}
 			
-			Iterator<Integer> itr = s.getSecondaryMobs().keySet().iterator();
+			Iterator<UUID> itr = s.getSecondaryMobs().keySet().iterator();
 
 			while(itr.hasNext()) {
-				int currentMob = itr.next();
+				UUID currentMob = itr.next();
 
-				if(currentMob == id) {
+				if(currentMob.equals(id)) {
 					return s;
 				}
 
@@ -881,10 +882,10 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 				Iterator<Spawner> sp = spawners.values().iterator();
 				while(sp.hasNext()) {
 					Spawner s = sp.next();
-					Iterator<Integer> spMobs = s.getMobs().keySet().iterator();
+					Iterator<UUID> spMobs = s.getMobs().keySet().iterator();
 					while(spMobs.hasNext()) {
 
-						int spId = spMobs.next();
+						UUID spId = spMobs.next();
 						
 						Entity e = getEntityFromWorld(spId, s.getLoc().getWorld());
 						
@@ -900,9 +901,9 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 
 					}
 					
-					Iterator<Integer> secMobs = s.getSecondaryMobs().keySet().iterator();
+					Iterator<UUID> secMobs = s.getSecondaryMobs().keySet().iterator();
 					while(secMobs.hasNext()) {
-						int id = secMobs.next();
+						UUID id = secMobs.next();
 						
 						Entity e = getEntityFromWorld(id, s.getLoc().getWorld());
 						
@@ -1118,7 +1119,7 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 		// Look for defaults in the jar
 		InputStream defConfigStream = this.getResource("config.yml");
 		if (defConfigStream != null) {
-			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+			FileConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 			config.options().copyDefaults(true);
 			config.setDefaults(defConfig);
 		}
@@ -1142,28 +1143,28 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 		if(e == null)
 			return;
 		
-		int entityId = e.getEntityId();
+		UUID entityId = e.getUniqueId();
 		Iterator<Spawner> itr = CustomSpawners.spawners.values().iterator();
 
 		while(itr.hasNext()) {
 			Spawner s = itr.next();
 			
-			Iterator<Integer> mobs = s.getMobs().keySet().iterator();
+			Iterator<UUID> mobs = s.getMobs().keySet().iterator();
 			while(mobs.hasNext()) {
-				int id = mobs.next();
+				UUID id = mobs.next();
 				
-				if(id == entityId) {
+				if(id.equals(entityId)) {
 					mobs.remove();
 					DamageController.extraHealthEntities.remove(id);
 				}
 
 			}
 			
-			Iterator<Integer> secMobs = s.getSecondaryMobs().keySet().iterator();
+			Iterator<UUID> secMobs = s.getSecondaryMobs().keySet().iterator();
 			while(secMobs.hasNext()) {
-				int id = secMobs.next();
+				UUID id = secMobs.next();
 				
-				if(id == entityId) {
+				if(id.equals(entityId)) {
 					secMobs.remove();
 					DamageController.extraHealthEntities.remove(id);
 				}
@@ -1177,7 +1178,7 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 	//Removes mobs spawned by a certain spawner
 	public synchronized void removeMobs(final Spawner s) { //Called in the removemobs command
 		
-		Iterator<Integer> mobs = s.getMobs().keySet().iterator();
+		Iterator<UUID> mobs = s.getMobs().keySet().iterator();
 		while(mobs.hasNext()) {
 			Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
 
@@ -1194,7 +1195,7 @@ public class CustomSpawners extends JavaPlugin { //TODO Add simple pathfinding (
 
 		}
 		
-		Iterator<Integer> secMobs = s.getSecondaryMobs().keySet().iterator();
+		Iterator<UUID> secMobs = s.getSecondaryMobs().keySet().iterator();
 		while(secMobs.hasNext()) {
 			Entity spawnerMob = getEntityFromWorld(secMobs.next(), s.getLoc().getWorld());
 

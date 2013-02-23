@@ -1,6 +1,7 @@
 package com.github.thebiologist13.listeners;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Entity;
@@ -51,7 +52,7 @@ public class DamageController {
 			if(ev instanceof EntityDamageByEntityEvent) {
 				EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 				Entity damager = eve.getDamager();
-				int id = damager.getEntityId();
+				UUID id = damager.getUniqueId();
 				
 				SpawnableEntity e = plugin.getEntityFromSpawner(id);
 				
@@ -79,7 +80,7 @@ public class DamageController {
 			
 		} else {
 			
-			SpawnableEntity e = plugin.getEntityFromSpawner(entity.getEntityId());
+			SpawnableEntity e = plugin.getEntityFromSpawner(entity.getUniqueId());
 			
 			if(e == null) {
 				return damage;
@@ -93,7 +94,7 @@ public class DamageController {
 			if(ev instanceof EntityDamageByEntityEvent) {
 				EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 				Entity damager = eve.getDamager();
-				int id = damager.getEntityId();
+				UUID id = damager.getUniqueId();
 				
 				if(damager instanceof Player) {
 					angryMobs.put(mobId, e.getId());

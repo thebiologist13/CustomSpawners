@@ -1,5 +1,7 @@
 package com.github.thebiologist13.listeners;
 
+import java.util.UUID;
+
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TNTPrimed;
@@ -8,25 +10,25 @@ public class CustomExplosion {
 	
 	private int damage;
 	private boolean destroyBlocks;
-	private int entity;
+	private UUID entity;
 	private boolean fire;
 	private Location location;
 	private float power;
 	private int tnt;
 	
-	public CustomExplosion(Location location, float power, int entityId) {
+	public CustomExplosion(Location location, float power, UUID entityId) {
 		this(location, power, entityId, 0);
 	}
 	
-	public CustomExplosion(Location location, float power, int entityId, int damage) {
+	public CustomExplosion(Location location, float power, UUID entityId, int damage) {
 		this(location, power, entityId, damage, false);
 	}
 	
-	public CustomExplosion(Location location, float power, int entityId, int damage, boolean fire) {
+	public CustomExplosion(Location location, float power, UUID entityId, int damage, boolean fire) {
 		this(location, power, entityId, damage, fire, true);
 	}
 	
-	public CustomExplosion(Location location, float power, int entityId, int damage, boolean fire, boolean destroyBlocks) {
+	public CustomExplosion(Location location, float power, UUID entityId, int damage, boolean fire, boolean destroyBlocks) {
 		this.location = location;
 		this.power = power;
 		this.entity = entityId;
@@ -51,7 +53,7 @@ public class CustomExplosion {
 		return damage;
 	}
 
-	public int getEntity() {
+	public UUID getEntity() {
 		return entity;
 	}
 
@@ -83,7 +85,7 @@ public class CustomExplosion {
 		this.destroyBlocks = destroyBlocks;
 	}
 
-	public void setEntity(int entity) {
+	public void setEntity(UUID entity) {
 		this.entity = entity;
 	}
 

@@ -1,5 +1,7 @@
 package com.github.thebiologist13.listeners;
 
+import java.util.UUID;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,7 +25,7 @@ public class PlayerTargetEvent implements Listener {
 		//Entity
 		Entity entity = ev.getEntity();
 		//ID
-		int id = entity.getEntityId();
+		UUID id = entity.getUniqueId();
 		//Target
 		Entity target = ev.getTarget();
 
