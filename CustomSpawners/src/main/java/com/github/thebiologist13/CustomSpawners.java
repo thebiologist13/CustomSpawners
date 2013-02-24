@@ -750,6 +750,7 @@ public class CustomSpawners extends JavaPlugin {
 		
 	}
 	
+	@Override
 	public void onDisable() {
 
 		//Saving Entities
@@ -764,6 +765,7 @@ public class CustomSpawners extends JavaPlugin {
 		log.info("CustomSpawners by thebiologist13 has been disabled!");
 	}
 
+	@Override
 	public void onEnable() {
 		
 		//Transparent Blocks
