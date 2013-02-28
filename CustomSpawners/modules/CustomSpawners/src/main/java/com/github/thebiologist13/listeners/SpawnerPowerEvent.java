@@ -10,16 +10,10 @@ import com.github.thebiologist13.Spawner;
 
 public class SpawnerPowerEvent implements Listener {
 	
-	private final CustomSpawners PLUGIN;
-	
-	public SpawnerPowerEvent(CustomSpawners plugin) {
-		this.PLUGIN = plugin;
-	}
-	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSpawnerPower(BlockPhysicsEvent ev) {
 		
-		Spawner spawner = PLUGIN.getSpawnerAt(ev.getBlock().getLocation());
+		Spawner spawner = CustomSpawners.getSpawnerAt(ev.getBlock().getLocation());
 		
 		if(spawner != null) {
 			

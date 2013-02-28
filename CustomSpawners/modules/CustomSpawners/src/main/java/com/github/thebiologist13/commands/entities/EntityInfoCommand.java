@@ -28,6 +28,7 @@ public class EntityInfoCommand extends EntityCommand {
 		PLUGIN.sendMessage(sender, getInfo(entity));
 	}
 
+	@SuppressWarnings("deprecation")
 	private String[] getInfo(SpawnableEntity s) {
 		
 		String effectMessage = ""; 

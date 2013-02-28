@@ -35,7 +35,7 @@ public class BreakEvent implements Listener {
 			}
 		}
 		
-		Spawner s = PLUGIN.getSpawnerAt(ev.getBlock().getLocation());
+		Spawner s = CustomSpawners.getSpawnerAt(ev.getBlock().getLocation());
 		
 		if(s == null) {
 			return;

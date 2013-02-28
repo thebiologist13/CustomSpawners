@@ -14,6 +14,7 @@ public class EntityJockeyCommand extends EntityCommand {
 		super(plugin, mainPerm);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		String in = getValue(args, 0, "false");

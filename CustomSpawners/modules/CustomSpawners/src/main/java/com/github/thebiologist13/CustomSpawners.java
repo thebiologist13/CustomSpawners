@@ -23,15 +23,19 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffectType;
 
+import com.github.thebiologist13.api.IConverter;
+import com.github.thebiologist13.api.ISpawnManager;
+import com.github.thebiologist13.api.ISpawnableEntity;
+import com.github.thebiologist13.api.ISpawner;
 import com.github.thebiologist13.listeners.BreakEvent;
 import com.github.thebiologist13.listeners.DamageController;
 import com.github.thebiologist13.listeners.ExpBottleHitEvent;
@@ -51,7 +55,8 @@ import com.github.thebiologist13.serialization.SPotionEffect;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 /**
- * CustomSpawners is a plugin for making customizable spawners for Bukkit servers.
+ * CustomSpawners is a plugin for making customizable spawners for Bukkit
+ * servers.
  * 
  * Licensed under GNU-GPLv3
  * 
@@ -60,119 +65,135 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  */
 public class CustomSpawners extends JavaPlugin {
 
-	//Selected entity by console.
+	// Selected entity by console.
 	public static int consoleEntity = -1;
 
-	//Selected spawner by console.
+	// Selected spawner by console.
 	public static int consoleSpawner = -1;
 
-	//Debug
+	// Debug
 	public static boolean debug = false;
 
-	//Default Entity to use.
+	// Default Entity to use.
 	public static SpawnableEntity defaultEntity = null;
 
-	//All of the entity types on the server.
+	// All of the entity types on the server.
 	public static ConcurrentHashMap<Integer, SpawnableEntity> entities = new ConcurrentHashMap<Integer, SpawnableEntity>();
 
-	//Selected entities for players.
+	// Selected entities for players.
 	public static ConcurrentHashMap<Player, Integer> entitySelection = new ConcurrentHashMap<Player, Integer>();
 
-	//Player selection area Point 1.
+	// Player selection area Point 1.
 	public static ConcurrentHashMap<Player, Location> selectionPointOne = new ConcurrentHashMap<Player, Location>();
 
-	//Player selection area Point 2.
+	// Player selection area Point 2.
 	public static ConcurrentHashMap<Player, Location> selectionPointTwo = new ConcurrentHashMap<Player, Location>();
 
-	//Players not using selections.
+	// Players not using selections.
 	public static ConcurrentHashMap<Player, Boolean> selectMode = new ConcurrentHashMap<Player, Boolean>();
 
-	//All the spawners in the server.
+	// All the spawners in the server.
 	public static ConcurrentHashMap<Integer, Spawner> spawners = new ConcurrentHashMap<Integer, Spawner>();
-	
-	//Selected spawners for players.
+
+	// Selected spawners for players.
 	public static ConcurrentHashMap<Player, Integer> spawnerSelection = new ConcurrentHashMap<Player, Integer>();
-	
-	//Transparent Blocks to go through when getting the target location for a spawner.
+
+	// Transparent Blocks to go through when getting the target location for a
+	// spawner.
 	public static HashSet<Byte> transparent = new HashSet<Byte>();
 
-	//Autosave Task ID
+	// Autosave Task ID
 	public int autosaveId;
-	
-	//Logger
+
+	// Logger
 	public Logger log = Logger.getLogger("Minecraft");
 
-	//YAML variable
+	// YAML variable
 	private FileConfiguration config;
 
-	//YAML file variable
+	// YAML file variable
 	private File configFile;
 
-	//FileManager
+	// FileManager
 	private FileManager fileManager = null;
 
-	//LogLevel
+	// LogLevel
 	private byte logLevel;
 
-	//Save interval
+	// Save interval
 	private long saveInterval;
-	
-	//WorldGuard
+
+	// WorldGuard
 	private WorldGuardPlugin worldGuard = null;
-	
+
 	public static double evaluate(String expr) throws IllegalArgumentException {
 		DoubleEvaluator eval = new DoubleEvaluator();
 		try {
 			return eval.evaluate(expr);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new IllegalArgumentException();
 		}
 	}
+
+	public static IConverter getConverter() {
+		String packageName = Bukkit.getServer().getClass().getPackage()
+				.getName();
+		String version = packageName
+				.substring(packageName.lastIndexOf('.') + 1);
+		try {
+			final Class<?> clazz = Class.forName("com.github.thebiologist13."
+					+ version + ".Converter");
+
+			return (IConverter) clazz.getConstructor().newInstance();
+		} catch (final Exception e) {
+			return null;
+		}
+	}
 	
-	//Gets an entity
+	// Gets an entity
 	public static SpawnableEntity getEntity(int ref) {
 		return getEntity(String.valueOf(ref));
 	}
 
-	//Gets an entity
+	// Gets an entity
 	public static SpawnableEntity getEntity(String ref) {
-		
-		if(ref.isEmpty())
+
+		if (ref.isEmpty())
 			return null;
-		
+
 		ref = ref.toLowerCase();
-		
-		if(isInteger(ref)) {
+
+		if (isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 
-			if(id == -2)
+			if (id == -2)
 				return defaultEntity;
 
 			Iterator<Integer> entityItr = entities.keySet().iterator();
-			while(entityItr.hasNext()) {
+			while (entityItr.hasNext()) {
 				int currentId = entityItr.next();
 
-				if(currentId == id) {
+				if (currentId == id) {
 					return entities.get(id);
 				}
 			}
 
 		} else {
 
-			if(ref.equals("default"))
+			if (ref.equals("default"))
 				return defaultEntity;
 
 			Iterator<Integer> entityItr = entities.keySet().iterator();
-			while(entityItr.hasNext()) {
+			while (entityItr.hasNext()) {
 				Integer id = entityItr.next();
 				SpawnableEntity s = entities.get(id);
 				String name = s.getName();
 
-				if(name == null) {
+				if (name == null) {
 					return null;
 				}
 
-				if(name.equalsIgnoreCase(ref)) {
+				if (name.equalsIgnoreCase(ref)) {
 					return s;
 				}
 			}
@@ -180,32 +201,32 @@ public class CustomSpawners extends JavaPlugin {
 
 		return null;
 	}
-	
-	//Check if players are nearby
+
+	// Check if players are nearby
 	public static ArrayList<Player> getNearbyPlayers(Location source, double max) {
 		ArrayList<Player> players = new ArrayList<Player>();
-		for(Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			double distance = p.getLocation().distance(source);
-			if(distance <= max) {
+			if (distance <= max) {
 				players.add(p);
 			}
 		}
 		return players;
 	}
-	
-	//Gets the next available ID number in a list
+
+	// Gets the next available ID number in a list
 	public static int getNextID(List<Integer> set) {
 		int returnID = 0;
 		boolean taken = true;
 
-		while(taken) {
+		while (taken) {
 
-			if(set.size() == 0) {
+			if (set.size() == 0) {
 				return 0;
 			}
 
-			for(Integer i : set) {
-				if(returnID == i) {
+			for (Integer i : set) {
+				if (returnID == i) {
 					taken = true;
 					break;
 				} else {
@@ -213,7 +234,7 @@ public class CustomSpawners extends JavaPlugin {
 				}
 			}
 
-			if(taken) {
+			if (taken) {
 				returnID++;
 			}
 		}
@@ -221,43 +242,43 @@ public class CustomSpawners extends JavaPlugin {
 		return returnID;
 	}
 
-	//Gets a spawner
+	// Gets a spawner
 	public static Spawner getSpawner(int ref) {
 		return getSpawner(String.valueOf(ref));
 	}
 
-	//Gets a spawner
+	// Gets a spawner
 	public static Spawner getSpawner(String ref) {
-		
-		if(ref.isEmpty())
+
+		if (ref.isEmpty())
 			return null;
-		
+
 		ref = ref.toLowerCase();
-		
-		if(isInteger(ref)) {
+
+		if (isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
 
-			while(spawnerItr.hasNext()) {
+			while (spawnerItr.hasNext()) {
 				int currentId = spawnerItr.next();
 
-				if(currentId == id) {
+				if (currentId == id) {
 					return spawners.get(id);
 				}
 			}
 		} else {
 			Iterator<Integer> spawnerItr = spawners.keySet().iterator();
 
-			while(spawnerItr.hasNext()) {
+			while (spawnerItr.hasNext()) {
 				Integer id = spawnerItr.next();
 				Spawner s = spawners.get(id);
 				String name = s.getName();
 
-				if(name == null) {
+				if (name == null) {
 					return null;
 				}
 
-				if(name.equalsIgnoreCase(ref)) {
+				if (name.equalsIgnoreCase(ref)) {
 					return s;
 				}
 			}
@@ -266,75 +287,112 @@ public class CustomSpawners extends JavaPlugin {
 		return null;
 	}
 
-	//Sets up WorldGuard
+	// Gets a spawner from a location
+	public static Spawner getSpawnerAt(Location loc) {
+		Iterator<Spawner> spItr = CustomSpawners.spawners.values().iterator();
+
+		while (spItr.hasNext()) {
+			Spawner s = spItr.next();
+
+			if (s.getLoc().equals(loc)) {
+				return s;
+			}
+
+		}
+
+		return null;
+
+	}
+
+	public static ISpawnManager getSpawnManager(Spawner spawner) {
+		String packageName = Bukkit.getServer().getClass().getPackage()
+				.getName();
+		String version = packageName
+				.substring(packageName.lastIndexOf('.') + 1);
+		try {
+			final Class<?> clazz = Class.forName("com.github.thebiologist13."
+					+ version + ".SpawnManager");
+
+			return (ISpawnManager) clazz.getConstructor(Spawner.class)
+					.newInstance(spawner);
+		} catch (final Exception e) {
+			return null;
+		}
+	}
+
+	// Sets up WorldGuard
 	public static WorldGuardPlugin getWG() {
 		Plugin wg = Bukkit.getPluginManager().getPlugin("WorldGuard");
 
-		if(wg == null || !(wg instanceof WorldGuardPlugin)) 
+		if (wg == null || !(wg instanceof WorldGuardPlugin))
 			return null;
 
 		return (WorldGuardPlugin) wg;
 	}
-	
-	//Convenience method for accurately testing if a string can be parsed to an double.
+
+	// Convenience method for accurately testing if a string can be parsed to an
+	// double.
 	public static boolean isDouble(String what) {
 		try {
 			Double.parseDouble(what);
 			return true;
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
 
-	//Convenience method for accurately testing if a string can be parsed to an double.
+	// Convenience method for accurately testing if a string can be parsed to an
+	// double.
 	public static boolean isFloat(String what) {
 		try {
 			Float.parseFloat(what);
 			return true;
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
 
-	//Convenience method for accurately testing if a string can be parsed to an integer.
+	// Convenience method for accurately testing if a string can be parsed to an
+	// integer.
 	public static boolean isInteger(String what) {
 		try {
 			Integer.parseInt(what);
 			return true;
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
 
 	public boolean allowedEntity(EntityType type) {
 		String name = type.toString();
-		
+
 		List<?> notAllowed = config.getList("mobs.blacklist");
-		
-		if(notAllowed.contains(name)) {
+
+		if (notAllowed.contains(name)) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	public Spawner cloneWithNewId(Spawner spawner) {
-		Spawner spawner1 = createSpawner(spawner.getMainEntity(), spawner.getLoc());
+		Spawner spawner1 = createSpawner(spawner.getMainEntity(),
+				spawner.getLoc());
 		spawner1.setTypeData(spawner.getTypeData());
 		spawner1.setData(spawner.getData());
 		spawner1.setActive(false);
 		return spawner1;
 	}
 
-	//Converts ticks to MM:SS
+	// Converts ticks to MM:SS
 	public String convertTicksToTime(int ticks) {
 		int minutes = 0;
 		float seconds = 0;
-		float floatTick = (float) ticks;
+		float floatTick = ticks;
 
-		if(floatTick >= 1200) {
+		if (floatTick >= 1200) {
 
-			if((floatTick % 1200) == 0) {
+			if ((floatTick % 1200) == 0) {
 				minutes = Math.round(floatTick / 1200);
 			} else {
 				seconds = (floatTick % 1200) / 20;
@@ -346,16 +404,16 @@ public class CustomSpawners extends JavaPlugin {
 		}
 
 		String strSec = "";
-		
-		if(seconds < 10) {
+
+		if (seconds < 10) {
 			strSec = "0" + String.valueOf(seconds);
 		} else {
 			strSec = String.valueOf(seconds);
 		}
-		
+
 		return String.valueOf(minutes) + ":" + strSec;
 	}
-	
+
 	public void copy(InputStream in, File file) {
 		try {
 			OutputStream out = new FileOutputStream(file);
@@ -372,31 +430,37 @@ public class CustomSpawners extends JavaPlugin {
 		}
 	}
 
-	public Spawner createSpawner(SpawnableEntity e, Location loc) {
-		Spawner newSpawner = new Spawner(e, loc, getNextSpawnerId());
-		
+	public Spawner createSpawner(ISpawnableEntity e, Location loc) {
+		Spawner newSpawner = new Spawner((SpawnableEntity) e, loc, getNextSpawnerId());
+
 		newSpawner.setRadius(config.getDouble("spawners.radius", 8));
-		newSpawner.setRedstoneTriggered(config.getBoolean("spawners.redstoneTriggered", false));
-		newSpawner.setMaxPlayerDistance(config.getInt("spawners.maxPlayerDistance", 16));
-		newSpawner.setMinPlayerDistance(config.getInt("spawners.minPlayerDistance", 0));
+		newSpawner.setRedstoneTriggered(config.getBoolean(
+				"spawners.redstoneTriggered", false));
+		newSpawner.setMaxPlayerDistance(config.getInt(
+				"spawners.maxPlayerDistance", 16));
+		newSpawner.setMinPlayerDistance(config.getInt(
+				"spawners.minPlayerDistance", 0));
 		newSpawner.setActive(config.getBoolean("spawners.active", false));
-		newSpawner.setMaxLightLevel((byte) config.getInt("spawners.maxLightLevel", 7));
-		newSpawner.setMinLightLevel((byte) config.getInt("spawners.minLightLevel", 0));
+		newSpawner.setMaxLightLevel((byte) config.getInt(
+				"spawners.maxLightLevel", 7));
+		newSpawner.setMinLightLevel((byte) config.getInt(
+				"spawners.minLightLevel", 0));
 		newSpawner.setHidden(config.getBoolean("spawners.hidden", false));
 		newSpawner.setRate(config.getInt("spawners.rate", 120));
 		newSpawner.setMobsPerSpawn(config.getInt("spawners.mobsPerSpawn", 2));
 		newSpawner.setMaxMobs(config.getInt("spawners.maxMobs", 12));
-		
+
 		spawners.put(newSpawner.getId(), newSpawner);
-		
-		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
+
+		if (config.getBoolean("data.autosave")
+				&& config.getBoolean("data.saveOnCreate")) {
 			getFileManager().autosave(newSpawner);
 		}
-		
+
 		return spawners.get(newSpawner.getId());
-		
+
 	}
-	
+
 	public FileConfiguration getCustomConfig() {
 		if (config == null) {
 			reloadCustomConfig();
@@ -405,38 +469,38 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	public String getDamageCause(String in) {
-		
+
 		in.toLowerCase();
-		
+
 		String type = "";
-		
-		if(in.equals("blockexplosion")) {
+
+		if (in.equals("blockexplosion")) {
 			type = "BLOCK_EXPLOSION";
-		} else if(in.equals("entityexplosion") || in.equals("creeper")) {
+		} else if (in.equals("entityexplosion") || in.equals("creeper")) {
 			type = "ENTITY_EXPLOSION";
-		} else if(in.equals("firetick") || in.equals("burning")) {
+		} else if (in.equals("firetick") || in.equals("burning")) {
 			type = "FIRE_TICK";
-		} else if(in.equals("attack") || in.equals("entityattack")) {
+		} else if (in.equals("attack") || in.equals("entityattack")) {
 			type = "ENTITY_ATTACK";
-		} else if(in.equals("item") || in.equals("itemdamage")) {
+		} else if (in.equals("item") || in.equals("itemdamage")) {
 			type = "ITEM";
-		} else if(in.equals("spawnerfire") || in.equals("spawnerfireticks")) {
+		} else if (in.equals("spawnerfire") || in.equals("spawnerfireticks")) {
 			type = "SPAWNER_FIRE_TICKS";
 		} else {
-			for(DamageCause c : DamageCause.values()) {
-				if(c.toString().equalsIgnoreCase(in)) {
+			for (DamageCause c : DamageCause.values()) {
+				if (c.toString().equalsIgnoreCase(in)) {
 					type = in;
 					break;
 				}
 			}
 		}
-		
+
 		return type;
 	}
-	
+
 	public SpawnableEntity getEntityFromSpawner(Entity entity) {
 
-		if(entity == null) {
+		if (entity == null) {
 			return null;
 		}
 
@@ -447,29 +511,30 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	public SpawnableEntity getEntityFromSpawner(UUID id) {
-		
+
 		Iterator<Spawner> spawnerItr = spawners.values().iterator();
 
-		while(spawnerItr.hasNext()) {
+		while (spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			Iterator<UUID> mobItr = s.getMobs().keySet().iterator();
 
-			while(mobItr.hasNext()) {
+			while (mobItr.hasNext()) {
 				UUID currentMob = mobItr.next();
 
-				if(currentMob.equals(id)) {
+				if (currentMob.equals(id)) {
 					return s.getMobs().get(currentMob);
 				}
 
 			}
-			
+
 			Iterator<UUID> itr = s.getSecondaryMobs().keySet().iterator();
 
-			while(itr.hasNext()) {
+			while (itr.hasNext()) {
 				UUID currentMob = itr.next();
 
-				if(currentMob.equals(id)) {
-					return s.getMobs().get(s.getSecondaryMobs().get(currentMob));
+				if (currentMob.equals(id)) {
+					return s.getMobs()
+							.get(s.getSecondaryMobs().get(currentMob));
 				}
 
 			}
@@ -481,12 +546,12 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	public Entity getEntityFromWorld(UUID id, World w) {
-		
+
 		Iterator<Entity> entitiesInWorld = w.getEntities().iterator();
-		while(entitiesInWorld.hasNext()) {
+		while (entitiesInWorld.hasNext()) {
 			Entity e = entitiesInWorld.next();
 
-			if(e.getUniqueId().equals(id)) {
+			if (e.getUniqueId().equals(id)) {
 				return e;
 			}
 
@@ -499,119 +564,126 @@ public class CustomSpawners extends JavaPlugin {
 		return fileManager;
 	}
 
-	//Gets a string to represent the name of the entity (String version of ID or name)
-	public String getFriendlyName(SpawnableEntity e) {
-		if(e.getName().isEmpty()) {
+	// Gets a string to represent the name of the entity (String version of ID
+	// or name)
+	public String getFriendlyName(ISpawnableEntity e) {
+		if (e.getName().isEmpty()) {
 			return String.valueOf(e.getId());
 		} else {
 			return e.getName();
 		}
 	}
 
-	//Gets a string to represent the name of the spawner (String version of ID or name)
-	public String getFriendlyName(Spawner s) {
-		if(s.getName().isEmpty()) {
+	// Gets a string to represent the name of the spawner (String version of ID
+	// or name)
+	public String getFriendlyName(ISpawner s) {
+		if (s.getName().isEmpty()) {
 			return String.valueOf(s.getId());
 		} else {
 			return s.getName();
 		}
 	}
-	
-	//Gets a potion from an alias
+
+	// Gets a potion from an alias
 	public PotionEffectType getInputEffect(String effect) {
-		
+
 		PotionEffectType type = null;
 		effect.toLowerCase();
-		
-		if(effect.equals("damageresistance") || effect.equals("damage_resistance")) {
+
+		if (effect.equals("damageresistance")
+				|| effect.equals("damage_resistance")) {
 			type = PotionEffectType.DAMAGE_RESISTANCE;
-		} else if(effect.equals("instanthealth") || effect.equals("instant_health")) {
+		} else if (effect.equals("instanthealth")
+				|| effect.equals("instant_health")) {
 			type = PotionEffectType.HEAL;
-		} else if(effect.equals("instant_damage") || effect.equals("instantdamage")) {
+		} else if (effect.equals("instant_damage")
+				|| effect.equals("instantdamage")) {
 			type = PotionEffectType.HARM;
-		} else if(effect.equals("haste") || effect.equals("mining_haste") || effect.equals("mininghaste")) {
+		} else if (effect.equals("haste") || effect.equals("mining_haste")
+				|| effect.equals("mininghaste")) {
 			type = PotionEffectType.FAST_DIGGING;
-		} else if(effect.equals("fireresistance")) {
+		} else if (effect.equals("fireresistance")) {
 			type = PotionEffectType.FIRE_RESISTANCE;
-		} else if(effect.equals("strength")) {
+		} else if (effect.equals("strength")) {
 			type = PotionEffectType.INCREASE_DAMAGE;
-		} else if(effect.equals("fatigue") || effect.equals("miningfatigue") || effect.equals("mining_fatigue")) {
+		} else if (effect.equals("fatigue") || effect.equals("miningfatigue")
+				|| effect.equals("mining_fatigue")) {
 			type = PotionEffectType.SLOW_DIGGING;
-		} else if(effect.equals("slowness")) {
+		} else if (effect.equals("slowness")) {
 			type = PotionEffectType.SLOW;
-		} else if(effect.equals("nightvision")) {
+		} else if (effect.equals("nightvision")) {
 			type = PotionEffectType.NIGHT_VISION;
-		} else if(effect.equals("waterbreathing")) {
+		} else if (effect.equals("waterbreathing")) {
 			type = PotionEffectType.WATER_BREATHING;
 		} else {
 			type = PotionEffectType.getByName(effect);
 		}
-		
+
 		return type;
-		
+
 	}
 
 	public ItemStack getItem(String item, int count) {
 		ItemStack stack = getItemStack(item);
-		
-		if(stack == null) {
+
+		if (stack == null) {
 			return null;
 		}
-		
+
 		stack.setAmount(count);
-		
+
 		return stack;
 	}
 
-	//Gets the proper name of an ItemStack
+	// Gets the proper name of an ItemStack
 	public String getItemName(ItemStack item) {
 		String name = "";
 
-		if(item == null) {
+		if (item == null) {
 			return "AIR (0)";
 		}
 
-		if(item.getType() != null) {
+		if (item.getType() != null) {
 			name += item.getType().toString() + " (" + item.getTypeId() + ")";
 		} else {
 			name += item.getTypeId();
 		}
 
-		if(item.getDurability() != 0) {
+		if (item.getDurability() != 0) {
 			name += ":" + item.getDurability();
 		}
 
 		return name;
 	}
 
-	//Gets a ItemStack from string with id and damage value
+	// Gets a ItemStack from string with id and damage value
 	public ItemStack getItemStack(String value) {
-		//Format should be either <data value:damage value> or <data value>
+		// Format should be either <data value:damage value> or <data value>
 		int id = 0;
 		short damage = 0;
 
-		//Version 0.0.5b - Tweaked this so it would register right
+		// Version 0.0.5b - Tweaked this so it would register right
 		int index = value.indexOf(":");
 
-		if(index == -1) {
+		if (index == -1) {
 			index = value.indexOf("-");
 		}
 
-		if(index == -1) {
+		if (index == -1) {
 
 			String itemId = value.substring(0, value.length());
 
-			if(!isInteger(itemId)) {
+			if (!isInteger(itemId)) {
 				Material mat = Material.getMaterial(itemId.toUpperCase());
-				
-				if(mat == null) 
+
+				if (mat == null)
 					return null;
-				
+
 				id = mat.getId();
 			} else {
 				id = Integer.parseInt(itemId);
-				
-				if(Material.getMaterial(id) == null)
+
+				if (Material.getMaterial(id) == null)
 					return null;
 			}
 
@@ -619,126 +691,112 @@ public class CustomSpawners extends JavaPlugin {
 			String itemId = value.substring(0, index);
 			String itemDamage = value.substring(index + 1, value.length());
 
-			if(!isInteger(itemId)) {
+			if (!isInteger(itemId)) {
 				Material mat = Material.getMaterial(itemId.toUpperCase());
-				
-				if(mat == null) 
+
+				if (mat == null)
 					return null;
-				
+
 				id = mat.getId();
 			} else {
 				id = Integer.parseInt(itemId);
-				
-				if(Material.getMaterial(id) == null)
+
+				if (Material.getMaterial(id) == null)
 					return null;
 			}
-			
-			if(!isInteger(itemDamage)) 
+
+			if (!isInteger(itemDamage))
 				return null;
-			
+
 			damage = (short) Integer.parseInt(itemDamage);
 		}
 
 		return new ItemStack(id, 1, damage);
 	}
 
-	//Gets the log level
+	// Gets the log level
 	public byte getLogLevel() {
 		return this.logLevel;
 	}
 
-	//Next available entity id
+	// Next available entity id
 	public int getNextEntityId() {
 		List<Integer> entityIDs = new ArrayList<Integer>();
 
 		Iterator<Integer> entityItr = entities.keySet().iterator();
-		while(entityItr.hasNext()) {
+		while (entityItr.hasNext()) {
 			entityIDs.add(entityItr.next());
 		}
 
 		return getNextID(entityIDs);
 	}
-	
-	//Next available spawner ID
+
+	// Next available spawner ID
 	public int getNextSpawnerId() {
 		List<Integer> spawnerIDs = new ArrayList<Integer>();
 
 		Iterator<Integer> spawnerItr = spawners.keySet().iterator();
-		while(spawnerItr.hasNext()) {
+		while (spawnerItr.hasNext()) {
 			spawnerIDs.add(spawnerItr.next());
 		}
 
 		return getNextID(spawnerIDs);
 	}
 
-	//Gets an EntityPotionEffect from format <PotionEffectType>_<level>_<minutes>:<seconds>
+	// Gets an EntityPotionEffect from format
+	// <PotionEffectType>_<level>_<minutes>:<seconds>
 	public SPotionEffect getPotion(String value) {
 		int index1 = value.indexOf("_");
 		int index2 = value.indexOf("_", index1 + 1);
 		int index3 = value.indexOf(":");
-		if(index1 == -1 || index2 == -1 || index3 == -1) {
+		if (index1 == -1 || index2 == -1 || index3 == -1) {
 			value = "REGENERATION_1_0:0";
 			index1 = value.indexOf("_");
 			index2 = value.indexOf("_", index1 + 1);
 			index3 = value.indexOf(":");
 		}
 
-		PotionEffectType effectType = PotionEffectType.getByName(value.substring(0, index1));
+		PotionEffectType effectType = PotionEffectType.getByName(value
+				.substring(0, index1));
 		int effectLevel = Integer.parseInt(value.substring(index1 + 1, index2));
 		int minutes = Integer.parseInt(value.substring(index2 + 1, index3));
-		int seconds = Integer.parseInt(value.substring(index3 + 1, value.length()));
+		int seconds = Integer.parseInt(value.substring(index3 + 1,
+				value.length()));
 		int effectDuration = (minutes * 1200) + (seconds * 20);
 
-		return new SPotionEffect(effectType, effectDuration,  effectLevel);
-	}
-	
-	//Gets a spawner from a location
-	public Spawner getSpawnerAt(Location loc) {
-		Iterator<Spawner> spItr = CustomSpawners.spawners.values().iterator();
-
-		while(spItr.hasNext()) {
-			Spawner s = spItr.next();
-
-			if(s.getLoc().equals(loc)) {
-				return s;
-			}
-
-		}
-
-		return null;
-
+		return new SPotionEffect(effectType, effectDuration, effectLevel);
 	}
 
 	public Spawner getSpawnerWithEntity(Entity entity) {
 		int entityId = entity.getEntityId();
-		
+
 		return getSpawnerWithEntity(entityId);
 
 	}
 
 	public Spawner getSpawnerWithEntity(int id) {
-		
+
 		Iterator<Spawner> spawnerItr = spawners.values().iterator();
 
-		while(spawnerItr.hasNext()) {
+		while (spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
 			Iterator<UUID> mobItr = s.getMobs().keySet().iterator();
 
-			while(mobItr.hasNext()) {
+			while (mobItr.hasNext()) {
 				UUID currentMob = mobItr.next();
 
-				if(currentMob.equals(id)) {
+				if (currentMob.equals(id)) {
 					return s;
 				}
 
 			}
-			
+
 			Iterator<UUID> itr = s.getSecondaryMobs().keySet().iterator();
 
-			while(itr.hasNext()) {
+			while (itr.hasNext()) {
 				UUID currentMob = itr.next();
 
-				if(currentMob.equals(id)) {
+				if (currentMob.equals(id)) {
 					return s;
 				}
 
@@ -747,72 +805,81 @@ public class CustomSpawners extends JavaPlugin {
 		}
 
 		return null;
-		
+
 	}
-	
+
 	@Override
 	public void onDisable() {
 
-		//Saving Entities
+		// Saving Entities
 		fileManager.saveEntities();
-		//Saving spawners
+		// Saving spawners
 		fileManager.saveSpawners();
 
-		//Stop Tasks
+		// Stop Tasks
 		getServer().getScheduler().cancelTasks(this);
 
-		//Disable message
+		// Disable message
 		log.info("CustomSpawners by thebiologist13 has been disabled!");
 	}
 
 	@Override
 	public void onEnable() {
-		
-		//Transparent Blocks
+
+		// Compat
+		if (!setupCompat()) {
+			this.getLogger().severe("CustomSpawners " + this.getDescription().getVersion()
+							+ " does not support this version of Bukkit.");
+			this.getLogger().info("Please see http://dev.bukkit.org/server-mods/customspawners for supported versions.");
+			this.setEnabled(false);
+			return;
+		}
+
+		// Transparent Blocks
 		transparent.add((byte) 0);
 		transparent.add((byte) 8);
 		transparent.add((byte) 9);
 		transparent.add((byte) 10);
 		transparent.add((byte) 11);
-		
-		//Config
+
+		// Config
 		config = getCustomConfig();
 
-		//Default Entity
-		defaultEntity = new SpawnableEntity(EntityType.fromName(config.getString("entities.type", "Pig")), -2);
+		// Default Entity
+		defaultEntity = new SpawnableEntity(EntityType.fromName(config
+				.getString("entities.type", "Pig")), -2);
 		defaultEntity.setName("Default");
 
-		//FileManager assignment
+		// FileManager assignment
 		fileManager = new FileManager(this);
 
-		//Debug
+		// Debug
 		debug = config.getBoolean("data.debug", false);
 
-		//LogLevel
+		// LogLevel
 		logLevel = (byte) config.getInt("data.logLevel", 2);
 
-		//Interval
+		// Interval
 		saveInterval = (config.getLong("data.interval", 10) * 1200);
-		
-		//Setup WG
+
+		// Setup WG
 		worldGuard = getWG();
 
-		if(worldGuard == null) {
+		if (worldGuard == null) {
 
-			if(logLevel > 0) {
+			if (logLevel > 0) {
 				log.info("[CustomSpawners] Cannot hook into WorldGuard.");
 			}
 
 		} else {
 
-			if(logLevel > 0) {
+			if (logLevel > 0) {
 				log.info("[CustomSpawners] Hooked into WorldGuard.");
 			}
 
 		}
 
-
-		//Commands
+		// Commands
 		SpawnerExecutor se = new SpawnerExecutor(this);
 		CustomSpawnersExecutor cse = new CustomSpawnersExecutor(this);
 		EntitiesExecutor ee = new EntitiesExecutor(this);
@@ -820,7 +887,7 @@ public class CustomSpawners extends JavaPlugin {
 		getCommand("spawners").setExecutor(se);
 		getCommand("entities").setExecutor(ee);
 
-		//Listeners
+		// Listeners
 		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
 		getServer().getPluginManager().registerEvents(new MobDamageEvent(this), this);
 		getServer().getPluginManager().registerEvents(new MobCombustEvent(), this);
@@ -833,227 +900,261 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PotionHitEvent(this), this);
 		getServer().getPluginManager().registerEvents(new ProjectileFireEvent(this), this);
 		getServer().getPluginManager().registerEvents(new BreakEvent(this), this);
-		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(this), this);
+		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(), this);
 		getServer().getPluginManager().registerEvents(new ReloadEvent(this), this);
 
 		try {
-			//Load entities from file
+			// Load entities from file
 			fileManager.loadEntities();
 
-			//Load spawners from files
+			// Load spawners from files
 			fileManager.loadSpawners();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			fileManager.saveCrash(getClass(), e);
-			log.severe("Failed to load all Spawners and Entities from file. Are they all in the new .dat file format?" +
-					"Crash saved to " + getDataFolder().getPath() + File.separator + "CustomSpawners" + File.separator +
-					"Crashes");
+			log.severe("Failed to load all Spawners and Entities from file. Are they all in the new .dat file format?"
+					+ "Crash saved to "
+					+ getDataFolder().getPath()
+					+ File.separator
+					+ "CustomSpawners"
+					+ File.separator
+					+ "Crashes");
 		}
 
 		/*
 		 * Spawning Thread
 		 */
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+		getServer().getScheduler().scheduleSyncRepeatingTask(this,
+				new Runnable() {
 
-			public void run() {
+					@Override
+					public void run() {
 
-				Iterator<Spawner> spawnerItr = spawners.values().iterator();
+						Iterator<Spawner> spawnerItr = spawners.values()
+								.iterator();
 
-				while(spawnerItr.hasNext()) {
-					Spawner s = spawnerItr.next();
+						while (spawnerItr.hasNext()) {
+							Spawner s = spawnerItr.next();
 
-					if(!s.getLoc().getChunk().isLoaded()) {
-						continue;
+							if (!s.getLoc().getChunk().isLoaded()) {
+								continue;
+							}
+
+							s.tick();
+						}
+
 					}
 
-					s.tick();
-				}
-
-			}
-
-		}, 20, 1);
+				}, 20, 1);
 
 		/*
-		 * Removal Check Thread
-		 * This thread verifies that all spawned mobs still exist. 
+		 * Removal Check Thread This thread verifies that all spawned mobs still
+		 * exist.
 		 */
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+		getServer().getScheduler().scheduleSyncRepeatingTask(this,
+				new Runnable() {
 
-			@Override
-			public void run() {
+					@Override
+					public void run() {
 
-				Iterator<Spawner> sp = spawners.values().iterator();
-				while(sp.hasNext()) {
-					Spawner s = sp.next();
-					Iterator<UUID> spMobs = s.getMobs().keySet().iterator();
-					while(spMobs.hasNext()) {
+						Iterator<Spawner> sp = spawners.values().iterator();
+						while (sp.hasNext()) {
+							Spawner s = sp.next();
+							Iterator<UUID> spMobs = s.getMobs().keySet()
+									.iterator();
+							while (spMobs.hasNext()) {
 
-						UUID spId = spMobs.next();
-						
-						Entity e = getEntityFromWorld(spId, s.getLoc().getWorld());
-						
-						if(e == null) {
-							s.removeMob(spId);
-							continue;
-						}
-						
-						if(e.getLocation().distance(s.getLoc()) > 192) {
-							s.removeMob(spId);
-							e.remove();
+								UUID spId = spMobs.next();
+
+								Entity e = getEntityFromWorld(spId, s.getLoc()
+										.getWorld());
+
+								if (e == null) {
+									s.removeMob(spId);
+									continue;
+								}
+
+								if (e.getLocation().distance(s.getLoc()) > 192) {
+									s.removeMob(spId);
+									e.remove();
+								}
+
+							}
+
+							Iterator<UUID> secMobs = s.getSecondaryMobs()
+									.keySet().iterator();
+							while (secMobs.hasNext()) {
+								UUID id = secMobs.next();
+
+								Entity e = getEntityFromWorld(id, s.getLoc()
+										.getWorld());
+
+								if (e == null) {
+									s.removeSecondaryMob(id);
+									continue;
+								}
+
+								if (e.getLocation().distance(s.getLoc()) > 192) {
+									s.removeSecondaryMob(id);
+									e.remove();
+								}
+
+							}
+
 						}
 
 					}
-					
-					Iterator<UUID> secMobs = s.getSecondaryMobs().keySet().iterator();
-					while(secMobs.hasNext()) {
-						UUID id = secMobs.next();
-						
-						Entity e = getEntityFromWorld(id, s.getLoc().getWorld());
-						
-						if(e == null) {
-							s.removeSecondaryMob(id);
-							continue;
-						}
-						
-						if(e.getLocation().distance(s.getLoc()) > 192) {
-							s.removeSecondaryMob(id);
-							e.remove();
-						}
-						
-					}
 
-				}
-
-			}
-
-		}, 20, 20);
+				}, 20, 20);
 
 		/*
-		 * Autosave Thread
-		 * This thread manages autosaving
+		 * Autosave Thread This thread manages autosaving
 		 */
-		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnClock")) {
+		if (config.getBoolean("data.autosave")
+				&& config.getBoolean("data.saveOnClock")) {
 
-			autosaveId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			autosaveId = getServer().getScheduler().scheduleSyncRepeatingTask(
+					this, new Runnable() {
 
-				@Override
-				public void run() {
+						@Override
+						public void run() {
 
-					fileManager.autosaveAll();
+							fileManager.autosaveAll();
 
-				}
+						}
 
-			}, 20, saveInterval);
+					}, 20, saveInterval);
 		}
 
-		//Enable message
+		// Enable message
 		log.info("[CustomSpawners] CustomSpawners by thebiologist13 has been enabled!");
 	}
-	
-	//Parses the entity name
+
+	// Parses the entity name
 	public String parseEntityName(EntityType type) {
 		String nameOfType = type.getName();
 
-		if(nameOfType == null) {
+		if (nameOfType == null) {
 			return type.toString();
 		} else {
 			return nameOfType;
 		}
 
 	}
-	
-	//Parses the entity type from it's name
+
+	// Parses the entity type from it's name
 	public EntityType parseEntityType(String entityType, boolean hasOverride) {
 		EntityType type = null;
 
-		if(entityType.equalsIgnoreCase("irongolem")) {
+		if (entityType.equalsIgnoreCase("irongolem")) {
 
 			type = EntityType.IRON_GOLEM;
 
-		} else if(entityType.equalsIgnoreCase("mooshroom")) {
+		} else if (entityType.equalsIgnoreCase("mooshroom")) {
 
 			type = EntityType.MUSHROOM_COW;
 
-		} else if(entityType.equalsIgnoreCase("zombiepigman")) {
+		} else if (entityType.equalsIgnoreCase("zombiepigman")) {
 
 			type = EntityType.PIG_ZOMBIE;
 
-		} else if(entityType.equalsIgnoreCase("magmacube") || entityType.equalsIgnoreCase("fireslime") || entityType.equalsIgnoreCase("firecube")) {
+		} else if (entityType.equalsIgnoreCase("magmacube")
+				|| entityType.equalsIgnoreCase("fireslime")
+				|| entityType.equalsIgnoreCase("firecube")) {
 
 			type = EntityType.MAGMA_CUBE;
 
-		} else if(entityType.equalsIgnoreCase("snowman") || entityType.equalsIgnoreCase("snowgolem")) {
+		} else if (entityType.equalsIgnoreCase("snowman")
+				|| entityType.equalsIgnoreCase("snowgolem")) {
 
 			type = EntityType.SNOWMAN;
 
-		} else if(entityType.equalsIgnoreCase("ocelot") || entityType.equalsIgnoreCase("ozelot")) {
+		} else if (entityType.equalsIgnoreCase("ocelot")
+				|| entityType.equalsIgnoreCase("ozelot")) {
 
 			type = EntityType.OCELOT;
 
-		} else if(entityType.equalsIgnoreCase("arrow")) {
+		} else if (entityType.equalsIgnoreCase("arrow")) {
 
 			type = EntityType.ARROW;
 
-		} else if(entityType.equalsIgnoreCase("snowball")) {
+		} else if (entityType.equalsIgnoreCase("snowball")) {
 
 			type = EntityType.SNOWBALL;
 
-		} else if(entityType.equalsIgnoreCase("falling_block") || entityType.equalsIgnoreCase("fallingblock") ||
-				entityType.equalsIgnoreCase("sand") || entityType.equalsIgnoreCase("gravel")) {
+		} else if (entityType.equalsIgnoreCase("falling_block")
+				|| entityType.equalsIgnoreCase("fallingblock")
+				|| entityType.equalsIgnoreCase("sand")
+				|| entityType.equalsIgnoreCase("gravel")) {
 
 			type = EntityType.FALLING_BLOCK;
 
-		} else if(entityType.equalsIgnoreCase("tnt") || entityType.equalsIgnoreCase("primed_tnt")
+		} else if (entityType.equalsIgnoreCase("tnt")
+				|| entityType.equalsIgnoreCase("primed_tnt")
 				|| entityType.equalsIgnoreCase("primed_tnt")) {
 
 			type = EntityType.PRIMED_TNT;
 
-		} else if(entityType.equalsIgnoreCase("firecharge") || entityType.equalsIgnoreCase("smallfireball")
-				|| entityType.equalsIgnoreCase("fire_charge")|| entityType.equalsIgnoreCase("small_fireball")) {
+		} else if (entityType.equalsIgnoreCase("firecharge")
+				|| entityType.equalsIgnoreCase("smallfireball")
+				|| entityType.equalsIgnoreCase("fire_charge")
+				|| entityType.equalsIgnoreCase("small_fireball")) {
 
 			type = EntityType.SMALL_FIREBALL;
 
-		} else if(entityType.equalsIgnoreCase("fireball") || entityType.equalsIgnoreCase("ghastball")
-				|| entityType.equalsIgnoreCase("fire_ball")|| entityType.equalsIgnoreCase("ghast_ball")) {
+		} else if (entityType.equalsIgnoreCase("fireball")
+				|| entityType.equalsIgnoreCase("ghastball")
+				|| entityType.equalsIgnoreCase("fire_ball")
+				|| entityType.equalsIgnoreCase("ghast_ball")) {
 
 			type = EntityType.FIREBALL;
 
-		} else if(entityType.equalsIgnoreCase("potion") || entityType.equalsIgnoreCase("splashpotion")
+		} else if (entityType.equalsIgnoreCase("potion")
+				|| entityType.equalsIgnoreCase("splashpotion")
 				|| entityType.equalsIgnoreCase("splash_potion")) {
 
 			type = EntityType.SPLASH_POTION;
 
-		} else if(entityType.equalsIgnoreCase("experience_bottle") || entityType.equalsIgnoreCase("experiencebottle")
-				|| entityType.equalsIgnoreCase("xpbottle") || entityType.equalsIgnoreCase("xp_bottle")
-				|| entityType.equalsIgnoreCase("expbottle") || entityType.equalsIgnoreCase("exp_bottle")) {
+		} else if (entityType.equalsIgnoreCase("experience_bottle")
+				|| entityType.equalsIgnoreCase("experiencebottle")
+				|| entityType.equalsIgnoreCase("xpbottle")
+				|| entityType.equalsIgnoreCase("xp_bottle")
+				|| entityType.equalsIgnoreCase("expbottle")
+				|| entityType.equalsIgnoreCase("exp_bottle")) {
 
 			type = EntityType.THROWN_EXP_BOTTLE;
 
-		} else if(entityType.equalsIgnoreCase("item") || entityType.equalsIgnoreCase("drop")) {
+		} else if (entityType.equalsIgnoreCase("item")
+				|| entityType.equalsIgnoreCase("drop")) {
 
 			type = EntityType.DROPPED_ITEM;
 
-		} else if(entityType.equalsIgnoreCase("enderpearl") || entityType.equalsIgnoreCase("ender_pearl")
-				|| entityType.equalsIgnoreCase("enderball") || entityType.equalsIgnoreCase("ender_ball")) {
+		} else if (entityType.equalsIgnoreCase("enderpearl")
+				|| entityType.equalsIgnoreCase("ender_pearl")
+				|| entityType.equalsIgnoreCase("enderball")
+				|| entityType.equalsIgnoreCase("ender_ball")) {
 
 			type = EntityType.ENDER_PEARL;
 
-		} else if(entityType.equalsIgnoreCase("endercrystal") || entityType.equalsIgnoreCase("ender_crystal")
-				|| entityType.equalsIgnoreCase("enderdragoncrystal") || entityType.equalsIgnoreCase("enderdragon_crystal")) {
+		} else if (entityType.equalsIgnoreCase("endercrystal")
+				|| entityType.equalsIgnoreCase("ender_crystal")
+				|| entityType.equalsIgnoreCase("enderdragoncrystal")
+				|| entityType.equalsIgnoreCase("enderdragon_crystal")) {
 
 			type = EntityType.ENDER_CRYSTAL;
 
-		} else if(entityType.equalsIgnoreCase("egg")) {
+		} else if (entityType.equalsIgnoreCase("egg")) {
 
 			type = EntityType.EGG;
 
-		} else if(entityType.equalsIgnoreCase("wither") || entityType.equalsIgnoreCase("witherboss")
+		} else if (entityType.equalsIgnoreCase("wither")
+				|| entityType.equalsIgnoreCase("witherboss")
 				|| entityType.equalsIgnoreCase("wither_boss")) {
 
 			type = EntityType.WITHER;
 
 		} else {
 
-			//Try to parse an entity type from input. Null if invalid.
+			// Try to parse an entity type from input. Null if invalid.
 			type = EntityType.fromName(entityType);
 
 		}
@@ -1061,17 +1162,17 @@ public class CustomSpawners extends JavaPlugin {
 		return type;
 
 	}
-	
+
 	public void printDebugMessage(String message) {
-		if(debug) {
+		if (debug) {
 			log.info("[CS_DEBUG] " + message);
 		}
 
 	}
-	
+
 	public void printDebugMessage(String message, Class<?> clazz) {
-		if(debug) {
-			if(clazz != null) {
+		if (debug) {
+			if (clazz != null) {
 				log.info("[CS_DEBUG] " + clazz.getName() + ": " + message);
 			} else {
 				log.info("[CS_DEBUG] " + message);
@@ -1082,34 +1183,34 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	public void printDebugMessage(String[] message) {
-		if(debug) {
-			for(String s : message) {
+		if (debug) {
+			for (String s : message) {
 				printDebugMessage(s);
 			}
 		}
 	}
 
 	public void printDebugMessage(String[] message, Class<?> clazz) {
-		if(debug) {
-			for(String s : message) {
+		if (debug) {
+			for (String s : message) {
 				printDebugMessage(s, clazz);
 			}
 		}
 	}
-	
+
 	public void printDebugTrace(Exception e) {
-		if(debug) {
+		if (debug) {
 			log.severe("[CS_DEBUG] " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
-	//Config stuff
+	// Config stuff
 	public void reloadCustomConfig() {
 		if (configFile == null) {
 			configFile = new File(getDataFolder(), "config.yml");
 
-			if(!configFile.exists()){
+			if (!configFile.exists()) {
 				configFile.getParentFile().mkdirs();
 				copy(getResource("config.yml"), configFile);
 			}
@@ -1121,52 +1222,55 @@ public class CustomSpawners extends JavaPlugin {
 		// Look for defaults in the jar
 		InputStream defConfigStream = this.getResource("config.yml");
 		if (defConfigStream != null) {
-			FileConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+			FileConfiguration defConfig = YamlConfiguration
+					.loadConfiguration(defConfigStream);
 			config.options().copyDefaults(true);
 			config.setDefaults(defConfig);
 		}
 
 	}
 
-	//Remove an entity
+	// Remove an entity
 	public void removeEntity(SpawnableEntity e) {
-		if(entities.containsValue(e)) {
+		if (entities.containsValue(e)) {
 			resetEntitySelections(e.getId());
 			entities.remove(e.getId());
-			for(Spawner s : spawners.values()) {
+			for (Spawner s : spawners.values()) {
 				s.removeTypeData(e);
 			}
 		}
 	}
 
-	//Removes a spawner from a mob list when it dies
-	public synchronized void removeMob(final Entity e) { //Called when an entity dies. l is the dead entity.
-		
-		if(e == null)
+	// Removes a spawner from a mob list when it dies
+	public synchronized void removeMob(final Entity e) { // Called when an
+															// entity dies. l is
+															// the dead entity.
+
+		if (e == null)
 			return;
-		
+
 		UUID entityId = e.getUniqueId();
 		Iterator<Spawner> itr = CustomSpawners.spawners.values().iterator();
 
-		while(itr.hasNext()) {
+		while (itr.hasNext()) {
 			Spawner s = itr.next();
-			
+
 			Iterator<UUID> mobs = s.getMobs().keySet().iterator();
-			while(mobs.hasNext()) {
+			while (mobs.hasNext()) {
 				UUID id = mobs.next();
-				
-				if(id.equals(entityId)) {
+
+				if (id.equals(entityId)) {
 					mobs.remove();
 					DamageController.extraHealthEntities.remove(id);
 				}
 
 			}
-			
+
 			Iterator<UUID> secMobs = s.getSecondaryMobs().keySet().iterator();
-			while(secMobs.hasNext()) {
+			while (secMobs.hasNext()) {
 				UUID id = secMobs.next();
-				
-				if(id.equals(entityId)) {
+
+				if (id.equals(entityId)) {
 					secMobs.remove();
 					DamageController.extraHealthEntities.remove(id);
 				}
@@ -1177,36 +1281,40 @@ public class CustomSpawners extends JavaPlugin {
 
 	}
 
-	//Removes mobs spawned by a certain spawner
-	public synchronized void removeMobs(final Spawner s) { //Called in the removemobs command
-		
-		Iterator<UUID> mobs = s.getMobs().keySet().iterator();
-		while(mobs.hasNext()) {
-			Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc().getWorld());
+	// Removes mobs spawned by a certain spawner
+	public synchronized void removeMobs(final Spawner s) { // Called in the
+															// removemobs
+															// command
 
-			if(spawnerMob == null) {
+		Iterator<UUID> mobs = s.getMobs().keySet().iterator();
+		while (mobs.hasNext()) {
+			Entity spawnerMob = getEntityFromWorld(mobs.next(), s.getLoc()
+					.getWorld());
+
+			if (spawnerMob == null) {
 				continue;
 			}
-			
+
 			int id = spawnerMob.getEntityId();
-				
+
 			DamageController.extraHealthEntities.remove(id);
 
 			spawnerMob.remove();
 			mobs.remove();
 
 		}
-		
-		Iterator<UUID> secMobs = s.getSecondaryMobs().keySet().iterator();
-		while(secMobs.hasNext()) {
-			Entity spawnerMob = getEntityFromWorld(secMobs.next(), s.getLoc().getWorld());
 
-			if(spawnerMob == null) {
+		Iterator<UUID> secMobs = s.getSecondaryMobs().keySet().iterator();
+		while (secMobs.hasNext()) {
+			Entity spawnerMob = getEntityFromWorld(secMobs.next(), s.getLoc()
+					.getWorld());
+
+			if (spawnerMob == null) {
 				continue;
 			}
 
 			int id = spawnerMob.getEntityId();
-			
+
 			DamageController.extraHealthEntities.remove(id);
 
 			spawnerMob.remove();
@@ -1219,38 +1327,40 @@ public class CustomSpawners extends JavaPlugin {
 
 	}
 
-	//Remove a spawner
+	// Remove a spawner
 	public void removeSpawner(Spawner s) {
-		if(spawners.containsValue(s)) {
+		if (spawners.containsValue(s)) {
 			resetSpawnerSelections(s.getId());
 			spawners.remove(s.getId());
 		}
 	}
 
-	//Resets selections if a SpawnableEntity has been removed
+	// Resets selections if a SpawnableEntity has been removed
 	public void resetEntitySelections(int id) {
 		Iterator<Player> pItr = entitySelection.keySet().iterator();
 
-		while(pItr.hasNext()) {
+		while (pItr.hasNext()) {
 			Player p = pItr.next();
 
-			if(entitySelection.get(p) == id) {
-				p.sendMessage(ChatColor.RED + "Your selected entity has been removed.");
+			if (entitySelection.get(p) == id) {
+				p.sendMessage(ChatColor.RED
+						+ "Your selected entity has been removed.");
 				entitySelection.remove(p);
 			}
 		}
 
 	}
 
-	//Resets selections if a spawner is removed
+	// Resets selections if a spawner is removed
 	public void resetSpawnerSelections(int id) {
 		Iterator<Player> pItr = spawnerSelection.keySet().iterator();
 
-		while(pItr.hasNext()) {
+		while (pItr.hasNext()) {
 			Player p = pItr.next();
 
-			if(spawnerSelection.get(p) == id) {
-				p.sendMessage(ChatColor.RED + "Your selected spawner has been removed.");
+			if (spawnerSelection.get(p) == id) {
+				p.sendMessage(ChatColor.RED
+						+ "Your selected spawner has been removed.");
 				spawnerSelection.remove(p);
 			}
 		}
@@ -1272,7 +1382,8 @@ public class CustomSpawners extends JavaPlugin {
 		fileManager.saveEntity(data, path);
 	}
 
-	//This saves a Spawner to the world folder. Kind of "cheating" to make it so custom spawners can be recovered from the world.
+	// This saves a Spawner to the world folder. Kind of "cheating" to make it
+	// so custom spawners can be recovered from the world.
 	public void saveCustomSpawnerToWorld(Spawner data) {
 		World w = data.getLoc().getWorld();
 
@@ -1291,14 +1402,14 @@ public class CustomSpawners extends JavaPlugin {
 
 		File[] entityFilesList = entityFilesDir.listFiles();
 		ArrayList<String> entityFiles = new ArrayList<String>();
-		if(entityFilesList != null) {
-			for(File f : entityFilesList) {
+		if (entityFilesList != null) {
+			for (File f : entityFilesList) {
 				entityFiles.add(f.getPath());
 			}
 		}
-		
+
 		Iterator<Integer> tItr = types.iterator();
-		while(tItr.hasNext()) {
+		while (tItr.hasNext()) {
 			int i = tItr.next();
 
 			printDebugMessage("Checking if entity files exist");
@@ -1307,9 +1418,10 @@ public class CustomSpawners extends JavaPlugin {
 
 			printDebugMessage("File to check: " + fileName);
 
-			if(!entityFiles.contains(fileName)) {
+			if (!entityFiles.contains(fileName)) {
 				printDebugMessage("Doesn't contain file. Creating...");
-				saveCustomEntityToWorld(getEntity(String.valueOf(i)), new File(fileName));
+				saveCustomEntityToWorld(getEntity(String.valueOf(i)), new File(
+						fileName));
 			}
 		}
 
@@ -1320,15 +1432,15 @@ public class CustomSpawners extends JavaPlugin {
 
 	public void sendMessage(CommandSender sender, String message) {
 
-		if(sender == null) 
+		if (sender == null)
 			return;
 
 		Player p = null;
 
-		if(sender instanceof Player)
+		if (sender instanceof Player)
 			p = (Player) sender;
 
-		if(p == null) {
+		if (p == null) {
 			message = "[CustomSpawners] " + ChatColor.stripColor(message);
 			log.info(message);
 		} else {
@@ -1339,23 +1451,55 @@ public class CustomSpawners extends JavaPlugin {
 
 	public void sendMessage(CommandSender sender, String[] message) {
 
-		if(sender == null) 
+		if (sender == null)
 			return;
 
 		Player p = null;
 
-		if(sender instanceof Player)
+		if (sender instanceof Player)
 			p = (Player) sender;
 
-		if(p == null) {
+		if (p == null) {
 
-			for(String s : message) {
+			for (String s : message) {
 				s = "[CustomSpawners] " + ChatColor.stripColor(s);
 				log.info(s);
 			}
 
 		} else {
 			p.sendMessage(message);
+		}
+
+	}
+
+	private boolean setupCompat() {
+		String packageName = this.getServer().getClass().getPackage().getName();
+		// Get full package string of CraftServer.
+		// org.bukkit.craftbukkit.versionstring (or for pre-refactor, just
+		// org.bukkit.craftbukkit
+		String version = packageName
+				.substring(packageName.lastIndexOf('.') + 1);
+		// Get the last element of the package
+		if (version.equals("craftbukkit")) { // If the last element of the package was "craftbukkit" we are now pre-refactor
+			version = "pre";
+		}
+		try {
+			final Class<?> clazz = Class.forName("com.github.thebiologist13."
+					+ version + ".Converter");
+			final Class<?> clazz0 = Class.forName("com.github.thebiologist13."
+					+ version + ".SpawnManager");
+
+			if (clazz == null || clazz0 == null) {
+				return false;
+			}
+
+			if (!IConverter.class.isAssignableFrom(clazz)
+					|| !ISpawnManager.class.isAssignableFrom(clazz0)) {
+				return false;
+			}
+			return true;
+		} catch (final Exception e) {
+			return false;
 		}
 
 	}

@@ -3,8 +3,7 @@ version: '${project.version}'
 author: thebiologist13
 description: Make any block a simulated mob spawner and configure it's properties.
 main: com.github.thebiologist13.CustomSpawners
-softdepend: [WorldGuard, WorldEdit]
-loadbefore: [WorldGuard, WorldEdit]
+softdepend: [WorldEdit, WorldGuard]
 commands:
     customspawners:
         description: The main command of CustomSpawners. Other commands branch off this one.

@@ -6,20 +6,20 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 
-public class EntitySetTypeCommand extends EntityCommand {
+public class EntityCreateCommand extends EntityCommand {
 
-	public EntitySetTypeCommand(CustomSpawners plugin) {
+	public EntityCreateCommand(CustomSpawners plugin) {
 		super(plugin);
 	}
 
-	public EntitySetTypeCommand(CustomSpawners plugin, String mainPerm) {
+	public EntityCreateCommand(CustomSpawners plugin, String mainPerm) {
 		super(plugin, mainPerm);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
@@ -27,6 +27,8 @@ public class EntitySetTypeCommand extends EntityCommand {
 		final String NONEXISTANT_ENTITY = ChatColor.RED + "That is not a entity type";
 		
 		String in = getValue(args, 0, "pig");
+		
+		SpawnableEntity newEntity = new SpawnableEntity(EntityType.PIG, PLUGIN.getNextEntityId());
 		
 		List<?> notAllowed = CONFIG.getList("mobs.blacklist");
 		
@@ -38,23 +40,31 @@ public class EntitySetTypeCommand extends EntityCommand {
 		
 		if(in.equals("spiderjockey") || in.equals("spider_jockey") ||
 				in.equals("skeletonjockey") || in.equals("skeleton_jockey")) {
-			entity.setType(EntityType.SPIDER);
-			entity.setJockey(true);
+			newEntity.setType(EntityType.SPIDER);
+			newEntity.setJockey(true);
 			if((notAllowed.contains("spider_jockey") || notAllowed.contains("skeleton_jockey")) && !hasOverride) {
 				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
 				return;
 			}
 		} else if(in.equals("witherskeleton") || in.equals("wither_skeleton")) {
-			entity.setType(EntityType.SKELETON);
-			entity.setProp("wither", true);
+			newEntity.setType(EntityType.SKELETON);
+			newEntity.setProp("wither", true);
 			if(notAllowed.contains("wither_skeleton") && !hasOverride) {
 				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
 				return;
 			}
 		} else if(in.equals("crepp")) {
-			entity.setType(EntityType.CREEPER);
-			entity.setCharged(true);
-			entity.setYield(0);
+			newEntity.setType(EntityType.CREEPER);
+			newEntity.setCharged(true);
+			newEntity.setYield(0);
+			if(notAllowed.contains("creeper") && !hasOverride) {
+				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
+				return;
+			}
+		} else if(in.equals("chargedcreeper") || in.equals("charged_creeper") ||
+				in.equals("powercreeper") || in.equals("power_creeper")) {
+			newEntity.setType(EntityType.CREEPER);
+			newEntity.setCharged(true);
 			if(notAllowed.contains("creeper") && !hasOverride) {
 				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
 				return;
@@ -72,11 +82,18 @@ public class EntitySetTypeCommand extends EntityCommand {
 				return;
 			}
 			
-			entity.setType(type);
+			newEntity.setType(type);
 		}
 		
-		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "entity type", in));
+		CustomSpawners.entities.put(newEntity.getId(), newEntity);
+		
+		if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCreate")) {
+			PLUGIN.getFileManager().autosave(newEntity);
+		}
+		
+		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully created a new " + ChatColor.GOLD + 
+				in + ChatColor.GREEN + " entity with ID number " + ChatColor.GOLD + newEntity.getId() + ChatColor.GREEN + "!");
 		
 	}
-
+	
 }
