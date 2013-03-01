@@ -811,10 +811,12 @@ public class CustomSpawners extends JavaPlugin {
 	@Override
 	public void onDisable() {
 
-		// Saving Entities
-		fileManager.saveEntities();
-		// Saving spawners
-		fileManager.saveSpawners();
+		if(fileManager != null) {
+			// Saving Entities
+			fileManager.saveEntities();
+			// Saving spawners
+			fileManager.saveSpawners();
+		}
 
 		// Stop Tasks
 		getServer().getScheduler().cancelTasks(this);
@@ -831,7 +833,7 @@ public class CustomSpawners extends JavaPlugin {
 			this.getLogger().severe("CustomSpawners " + this.getDescription().getVersion()
 							+ " does not support this version of Bukkit.");
 			this.getLogger().info("Please see http://dev.bukkit.org/server-mods/customspawners for supported versions.");
-			this.setEnabled(false);
+			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
 

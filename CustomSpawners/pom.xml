@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.thebiologist13</groupId>
+	<artifactId>customspawners-parent</artifactId>
+	<version>parent</version>
+	<name>CustomSpawners Parent</name>
+	<url>http://dev.bukkit.org/server-mods/thebiologist13</url>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>modules/API</module>
+		<module>modules/v1_4_R1</module>
+		<module>modules/CustomSpawners</module>
+	</modules>
+
+	<properties>
+		<sk89q.we>5.5</sk89q.we>
+		<sk89q.wg>5.7.2-SNAPSHOT</sk89q.wg>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>bukkit-repo</id>
+			<url>http://repo.bukkit.org/content/groups/public/</url>
+		</repository>
+		<repository>
+			<id>craftbukkit-repo</id>
+			<url>https://github.com/Bukkit/CraftBukkit</url>
+		</repository>
+		<repository>
+			<id>sk89q-repo</id>
+			<url>http://maven.sk89q.com/repo/</url>
+		</repository>
+	</repositories>
+
+</project>
