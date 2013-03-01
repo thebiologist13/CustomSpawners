@@ -59,6 +59,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand wither = new EntityWitherCommand(plugin, "customspawners.entities.setwither");
 		EntityCommand villager = new EntityVillagerCommand(plugin, "customspawners.entities.setvillager");
 		EntityCommand modify = new EntityModifierCommand(plugin, "customspawners.entities.modifiers");
+		EntityCommand rider = new EntityRiderCommand(plugin, "customspawners.entities.rider");
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -481,6 +482,11 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"clearmod",
 				"nomods",
 				"nomod"
+		});
+		addCommand("setrider", rider, new String[] {
+				"rider",
+				"setriding",
+				"riding"
 		});
 	}
 

@@ -170,6 +170,7 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Saddled: " + s.isSaddled(),
 				ChatColor.GOLD + "Charged: " + s.isCharged(),
 				ChatColor.GOLD + "Jockey: " + s.isJockey(),
+				ChatColor.GOLD + "Rider: " + PLUGIN.getFriendlyName(s.getRider()),
 				ChatColor.GOLD + "Tamed: " + s.isTamed(),
 				ChatColor.GOLD + "Sitting: " + s.isSitting(),
 				ChatColor.GOLD + "Angry: " + s.isAngry(),

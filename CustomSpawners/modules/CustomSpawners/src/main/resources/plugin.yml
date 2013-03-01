@@ -110,6 +110,7 @@ permissions:
             customspawners.entities.setwither: true
             customspawners.entities.setvillager: true
             customspawners.entities.modifiers: true
+            customspawners.entities.rider: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawners" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -361,4 +362,7 @@ permissions:
         default: op
     customspawners.entities.modifiers:
         description: Allows the user/group to set entity modifiers.
+        default: op
+    customspawners.entities.rider:
+        description: Allows the user/group to set the entity rider.
         default: op

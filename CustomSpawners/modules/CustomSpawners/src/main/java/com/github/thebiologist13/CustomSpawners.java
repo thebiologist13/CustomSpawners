@@ -313,7 +313,7 @@ public class CustomSpawners extends JavaPlugin {
 			final Class<?> clazz = Class.forName("com.github.thebiologist13."
 					+ version + ".SpawnManager");
 
-			return (ISpawnManager) clazz.getConstructor(Spawner.class)
+			return (ISpawnManager) clazz.getConstructor(ISpawner.class)
 					.newInstance(spawner);
 		} catch (final Exception e) {
 			return null;
@@ -567,6 +567,10 @@ public class CustomSpawners extends JavaPlugin {
 	// Gets a string to represent the name of the entity (String version of ID
 	// or name)
 	public String getFriendlyName(ISpawnableEntity e) {
+		
+		if(e == null)
+			return "";
+		
 		if (e.getName().isEmpty()) {
 			return String.valueOf(e.getId());
 		} else {
@@ -577,6 +581,10 @@ public class CustomSpawners extends JavaPlugin {
 	// Gets a string to represent the name of the spawner (String version of ID
 	// or name)
 	public String getFriendlyName(ISpawner s) {
+		
+		if(s == null)
+			return "";
+		
 		if (s.getName().isEmpty()) {
 			return String.valueOf(s.getId());
 		} else {

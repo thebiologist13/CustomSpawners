@@ -116,11 +116,11 @@ public class FileManager {
 				for(OfflinePlayer p : PLUGIN.getServer().getOperators()) {
 					if(p instanceof Player) {
 						Player p1 = (Player) p;
-						PLUGIN.sendMessage(p1, ChatColor.GOLD + CONFIG.getString("data.broadcastMessageEnd", ""));
+						PLUGIN.sendMessage(p1, ChatColor.GREEN + CONFIG.getString("data.broadcastMessageEnd", ""));
 					}
 				}
 			} else {
-				PLUGIN.getServer().broadcastMessage(ChatColor.GOLD + CONFIG.getString("data.broadcastMessageEnd", ""));
+				PLUGIN.getServer().broadcastMessage(ChatColor.GREEN + CONFIG.getString("data.broadcastMessageEnd", ""));
 			}
 		}
 

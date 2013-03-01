@@ -44,7 +44,7 @@ public class CustomSpawnersExecutor extends Executor implements CommandExecutor 
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
 		final String[] PLUGIN_INFO = {
-				ChatColor.GREEN + "* * * " +  ChatColor.GOLD + " CustomSpawners " + PLUGIN.getDescription().getVersion() + ChatColor.GREEN + " by thebiologist13* * *",
+				ChatColor.GREEN + "* * * " +  ChatColor.GOLD + " CustomSpawners " + PLUGIN.getDescription().getVersion() + ChatColor.GREEN + " by thebiologist13 * * *",
 				"",
 				ChatColor.GREEN + "Plugin on BukkitDev: ",
 				ChatColor.AQUA + "http://dev.bukkit.org/server-mods/customspawners/",
