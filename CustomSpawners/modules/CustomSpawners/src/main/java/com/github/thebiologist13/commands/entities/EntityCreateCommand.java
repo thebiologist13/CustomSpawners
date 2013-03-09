@@ -1,7 +1,5 @@
 package com.github.thebiologist13.commands.entities;
 
-import java.util.List;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -19,7 +17,6 @@ public class EntityCreateCommand extends EntityCommand {
 		super(plugin, mainPerm);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
@@ -30,59 +27,28 @@ public class EntityCreateCommand extends EntityCommand {
 		
 		SpawnableEntity newEntity = new SpawnableEntity(EntityType.PIG, PLUGIN.getNextEntityId());
 		
-		List<?> notAllowed = CONFIG.getList("mobs.blacklist");
-		
 		boolean hasOverride = true;
 		
 		if(sender instanceof Player) {
 			hasOverride = ((Player) sender).hasPermission("customspawners.limitoverride");
 		}
 		
-		if(in.equals("spiderjockey") || in.equals("spider_jockey") ||
-				in.equals("skeletonjockey") || in.equals("skeleton_jockey")) {
-			newEntity.setType(EntityType.SPIDER);
-			newEntity.setJockey(true);
-			if((notAllowed.contains("spider_jockey") || notAllowed.contains("skeleton_jockey")) && !hasOverride) {
-				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
-				return;
-			}
-		} else if(in.equals("witherskeleton") || in.equals("wither_skeleton")) {
-			newEntity.setType(EntityType.SKELETON);
-			newEntity.setProp("wither", true);
-			if(notAllowed.contains("wither_skeleton") && !hasOverride) {
-				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
-				return;
-			}
-		} else if(in.equals("crepp")) {
-			newEntity.setType(EntityType.CREEPER);
-			newEntity.setCharged(true);
-			newEntity.setYield(0);
-			if(notAllowed.contains("creeper") && !hasOverride) {
-				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
-				return;
-			}
-		} else if(in.equals("chargedcreeper") || in.equals("charged_creeper") ||
-				in.equals("powercreeper") || in.equals("power_creeper")) {
-			newEntity.setType(EntityType.CREEPER);
-			newEntity.setCharged(true);
-			if(notAllowed.contains("creeper") && !hasOverride) {
-				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
-				return;
-			}
-		} else {
-			EntityType type = PLUGIN.parseEntityType(in, hasOverride);
+		try {
+			PLUGIN.parseEntityType(in, newEntity, hasOverride);
+		} catch(IllegalArgumentException e) {
 			
-			if(type == null) {
+			if(e.getMessage() == null) {
+				e.printStackTrace();
+				return;
+			}
+			
+			if(e.getMessage().equals("Invalid entity type.")) {
 				PLUGIN.sendMessage(sender, NONEXISTANT_ENTITY);
 				return;
-			}
-			
-			if(!PLUGIN.allowedEntity(type)) {
+			} else if(e.getMessage().equals("Not allowed entity.")) {
 				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
 				return;
 			}
-			
-			newEntity.setType(type);
 		}
 		
 		CustomSpawners.entities.put(newEntity.getId(), newEntity);

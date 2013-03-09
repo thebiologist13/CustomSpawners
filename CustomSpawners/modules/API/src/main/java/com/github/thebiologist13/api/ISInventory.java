@@ -23,6 +23,8 @@ public interface ISInventory {
 	public ItemStack getHand();
 	
 	public ArrayList<ItemStack> getMainInventory();
+	
+	public ArrayList<ISItemStack> getMainInventoryISItemStacks(); 
 
 	public ItemStack getSlot(int slot);
 

@@ -1,7 +1,7 @@
 package com.github.thebiologist13.v1_4_R1;
 
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 
 import net.minecraft.server.v1_4_R1.AxisAlignedBB;
 import net.minecraft.server.v1_4_R1.EntityEnderPearl;
@@ -30,6 +30,7 @@ import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Flying;
+import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Golem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
@@ -62,6 +63,7 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 import com.github.thebiologist13.api.ISInventory;
+import com.github.thebiologist13.api.ISItemStack;
 import com.github.thebiologist13.api.ISpawnManager;
 import com.github.thebiologist13.api.ISpawnableEntity;
 import com.github.thebiologist13.api.ISpawner;
@@ -86,6 +88,7 @@ public class SpawnManager implements ISpawnManager {
 
 	@Override
 	public void spawn() {
+		
 		boolean hasPower = spawner.getBlock().isBlockPowered() || spawner.getBlock().isBlockIndirectlyPowered();
 
 		/*
@@ -396,10 +399,6 @@ public class SpawnManager implements ISpawnManager {
 	
 	private Location getSpawningLocation(ISpawnableEntity type, boolean reqsBlockBelow, 
 			boolean ignoreLight, float height, float width, float length) {
-		//Random locations
-		double randX = 0;
-		double randY = 0;
-		double randZ = 0;
 
 		//Can it spawn in liquids?
 		boolean spawnInWater = true;
@@ -414,24 +413,13 @@ public class SpawnManager implements ISpawnManager {
 		while(tries < 128) {
 
 			tries++;
-			Location loc = spawnLoc;
-			Location[] areaPoints = spawner.getAreaPoints();
-
+			
 			//Getting a random location.
 			if(!spawner.isUsingSpawnArea()) {
-				//Generates a random location using randomGenRad(), a location for the block above, and a location for the block below.
-				randX = randomGenRad()  + loc.getBlockX();
-				randY = Math.round(randomGenRad()) + loc.getBlockY();
-				randZ = randomGenRad() + loc.getBlockZ();
-
+				spawnLoc = randomGenRad();
 			} else {
-				//Generates a random location in the spawn area using randomGenRange().
-				randX = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
-				randY = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
-				randZ = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
+				spawnLoc = randomGenArea();
 			}
-
-			spawnLoc = new Location(loc.getWorld(), randX, randY + 1, randZ, 0, 0);
 
 			//loc is the location of the spawner block
 			//spawnLoc is the location being tested to spawn in
@@ -445,12 +433,14 @@ public class SpawnManager implements ISpawnManager {
 				continue;
 			}
 
-			if(!areaEmpty(spawnLoc, spawnInWater, height, width, length))
+			if(!areaEmpty(spawnLoc, spawnInWater, height, width, length)) {
 				continue;
+			}
 
 			//Block below
 			if(reqsBlockBelow) {
-				Location blockBelow = new Location(loc.getWorld(), randX, randY - 1, randZ);
+				Location blockBelow = new Location(spawnLoc.getWorld(), 
+						spawnLoc.getX(), spawnLoc.getY() - 1, spawnLoc.getZ());
 
 				if(isEmpty(blockBelow, false)) {
 					continue;
@@ -507,9 +497,8 @@ public class SpawnManager implements ISpawnManager {
 		//Loop to spawn until the mobs per spawn is reached
 		for(int i = 0; i < spawner.getMobsPerSpawn(); i++) {
 
-			if((spawner.getMobsIds().size() + 1) > spawner.getMaxMobs()) {
+			if(spawner.getMobsIds().size() + 1 > spawner.getMaxMobs())
 				return;
-			}
 
 			Location spLoc = spawner.getLoc();
 
@@ -559,7 +548,7 @@ public class SpawnManager implements ISpawnManager {
 			}
 
 			if(e != null) {
-
+				
 				assignMobProps(e, spawnType);
 
 				spawner.addMob(e.getUniqueId(), spawnType);
@@ -592,27 +581,44 @@ public class SpawnManager implements ISpawnManager {
 		return list;
 	}
 
-	private double randomGenRad() {
-		Random rand = new Random();
-		if(rand.nextFloat() < 0.5) {
-			return Math.floor((rand.nextDouble() * ((Double) spawner.getRadius() * -1))) - 0.5;
-		} else {
-			return Math.floor((rand.nextDouble() * ((Double) spawner.getRadius() * 1))) + 0.5;
-		}
+	private Location randomGenArea() {
+		Location[] areaPoints = spawner.getAreaPoints();
+		double x, y, z;
+		World w = areaPoints[0].getWorld();
+		x = randomGenRange(areaPoints[0].getX(), areaPoints[1].getX());
+		y = randomGenRange(areaPoints[0].getY(), areaPoints[1].getY());
+		z = randomGenRange(areaPoints[0].getZ(), areaPoints[1].getZ());
+		
+		return new Location(w, x, y, z);
+	}	
+	
+	private Location randomGenRad() {
+		double x, y, z;
+		double sX, sY, sZ;
+		double r = spawner.getRadius();
+		Location sL = spawner.getLoc();
+		sX = sL.getX();
+		sY = sL.getY();
+		sZ = sL.getZ();
+		do {
+			x = randomGenRange(sX - r, sX + r);
+			y = randomGenRange(sY - r, sY + r);
+			z = randomGenRange(sZ - r, sZ + r);
+		} while(sL.distance(new Location(sL.getWorld(), x, y, z)) > r);
+		
+		return new Location(sL.getWorld(), x, y, z);
 	}
-
+	
 	private double randomGenRange(double arg0, double arg1) {
-		Random rand = new Random();
-		double difference = Math.abs(arg0 - arg1);
-		if(arg0 < arg1) {
-			return Math.floor(arg0 + (difference * rand.nextDouble())) - 0.5;
-		} else if(arg1 < arg0) {
-			return Math.floor(arg1 + (difference * rand.nextDouble())) + 0.5;
-		} else {
-			return arg0;
-		}
+		double range = (arg0 < arg1) ? arg1 - arg0 : arg0 - arg1;
+		double min = (arg0 < arg1) ? arg0 : arg1;
+		return Math.floor(min + (Math.random() * range)) + 0.5d;
 	}
 
+	private double randomRotation() {
+		return Math.random() * 360;
+	}
+	
 	private void setAgeProps(Ageable a, ISpawnableEntity data) {
 		if(data.getAge() == -2) {
 			a.setBaby();
@@ -621,7 +627,6 @@ public class SpawnManager implements ISpawnManager {
 		} else {
 			a.setAge(data.getAge());
 		}
-
 	}
 
 	private void setBasicProps(LivingEntity entity, ISpawnableEntity data) {
@@ -637,9 +642,8 @@ public class SpawnManager implements ISpawnManager {
 			entity.setHealth(entity.getMaxHealth());
 		} else {
 			if(data.getHealth() > entity.getMaxHealth()) {
-				entity.setHealth(entity.getMaxHealth());
-				//TODO move
-				//DamageController.extraHealthEntities.put(entity.getEntityId(), data.getHealth() - entity.getMaxHealth());
+				entity.setMaxHealth(data.getHealth());
+				entity.setHealth(data.getHealth());
 			} else if(data.getHealth() < 0) {
 				entity.setHealth(0);
 			} else {
@@ -690,10 +694,18 @@ public class SpawnManager implements ISpawnManager {
 		} else {
 			ee.setItemInHand(data.getHand());
 			ee.setArmorContents(data.getArmor());  
+			
+			List<ISItemStack> array = data.getMainInventoryISItemStacks();
+			ee.setItemInHandDropChance(array.get(0).getDropChance() / 100.0f);
+			ee.setBootsDropChance(array.get(1).getDropChance() / 100.0f);
+			ee.setLeggingsDropChance(array.get(2).getDropChance() / 100.0f);
+			ee.setChestplateDropChance(array.get(3).getDropChance() / 100.0f);
+			ee.setHelmetDropChance(array.get(4).getDropChance() / 100.0f);
 		}
 
 	}
 
+	//Sets unimplemented data
 	private void setNBT(Entity entity, ISpawnableEntity data) {
 		Converter nbt = new Converter();
 		NBTTagCompound nbtComp = nbt.getEntityNBT(entity);
@@ -702,7 +714,18 @@ public class SpawnManager implements ISpawnManager {
 			nbtComp.setString("CustomName", data.getName());
 			nbtComp.setByte("CustomNameVisible", (byte) ((data.showCustomName()) ? 1 : 0));
 		}
+		
+		if(entity instanceof Creeper) {
+			byte rad = (byte) Math.round(data.getYield());
+			nbtComp.setByte("ExplosionRadius", rad);
+			nbtComp.setShort("Fuse", (short) data.getFuseTicks());
+		}
 
+		if(entity instanceof Ghast) {
+			int rad = Math.round(data.getYield());
+			nbtComp.setInt("ExplosionPower", rad);
+		}
+		
 		if(entity instanceof Minecart) {
 			if(!data.getItemType().getType().equals(Material.AIR)) {
 				nbtComp.setInt("DisplayTile", data.getItemType().getTypeId());
@@ -726,6 +749,8 @@ public class SpawnManager implements ISpawnManager {
 
 	private Entity spawnTheEntity(ISpawnableEntity spawnType, Location spawnLocation) {
 
+		spawnLocation.setYaw((float) randomRotation());
+		
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return spawnLocation.getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {

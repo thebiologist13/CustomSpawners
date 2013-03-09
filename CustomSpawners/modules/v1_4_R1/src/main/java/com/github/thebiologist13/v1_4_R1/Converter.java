@@ -10,6 +10,7 @@ import net.minecraft.server.v1_4_R1.TileEntity;
 import net.minecraft.server.v1_4_R1.TileEntityMobSpawner;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_4_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_4_R1.entity.CraftEntity;
@@ -20,16 +21,20 @@ import com.github.thebiologist13.api.IConverter;
 import com.github.thebiologist13.api.ISpawnableEntity;
 import com.github.thebiologist13.api.ISpawner;
 
-public class Converter implements IConverter { //Might need an ISpawner interface?
+public class Converter implements IConverter {
 
 	@Override
 	public void convert(ISpawner spawner) {
 		Block block = spawner.getBlock();
 
-		if (spawner.isConverted()) {
+		if (spawner.isConverted()) { //Is NOT CustomSpawners spawner
 			block.setTypeIdAndData(spawner.getBlockId(),
-					spawner.getBlockData(), false);
+					spawner.getBlockData(), true);
 		} else {
+			
+			if(!block.getType().equals(Material.MOB_SPAWNER))
+				block.setTypeIdAndData(52, (byte) 0, true);
+			
 			if (!isTileEntity(block)) {
 				throw new IllegalArgumentException(
 						"Parameter block is not a TileEntity.");
@@ -53,8 +58,10 @@ public class Converter implements IConverter { //Might need an ISpawner interfac
 
 	public <T extends Entity> NBTTagCompound getEntityNBT(T entity) {
 		NBTTagCompound compound = new NBTTagCompound();
+		
+		net.minecraft.server.v1_4_R1.Entity nms = ((CraftEntity) entity).getHandle();
 
-		Class<? extends Object> clazz = entity.getClass();
+		Class<? extends Object> clazz = nms.getClass();
 		Method[] methods = clazz.getMethods();
 		for (Method method : methods) {
 			if ((method.getName() == "d")
@@ -62,13 +69,31 @@ public class Converter implements IConverter { //Might need an ISpawner interfac
 					&& (method.getParameterTypes()[0] == NBTTagCompound.class)) {
 				try {
 					method.setAccessible(true);
-					method.invoke(entity, compound);
+					method.invoke(nms, compound);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
+		EntityType type = entity.getType();
+		String id = type.getName();
+
+		if (id == null || id.isEmpty()) {
+			switch (type) {
+			case SPLASH_POTION:
+				id = "ThrownPotion";
+				break;
+			case EGG:
+				id = "Egg";
+				break;
+			default:
+				return null;
+			}
+		}
+
+		compound.setString("id", id);
+		
 		return compound;
 	}
 
@@ -79,47 +104,25 @@ public class Converter implements IConverter { //Might need an ISpawner interfac
 
 		Location spawnLocation = null;
 
-		if (s.isUsingSpawnArea()) {
+		// TODO This can be changed. Really just needs a single point to spawn to. Should add option to disable.
+		if (s.isUsingSpawnArea()) 
 			spawnLocation = s.getAreaPoints()[0]; 
-			// TODO This can be changed. Really just needs a single point to spawn to. Should add option to disable.
-		}
-
+		
+		//Location to spawn to when getting NBT
+		Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
+		
 		if (s.getTypeData().size() == 1) {
-			Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
 			Entity e = s.forceSpawnOnLoc(mainEntity, pos);
 			eData = getEntityNBT(e);
 
-			if (eData.isEmpty()) { // If empty
+			if (eData.isEmpty()) // If empty
 				return null;
-			}
 
-			EntityType type = e.getType();
-			String id = type.getName();
-
-			if (id == null || id.isEmpty()) {
-				switch (type) {
-				case SPLASH_POTION:
-					id = "ThrownPotion";
-					break;
-				case EGG:
-					id = "Egg";
-					break;
-				default:
-					return null;
-				}
-			}
-
-			eData.setString("id", id);
-
-			if (eData.hasKey("Pos") && spawnLocation == null) {
+			if (eData.hasKey("Pos") && spawnLocation == null)
 				eData.remove("Pos");
-			}
 
-			eData.set(
-					"Motion",
-					makeDoubleList(new double[] { mainEntity.getXVelocity(),
-							mainEntity.getYVelocity(),
-							mainEntity.getZVelocity() }));
+			eData.set("Motion", makeDoubleList(new double[] { mainEntity.getXVelocity(),
+					mainEntity.getYVelocity(), mainEntity.getZVelocity() }));
 
 			sData.set("SpawnData", eData);
 			e.remove();
@@ -129,50 +132,21 @@ public class Converter implements IConverter { //Might need an ISpawner interfac
 
 			for (int i = 0; i < typeData.size(); i++) {
 				NBTTagCompound potentialData = new NBTTagCompound();
-				ISpawnableEntity se = s.getTypesEntities().get(i);
-				Location pos = (spawnLocation == null) ? s.getLoc()
-						: spawnLocation;
+				ISpawnableEntity se = typeData.get(i);
 				Entity e = s.forceSpawnOnLoc(se, pos);
-				NBTTagCompound eData2 = getEntityNBT(e);
-				if (eData2.isEmpty()) { // If empty
+				NBTTagCompound eData0 = getEntityNBT(e);
+				if (eData0.isEmpty()) // If empty
 					return null;
-				}
 
-				EntityType type = e.getType();
-				String id = type.getName();
+				if (eData0.hasKey("Pos") && spawnLocation == null)
+					eData0.remove("Pos");
 
-				if (id == null || id.isEmpty()) {
-					switch (type) {
-					case SPLASH_POTION:
-						id = "ThrownPotion";
-						break;
-					case EGG:
-						id = "Egg";
-						break;
-					default:
-						return null;
-					}
-				}
+				eData0.set("Motion", makeDoubleList(new double[] { se.getXVelocity(),
+						se.getYVelocity(), se.getZVelocity() }));
 
-				eData2.setString("id", id);
-
-				if (eData2.hasKey("Pos") && spawnLocation == null) {
-					eData2.remove("Pos");
-				}
-
-				eData2.set(
-						"Motion",
-						makeDoubleList(new double[] { se.getXVelocity(),
-								se.getYVelocity(), se.getZVelocity() }));
-
-				if (i == 0) {
-					eData = eData2;
-					sData.set("SpawnData", eData2);
-				}
-
-				potentialData.setCompound("Properties", eData2);
-				potentialData.setInt("Weight", i + 1);
-				potentialData.setString("Type", eData2.getString("id"));
+				potentialData.setCompound("Properties", eData0);
+				potentialData.setInt("Weight", 0);
+				potentialData.setString("Type", eData0.getString("id"));
 				potentials[i] = potentialData;
 
 				e.remove();
@@ -195,6 +169,8 @@ public class Converter implements IConverter { //Might need an ISpawner interfac
 		sData.setShort("MaxSpawnDelay", (short) (s.getRate() + 1));
 		sData.setShort("MaxNearbyEntities", (short) s.getMaxMobs());
 		sData.setShort("RequiredPlayerRange", (short) s.getMaxPlayerDistance());
+		
+		System.out.println(sData.getShort("Delay"));
 
 		return sData;
 	}
@@ -227,17 +203,15 @@ public class Converter implements IConverter { //Might need an ISpawner interfac
 		}
 
 	}
-
+	
 	private NBTTagList makeCompoundList(NBTTagCompound[] m0) {
 		NBTTagList list = new NBTTagList();
-		int i = m0.length;
-
-		for (int j = 0; j < i; j++) {
+		
+		for (int j = 0; j < m0.length; j++) {
 			list.add(m0[j]);
 		}
 
 		return list;
-
 	}
 	
 	private NBTTagList makeDoubleList(double[] d0) {

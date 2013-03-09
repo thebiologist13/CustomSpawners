@@ -200,7 +200,11 @@ public class Spawner implements Serializable, ISpawner {
 
 	@Override
 	public Location getLoc() {
-		return ((SLocation) this.data.get("loc")).toLocation();
+		Location loc = ((SLocation) this.data.get("loc")).toLocation();
+		loc.setX(loc.getBlockX() + 0.5f);
+		loc.setY(loc.getBlockY() + 0.5f);
+		loc.setZ(loc.getBlockZ() + 0.5f);
+		return loc;
 	}
 
 	@Override
@@ -619,10 +623,6 @@ public class Spawner implements Serializable, ISpawner {
 	//Spawn the mobs
 	@Override
 	public void spawn() {
-		
-		if(!wgAllows(getLoc()))
-			return;
-		
 		spawn(isActive());
 	}
 	
@@ -634,7 +634,7 @@ public class Spawner implements Serializable, ISpawner {
 		
 		if(!wgAllows(getLoc()))
 			return;
-
+		
 		ISpawnManager man = CustomSpawners.getSpawnManager(this);
 		man.spawn();
 	}
@@ -688,7 +688,6 @@ public class Spawner implements Serializable, ISpawner {
 		return highest;
 	}
 	
-
 	private boolean wgAllows(Location loc) {
 		WorldGuardPlugin wg = CustomSpawners.getWG();
 

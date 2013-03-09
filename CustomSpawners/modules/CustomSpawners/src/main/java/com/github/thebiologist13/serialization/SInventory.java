@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.api.ISInventory;
+import com.github.thebiologist13.api.ISItemStack;
 
 public class SInventory implements Serializable, ISInventory {
 
@@ -111,6 +112,17 @@ public class SInventory implements Serializable, ISInventory {
 		array.add(2, armor[1].toItemStack());
 		array.add(3, armor[2].toItemStack());
 		array.add(4, armor[3].toItemStack());
+		return array;
+	}
+	
+	@Override
+	public ArrayList<ISItemStack> getMainInventoryISItemStacks() {
+		ArrayList<ISItemStack> array = new ArrayList<ISItemStack>();
+		array.add(0, hand);
+		array.add(1, armor[0]);
+		array.add(2, armor[1]);
+		array.add(3, armor[2]);
+		array.add(4, armor[3]);
 		return array;
 	}
 

@@ -127,6 +127,11 @@ public class EntityInfoCommand extends EntityCommand {
 			isVillager = (Boolean) s.getProp("zombie");
 		}
 		
+		double minecartSpeed = 0.4d;
+		if(s.hasProp("minecartSpeed")) {
+			minecartSpeed = (Double) s.getProp("minecartSpeed");
+		}
+		
 		String health = "" + s.getHealth();
 		if(s.hasModifier("health") || s.hasModifier("hp")) {
 			health += " (Dynamic)";
@@ -199,6 +204,7 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Wither: " + String.valueOf(isWither),
 				ChatColor.GOLD + "Villager: " + String.valueOf(isVillager),
 				ChatColor.GOLD + "Spawner: " + PLUGIN.getFriendlyName(s.getSpawnerData()),
+				ChatColor.GOLD + "Minecart Speed: " + minecartSpeed,
 				ChatColor.GREEN + "Scroll Up for More Properties."
 		};
 		

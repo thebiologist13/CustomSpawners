@@ -13,33 +13,33 @@ import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
+import com.github.thebiologist13.api.IDamageController;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
-public class DamageController {
+public class DamageController implements IDamageController {
+	
+	//Map for aggroed mobs (entity id, spawnableEntity)
+	public static ConcurrentHashMap<Integer, Integer> angryMobs = new ConcurrentHashMap<Integer, Integer>();
+	
+	//Explosions
+	public static ConcurrentHashMap<Integer, CustomExplosion> explode = new ConcurrentHashMap<Integer, CustomExplosion>();
 	
 	/*
 	 * The key is an entity ID. The value is ticks left. If an entity ID is in this list, 
 	 * it has caught fire from somewhere else (other than fire ticks prop.) and should take fire damage.
 	 */
 	public static ConcurrentHashMap<Integer, Integer> negatedFireImmunity = new ConcurrentHashMap<Integer, Integer>();
-	
-	//Hashmap for extra health
-	public static ConcurrentHashMap<Integer, Integer> extraHealthEntities = new ConcurrentHashMap<Integer, Integer>();
-	
-	//Map for aggroed mobs (entity id, spawnableEntity)
-	public static ConcurrentHashMap<Integer, Integer> angryMobs = new ConcurrentHashMap<Integer, Integer>();
-	
-	public static ConcurrentHashMap<Integer, CustomExplosion> explode = new ConcurrentHashMap<Integer, CustomExplosion>();
-	
-	private CustomSpawners plugin = null;
+
+	private CustomSpawners plugin;
 	
 	public DamageController(CustomSpawners plugin) {
 		this.plugin = plugin;
 	}
 	
 	//Get the damage to deal
+	@Override
 	public int getModifiedDamage(EntityDamageEvent ev) {
 		
 		DamageCause cause = ev.getCause();
@@ -219,30 +219,12 @@ public class DamageController {
 			
 		}
 		
-		if(extraHealthEntities.containsKey(mobId)) {
+		//The EntityHpTracker has been removed in favor of Damagable.setMaxHealth(int hp)
 			
-			int newExtraHealth = extraHealthEntities.get(mobId) - damage;
-
-			if(newExtraHealth <= 0) {
-				
-				extraHealthEntities.remove(mobId);
-				return Math.abs(newExtraHealth);
-				
-			} else {
-				
-				extraHealthEntities.replace(mobId, newExtraHealth);
-				return 0;
-				
-			}
-			
-		} else {
-			
-			return damage;
-			
-		}
+		return damage;
 		
 	}
-	
+
 	private boolean wgAllows(Entity e) {
 		
 		WorldGuardPlugin wg = CustomSpawners.getWG();

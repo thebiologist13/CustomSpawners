@@ -133,8 +133,8 @@ public class HelpCommand extends CustomSpawnersCommand {
 				ChatColor.GOLD + "/entities setair [id] <air>" + ChatColor.GREEN + " -> Sets the remaining air for an entity.",
 				ChatColor.GOLD + "/entities setprofession [id] <profession>" + ChatColor.GREEN + " -> Sets the profession of a spawned villager.",
 				ChatColor.GOLD + "/entities setage [id] <age>" + ChatColor.GREEN + " -> Sets the age of a spawned entity.",
-				ChatColor.GOLD + "/entities setadult [id]" + ChatColor.GREEN + " -> Makes this entity's age an adult.",
-				ChatColor.GOLD + "/entities setbaby [id]" + ChatColor.GREEN + " -> Makes this entity's age a baby.",
+				ChatColor.GOLD + "/entities setrider [id] <entity ID>" + ChatColor.GREEN + " -> Sets the spawnable entity riding this mob.",
+				ChatColor.GOLD + "/entities setminecartspeed [id] <speed>" + ChatColor.GREEN + " -> Sets the minecart speed."
 		};
 		
 		String pIn = getValue(args, 0, 0);

@@ -35,17 +35,6 @@ public class InteractEvent implements Listener {
 		
 		if(item == null) {return;}
 		
-		if(CustomSpawners.selectMode.containsKey(p)) {
-			boolean doBreak = CustomSpawners.selectMode.get(p);
-			int configId = CONFIG.getInt("players.selectionId");
-			
-			if((p.getItemInHand().getTypeId() == configId) && doBreak && p.hasPermission("customspawners.spawners.pos")) {
-				ev.setCancelled(true);
-				return;
-			}
-			
-		}
-		
 		//Block
 		Location l = ev.getClickedBlock().getLocation();
 		//Perms
@@ -63,6 +52,17 @@ public class InteractEvent implements Listener {
 							l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + ")" + ChatColor.GREEN + ".");
 				}
 			}
+		}
+		
+		if(CustomSpawners.selectMode.containsKey(p)) {
+			boolean doBreak = CustomSpawners.selectMode.get(p);
+			int configId = CONFIG.getInt("players.selectionId");
+			
+			if((p.getItemInHand().getTypeId() == configId) && doBreak && p.hasPermission("customspawners.spawners.pos")) {
+				ev.setCancelled(true);
+				return;
+			}
+			
 		}
 		
 	}

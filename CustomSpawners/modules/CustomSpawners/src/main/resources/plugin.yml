@@ -111,6 +111,7 @@ permissions:
             customspawners.entities.setvillager: true
             customspawners.entities.modifiers: true
             customspawners.entities.rider: true
+            customspawners.entities.minecartspeed: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawners" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -365,4 +366,7 @@ permissions:
         default: op
     customspawners.entities.rider:
         description: Allows the user/group to set the entity rider.
+        default: op
+    customspawners.entities.minecartspeed:
+        description: Allows the user/group to set minecart max speed.
         default: op

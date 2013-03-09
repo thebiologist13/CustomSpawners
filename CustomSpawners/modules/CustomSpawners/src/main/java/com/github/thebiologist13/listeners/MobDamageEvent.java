@@ -8,7 +8,7 @@ import com.github.thebiologist13.CustomSpawners;
 
 public class MobDamageEvent implements Listener {
 	
-	private CustomSpawners plugin = null;
+	private CustomSpawners plugin;
 	
 	public MobDamageEvent(CustomSpawners plugin) {
 		this.plugin = plugin;

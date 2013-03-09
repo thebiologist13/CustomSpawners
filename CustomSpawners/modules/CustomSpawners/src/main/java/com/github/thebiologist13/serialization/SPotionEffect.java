@@ -15,7 +15,7 @@ public class SPotionEffect implements Serializable {
 	public SPotionEffect(PotionEffectType type, int duration, int amplifier) {
 		this.type = type.getId();
 		this.duration = duration;
-		this.amplifier = amplifier;
+		this.amplifier = amplifier - 1;
 	}
 	
 	public SPotionEffect(PotionEffect p) {
@@ -41,15 +41,15 @@ public class SPotionEffect implements Serializable {
 	}
 
 	public int getAmplifier() {
-		return amplifier - 1;
+		return amplifier;
 	}
 
 	public void setAmplifier(int amplifier) {
-		this.amplifier = amplifier;
+		this.amplifier = amplifier - 1;
 	}
 	
 	public PotionEffect toPotionEffect() {
-		return new PotionEffect(PotionEffectType.getById(type), duration, amplifier - 1);
+		return new PotionEffect(PotionEffectType.getById(type), duration, amplifier);
 	}
 	
 }
