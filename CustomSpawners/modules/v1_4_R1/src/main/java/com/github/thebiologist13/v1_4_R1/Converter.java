@@ -170,8 +170,6 @@ public class Converter implements IConverter {
 		sData.setShort("MaxNearbyEntities", (short) s.getMaxMobs());
 		sData.setShort("RequiredPlayerRange", (short) s.getMaxPlayerDistance());
 		
-		System.out.println(sData.getShort("Delay"));
-
 		return sData;
 	}
 
