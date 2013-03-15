@@ -1,5 +1,7 @@
 package com.github.thebiologist13.listeners;
 
+import java.util.UUID;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,7 +15,7 @@ public class MobCombustEvent implements Listener {
 		//Entity
 		Entity combustee = ev.getEntity();
 		//ID
-		int id = combustee.getEntityId();
+		UUID id = combustee.getUniqueId();
 		
 		if(!DamageController.negatedFireImmunity.containsKey(id)) {
 			DamageController.negatedFireImmunity.put(id, ev.getDuration() / 20);

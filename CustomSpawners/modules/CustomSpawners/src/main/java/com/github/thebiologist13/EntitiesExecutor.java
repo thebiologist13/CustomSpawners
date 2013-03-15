@@ -294,8 +294,8 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"setitemlist",
 				"itemlist"
 		});
-		addCommand("clearitemlist", itemlist, new String[] {
-				"clearitemdamage"
+		addCommand("clearitemdamage", itemlist, new String[] {
+				"clearitemlist"
 		});
 		addCommand("setitemtype", itemType, new String[] {
 				"itemtype",
@@ -505,7 +505,8 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		if(arg1.getName().equalsIgnoreCase("entities")) {
 			
 			if(arg3.length < 1) {
-				PLUGIN.sendMessage(arg0, INVALID_PARAMS);
+				PLUGIN.sendMessage(arg0, ChatColor.GREEN + "This is the command used for entity " +
+						"modification. See the wiki for commands!");
 				return true;
 			}
 			

@@ -1,14 +1,14 @@
-package com.github.thebiologist13.v1_4_R1;
+package com.github.thebiologist13.v1_5_R1;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.v1_4_R1.AxisAlignedBB;
-import net.minecraft.server.v1_4_R1.EntityEnderPearl;
-import net.minecraft.server.v1_4_R1.EntityLiving;
-import net.minecraft.server.v1_4_R1.EntityPotion;
-import net.minecraft.server.v1_4_R1.NBTTagCompound;
-import net.minecraft.server.v1_4_R1.NBTTagList;
+import net.minecraft.server.v1_5_R1.AxisAlignedBB;
+import net.minecraft.server.v1_5_R1.EntityEnderPearl;
+import net.minecraft.server.v1_5_R1.EntityLiving;
+import net.minecraft.server.v1_5_R1.EntityPotion;
+import net.minecraft.server.v1_5_R1.NBTTagCompound;
+import net.minecraft.server.v1_5_R1.NBTTagList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -16,9 +16,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_4_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_4_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_4_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_5_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_5_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_5_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
@@ -67,6 +67,7 @@ import com.github.thebiologist13.api.ISItemStack;
 import com.github.thebiologist13.api.ISpawnManager;
 import com.github.thebiologist13.api.ISpawnableEntity;
 import com.github.thebiologist13.api.ISpawner;
+import com.github.thebiologist13.v1_5_R1.Converter;
 
 public class SpawnManager implements ISpawnManager {
 
@@ -495,7 +496,7 @@ public class SpawnManager implements ISpawnManager {
 	}
 	
 	public boolean isSolidBlock(Block block){
-        return block.getTypeId() != 0 && net.minecraft.server.v1_4_R1.Block.byId[block.getTypeId()].material.isSolid();
+        return block.getTypeId() != 0 && net.minecraft.server.v1_5_R1.Block.byId[block.getTypeId()].material.isSolid();
     }
 	
 	private void mainSpawn(ISpawnableEntity spawnType, boolean ignoreLight) {
@@ -522,7 +523,7 @@ public class SpawnManager implements ISpawnManager {
 
 				e = spawnTheEntity(spawnType, spawnLocation);
 
-				net.minecraft.server.v1_4_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_5_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
 
 				AxisAlignedBB bb = nmEntity.boundingBox;
 
@@ -537,7 +538,7 @@ public class SpawnManager implements ISpawnManager {
 
 				e = spawnTheEntity(spawnType, spLoc);
 
-				net.minecraft.server.v1_4_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_5_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
 
 				spawnType.setHeight(nmEntity.height);
 				spawnType.setWidth(nmEntity.width);
@@ -769,8 +770,8 @@ public class SpawnManager implements ISpawnManager {
 			Potion p = new Potion(type);
 			int data = p.toDamageValue();
 
-			net.minecraft.server.v1_4_R1.World nmsWorld = ((CraftWorld) world).getHandle();
-			EntityPotion ent = new EntityPotion(nmsWorld, spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), new net.minecraft.server.v1_4_R1.ItemStack(373, 1, data));
+			net.minecraft.server.v1_5_R1.World nmsWorld = ((CraftWorld) world).getHandle();
+			EntityPotion ent = new EntityPotion(nmsWorld, spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), new net.minecraft.server.v1_5_R1.ItemStack(373, 1, data));
 			NBTTagCompound nbt = new NBTTagCompound();
 
 			ent.b(nbt); //Gets all the normal tags
@@ -799,7 +800,7 @@ public class SpawnManager implements ISpawnManager {
 					((CraftLivingEntity) getNearbyPlayers(spawnLocation, 
 							spawner.getMaxPlayerDistance() + 1).get(0)).getHandle();
 
-			net.minecraft.server.v1_4_R1.World nmsWorld = ((CraftWorld) world).getHandle();
+			net.minecraft.server.v1_5_R1.World nmsWorld = ((CraftWorld) world).getHandle();
 			EntityEnderPearl ent = new EntityEnderPearl(nmsWorld, nearPlayer);
 			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
 			nmsWorld.addEntity(ent);

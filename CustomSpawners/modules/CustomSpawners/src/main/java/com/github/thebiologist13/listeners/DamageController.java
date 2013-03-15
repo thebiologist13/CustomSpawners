@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -21,7 +22,7 @@ import com.sk89q.worldguard.protection.flags.DefaultFlag;
 public class DamageController implements IDamageController {
 	
 	//Map for aggroed mobs (entity id, spawnableEntity)
-	public static ConcurrentHashMap<Integer, Integer> angryMobs = new ConcurrentHashMap<Integer, Integer>();
+	public static ConcurrentHashMap<UUID, Integer> angryMobs = new ConcurrentHashMap<UUID, Integer>();
 	
 	//Explosions
 	public static ConcurrentHashMap<Integer, CustomExplosion> explode = new ConcurrentHashMap<Integer, CustomExplosion>();
@@ -30,7 +31,7 @@ public class DamageController implements IDamageController {
 	 * The key is an entity ID. The value is ticks left. If an entity ID is in this list, 
 	 * it has caught fire from somewhere else (other than fire ticks prop.) and should take fire damage.
 	 */
-	public static ConcurrentHashMap<Integer, Integer> negatedFireImmunity = new ConcurrentHashMap<Integer, Integer>();
+	public static ConcurrentHashMap<UUID, Integer> negatedFireImmunity = new ConcurrentHashMap<UUID, Integer>();
 
 	private CustomSpawners plugin;
 	
@@ -44,7 +45,7 @@ public class DamageController implements IDamageController {
 		
 		DamageCause cause = ev.getCause();
 		Entity entity = ev.getEntity();
-		int mobId = entity.getEntityId();
+		UUID mobId = entity.getUniqueId();
 		int damage = ev.getDamage();
 		
 		if(entity instanceof Player) {
@@ -125,12 +126,7 @@ public class DamageController implements IDamageController {
 			if(e.isUsingBlacklist()) { //Things to not take damage from
 				List<String> black = e.getDamageBlacklist();
 				
-				if(black.contains(cause.name().toUpperCase())) {
-					
-					ev.setCancelled(true);
-					return 0;
-					
-				} else if(black.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
+				if(black.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
 					
 					if(negatedFireImmunity.containsKey(mobId)) {
 						int newTicks = negatedFireImmunity.get(mobId) - 1;
@@ -158,6 +154,10 @@ public class DamageController implements IDamageController {
 						
 						for(ItemStack i : e.getItemDamageList()) {
 							ItemStack hand = p.getItemInHand();
+							if(hand.getType().equals(Material.AIR) && i.getTypeId() == 0) {
+								ev.setCancelled(true);
+								return 0;
+							}
 							if(hand.getTypeId() == i.getTypeId() && hand.getData().getData() == i.getData().getData()) {
 								ev.setCancelled(true);
 								return 0;
@@ -166,35 +166,18 @@ public class DamageController implements IDamageController {
 						
 					}
 					
+				} else if(black.contains(cause.name().toUpperCase())) {
+					
+					ev.setCancelled(true);
+					return 0;
+					
 				}
 				
 			} else if(e.isUsingWhitelist()) {
 				
-				List<String> white = e.getDamageBlacklist();
+				List<String> white = e.getDamageWhitelist();
 				
-				if(!white.contains(cause.name().toUpperCase())) {
-					
-					ev.setCancelled(true);
-					return 0;
-					
-				} else if(!white.contains("SPAWNER_FIRE_TICKS") && cause.equals(DamageCause.FIRE_TICK)) {
-					
-					if(negatedFireImmunity.containsKey(mobId)) {
-						int newTicks = negatedFireImmunity.get(mobId) - 1;
-						
-						if(newTicks == 0) {
-							negatedFireImmunity.remove(mobId);
-						}
-						
-						negatedFireImmunity.replace(mobId, newTicks);
-					} else {
-						negatedFireImmunity.put(mobId, e.getFireTicks());
-					}
-					
-					ev.setCancelled(true);
-					return 0;
-					
-				} else if(!white.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
+				if(white.contains("ITEM") && (ev instanceof EntityDamageByEntityEvent)) {
 					
 					EntityDamageByEntityEvent eve = (EntityDamageByEntityEvent) ev;
 					Entity damager = eve.getDamager();
@@ -205,18 +188,20 @@ public class DamageController implements IDamageController {
 						
 						for(ItemStack i : e.getItemDamageList()) {
 							ItemStack hand = p.getItemInHand();
-							if(hand.getTypeId() == i.getTypeId() && hand.getData().getData() == i.getData().getData()) {
-								ev.setCancelled(true);
-								return 0;
-							}
+							if(hand.getType().equals(Material.AIR) && i.getTypeId() == 0)
+								return damage;
+							if(hand.getTypeId() == i.getTypeId() && hand.getData().getData() == i.getData().getData())
+								return damage;
 						}
-						
 					}
-					
+				} else if(white.contains(cause.name().toUpperCase())) {
+					return damage;
 				}
 				
+				ev.setCancelled(true);
+				return 0;
+				
 			}
-			
 		}
 		
 		//The EntityHpTracker has been removed in favor of Damagable.setMaxHealth(int hp)

@@ -380,7 +380,8 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		if(arg1.getName().equalsIgnoreCase("spawners")) {
 			
 			if(arg3.length < 1) {
-				PLUGIN.sendMessage(arg0, INVALID_PARAMS);
+				PLUGIN.sendMessage(arg0, ChatColor.GREEN + "This is the command used for spawner " +
+						"modification. See the wiki for commands!");
 				return true;
 			}
 			

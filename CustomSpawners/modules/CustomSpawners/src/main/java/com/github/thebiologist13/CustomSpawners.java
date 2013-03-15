@@ -429,7 +429,8 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	public Spawner createSpawner(ISpawnableEntity e, Location loc) {
-		Spawner newSpawner = new Spawner((SpawnableEntity) e, loc, getNextSpawnerId());
+		Spawner newSpawner = new Spawner((SpawnableEntity) e, loc,
+				getNextSpawnerId());
 
 		newSpawner.setRadius(config.getDouble("spawners.radius", 8));
 		newSpawner.setRedstoneTriggered(config.getBoolean(
@@ -482,8 +483,8 @@ public class CustomSpawners extends JavaPlugin {
 			type = "ENTITY_ATTACK";
 		} else if (in.equals("item") || in.equals("itemdamage")) {
 			type = "ITEM";
-		} else if (in.equals("spawnerfire") || in.equals("spawnerfireticks") ||
-				in.equals("spawner_fire")) {
+		} else if (in.equals("spawnerfire") || in.equals("spawnerfireticks")
+				|| in.equals("spawner_fire")) {
 			type = "SPAWNER_FIRE_TICKS";
 		} else {
 			for (DamageCause c : DamageCause.values()) {
@@ -494,7 +495,7 @@ public class CustomSpawners extends JavaPlugin {
 			}
 		}
 
-		return type;
+		return type.toUpperCase();
 	}
 
 	public SpawnableEntity getEntityFromSpawner(Entity entity) {
@@ -567,7 +568,7 @@ public class CustomSpawners extends JavaPlugin {
 	// or name)
 	public String getFriendlyName(ISpawnableEntity e) {
 
-		if(e == null)
+		if (e == null)
 			return "";
 
 		if (e.getName().isEmpty()) {
@@ -581,7 +582,7 @@ public class CustomSpawners extends JavaPlugin {
 	// or name)
 	public String getFriendlyName(ISpawner s) {
 
-		if(s == null)
+		if (s == null)
 			return "";
 
 		if (s.getName().isEmpty()) {
@@ -601,8 +602,9 @@ public class CustomSpawners extends JavaPlugin {
 				|| effect.equals("damage_resistance")
 				|| effect.equals("resistance")) {
 			type = PotionEffectType.DAMAGE_RESISTANCE;
-		} else if (effect.equals("instanthealth") || effect.equals("instant_health") ||
-				effect.equals("health") || effect.equals("hp")) {
+		} else if (effect.equals("instanthealth")
+				|| effect.equals("instant_health") || effect.equals("health")
+				|| effect.equals("hp")) {
 			type = PotionEffectType.HEAL;
 		} else if (effect.equals("instant_damage")
 				|| effect.equals("instantdamage")) {
@@ -821,7 +823,7 @@ public class CustomSpawners extends JavaPlugin {
 	@Override
 	public void onDisable() {
 
-		if(fileManager != null) {
+		if (fileManager != null) {
 			// Saving Entities
 			fileManager.saveEntities();
 			// Saving spawners
@@ -840,9 +842,11 @@ public class CustomSpawners extends JavaPlugin {
 
 		// Compat
 		if (!setupCompat()) {
-			this.getLogger().severe("CustomSpawners " + this.getDescription().getVersion()
-					+ " does not support this version of Bukkit.");
-			this.getLogger().info("Please see http://dev.bukkit.org/server-mods/customspawners for supported versions.");
+			this.getLogger().severe(
+					"CustomSpawners " + this.getDescription().getVersion()
+							+ " does not support this version of Bukkit.");
+			this.getLogger()
+					.info("Please see http://dev.bukkit.org/server-mods/customspawners for supported versions.");
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
@@ -900,19 +904,32 @@ public class CustomSpawners extends JavaPlugin {
 		getCommand("entities").setExecutor(ee);
 
 		// Listeners
-		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(), this);
-		getServer().getPluginManager().registerEvents(new MobDamageEvent(this), this);
-		getServer().getPluginManager().registerEvents(new MobCombustEvent(), this);
-		getServer().getPluginManager().registerEvents(new PlayerTargetEvent(this), this);
-		getServer().getPluginManager().registerEvents(new MobDeathEvent(this), this);
-		getServer().getPluginManager().registerEvents(new InteractEvent(this), this);
-		getServer().getPluginManager().registerEvents(new ExpBottleHitEvent(this), this);
-		getServer().getPluginManager().registerEvents(new MobExplodeEvent(this), this);
-		getServer().getPluginManager().registerEvents(new PotionHitEvent(this), this);
-		getServer().getPluginManager().registerEvents(new ProjectileFireEvent(this), this);
-		getServer().getPluginManager().registerEvents(new BreakEvent(this), this);
-		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(), this);
-		getServer().getPluginManager().registerEvents(new ReloadEvent(this), this);
+		getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(),
+				this);
+		getServer().getPluginManager().registerEvents(new MobDamageEvent(this),
+				this);
+		getServer().getPluginManager().registerEvents(new MobCombustEvent(),
+				this);
+		getServer().getPluginManager().registerEvents(
+				new PlayerTargetEvent(this), this);
+		getServer().getPluginManager().registerEvents(new MobDeathEvent(this),
+				this);
+		getServer().getPluginManager().registerEvents(new InteractEvent(this),
+				this);
+		getServer().getPluginManager().registerEvents(
+				new ExpBottleHitEvent(this), this);
+		getServer().getPluginManager().registerEvents(
+				new MobExplodeEvent(this), this);
+		getServer().getPluginManager().registerEvents(new PotionHitEvent(this),
+				this);
+		getServer().getPluginManager().registerEvents(
+				new ProjectileFireEvent(this), this);
+		getServer().getPluginManager().registerEvents(new BreakEvent(this),
+				this);
+		getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(),
+				this);
+		getServer().getPluginManager().registerEvents(new ReloadEvent(this),
+				this);
 
 		try {
 			// Load entities from file
@@ -937,25 +954,25 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
 				new Runnable() {
 
-			@Override
-			public void run() {
+					@Override
+					public void run() {
 
-				Iterator<Spawner> spawnerItr = spawners.values()
-						.iterator();
+						Iterator<Spawner> spawnerItr = spawners.values()
+								.iterator();
 
-				while (spawnerItr.hasNext()) {
-					Spawner s = spawnerItr.next();
+						while (spawnerItr.hasNext()) {
+							Spawner s = spawnerItr.next();
 
-					if (!s.getLoc().getChunk().isLoaded()) {
-						continue;
+							if (!s.getLoc().getChunk().isLoaded()) {
+								continue;
+							}
+
+							s.tick();
+						}
+
 					}
 
-					s.tick();
-				}
-
-			}
-
-		}, 20, 1);
+				}, 20, 1);
 
 		/*
 		 * Removal Check Thread This thread verifies that all spawned mobs still
@@ -964,58 +981,58 @@ public class CustomSpawners extends JavaPlugin {
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
 				new Runnable() {
 
-			@Override
-			public void run() {
+					@Override
+					public void run() {
 
-				Iterator<Spawner> sp = spawners.values().iterator();
-				while (sp.hasNext()) {
-					Spawner s = sp.next();
-					Iterator<UUID> spMobs = s.getMobs().keySet()
-							.iterator();
-					while (spMobs.hasNext()) {
+						Iterator<Spawner> sp = spawners.values().iterator();
+						while (sp.hasNext()) {
+							Spawner s = sp.next();
+							Iterator<UUID> spMobs = s.getMobs().keySet()
+									.iterator();
+							while (spMobs.hasNext()) {
 
-						UUID spId = spMobs.next();
+								UUID spId = spMobs.next();
 
-						Entity e = getEntityFromWorld(spId, s.getLoc()
-								.getWorld());
+								Entity e = getEntityFromWorld(spId, s.getLoc()
+										.getWorld());
 
-						if (e == null) {
-							s.removeMob(spId);
-							continue;
-						}
+								if (e == null) {
+									s.removeMob(spId);
+									continue;
+								}
 
-						if (e.getLocation().distance(s.getLoc()) > 192) {
-							s.removeMob(spId);
-							e.remove();
+								if (e.getLocation().distance(s.getLoc()) > 192) {
+									s.removeMob(spId);
+									e.remove();
+								}
+
+							}
+
+							Iterator<UUID> secMobs = s.getSecondaryMobs()
+									.keySet().iterator();
+							while (secMobs.hasNext()) {
+								UUID id = secMobs.next();
+
+								Entity e = getEntityFromWorld(id, s.getLoc()
+										.getWorld());
+
+								if (e == null) {
+									s.removeSecondaryMob(id);
+									continue;
+								}
+
+								if (e.getLocation().distance(s.getLoc()) > 192) {
+									s.removeSecondaryMob(id);
+									e.remove();
+								}
+
+							}
+
 						}
 
 					}
 
-					Iterator<UUID> secMobs = s.getSecondaryMobs()
-							.keySet().iterator();
-					while (secMobs.hasNext()) {
-						UUID id = secMobs.next();
-
-						Entity e = getEntityFromWorld(id, s.getLoc()
-								.getWorld());
-
-						if (e == null) {
-							s.removeSecondaryMob(id);
-							continue;
-						}
-
-						if (e.getLocation().distance(s.getLoc()) > 192) {
-							s.removeSecondaryMob(id);
-							e.remove();
-						}
-
-					}
-
-				}
-
-			}
-
-		}, 20, 20);
+				}, 20, 20);
 
 		/*
 		 * Autosave Thread This thread manages autosaving
@@ -1054,11 +1071,12 @@ public class CustomSpawners extends JavaPlugin {
 
 	// Parses the entity type from it's name
 	@SuppressWarnings("deprecation")
-	public void parseEntityType(String entityType, SpawnableEntity applyTo, boolean hasOverride) 
-			throws IllegalArgumentException {
+	public void parseEntityType(String entityType, SpawnableEntity applyTo,
+			boolean hasOverride) throws IllegalArgumentException {
 		EntityType type = null;
 		String name = "";
 		List<?> notAllowed = config.getList("mobs.blacklist");
+		entityType = entityType.toLowerCase();
 
 		if (entityType.equalsIgnoreCase("irongolem")) {
 
@@ -1174,64 +1192,74 @@ public class CustomSpawners extends JavaPlugin {
 
 		}
 
-		if(type != null) {
-			name = type.getName();
-
-			if(notAllowed.contains(name) && !hasOverride)
-				throw new IllegalArgumentException("Not allowed entity.");
-			applyTo.setType(type);
-		} else {
-
-			if(entityType.equals("spiderjockey") || entityType.equals("spider_jockey") ||
-					entityType.equals("skeletonjockey") || entityType.equals("skeleton_jockey")) {
-				if((notAllowed.contains("spider_jockey") || notAllowed.contains("skeleton_jockey")) && !hasOverride)
+		if (type == null) {
+			if (entityType.equals("spiderjockey")
+					|| entityType.equals("spider_jockey")
+					|| entityType.equals("skeletonjockey")
+					|| entityType.equals("skeleton_jockey")
+					|| entityType.equals("jockey")) {
+				if ((notAllowed.contains("spider_jockey") || notAllowed
+						.contains("skeleton_jockey")) && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.SPIDER);
 				applyTo.setJockey(true);
-			} else if(entityType.equals("witherskeleton") || entityType.equals("wither_skeleton")) {
-				if(notAllowed.contains("wither_skeleton") && !hasOverride)
+			} else if (entityType.equals("witherskeleton")
+					|| entityType.equals("wither_skeleton")) {
+				if (notAllowed.contains("wither_skeleton") && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.SKELETON);
 				applyTo.setProp("wither", true);
-			} else if(entityType.equals("crepp")) {
-				if(notAllowed.contains("creeper") && !hasOverride)
+			} else if (entityType.equals("crepp")) {
+				if (notAllowed.contains("creeper") && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.CREEPER);
 				applyTo.setCharged(true);
 				applyTo.setYield(0);
-			} else if(entityType.equals("chargedcreeper") || entityType.equals("charged_creeper") ||
-					entityType.equals("powercreeper") || entityType.equals("power_creeper")) {
-				if(notAllowed.contains("creeper") && !hasOverride)
+			} else if (entityType.equals("chargedcreeper")
+					|| entityType.equals("charged_creeper")
+					|| entityType.equals("powercreeper")
+					|| entityType.equals("power_creeper")) {
+				if (notAllowed.contains("creeper") && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.CREEPER);
 				applyTo.setCharged(true);
-			} else if(entityType.equals("chest_minecart") || entityType.equals("chestminecart")) {
-				if(notAllowed.contains("minecart") && !hasOverride)
+			} else if (entityType.equals("chest_minecart")
+					|| entityType.equals("chestminecart")) {
+				if (notAllowed.contains("minecart") && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.MINECART);
 				applyTo.setItemType(new ItemStack(Material.CHEST));
-			} else if(entityType.equals("furnace_minecart") || entityType.equals("furnaceminecart") ||
-					entityType.equals("oven_minecart") || entityType.equals("ovenminecart")) {
-				if(notAllowed.contains("minecart") && !hasOverride)
+			} else if (entityType.equals("furnace_minecart")
+					|| entityType.equals("furnaceminecart")
+					|| entityType.equals("oven_minecart")
+					|| entityType.equals("ovenminecart")) {
+				if (notAllowed.contains("minecart") && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.MINECART);
 				applyTo.setItemType(new ItemStack(Material.FURNACE));
-			} else if(entityType.equals("tnt_minecart") || entityType.equals("tntminecart") ||
-					entityType.equals("explosive_minecart") || entityType.equals("explosiveminecart")) {
-				if(notAllowed.contains("minecart") && !hasOverride)
+			} else if (entityType.equals("tnt_minecart")
+					|| entityType.equals("tntminecart")
+					|| entityType.equals("explosive_minecart")
+					|| entityType.equals("explosiveminecart")) {
+				if (notAllowed.contains("minecart") && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.MINECART);
 				applyTo.setItemType(new ItemStack(Material.TNT));
-			} else if(entityType.equals("spawner_minecart") || entityType.equals("spawnerminecart")) {
-				if(notAllowed.contains("minecart") && !hasOverride)
+			} else if (entityType.equals("spawner_minecart")
+					|| entityType.equals("spawnerminecart")) {
+				if (notAllowed.contains("minecart") && !hasOverride)
 					throw new IllegalArgumentException("Not allowed entity.");
 				applyTo.setType(EntityType.MINECART);
 				applyTo.setItemType(new ItemStack(Material.MOB_SPAWNER));
-			}
-
-			if(type == null)
+			} else {
 				throw new IllegalArgumentException("Invalid entity type.");
+			}
+		} else {
+			name = type.getName();
 
+			if (notAllowed.contains(name) && !hasOverride)
+				throw new IllegalArgumentException("Not allowed entity.");
+			applyTo.setType(type);
 		}
 
 	}
@@ -1543,7 +1571,9 @@ public class CustomSpawners extends JavaPlugin {
 		String version = packageName
 				.substring(packageName.lastIndexOf('.') + 1);
 		// Get the last element of the package
-		if (version.equals("craftbukkit")) { // If the last element of the package was "craftbukkit" we are now pre-refactor
+		if (version.equals("craftbukkit")) { // If the last element of the
+												// package was "craftbukkit" we
+												// are now pre-refactor
 			version = "pre";
 		}
 		try {

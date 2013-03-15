@@ -37,6 +37,7 @@ public class EntityBlackListCommand extends EntityCommand {
 		
 		if(type.isEmpty()) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "\"" + in + "\" is not a valid damage cause.");
+			return;
 		}
 		
 		if(subCommand.equals("addblacklist")) {

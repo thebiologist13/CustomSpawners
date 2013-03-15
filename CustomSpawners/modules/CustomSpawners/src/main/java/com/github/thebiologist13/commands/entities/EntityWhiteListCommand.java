@@ -37,6 +37,7 @@ public class EntityWhiteListCommand extends EntityCommand {
 		
 		if(type.isEmpty()) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "\"" + in + "\" is not a valid damage cause.");
+			return;
 		}
 		
 		if(subCommand.equals("addwhitelist")) {
@@ -52,6 +53,7 @@ public class EntityWhiteListCommand extends EntityCommand {
 					type + ChatColor.GREEN + " on entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
 					ChatColor.GREEN + "!");
 		} else if(subCommand.equals("clearwhitelist")) {
+			entity.setDamageWhitelist(new ArrayList<String>());
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully cleared whitelist on entity " + 
 					ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + ChatColor.GREEN + "!");
 		}
