@@ -94,6 +94,9 @@ spawners:
     # is broken?
     removeOnBreak: false
     
+    # Should CustomSpawners ignore WorldGuard?
+    ignoreWorldGuard: false
+    
 mobs:
 
     # Which mob types for entities should be 

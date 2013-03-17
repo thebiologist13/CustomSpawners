@@ -878,21 +878,27 @@ public class CustomSpawners extends JavaPlugin {
 		// Interval
 		saveInterval = (config.getLong("data.interval", 10) * 1200);
 
-		// Setup WG
-		worldGuard = getWG();
-
-		if (worldGuard == null) {
-
-			if (logLevel > 0) {
-				log.info("[CustomSpawners] Cannot hook into WorldGuard.");
+		if(config.getBoolean("spawners.ignoreWorldGuard", false)) {
+			if(logLevel > 0) {
+				log.info("[CustomSpawners] Ignoring WorldGuard connection.");
 			}
-
 		} else {
+			// Setup WG
+			worldGuard = getWG();
 
-			if (logLevel > 0) {
-				log.info("[CustomSpawners] Hooked into WorldGuard.");
+			if (worldGuard == null) {
+
+				if (logLevel > 0) {
+					log.info("[CustomSpawners] Cannot hook into WorldGuard.");
+				}
+
+			} else {
+
+				if (logLevel > 0) {
+					log.info("[CustomSpawners] Hooked into WorldGuard.");
+				}
+
 			}
-
 		}
 
 		// Commands
@@ -1184,6 +1190,11 @@ public class CustomSpawners extends JavaPlugin {
 				|| entityType.equalsIgnoreCase("wither_boss")) {
 
 			type = EntityType.WITHER;
+
+		} else if (entityType.equalsIgnoreCase("minecart")
+				|| entityType.equalsIgnoreCase("mine_cart")) {
+
+			type = EntityType.MINECART;
 
 		} else {
 

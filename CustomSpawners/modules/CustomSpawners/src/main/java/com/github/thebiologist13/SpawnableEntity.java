@@ -477,7 +477,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	public ItemStack getItemType() {
 		return (this.data.containsKey("itemType")) ? ((SItemStack) this.data
 				.get("itemType")).toItemStack()
-				: new ItemStack(1, 1, (short) 0);
+				: new ItemStack(0, 1, (short) 0);
 	}
 
 	@Override

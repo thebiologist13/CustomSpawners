@@ -1,11 +1,16 @@
 package com.github.thebiologist13.v1_5_R1;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.server.v1_5_R1.NBTBase;
 import net.minecraft.server.v1_5_R1.NBTTagCompound;
 import net.minecraft.server.v1_5_R1.NBTTagDouble;
+import net.minecraft.server.v1_5_R1.NBTTagInt;
 import net.minecraft.server.v1_5_R1.NBTTagList;
+import net.minecraft.server.v1_5_R1.NBTTagShort;
+import net.minecraft.server.v1_5_R1.NBTTagString;
 import net.minecraft.server.v1_5_R1.TileEntity;
 import net.minecraft.server.v1_5_R1.TileEntityMobSpawner;
 
@@ -59,116 +64,84 @@ public class Converter implements IConverter {
 	public <T extends Entity> NBTTagCompound getEntityNBT(T entity) {
 		NBTTagCompound compound = new NBTTagCompound();
 		
+		if(!(entity instanceof Entity))
+			return null;
+		
 		net.minecraft.server.v1_5_R1.Entity nms = ((CraftEntity) entity).getHandle();
 
-		Class<? extends Object> clazz = nms.getClass();
-		Method[] methods = clazz.getMethods();
-		for (Method method : methods) {
-			if ((method.getName() == "d")
-					&& (method.getParameterTypes().length == 1)
-					&& (method.getParameterTypes()[0] == NBTTagCompound.class)) {
-				try {
-					method.setAccessible(true);
-					method.invoke(nms, compound);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		EntityType type = entity.getType();
-		String id = type.getName();
-
-		if (id == null || id.isEmpty()) {
-			switch (type) {
-			case SPLASH_POTION:
-				id = "ThrownPotion";
-				break;
-			case EGG:
-				id = "Egg";
-				break;
-			default:
-				return null;
-			}
-		}
-
-		compound.setString("id", id);
+		nms.c(compound);
 		
 		return compound;
 	}
 
-	public NBTTagCompound getSpawnerNBT(ISpawner s) {
-		NBTTagCompound sData = new NBTTagCompound(); // Spawner NBT
-		NBTTagCompound eData = new NBTTagCompound(); // Entity NBT
-		ISpawnableEntity mainEntity = s.getMainEntity(); // The primary entity of the spawner.
+	public NBTBase[] getPropertyArray(ISpawner spawner) {
+		List<NBTBase> props = new ArrayList<NBTBase>();
 
+		props.add(new NBTTagString("EntityId", getEntityName(spawner.getMainEntity().getType())));
+		
 		Location spawnLocation = null;
 
 		// TODO This can be changed. Really just needs a single point to spawn to. Should add option to disable.
-		if (s.isUsingSpawnArea()) 
-			spawnLocation = s.getAreaPoints()[0]; 
+		if (spawner.isUsingSpawnArea()) 
+			spawnLocation = spawner.getAreaPoints()[0]; 
 		
 		//Location to spawn to when getting NBT
-		Location pos = (spawnLocation == null) ? s.getLoc() : spawnLocation;
+		Location pos = (spawnLocation == null) ? spawner.getLoc() : spawnLocation;
 		
-		if (s.getTypeData().size() == 1) {
-			Entity e = s.forceSpawnOnLoc(mainEntity, pos);
-			eData = getEntityNBT(e);
+		List<ISpawnableEntity> typeData = spawner.getTypesEntities();
+		NBTTagCompound[] potentials = new NBTTagCompound[typeData.size()];
 
+		for (int i = 0; i < typeData.size(); i++) {
+			NBTTagCompound potentialData = new NBTTagCompound();
+			ISpawnableEntity se = typeData.get(i);
+			Entity e = spawner.forceSpawnOnLoc(se, pos);
+			NBTTagCompound eData = getEntityNBT(e);
+			e.remove();
 			if (eData.isEmpty()) // If empty
 				return null;
 
 			if (eData.hasKey("Pos") && spawnLocation == null)
 				eData.remove("Pos");
 
-			eData.set("Motion", makeDoubleList(new double[] { mainEntity.getXVelocity(),
-					mainEntity.getYVelocity(), mainEntity.getZVelocity() }));
+			eData.set("Motion", makeDoubleList(new double[] { se.getXVelocity(),
+					se.getYVelocity(), se.getZVelocity() }));
 
-			sData.set("SpawnData", eData);
-			e.remove();
-		} else {
-			List<ISpawnableEntity> typeData = s.getTypesEntities();
-			NBTTagCompound[] potentials = new NBTTagCompound[typeData.size()];
-
-			for (int i = 0; i < typeData.size(); i++) {
-				NBTTagCompound potentialData = new NBTTagCompound();
-				ISpawnableEntity se = typeData.get(i);
-				Entity e = s.forceSpawnOnLoc(se, pos);
-				NBTTagCompound eData0 = getEntityNBT(e);
-				if (eData0.isEmpty()) // If empty
-					return null;
-
-				if (eData0.hasKey("Pos") && spawnLocation == null)
-					eData0.remove("Pos");
-
-				eData0.set("Motion", makeDoubleList(new double[] { se.getXVelocity(),
-						se.getYVelocity(), se.getZVelocity() }));
-
-				potentialData.setCompound("Properties", eData0);
-				potentialData.setInt("Weight", 0);
-				potentialData.setString("Type", eData0.getString("id"));
-				potentials[i] = potentialData;
-
-				e.remove();
-			}
-
-			sData.set("SpawnPotentials", makeCompoundList(potentials));
+			potentialData.setCompound("Properties", eData);
+			potentialData.setInt("Weight", 1);
+			potentialData.setString("Type", getEntityName(e.getType()));
+			potentials[i] = potentialData;
 		}
+
+		NBTTagList potentialNBTList = new NBTTagList("SpawnPotentials");
+		for(NBTTagCompound comp : potentials) {
+			potentialNBTList.add(comp);
+		}
+		props.add(potentialNBTList);
 
 		// Spawner Data
 
-		sData.setString("id", "MobSpawner");
-		sData.setInt("x", s.getLoc().getBlockX());
-		sData.setInt("y", s.getLoc().getBlockY());
-		sData.setInt("z", s.getLoc().getBlockZ());
-		sData.setString("EntityId", eData.getString("id"));
-		sData.setShort("SpawnCount", (short) s.getMobsPerSpawn());
-		sData.setShort("SpawnRange", (short) s.getRadius());
-		sData.setShort("Delay", (short) s.getRate());
-		sData.setShort("MinSpawnDelay", (short) s.getRate());
-		sData.setShort("MaxSpawnDelay", (short) (s.getRate() + 1));
-		sData.setShort("MaxNearbyEntities", (short) s.getMaxMobs());
-		sData.setShort("RequiredPlayerRange", (short) s.getMaxPlayerDistance());
+		props.add(new NBTTagString("id", "MobSpawner"));
+		props.add(new NBTTagInt("x", spawner.getLoc().getBlockX()));
+		props.add(new NBTTagInt("y", spawner.getLoc().getBlockY()));
+		props.add(new NBTTagInt("z", spawner.getLoc().getBlockZ()));
+		props.add(new NBTTagShort("SpawnCount", (short) spawner.getMobsPerSpawn()));
+		props.add(new NBTTagShort("SpawnRange", (short) spawner.getRadius()));
+		props.add(new NBTTagShort("Delay", (short) spawner.getRate()));
+		props.add(new NBTTagShort("MinSpawnDelay", (short) spawner.getRate()));
+		props.add(new NBTTagShort("MaxSpawnDelay", (short) (spawner.getRate() + 1)));
+		props.add(new NBTTagShort("MaxNearbyEntities", (short) spawner.getMaxMobs()));
+		props.add(new NBTTagShort("RequiredPlayerRange", (short) spawner.getMaxPlayerDistance()));
+		
+		return props.toArray(new NBTBase[props.size()]);
+	}
+
+	public NBTTagCompound getSpawnerNBT(ISpawner s) {
+		NBTTagCompound sData = new NBTTagCompound();
+		
+		NBTBase[] dataArray = getPropertyArray(s);
+		for(NBTBase base : dataArray) {
+			sData.set(base.getName(), base);
+		}
 		
 		return sData;
 	}
@@ -182,7 +155,7 @@ public class Converter implements IConverter {
 
 		return false;
 	}
-
+	
 	public void setEntityNBT(Entity e, NBTTagCompound n) {
 		net.minecraft.server.v1_5_R1.Entity nms = ((CraftEntity) e).getHandle();
 		Class<?> entityClass = nms.getClass();
@@ -198,18 +171,25 @@ public class Converter implements IConverter {
 					ex.printStackTrace();
 				}
 			}
-		}
-
+		}	
 	}
 	
-	private NBTTagList makeCompoundList(NBTTagCompound[] m0) {
-		NBTTagList list = new NBTTagList();
-		
-		for (int j = 0; j < m0.length; j++) {
-			list.add(m0[j]);
-		}
+	private String getEntityName(EntityType type) {
+		String id = type.getName();
 
-		return list;
+		if (id == null || id.isEmpty()) {
+			switch (type) {
+			case SPLASH_POTION:
+				id = "ThrownPotion";
+				break;
+			case EGG:
+				id = "Egg";
+				break;
+			default:
+				return null;
+			}
+		}
+		return id;
 	}
 	
 	private NBTTagList makeDoubleList(double[] d0) {

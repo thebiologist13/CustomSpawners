@@ -7,6 +7,7 @@ import net.minecraft.server.v1_5_R1.AxisAlignedBB;
 import net.minecraft.server.v1_5_R1.EntityEnderPearl;
 import net.minecraft.server.v1_5_R1.EntityLiving;
 import net.minecraft.server.v1_5_R1.EntityPotion;
+import net.minecraft.server.v1_5_R1.NBTBase;
 import net.minecraft.server.v1_5_R1.NBTTagCompound;
 import net.minecraft.server.v1_5_R1.NBTTagList;
 
@@ -36,17 +37,22 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Minecart;
+import org.bukkit.entity.minecart.HopperMinecart;
+import org.bukkit.entity.minecart.SpawnerMinecart;
+import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.PoweredMinecart;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.SmallFireball;
 import org.bukkit.entity.Spider;
+import org.bukkit.entity.StorageMinecart;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.WaterMob;
@@ -278,13 +284,7 @@ public class SpawnManager implements ISpawnManager {
 
 			//Eventually add explosive arrows and such :D
 
-			//Not needed because it is already spawned with a shooter.
-			/*if(pro instanceof EnderPearl) {
-				EnderPearl e = (EnderPearl) pro;
-				ArrayList<Player> players = CustomSpawners.getNearbyPlayers(e.getLocation(), spawner.getMaxPlayerDistance() + 1);
-				int index = (int) Math.round(randomGenRange(0, players.size()));
-				e.setShooter(players.get(index));
-			} else */if(pro instanceof Fireball) {
+			if(pro instanceof Fireball) {
 				Fireball f = (Fireball) pro;
 				setExplosiveProps(f, data);
 				f.setVelocity(new Vector(0, 0, 0));
@@ -735,29 +735,61 @@ public class SpawnManager implements ISpawnManager {
 		}
 		
 		if(entity instanceof Minecart) {
+			
 			if(!data.getItemType().getType().equals(Material.AIR)) {
-				nbtComp.setInt("DisplayTile", data.getItemType().getTypeId());
-				nbtComp.setInt("DisplayData", (int) data.getItemType().getDurability());
-				nbtComp.setByte("CustomDisplayTile", (byte) 1);
-				if(data.getSpawnerData() != null) {
-					nbtComp.setInt("DisplayTile", 52);
-					nbtComp.setInt("DisplayData", 0);
-					nbtComp.setCompound("", nbt.getSpawnerNBT((ISpawner) data.getSpawnerData()));
+				int id = data.getItemType().getTypeId();
+				int dur = (int) data.getItemType().getDurability();
+				nbtComp.setInt("DisplayTile", id);
+				nbtComp.setInt("DisplayData", dur);
+				nbtComp.setBoolean("CustomDisplayTile", true);
+			}
+			
+			if(data.getSpawnerData() != null && entity instanceof SpawnerMinecart) {
+				NBTBase[] props = nbt.getPropertyArray(data.getSpawnerData());
+				for(NBTBase base : props) {
+					if(base.getName().equals("id") || base.getName().equals("x") || 
+							base.getName().equals("y") || base.getName().equals("z")) {
+						continue;
+					}
+					nbtComp.set(base.getName(), base);
 				}
 			}
-		} else if(entity instanceof FallingBlock) {
+		} 
+		
+		if(entity instanceof FallingBlock) {
 			if(data.getSpawnerData() != null) {
 				nbtComp.setCompound("TileEntityData", nbt.getSpawnerNBT((ISpawner) data.getSpawnerData()));
 			}
 		}
-
+		
+//		for(Object base : nbtComp.c()) {
+//			if(base instanceof NBTBase) {
+//				NBTBase base0 = (NBTBase) base;
+//				System.out.println("Value: " + base0.getName() + " -> " + base);
+//			}
+//		}
+//		
+//		System.out.println("* * * * * * * * * *");
+		
 		nbt.setEntityNBT(entity, nbtComp);
-
+		
+//		NBTTagCompound newComp = nbt.getEntityNBT(entity);
+//		
+//		for(Object base : newComp.c()) {
+//			if(base instanceof NBTBase) {
+//				NBTBase base0 = (NBTBase) base;
+//				System.out.println("Value: " + base0.getName() + " -> " + base);
+//			}
+//		}
+//		
+//		System.out.println("- - - - - - - - - -");
+		
 	}
 
 	private Entity spawnTheEntity(ISpawnableEntity spawnType, Location spawnLocation) {
 		
-		spawnLocation.setYaw((float) randomRotation()); //TODO Random Rotation?
+		Entity e;
+		spawnLocation.setYaw((float) randomRotation());
 		
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return spawnLocation.getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
@@ -807,11 +839,29 @@ public class SpawnManager implements ISpawnManager {
 			return ent.getBukkitEntity();
 		} else if(spawnType.getType().equals(EntityType.LIGHTNING)) {
 			return spawnLocation.getWorld().strikeLightningEffect(spawnLocation);
+		} else if(spawnType.getType().equals(EntityType.MINECART)) { 
+			//TODO Stuff needs to be added here every time a new cart type is introduced
+			if(spawnType.getItemType().getType().equals(Material.MOB_SPAWNER)) {
+				e = spawnLocation.getWorld().spawn(spawnLocation, SpawnerMinecart.class);
+			} else if(spawnType.getItemType().getType().equals(Material.TNT)) {
+				e = spawnLocation.getWorld().spawn(spawnLocation, ExplosiveMinecart.class);
+			} else if(spawnType.getItemType().getTypeId() == 154) { //TODO Change this once Material includes hoppers
+				e = spawnLocation.getWorld().spawn(spawnLocation, HopperMinecart.class);
+			} else if(spawnType.getItemType().getType().equals(Material.CHEST)) {
+				e = spawnLocation.getWorld().spawn(spawnLocation, StorageMinecart.class);
+			} else if(spawnType.getItemType().getType().equals(Material.FURNACE)) {
+				e = spawnLocation.getWorld().spawn(spawnLocation, PoweredMinecart.class);
+			} else if(spawnType.getItemType().getType().equals(Material.DISPENSER)) {
+				e = spawnLocation.getWorld().spawn(spawnLocation, Minecart.class); //TODO Change when they come out :)
+			} else {
+				e = spawnLocation.getWorld().spawn(spawnLocation, Minecart.class);
+			}
 		} else {
-			Entity e = spawnLocation.getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());;
-			e.teleport(spawnLocation); //For rotation
-			return e;
+			e = spawnLocation.getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());;
 		}
+		
+		e.teleport(spawnLocation); //For rotation
+		return e;
 
 	}
 
