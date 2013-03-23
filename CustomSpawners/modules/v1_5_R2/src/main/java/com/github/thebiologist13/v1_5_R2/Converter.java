@@ -1,24 +1,24 @@
-package com.github.thebiologist13.v1_5_R1;
+package com.github.thebiologist13.v1_5_R2;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.v1_5_R1.NBTBase;
-import net.minecraft.server.v1_5_R1.NBTTagCompound;
-import net.minecraft.server.v1_5_R1.NBTTagDouble;
-import net.minecraft.server.v1_5_R1.NBTTagInt;
-import net.minecraft.server.v1_5_R1.NBTTagList;
-import net.minecraft.server.v1_5_R1.NBTTagShort;
-import net.minecraft.server.v1_5_R1.NBTTagString;
-import net.minecraft.server.v1_5_R1.TileEntity;
-import net.minecraft.server.v1_5_R1.TileEntityMobSpawner;
+import net.minecraft.server.v1_5_R2.NBTBase;
+import net.minecraft.server.v1_5_R2.NBTTagCompound;
+import net.minecraft.server.v1_5_R2.NBTTagDouble;
+import net.minecraft.server.v1_5_R2.NBTTagInt;
+import net.minecraft.server.v1_5_R2.NBTTagList;
+import net.minecraft.server.v1_5_R2.NBTTagShort;
+import net.minecraft.server.v1_5_R2.NBTTagString;
+import net.minecraft.server.v1_5_R2.TileEntity;
+import net.minecraft.server.v1_5_R2.TileEntityMobSpawner;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_5_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_5_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_5_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
@@ -67,7 +67,7 @@ public class Converter implements IConverter {
 		if(!(entity instanceof Entity))
 			return null;
 		
-		net.minecraft.server.v1_5_R1.Entity nms = ((CraftEntity) entity).getHandle();
+		net.minecraft.server.v1_5_R2.Entity nms = ((CraftEntity) entity).getHandle();
 
 		nms.e(compound);
 		
@@ -81,6 +81,7 @@ public class Converter implements IConverter {
 		
 		Location spawnLocation = null;
 
+		//XXX This can be changed. Really just needs a single point to spawn to. Should add option to disable.
 		if (spawner.isUsingSpawnArea()) 
 			spawnLocation = spawner.getAreaPoints()[0]; 
 		
@@ -95,7 +96,24 @@ public class Converter implements IConverter {
 			ISpawnableEntity se = typeData.get(i);
 			Entity e = spawner.forceSpawnOnLoc(se, pos);
 			NBTTagCompound eData = getEntityNBT(e);
+			
+			//The following is related to removing passengers recursively
+			Entity curVehicle = e;
+			Entity curPassenger = e.getPassenger();
+			List<Entity> toRemove = new ArrayList<Entity>();
+			
+			while(curPassenger != null) {
+				toRemove.add(curPassenger);
+				curVehicle = curPassenger;
+				curPassenger = curVehicle.getPassenger();
+			}
+			
+			for(Entity rem : toRemove) {
+				rem.remove();
+			}
+			
 			e.remove();
+			
 			if (eData.isEmpty()) // If empty
 				return null;
 
@@ -156,7 +174,7 @@ public class Converter implements IConverter {
 	}
 	
 	public void setEntityNBT(Entity e, NBTTagCompound n) {
-		net.minecraft.server.v1_5_R1.Entity nms = ((CraftEntity) e).getHandle();
+		net.minecraft.server.v1_5_R2.Entity nms = ((CraftEntity) e).getHandle();
 		Class<?> entityClass = nms.getClass();
 		Method[] methods = entityClass.getMethods();
 		for (Method method : methods) {

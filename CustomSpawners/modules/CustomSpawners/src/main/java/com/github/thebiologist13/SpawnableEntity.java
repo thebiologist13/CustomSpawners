@@ -192,30 +192,13 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		expr = expr.replaceAll("@health", "" + hp);
 		expr = expr.replaceAll("@age", "" + age);
 		expr = expr.replaceAll("@air", "" + air);
-		expr = expr
-				.replaceAll(
-						"@damage",
-						""
-								+ ((this.data.containsKey("damage")) ? (Integer) this.data
-										.get("damage") : 1));
+		expr = expr.replaceAll("@damage", ""+ ((this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 1));
 		expr.replaceAll("@x", "" + x);
 		expr.replaceAll("@y", "" + y);
 		expr.replaceAll("@z", "" + z);
-		expr.replaceAll(
-				"@fire",
-				""
-						+ ((this.data.containsKey("fireTicks")) ? (Integer) this.data
-								.get("fireTicks") : 0));
-		expr.replaceAll(
-				"@fuse",
-				""
-						+ ((this.data.containsKey("fuse")) ? (Integer) this.data
-								.get("fuse") : 0));
-		expr.replaceAll(
-				"@yield",
-				""
-						+ ((this.data.containsKey("yield")) ? (Double) this.data
-								.get("yield") : 4.0f));
+		expr.replaceAll("@fire", "" + ((this.data.containsKey("fireTicks")) ? (Integer) this.data.get("fireTicks") : 0));
+		expr.replaceAll("@fuse", "" + ((this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 0));
+		expr.replaceAll("@yield","" + ((this.data.containsKey("yield")) ? (Double) this.data.get("yield") : 4.0f));
 		expr = expr.replaceAll("@players", ""
 				+ Bukkit.getServer().getOnlinePlayers().length);
 		expr = expr.replaceAll("@nearplayers", ""
@@ -276,6 +259,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		return value;
 	}
 
+	public List<String> getBlacklist() {
+		return blacklist;
+	}
+
 	@Override
 	public String getCatType() {
 		return (this.data.containsKey("catType")) ? (String) this.data
@@ -332,6 +319,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		return whitelist;
 	}
 
+	public Map<String, Object> getData() {
+		return data;
+	}
+
 	@Override
 	public int getDroppedExp() {
 		return (this.data.containsKey("exp")) ? (Integer) this.data.get("exp")
@@ -348,25 +339,6 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		}
 
 		return drops1;
-	}
-
-	@Override
-	public ISpawnableEntity getRider() {
-		return (this.data.containsKey("rider")) ? (SpawnableEntity) this.data
-				.get("rider") : null;
-	}
-
-	public List<SItemStack> getSItemStackDrops() {
-		return drops;
-	}
-
-	@Override
-	public List<ItemStack> getItemStackDrops() {
-		List<ItemStack> list = new ArrayList<ItemStack>();
-		for (SItemStack stack : drops) {
-			list.add(stack.toItemStack());
-		}
-		return list;
 	}
 
 	public List<SPotionEffect> getEffects() {
@@ -395,7 +367,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	@Override
 	public int getFireTicks() {
 		int value = (this.data.containsKey("fireTicks")) ? (Integer) this.data
-				.get("fireTicks") : 0; // TODO Add to wiki
+				.get("fireTicks") : 0;
 		if (hasModifier("fire")) {
 			String expr = getModifier("fire");
 			try {
@@ -410,7 +382,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	@Override
 	public int getFuseTicks() {
 		int value = (this.data.containsKey("fuse")) ? (Integer) this.data
-				.get("fuse") : 80; // TODO Add to wiki
+				.get("fuse") : 80;
 		if (hasModifier("fuse")) {
 			String expr = getModifier("fuse");
 			try {
@@ -461,6 +433,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 				.get("inv") : new SInventory();
 	}
 
+	public List<SItemStack> getItemDamage() {
+		return itemDamage;
+	}
+
 	@Override
 	public List<ItemStack> getItemDamageList() {
 
@@ -471,6 +447,15 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		}
 
 		return damage1;
+	}
+
+	@Override
+	public List<ItemStack> getItemStackDrops() {
+		List<ItemStack> list = new ArrayList<ItemStack>();
+		for (SItemStack stack : drops) {
+			list.add(stack.toItemStack());
+		}
+		return list;
 	}
 
 	@Override
@@ -514,12 +499,6 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 				: "";
 	}
 
-	@Override
-	public Spawner getSpawnerData() {
-		return (this.data.containsKey("spawner")) ? (Spawner) this.data
-				.get("spawner") : null;
-	}
-
 	public SPotionEffect getPotionEffect() {
 		return (this.data.containsKey("potionEffect")) ? (SPotionEffect) this.data
 				.get("potionEffect") : new SPotionEffect(
@@ -544,9 +523,25 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
+	public ISpawnableEntity getRider() {
+		return (this.data.containsKey("rider")) ? (SpawnableEntity) this.data
+				.get("rider") : null;
+	}
+
+	public List<SItemStack> getSItemStackDrops() {
+		return drops;
+	}
+
+	@Override
 	public int getSlimeSize() {
 		return (this.data.containsKey("slimeSize")) ? (Integer) this.data
 				.get("slimeSize") : 1;
+	}
+
+	@Override
+	public Spawner getSpawnerData() {
+		return (this.data.containsKey("spawner")) ? (Spawner) this.data
+				.get("spawner") : null;
 	}
 
 	@Override
@@ -568,6 +563,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		return new Vector(getXVelocity(), getYVelocity(), getZVelocity());
 		// return (this.data.containsKey("velocity")) ? ((SVector)
 		// this.data.get("velocity")).toVector() : new Vector(0, 0, 0);
+	}
+
+	public List<String> getWhitelist() {
+		return whitelist;
 	}
 
 	@Override
@@ -592,7 +591,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public float getYield() { // TODO Add to wiki
+	public float getYield() {
 		double value = (this.data.containsKey("yield")) ? (Double) this.data
 				.get("yield") : 4.0f;
 
@@ -761,6 +760,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		this.data.put("angry", angry);
 	}
 
+	public void setBlacklist(List<String> blacklist) {
+		this.blacklist = blacklist;
+	}
+
 	@Override
 	public void setBlockBelow(boolean value) {
 		this.data.put("blockBelow", value);
@@ -827,8 +830,8 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		this.drops = drops1;
 	}
 
-	public void setSItemStackDrops(List<SItemStack> drops2) {
-		this.drops = drops2;
+	public void setDropsSItemStack(List<SItemStack> drops) {
+		this.drops = drops;
 	}
 
 	public void setEffects(List<SPotionEffect> effects) {
@@ -867,6 +870,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	public void setInvulnerable(boolean invulnerable) {
 		this.data.put("invul", invulnerable);
+	}
+
+	public void setItemDamage(List<SItemStack> itemDamage) {
+		this.itemDamage = itemDamage;
 	}
 
 	public void setItemDamageList(List<ItemStack> list) {
@@ -939,6 +946,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		this.data.put("showname", show);
 	}
 
+	public void setSItemStackDrops(List<SItemStack> drops2) {
+		this.drops = drops2;
+	}
+
 	public void setSitting(boolean isSitting) {
 		this.data.put("sit", isSitting);
 	}
@@ -990,6 +1001,10 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		setXVelocity(velocity.getX());
 		setYVelocity(velocity.getY());
 		setZVelocity(velocity.getZ());
+	}
+
+	public void setWhitelist(List<String> whitelist) {
+		this.whitelist = whitelist;
 	}
 
 	@Override

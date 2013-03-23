@@ -756,7 +756,7 @@ public class SpawnManager implements ISpawnManager {
 
 	private Entity spawnTheEntity(ISpawnableEntity spawnType, Location spawnLocation) {
 		
-		spawnLocation.setYaw((float) randomRotation()); //TODO Random Rotation?
+		spawnLocation.setYaw((float) randomRotation());
 		
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return spawnLocation.getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());

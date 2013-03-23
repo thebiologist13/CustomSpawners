@@ -3,7 +3,7 @@ package com.github.thebiologist13.listeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.Spawner;
@@ -11,23 +11,25 @@ import com.github.thebiologist13.Spawner;
 public class SpawnerPowerEvent implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onSpawnerPower(BlockPhysicsEvent ev) {
+	public void onSpawnerPower(BlockRedstoneEvent ev) {
 		
 		Spawner spawner = CustomSpawners.getSpawnerAt(ev.getBlock().getLocation());
 		
 		if(spawner != null) {
 			
-			boolean hasPower = spawner.getBlock().isBlockPowered();
+			boolean hasPower = ev.getOldCurrent() < ev.getNewCurrent();
 		
 			if(spawner.isSpawnOnRedstone()) {
+				
 				if(hasPower && !spawner.isPoweredBefore()) {
-					spawner.spawn();
 					spawner.setPoweredBefore(true);
+					spawner.spawn();
 				}
 				
 				if(!hasPower && spawner.isPoweredBefore()) {
 					spawner.setPoweredBefore(false);
 				}
+				
 			}
 			
 		}

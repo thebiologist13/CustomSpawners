@@ -59,8 +59,8 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand wither = new EntityWitherCommand(plugin, "customspawners.entities.setwither");
 		EntityCommand villager = new EntityVillagerCommand(plugin, "customspawners.entities.setvillager");
 		EntityCommand modify = new EntityModifierCommand(plugin, "customspawners.entities.modifiers");
-		EntityCommand rider = new EntityRiderCommand(plugin, "customspawners.entities.rider"); //TODO Add to wiki
-		EntityCommand minecart = new EntityCartSpeedCommand(plugin, "customspawners.entities.minecartspeed"); //TODO Add to wiki
+		EntityCommand rider = new EntityRiderCommand(plugin, "customspawners.entities.rider");
+		EntityCommand minecart = new EntityCartSpeedCommand(plugin, "customspawners.entities.minecartspeed");
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);

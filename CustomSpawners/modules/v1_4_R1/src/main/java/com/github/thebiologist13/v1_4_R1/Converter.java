@@ -103,8 +103,7 @@ public class Converter implements IConverter {
 		ISpawnableEntity mainEntity = s.getMainEntity(); // The primary entity of the spawner.
 
 		Location spawnLocation = null;
-
-		// TODO This can be changed. Really just needs a single point to spawn to. Should add option to disable.
+		
 		if (s.isUsingSpawnArea()) 
 			spawnLocation = s.getAreaPoints()[0]; 
 		

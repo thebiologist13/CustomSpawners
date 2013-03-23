@@ -43,7 +43,7 @@ public class EntityInventoryCommand extends EntityCommand {
 			
 			Player p = (Player) sender;
 			
-			stack = p.getItemInHand().clone();
+			stack = p.getItemInHand();
 			
 		} else {
 			if(!CustomSpawners.isInteger(count)) {

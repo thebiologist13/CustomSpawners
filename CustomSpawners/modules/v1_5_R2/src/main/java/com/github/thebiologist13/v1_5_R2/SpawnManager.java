@@ -1,21 +1,21 @@
-package com.github.thebiologist13.v1_5_R1;
+package com.github.thebiologist13.v1_5_R2;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.v1_5_R1.AxisAlignedBB;
-import net.minecraft.server.v1_5_R1.EntityEnderPearl;
-import net.minecraft.server.v1_5_R1.EntityFallingBlock;
-import net.minecraft.server.v1_5_R1.EntityLiving;
-import net.minecraft.server.v1_5_R1.EntityMinecartAbstract;
-import net.minecraft.server.v1_5_R1.EntityMinecartMobSpawner;
-import net.minecraft.server.v1_5_R1.EntityPotion;
-import net.minecraft.server.v1_5_R1.MobSpawnerAbstract;
-import net.minecraft.server.v1_5_R1.NBTBase;
-import net.minecraft.server.v1_5_R1.NBTTagCompound;
-import net.minecraft.server.v1_5_R1.NBTTagList;
+import net.minecraft.server.v1_5_R2.AxisAlignedBB;
+import net.minecraft.server.v1_5_R2.EntityEnderPearl;
+import net.minecraft.server.v1_5_R2.EntityFallingBlock;
+import net.minecraft.server.v1_5_R2.EntityLiving;
+import net.minecraft.server.v1_5_R2.EntityMinecartAbstract;
+import net.minecraft.server.v1_5_R2.EntityMinecartMobSpawner;
+import net.minecraft.server.v1_5_R2.EntityPotion;
+import net.minecraft.server.v1_5_R2.MobSpawnerAbstract;
+import net.minecraft.server.v1_5_R2.NBTBase;
+import net.minecraft.server.v1_5_R2.NBTTagCompound;
+import net.minecraft.server.v1_5_R2.NBTTagList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -23,11 +23,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_5_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_5_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_5_R1.entity.CraftFallingSand;
-import org.bukkit.craftbukkit.v1_5_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_5_R1.entity.CraftMinecart;
+import org.bukkit.craftbukkit.v1_5_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftFallingSand;
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftMinecart;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Creeper;
@@ -81,7 +81,7 @@ import com.github.thebiologist13.api.ISItemStack;
 import com.github.thebiologist13.api.ISpawnManager;
 import com.github.thebiologist13.api.ISpawnableEntity;
 import com.github.thebiologist13.api.ISpawner;
-import com.github.thebiologist13.v1_5_R1.Converter;
+import com.github.thebiologist13.v1_5_R2.Converter;
 
 public class SpawnManager implements ISpawnManager {
 
@@ -134,16 +134,7 @@ public class SpawnManager implements ISpawnManager {
 		Entity rider = spawnMobAt(riderData, vehicleLoc);
 		vehicle.setPassenger(rider);
 		spawner.addSecondaryMob(rider.getUniqueId(), rider.getUniqueId());
-		
-		//XXX Added for 1.5.1
-//		Converter nbt = new Converter();
-//		NBTTagCompound ridingThis = nbt.getEntityNBT(vehicle);
-//		NBTTagCompound theRider = nbt.getEntityNBT(rider);
-//		theRider.set("Riding", ridingThis);
-//		theRider.set("Pos", ridingThis.get("Pos"));
-//		nbt.setEntityNBT(rider, theRider);
-		
-		return rider;
+		return rider; //FIXME Rider data!
 	}
 
 	private boolean areaEmpty(Location loc, boolean spawnInWater, float height, float width, float length) {
@@ -170,13 +161,14 @@ public class SpawnManager implements ISpawnManager {
 	@SuppressWarnings("deprecation")
 	private void assignMobProps(Entity baseEntity, ISpawnableEntity data) {
 
-		baseEntity.setVelocity(data.getVelocity().clone());
-		baseEntity.setFireTicks(data.getFireTicks());
-		setNBT(baseEntity, data);
-
+		//This needs to be before everything else!
 		if(data.getRider() != null) {
 			addRider(baseEntity, data.getRider());
 		}
+		
+		baseEntity.setVelocity(data.getVelocity().clone());
+		baseEntity.setFireTicks(data.getFireTicks());
+		setNBT(baseEntity, data);
 		
 		if(baseEntity instanceof LivingEntity) {
 			LivingEntity entity = (LivingEntity) baseEntity;
@@ -513,7 +505,7 @@ public class SpawnManager implements ISpawnManager {
 	}
 	
 	public boolean isSolidBlock(Block block){
-        return block.getTypeId() != 0 && net.minecraft.server.v1_5_R1.Block.byId[block.getTypeId()].material.isSolid();
+        return block.getTypeId() != 0 && net.minecraft.server.v1_5_R2.Block.byId[block.getTypeId()].material.isSolid();
     }
 	
 	private void mainSpawn(ISpawnableEntity spawnType, boolean ignoreLight) {
@@ -540,7 +532,7 @@ public class SpawnManager implements ISpawnManager {
 
 				e = spawnTheEntity(spawnType, spawnLocation);
 
-				net.minecraft.server.v1_5_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_5_R2.Entity nmEntity = ((CraftEntity) e).getHandle();
 
 				AxisAlignedBB bb = nmEntity.boundingBox;
 
@@ -555,7 +547,7 @@ public class SpawnManager implements ISpawnManager {
 
 				e = spawnTheEntity(spawnType, spLoc);
 
-				net.minecraft.server.v1_5_R1.Entity nmEntity = ((CraftEntity) e).getHandle();
+				net.minecraft.server.v1_5_R2.Entity nmEntity = ((CraftEntity) e).getHandle();
 
 				spawnType.setHeight(nmEntity.height);
 				spawnType.setWidth(nmEntity.width);
@@ -698,8 +690,8 @@ public class SpawnManager implements ISpawnManager {
 		if(ee == null) {
 			return;
 		}
-
-		if(data.isEmpty()) {
+		
+		if(!data.hasHand()) {
 			switch(entity.getType()) {
 			case SKELETON:
 				Skeleton sk = ((Skeleton) entity);
@@ -731,6 +723,7 @@ public class SpawnManager implements ISpawnManager {
 	}
 
 	//Sets unimplemented data
+	//FIXME Why does this spawn mobs at beginning?
 	private void setNBT(Entity entity, ISpawnableEntity data) {
 		Converter nbt = new Converter();
 		NBTTagCompound nbtComp = nbt.getEntityNBT(entity);
@@ -755,11 +748,7 @@ public class SpawnManager implements ISpawnManager {
 			
 			EntityMinecartAbstract abs = ((CraftMinecart) entity).getHandle();
 			
-			if(data.showCustomName()) {
-				abs.a(data.getName()); //Sets the name. Not even sure if it matters though...
-			}
-			
-			if(!data.getItemType().getType().equals(Material.AIR)) {
+			if(!data.getItemType().getType().equals(Material.AIR)) { //XX They float because minecraft is a weaboo
 				int id = data.getItemType().getTypeId();
 				int dur = (int) data.getItemType().getDurability();
 				abs.a(true); //Show tile
@@ -837,8 +826,8 @@ public class SpawnManager implements ISpawnManager {
 			Potion p = new Potion(type);
 			int data = p.toDamageValue();
 
-			net.minecraft.server.v1_5_R1.World nmsWorld = ((CraftWorld) world).getHandle();
-			EntityPotion ent = new EntityPotion(nmsWorld, spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), new net.minecraft.server.v1_5_R1.ItemStack(373, 1, data));
+			net.minecraft.server.v1_5_R2.World nmsWorld = ((CraftWorld) world).getHandle();
+			EntityPotion ent = new EntityPotion(nmsWorld, spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), new net.minecraft.server.v1_5_R2.ItemStack(373, 1, data));
 			NBTTagCompound nbt = new NBTTagCompound();
 
 			ent.b(nbt); //Gets all the normal tags
@@ -867,7 +856,7 @@ public class SpawnManager implements ISpawnManager {
 					((CraftLivingEntity) getNearbyPlayers(spawnLocation, 
 							spawner.getMaxPlayerDistance() + 1).get(0)).getHandle();
 
-			net.minecraft.server.v1_5_R1.World nmsWorld = ((CraftWorld) world).getHandle();
+			net.minecraft.server.v1_5_R2.World nmsWorld = ((CraftWorld) world).getHandle();
 			EntityEnderPearl ent = new EntityEnderPearl(nmsWorld, nearPlayer);
 			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
 			nmsWorld.addEntity(ent);
@@ -875,6 +864,7 @@ public class SpawnManager implements ISpawnManager {
 		} else if(spawnType.getType().equals(EntityType.LIGHTNING)) {
 			return spawnLocation.getWorld().strikeLightningEffect(spawnLocation);
 		} else if(spawnType.getType().equals(EntityType.MINECART)) { 
+			//XXX Keep an eye on here for new minecart stuff.
 			if(spawnType.getItemType().getType().equals(Material.MOB_SPAWNER)) {
 				e = spawnLocation.getWorld().spawn(spawnLocation, SpawnerMinecart.class);
 			} else if(spawnType.getItemType().getType().equals(Material.TNT)) {

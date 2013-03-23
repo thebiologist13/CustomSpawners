@@ -2,7 +2,6 @@ package com.github.thebiologist13.commands.entities;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
@@ -25,7 +24,7 @@ public class EntityCreateCommand extends EntityCommand {
 		
 		String in = getValue(args, 0, "pig");
 		
-		SpawnableEntity newEntity = new SpawnableEntity(EntityType.PIG, PLUGIN.getNextEntityId());
+		SpawnableEntity newEntity = null;
 		
 		boolean hasOverride = true;
 		
@@ -34,7 +33,7 @@ public class EntityCreateCommand extends EntityCommand {
 		}
 		
 		try {
-			PLUGIN.parseEntityType(in, newEntity, hasOverride);
+			newEntity = PLUGIN.createEntity(in, hasOverride);
 		} catch(IllegalArgumentException e) {
 			
 			if(e.getMessage() == null) {
@@ -49,6 +48,11 @@ public class EntityCreateCommand extends EntityCommand {
 				PLUGIN.sendMessage(sender, NOT_ALLOWED_ENTITY);
 				return;
 			}
+		}
+		
+		if(newEntity == null) {
+			PLUGIN.sendMessage(sender, NONEXISTANT_ENTITY);
+			return;
 		}
 		
 		CustomSpawners.entities.put(newEntity.getId(), newEntity);

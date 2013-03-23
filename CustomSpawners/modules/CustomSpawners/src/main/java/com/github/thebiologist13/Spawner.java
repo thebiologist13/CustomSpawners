@@ -471,7 +471,7 @@ public class Spawner implements Serializable, ISpawner {
 		if(typeData.size() == 0) {
 			typeData.add(CustomSpawners.defaultEntity.getId());
 		}
-		
+
 	}
 
 	@Override

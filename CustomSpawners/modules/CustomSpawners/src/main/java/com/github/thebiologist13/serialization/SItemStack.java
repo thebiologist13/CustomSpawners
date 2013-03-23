@@ -5,11 +5,28 @@ import java.util.Map;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.FireworkEffectMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import com.github.thebiologist13.api.ICardboardEnchantment;
 import com.github.thebiologist13.api.ISItemMeta;
 import com.github.thebiologist13.api.ISItemStack;
+import com.github.thebiologist13.serialization.meta.SArmorMeta;
+import com.github.thebiologist13.serialization.meta.SBookMeta;
+import com.github.thebiologist13.serialization.meta.SEnchantmentMeta;
+import com.github.thebiologist13.serialization.meta.SFireworkEffectMeta;
+import com.github.thebiologist13.serialization.meta.SFireworkMeta;
+import com.github.thebiologist13.serialization.meta.SItemMeta;
+import com.github.thebiologist13.serialization.meta.SMapMeta;
+import com.github.thebiologist13.serialization.meta.SPotionMeta;
+import com.github.thebiologist13.serialization.meta.SSkullMeta;
 
 public class SItemStack implements Serializable, ISItemStack {
 
@@ -42,7 +59,35 @@ public class SItemStack implements Serializable, ISItemStack {
 		this.id = newStack.getTypeId();
 		this.data = newStack.getDurability();
 		this.count = newStack.getAmount();
-		this.meta = new SItemMeta(i);
+		this.meta = generateSItemMeta(i);
+	}
+	
+	public SItemMeta generateSItemMeta(ItemStack stack) {
+		if(!stack.hasItemMeta()) 
+			return null;
+		
+		ItemMeta meta = stack.getItemMeta();
+		
+		if(meta instanceof LeatherArmorMeta) {
+			return new SArmorMeta(stack);
+		} else if(meta instanceof BookMeta) {
+			return new SBookMeta(stack);
+		} else if(meta instanceof EnchantmentStorageMeta) {
+			return new SEnchantmentMeta(stack);
+		} else if(meta instanceof FireworkEffectMeta) {
+			return new SFireworkEffectMeta(stack);
+		} else if(meta instanceof FireworkMeta) {
+			return new SFireworkMeta(stack);
+		} else if(meta instanceof MapMeta) {
+			return new SMapMeta(stack);
+		} else if(meta instanceof PotionMeta) {
+			return new SPotionMeta(stack);
+		} else if(meta instanceof SkullMeta) {
+			return new SSkullMeta(stack);
+		} else {
+			return new SItemMeta(stack);
+		}
+		
 	}
 
 	@Override
@@ -109,7 +154,35 @@ public class SItemStack implements Serializable, ISItemStack {
 				Enchantment e = ce.unbox();
 				meta.addEnchant(e, metaEnchants.get(ce), true);
 			}
-
+			
+			if(this.meta instanceof SArmorMeta && meta instanceof LeatherArmorMeta) {
+				SArmorMeta meta0 = (SArmorMeta) this.meta;
+				LeatherArmorMeta meta1 = (LeatherArmorMeta) meta;
+				
+				
+			} else if(this.meta instanceof SBookMeta && meta instanceof BookMeta) {
+				SBookMeta meta0 = (SBookMeta) this.meta;
+				BookMeta meta1 = (BookMeta) meta;
+			} else if(this.meta instanceof SEnchantmentMeta && meta instanceof EnchantmentStorageMeta) {
+				SEnchantmentMeta meta0 = (SEnchantmentMeta) this.meta;
+				EnchantmentStorageMeta meta1 = (EnchantmentStorageMeta) meta;
+			} else if(this.meta instanceof SFireworkEffectMeta && meta instanceof FireworkEffectMeta) {
+				SFireworkEffectMeta meta0 = (SFireworkEffectMeta) this.meta;
+				FireworkEffectMeta meta1 = (FireworkEffectMeta) meta;
+			} else if(this.meta instanceof SFireworkMeta && meta instanceof FireworkMeta) {
+				SFireworkMeta meta0 = (SFireworkMeta) this.meta;
+				FireworkMeta meta1 = (FireworkMeta) meta;
+			} else if(this.meta instanceof SMapMeta && meta instanceof MapMeta) {
+				SMapMeta meta0 = (SMapMeta) this.meta;
+				MapMeta meta1 = (MapMeta) meta;
+			} else if(this.meta instanceof SPotionMeta && meta instanceof PotionMeta) {
+				SPotionMeta meta0 = (SPotionMeta) this.meta;
+				PotionMeta meta1 = (PotionMeta) meta;
+			} else if(this.meta instanceof SSkullMeta && meta instanceof SkullMeta) {
+				SSkullMeta meta0 = (SSkullMeta) this.meta;
+				SkullMeta meta1 = (SkullMeta) meta;
+			}
+			
 			stack.setItemMeta(meta);
 		}
 

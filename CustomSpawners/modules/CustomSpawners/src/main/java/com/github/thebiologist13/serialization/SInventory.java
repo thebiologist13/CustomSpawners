@@ -19,7 +19,7 @@ public class SInventory implements Serializable, ISInventory {
 	private static final long serialVersionUID = 7492076966612850960L;
 	private SItemStack[] armor = new SItemStack[4];
 	private HashMap<Integer, SItemStack> content;
-	private SItemStack hand = new SItemStack(0);
+	private SItemStack hand;
 
 	public SInventory() {
 		this.content = new HashMap<Integer, SItemStack>();
@@ -71,7 +71,7 @@ public class SInventory implements Serializable, ISInventory {
 	public void empty() {
 		content = new HashMap<Integer, SItemStack>();
 		armor = new SItemStack[4];
-		hand = new SItemStack(0);
+		hand = null;
 	}
 
 	@Override
@@ -101,13 +101,16 @@ public class SInventory implements Serializable, ISInventory {
 
 	@Override
 	public ItemStack getHand() {
-		return hand.toItemStack();
+		if(hasHand())
+			return hand.toItemStack();
+		else
+			return new ItemStack(0);
 	}
 
 	@Override
 	public ArrayList<ItemStack> getMainInventory() {
 		ArrayList<ItemStack> array = new ArrayList<ItemStack>();
-		array.add(0, hand.toItemStack());
+		array.add(0, (hasHand()) ? hand.toItemStack() : new ItemStack(0));
 		array.add(1, armor[0].toItemStack());
 		array.add(2, armor[1].toItemStack());
 		array.add(3, armor[2].toItemStack());
@@ -118,7 +121,7 @@ public class SInventory implements Serializable, ISInventory {
 	@Override
 	public ArrayList<ISItemStack> getMainInventoryISItemStacks() {
 		ArrayList<ISItemStack> array = new ArrayList<ISItemStack>();
-		array.add(0, hand);
+		array.add(0, (hasHand()) ? hand : new SItemStack(0));
 		array.add(1, armor[0]);
 		array.add(2, armor[1]);
 		array.add(3, armor[2]);
@@ -147,6 +150,11 @@ public class SInventory implements Serializable, ISInventory {
 
 		return slots;
 
+	}
+	
+	@Override
+	public boolean hasHand() {
+		return hand != null;
 	}
 
 	@Override
@@ -230,4 +238,9 @@ public class SInventory implements Serializable, ISInventory {
 		armor[1] = new SItemStack(leg);
 	}
 
+	private SItemStack generateSItemMeta(ItemStack stack) {
+		SItemStack stack0 = new SItemStack(stack);
+		
+	}
+	
 }

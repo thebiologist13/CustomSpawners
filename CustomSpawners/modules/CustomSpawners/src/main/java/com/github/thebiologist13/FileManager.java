@@ -181,6 +181,14 @@ public class FileManager {
 				continue;
 			}
 
+			if(e.getId() == CustomSpawners.defaultEntity.getId())
+				continue;
+			
+			if(CustomSpawners.entities.containsKey(e.getId())) {
+				PLUGIN.cloneWithNewId(e);
+				continue;
+			}
+			
 			CustomSpawners.entities.put(e.getId(), e);
 
 		}
@@ -304,6 +312,10 @@ public class FileManager {
 				continue;
 			}
 
+			if(CustomSpawners.spawners.containsKey(s.getId())) {
+				PLUGIN.cloneWithNewId(s);
+			}
+			
 			CustomSpawners.spawners.put(s.getId(), s);
 
 		}
@@ -412,8 +424,13 @@ public class FileManager {
 			write("Time of Error: " + c.get(Calendar.HOUR_OF_DAY) + ":" + 
 					minute + ":" + c.get(Calendar.SECOND), out);
 			write("", out);
+			write("I wish I had something funny to say here, but I don't, so, potato. :P", out);
+			write("", out);
 			write("Please report this error to thebiologist13 via a PM on BukkitDev or an email (thebiologist13@gmail.com).", out);
 			write("* * * * * SEND THE CONTENTS OF THIS WHOLE FILE * * * * *", out);
+			write("", out);
+			write("* * * Java Info * * *", out);
+			write("Java Verison: " + System.getProperty("java.version", "Unknown"), out);
 			write("", out);
 			write("* * * Server Info * * *", out);
 			write("", out);
@@ -459,6 +476,9 @@ public class FileManager {
 		while(entityItr.hasNext()) {
 			SpawnableEntity e = entityItr.next();
 
+			if(e.getId() == CustomSpawners.defaultEntity.getId())
+				continue;
+			
 			String path = ENTITY_PATH + ch + String.valueOf(e.getId()) + ".dat";
 
 			if(LOG_LEVEL > 1)

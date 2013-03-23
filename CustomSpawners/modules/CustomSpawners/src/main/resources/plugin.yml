@@ -7,19 +7,19 @@ softdepend: [WorldEdit, WorldGuard]
 commands:
     customspawners:
         description: The main command of CustomSpawners. Other commands branch off this one.
-        usage: This command is used by /customspawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
+        usage: This command is used by /customspawners [subcommand] [arguments...] Refer to CustomSpawners' BukkitDev for more usage help.
         aliases: [cs, csplugin]
         permission: customspawners.customspawners
         permission-message: You do not have permission to use the customspawners command.
     spawners:
         description: This command executes spawner-related functions.
-        usage: This command is used by /spawners [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
+        usage: This command is used by /spawners [subcommand] [arguments...] Refer to CustomSpawners' BukkitDev for more usage help.
         aliases: [css, csspawners]
         permission: customspawners.spawners
         permission-message: You do not have permission to use the spawners command.
     entities:
         description: This command executes entity-related functions.
-        usage: This command is used by /entities [subcommand] [arguments...] Refer to CustomSpawner's BukkitDev for more usage help.
+        usage: This command is used by /entities [subcommand] [arguments...] Refer to CustomSpawners' BukkitDev for more usage help.
         aliases: [cse, csentities]
         permission: customspawners.entities
         permission-message: You do not have permission to use the entities command.

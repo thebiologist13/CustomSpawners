@@ -25,9 +25,6 @@ public class EntityRemoveCommand extends EntityCommand {
 		
 		int id = entity.getId();
 		
-		PLUGIN.removeEntity(entity);
-		PLUGIN.getFileManager().removeDataFile(id, false);
-		
 		Iterator<Spawner> spawnerItr = CustomSpawners.spawners.values().iterator();
 		while(spawnerItr.hasNext()) {
 			Spawner s = spawnerItr.next();
@@ -40,6 +37,9 @@ public class EntityRemoveCommand extends EntityCommand {
 				PLUGIN.sendMessage(sender, ChatColor.GOLD + "The spawner " + PLUGIN.getFriendlyName(s) + " has been set to the default entity due to removal.");
 			}
 		}
+		
+		PLUGIN.removeEntity(entity);
+		PLUGIN.getFileManager().removeDataFile(id, false);
 		
 		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Entity " + ChatColor.GOLD + id + ChatColor.GREEN + " has been removed from the server.");
 		

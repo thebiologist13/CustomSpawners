@@ -30,6 +30,8 @@ public interface ISInventory {
 
 	public ArrayList<Integer> getSlots(ItemStack item);
 	
+	public boolean hasHand();
+	
 	public boolean hasItem(ItemStack item);
 	
 	public boolean hasSlot(int slot);
