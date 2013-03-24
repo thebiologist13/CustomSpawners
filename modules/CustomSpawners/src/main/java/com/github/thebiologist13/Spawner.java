@@ -457,6 +457,14 @@ public class Spawner implements Serializable, ISpawner {
 		if(mobs.containsKey(mobId))
 			mobs.remove(mobId);
 	}
+	
+	public void removeNulls() {
+		for(String s : data.keySet()) {
+			if(data.get(s) == null) {
+				data.remove(s);
+			}
+		}
+	}
 
 	public void removeSecondaryMob(UUID secId) {
 		secondaryMobs.remove(secId);

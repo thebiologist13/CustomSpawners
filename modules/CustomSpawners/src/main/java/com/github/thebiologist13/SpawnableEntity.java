@@ -524,8 +524,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	@Override
 	public ISpawnableEntity getRider() {
-		return (this.data.containsKey("rider")) ? (SpawnableEntity) this.data
-				.get("rider") : null;
+		return (this.data.containsKey("rider")) ? (SpawnableEntity) this.data.get("rider") : null;
 	}
 
 	public List<SItemStack> getSItemStackDrops() {
@@ -742,6 +741,14 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		this.data.put("id", -1);
 	}
 
+	public void removeNulls() {
+		for(String s : data.keySet()) {
+			if(data.get(s) == null) {
+				data.remove(s);
+			}
+		}
+	}
+	
 	@Override
 	public boolean requiresBlockBelow() {
 		return (this.data.containsKey("blockBelow")) ? (Boolean) this.data

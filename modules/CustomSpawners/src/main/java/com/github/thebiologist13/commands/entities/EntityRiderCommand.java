@@ -20,6 +20,13 @@ public class EntityRiderCommand extends EntityCommand {
 		
 		String in = getValue(args, 0, "");
 		
+		if(in.equalsIgnoreCase("none") ||
+				in.equals("")) {
+			entity.setRider(null);
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "rider", "none"));
+			return;
+		}
+		
 		SpawnableEntity rider = CustomSpawners.getEntity(in);
 		
 		if(rider == null) {
@@ -29,7 +36,7 @@ public class EntityRiderCommand extends EntityCommand {
 		
 		entity.setRider(rider);
 		
-		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "rider", in));
+		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "rider", PLUGIN.getFriendlyName(rider)));
 		
 	}
 

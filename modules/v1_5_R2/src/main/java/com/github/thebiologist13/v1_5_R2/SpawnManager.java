@@ -685,6 +685,31 @@ public class SpawnManager implements ISpawnManager {
 
 	}
 
+	private void setDefaultInventory(LivingEntity e) {
+		EntityEquipment ee = e.getEquipment();
+
+		if(ee == null) {
+			return;
+		}
+		
+		switch(e.getType()) {
+		case SKELETON:
+			Skeleton sk = ((Skeleton) e);
+			if(sk.getSkeletonType().getId() == SkeletonType.WITHER.getId()) {
+				ee.setItemInHand(new ItemStack(Material.STONE_SWORD));
+			} else {
+				ee.setItemInHand(new ItemStack(Material.BOW));
+			}
+			break;
+		case PIG_ZOMBIE:
+			ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
+			break;
+		default:
+			break;
+		} 
+		
+	}
+	
 	private void setExplosiveProps(Explosive e, ISpawnableEntity data) {
 		e.setYield(data.getYield());
 		e.setIsIncendiary(data.isIncendiary());
@@ -699,33 +724,19 @@ public class SpawnManager implements ISpawnManager {
 		}
 		
 		if(!data.hasHand()) {
-			switch(entity.getType()) {
-			case SKELETON:
-				Skeleton sk = ((Skeleton) entity);
-				if(sk.getSkeletonType().getId() == SkeletonType.WITHER.getId()) {
-					ee.setItemInHand(new ItemStack(Material.STONE_SWORD));
-				} else {
-					ee.setItemInHand(new ItemStack(Material.BOW));
-				}
-				break;
-			case PIG_ZOMBIE:
-				ee.setItemInHand(new ItemStack(Material.GOLD_SWORD));
-				break;
-			default:
-				break;
-			} 
-
+			setDefaultInventory(entity);
 		} else {
 			ee.setItemInHand(data.getHand());
-			ee.setArmorContents(data.getArmor());  
-			
-			List<ISItemStack> array = data.getMainInventoryISItemStacks();
-			ee.setItemInHandDropChance(array.get(0).getDropChance() / 100.0f);
-			ee.setBootsDropChance(array.get(1).getDropChance() / 100.0f);
-			ee.setLeggingsDropChance(array.get(2).getDropChance() / 100.0f);
-			ee.setChestplateDropChance(array.get(3).getDropChance() / 100.0f);
-			ee.setHelmetDropChance(array.get(4).getDropChance() / 100.0f);
 		}
+		
+		ee.setArmorContents(data.getArmor());  
+		
+		List<ISItemStack> array = data.getMainInventoryISItemStacks();
+		ee.setItemInHandDropChance(array.get(0).getDropChance() / 100.0f);
+		ee.setBootsDropChance(array.get(1).getDropChance() / 100.0f);
+		ee.setLeggingsDropChance(array.get(2).getDropChance() / 100.0f);
+		ee.setChestplateDropChance(array.get(3).getDropChance() / 100.0f);
+		ee.setHelmetDropChance(array.get(4).getDropChance() / 100.0f);
 
 	}
 

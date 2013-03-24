@@ -187,7 +187,7 @@ public class FileManager {
 			LOG.info("Load Complete!");
 	}
 
-	//Loads a SpawnableEntity from a YAML file
+	//Loads a SpawnableEntity from a dat file
 	public SpawnableEntity loadEntity(File f) {
 
 		if(isDat(f)) {
@@ -494,6 +494,8 @@ public class FileManager {
 				FileOutputStream fOut = new FileOutputStream(f);
 				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 
+				s.removeNulls();
+				
 				oOut.writeObject(s);
 
 				oOut.close();
@@ -519,6 +521,8 @@ public class FileManager {
 				FileOutputStream fOut = new FileOutputStream(f);
 				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 
+				s.removeNulls();
+				
 				oOut.writeObject(s);
 
 				oOut.close();
