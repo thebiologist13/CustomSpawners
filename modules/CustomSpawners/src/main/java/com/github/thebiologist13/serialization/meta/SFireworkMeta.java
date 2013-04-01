@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.github.thebiologist13.serialization.SItemMeta;
+
 public class SFireworkMeta extends SItemMeta implements Serializable {
 
 	private static final long serialVersionUID = -7486031304716984714L;

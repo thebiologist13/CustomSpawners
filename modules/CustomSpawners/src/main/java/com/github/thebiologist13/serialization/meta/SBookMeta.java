@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.github.thebiologist13.serialization.SItemMeta;
+
 public class SBookMeta extends SItemMeta implements Serializable {
 
 	private static final long serialVersionUID = 5142127163683413370L;

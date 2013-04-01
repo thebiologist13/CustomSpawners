@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.github.thebiologist13.serialization.CardboardEnchantment;
+import com.github.thebiologist13.serialization.SItemMeta;
 
 public class SEnchantmentMeta extends SItemMeta implements Serializable {
 

@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.github.thebiologist13.serialization.SItemMeta;
+
 public class SFireworkEffectMeta extends SItemMeta implements Serializable {
 
 	private static final long serialVersionUID = -7807210989027120277L;

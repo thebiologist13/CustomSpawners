@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import com.github.thebiologist13.serialization.SItemMeta;
+
 public class SSkullMeta extends SItemMeta implements Serializable {
 	
 	private static final long serialVersionUID = -8625886247607054011L;

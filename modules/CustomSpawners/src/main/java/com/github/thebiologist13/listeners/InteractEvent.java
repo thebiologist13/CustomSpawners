@@ -21,6 +21,7 @@ public class InteractEvent implements Listener {
 		this.CONFIG = plugin.getCustomConfig();
 	}
 	
+	//FIXME 1 block spawn areas.
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteractEvent(PlayerInteractEvent ev) {
 		

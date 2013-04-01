@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -566,7 +567,9 @@ public class Spawner implements Serializable, ISpawner {
 		this.modifiers = modifiers;
 	}
 
+	//TODO Selection symbol illegal character.
 	public void setName(String name) {
+		name = ChatColor.translateAlternateColorCodes('&', name);
 		this.data.put("name", name);
 	}
 

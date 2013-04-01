@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
+import com.github.thebiologist13.serialization.SItemMeta;
+
 public class SArmorMeta extends SItemMeta implements Serializable {
 
 	private static final long serialVersionUID = -279788941080279582L;

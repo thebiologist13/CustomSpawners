@@ -1,4 +1,4 @@
-package com.github.thebiologist13.serialization.meta;
+package com.github.thebiologist13.serialization;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.github.thebiologist13.api.ICardboardEnchantment;
 import com.github.thebiologist13.api.ISItemMeta;
-import com.github.thebiologist13.serialization.CardboardEnchantment;
 
 public class SItemMeta implements Serializable, ISItemMeta {
 
@@ -42,7 +41,6 @@ public class SItemMeta implements Serializable, ISItemMeta {
 				enchants.put(new CardboardEnchantment(e), eFromMeta.get(e));
 			}
 			
-			//TODO Test new metadata things.
 		} else {
 			displayName = "";
 			lore = new ArrayList<String>();

@@ -25,7 +25,6 @@ import com.github.thebiologist13.serialization.meta.SEnchantmentMeta;
 import com.github.thebiologist13.serialization.meta.SFireworkEffect;
 import com.github.thebiologist13.serialization.meta.SFireworkEffectMeta;
 import com.github.thebiologist13.serialization.meta.SFireworkMeta;
-import com.github.thebiologist13.serialization.meta.SItemMeta;
 import com.github.thebiologist13.serialization.meta.SMapMeta;
 import com.github.thebiologist13.serialization.meta.SPotionMeta;
 import com.github.thebiologist13.serialization.meta.SSkullMeta;

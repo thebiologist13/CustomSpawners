@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 
+import com.github.thebiologist13.serialization.SItemMeta;
+
 public class SMapMeta extends SItemMeta implements Serializable {
 	
 	private static final long serialVersionUID = 4001310400289443660L;

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 //import net.minecraft.server.v1_5_R2.AxisAlignedBB;
 import net.minecraft.server.v1_5_R2.EntityEnderPearl;
@@ -634,6 +635,8 @@ public class SpawnManager implements ISpawnManager {
 	
 	private double randomGenRange(double arg0, double arg1) {
 		double range = (arg0 < arg1) ? arg1 - arg0 : arg0 - arg1;
+		if(range < 1) //TODO Test to make sure it works for 1 block spawn area.
+			return Math.floor(arg0) + 0.5d;
 		double min = (arg0 < arg1) ? arg0 : arg1;
 		return Math.floor(min + (Math.random() * range)) + 0.5d;
 	}
@@ -834,7 +837,8 @@ public class SpawnManager implements ISpawnManager {
 		spawnLocation.setYaw((float) randomRotation());
 		
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
-			return spawnLocation.getWorld().dropItemNaturally(spawnLocation, spawnType.getItemType());
+			//TODO Test if this fixes the not spawning in the right spot.
+			return spawnLocation.getWorld().dropItem(spawnLocation, spawnType.getItemType());
 		} else if(spawnType.getType().equals(EntityType.FALLING_BLOCK)) {
 			return spawnLocation.getWorld().spawnFallingBlock(spawnLocation, spawnType.getItemType().getType(), (byte) spawnType.getItemType().getDurability());
 		} else if(spawnType.getType().equals(EntityType.SPLASH_POTION)) {
@@ -868,12 +872,11 @@ public class SpawnManager implements ISpawnManager {
 
 			nmsWorld.addEntity(ent);
 			return ent.getBukkitEntity();
-		} else if(spawnType.getType().equals(EntityType.ENDER_PEARL)) {
+		} else if(spawnType.getType().equals(EntityType.ENDER_PEARL)) { //TODO Make sure this works when >1 player
 			World world = spawnLocation.getWorld();
-			EntityLiving nearPlayer = 
-					((CraftLivingEntity) getNearbyPlayers(spawnLocation, 
-							spawner.getMaxPlayerDistance() + 1).get(0)).getHandle();
-
+			List<Player> nearby = getNearbyPlayers(spawnLocation, spawner.getMaxPlayerDistance() + 1);
+			int index = (new Random()).nextInt(nearby.size());
+			EntityLiving nearPlayer = ((CraftLivingEntity) nearby.get(index)).getHandle();
 			net.minecraft.server.v1_5_R2.World nmsWorld = ((CraftWorld) world).getHandle();
 			EntityEnderPearl ent = new EntityEnderPearl(nmsWorld, nearPlayer);
 			ent.setLocation(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ(), 0, 0);
