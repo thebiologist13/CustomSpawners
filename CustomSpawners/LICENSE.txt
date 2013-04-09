@@ -1,0 +1,2 @@
+CustomSpawners in licensed under the GPLv3 license. 
+See http://dev.bukkit.org/licenses/7-gnu-general-public-license-version-3-gplv3/ for the full license.
