@@ -42,13 +42,13 @@ public class InfoCommand extends SpawnerCommand {
 				if(types.get(i).getName().isEmpty()) {
 					typesMessage += types.get(i).getId();
 				} else {
-					typesMessage += types.get(i).getId() + " (" + types.get(i).getName() + ")";
+					typesMessage += types.get(i).getId() + " (" + types.get(i).getName() + ChatColor.GOLD + ")";
 				}
 			} else {
 				if(types.get(i).getName().isEmpty()) {
 					typesMessage += ", " + types.get(i).getId();
 				} else {
-					typesMessage += ", " + types.get(i).getId() + " (" + types.get(i).getName() + ")";
+					typesMessage += ", " + types.get(i).getId() + " (" + types.get(i).getName() + ChatColor.GOLD + ")";
 				}
 			}
 		}
