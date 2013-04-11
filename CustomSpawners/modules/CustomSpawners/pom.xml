@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.thebiologist13</groupId>
 	<artifactId>customspawners</artifactId>
-	<version>0.3.2</version>
+	<version>0.3.2.1</version>
 	<name>CustomSpawners</name>
 	<packaging>jar</packaging>
 	<url>http://dev.bukkit.org/server-mods/thebiologist13</url>
