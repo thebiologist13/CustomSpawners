@@ -106,7 +106,11 @@ public class Converter implements IConverter {
 			}
 			
 			//I get the topmost entity data because the rider tag goes recursively from the top entity.
-			Entity top = entityStack.get(entityStack.size() - 1);
+			Entity top;
+			if(entityStack.size() == 0)
+				top = e;
+			else
+				top = entityStack.get(entityStack.size() - 1);
 			String name = getEntityName(top.getType());
 			eData = getEntityNBT(top); 
 			eData.setString("id", name);
