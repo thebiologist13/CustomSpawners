@@ -835,7 +835,6 @@ public class SpawnManager implements ISpawnManager {
 	private Entity spawnTheEntity(ISpawnableEntity spawnType, Location spawnLocation) {
 		
 		Entity e;
-		spawnLocation.setYaw((float) randomRotation());
 		
 		if(spawnType.getType().equals(EntityType.DROPPED_ITEM)) {
 			return spawnLocation.getWorld().dropItem(spawnLocation, spawnType.getItemType());
@@ -905,7 +904,9 @@ public class SpawnManager implements ISpawnManager {
 			e = spawnLocation.getWorld().spawn(spawnLocation, spawnType.getType().getEntityClass());;
 		}
 		
-		e.teleport(spawnLocation); //For rotation
+		net.minecraft.server.v1_5_R2.Entity entity0 = ((CraftEntity) e).getHandle();
+		entity0.yaw = (float) randomRotation(); //TODO For Rotation
+		
 		return e;
 
 	}

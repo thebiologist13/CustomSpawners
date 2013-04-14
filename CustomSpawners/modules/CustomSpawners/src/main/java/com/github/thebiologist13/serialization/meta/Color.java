@@ -25,9 +25,9 @@ public class Color implements Serializable {
 	
 	public org.bukkit.Color getBukkitColor() {
 		org.bukkit.Color base = org.bukkit.Color.BLACK;
-		base.setRed(r);
-		base.setGreen(g);
-		base.setBlue(b);
+		base = base.setRed(r);
+		base = base.setGreen(g);
+		base = base.setBlue(b);
 		return base;
 	}
 	

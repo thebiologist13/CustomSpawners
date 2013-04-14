@@ -1,8 +1,11 @@
 package com.github.thebiologist13.serialization;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -244,11 +247,16 @@ public class SItemStack implements Serializable, ISItemStack {
 	
 	private FireworkEffect buildEffect(SFireworkEffect sEffect) {
 		FireworkEffect.Builder effect = FireworkEffect.builder();
+		List<Color> colors = new ArrayList<Color>();
 		if(sEffect != null) {
+			for(com.github.thebiologist13.serialization.meta.Color c : sEffect.getColors()) {
+				colors.add(c.getBukkitColor());
+			}
+			
 			effect.flicker(sEffect.isFlicker());
 			effect.trail(sEffect.isTrail());
 			effect.with(sEffect.getType());
-			effect.withColor(sEffect.getColors());
+			effect.withColor(colors);
 			effect.withFade(sEffect.getFade());
 			FireworkEffect built = effect.build();
 			return built;

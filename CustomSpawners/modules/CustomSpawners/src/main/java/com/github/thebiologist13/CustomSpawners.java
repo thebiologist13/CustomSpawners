@@ -1223,6 +1223,11 @@ public class CustomSpawners extends JavaPlugin {
 
 			type = EntityType.MINECART;
 
+		} else if (entityType.equalsIgnoreCase("firework")
+				|| entityType.equalsIgnoreCase("firework_rocket")) {
+
+			type = EntityType.FIREWORK;
+
 		} else {
 
 			// Try to parse an entity type from input. Null if invalid.
