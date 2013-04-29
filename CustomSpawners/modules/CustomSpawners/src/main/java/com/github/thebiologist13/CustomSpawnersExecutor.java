@@ -43,6 +43,8 @@ public class CustomSpawnersExecutor extends Executor implements CommandExecutor 
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
+		final String DONORS = "";
+		
 		final String[] PLUGIN_INFO = {
 				ChatColor.GREEN + "* * * " +  ChatColor.GOLD + " CustomSpawners " + PLUGIN.getDescription().getVersion() + ChatColor.GREEN + " by thebiologist13 * * *",
 				"",
@@ -53,6 +55,8 @@ public class CustomSpawnersExecutor extends Executor implements CommandExecutor 
 				ChatColor.AQUA + "http://dev.bukkit.org/profiles/thebiologist13/",
 				"",
 				ChatColor.GREEN + "Use \"/customspawners help [page]\" for help on using CustomSpawners",
+				"",
+				ChatColor.GREEN + "Thanks to all the awesome donors! " + DONORS,
 				ChatColor.GREEN + "* * * * * * * * * * * * * * * *"
 		};
 

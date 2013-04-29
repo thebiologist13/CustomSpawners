@@ -6,7 +6,7 @@
 	<version>1_5_R1</version>
 	<name>CustomSpawners Implementation v1_5_R1</name>
 	<packaging>jar</packaging>
-	<url>http://dev.bukkit.org/server-mods/thebiologist13</url>
+	<url>http://dev.bukkit.org/server-mods/customspawners</url>
 
 	<parent>
 	    <groupId>com.github.thebiologist13</groupId>

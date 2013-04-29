@@ -35,10 +35,12 @@ import com.github.thebiologist13.commands.spawners.SetRateCommand;
 import com.github.thebiologist13.commands.spawners.SetRedstoneCommand;
 import com.github.thebiologist13.commands.spawners.SetTypeCommand;
 import com.github.thebiologist13.commands.spawners.SpawnAreaCommand;
+import com.github.thebiologist13.commands.spawners.SpawnOnEnterCommand;
 import com.github.thebiologist13.commands.spawners.SpawnOnPowerCommand;
 import com.github.thebiologist13.commands.spawners.SpawnTimesCommand;
 import com.github.thebiologist13.commands.spawners.SpawnerCommand;
 import com.github.thebiologist13.commands.spawners.ToggleWandCommand;
+import com.github.thebiologist13.commands.spawners.TrackNearCommand;
 
 /**
  * This executes commands related to /spawners command.
@@ -82,6 +84,8 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		SpawnerCommand clone = new CloneCommand(plugin, "customspawners.spawners.clone");
 		SpawnerCommand times = new SpawnTimesCommand(plugin, "customspawners.spawners.spawntime");
 		SpawnerCommand modify = new ModifierCommand(plugin, "customspawners.spawners.modifiers");
+		SpawnerCommand trackNear = new TrackNearCommand(plugin, "customspawners.spawners.tracknearby"); //TODO Add to wiki + test
+		SpawnerCommand onEnter = new SpawnOnEnterCommand(plugin, "customspawners.spawners.spawnonenter"); //TODO Add to wiki + test
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -370,6 +374,19 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				"nomods",
 				"nomod"
 		});
+		addCommand("tracknearby", trackNear, new String[] {
+				"tracknear",
+				"near",
+				"nearmobs",
+				"nearbymobs",
+				"untrackoutofrange"
+		});
+		addCommand("spawnonenter", onEnter, new String[] {
+				"onenter",
+				"enter",
+				"playersnearby",
+				"playernear"
+		});
 	}
 	
 	@Override
@@ -460,6 +477,11 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				}
 			} else {
 				params = makeParams(arg3, 1);
+			}
+			
+			if(!cmd.permissibleForObject(arg0, null, spawnerRef)) {
+				PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+				return true;
 			}
 			
 			try {

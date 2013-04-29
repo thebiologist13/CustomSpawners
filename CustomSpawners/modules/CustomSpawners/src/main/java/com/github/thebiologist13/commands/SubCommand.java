@@ -69,6 +69,7 @@ public class SubCommand {
 		this.aliases.remove(alias.toLowerCase());
 	}
 	
+	//TODO Make spawner/entity specific perms
 	public boolean permissible(CommandSender sender, String perm) {
 		
 		if(perm == null)

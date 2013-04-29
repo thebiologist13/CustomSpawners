@@ -1006,6 +1006,13 @@ public class CustomSpawners extends JavaPlugin {
 					}
 
 					s.tick();
+					
+					//Removes capped spawners
+					if(s.isCapped() && s.getMobsIds().size() == s.getMaxMobs()) {
+						removeSpawner(s);
+						fileManager.removeDataFile(s.getId(), true);
+					}
+					
 				}
 
 			}
@@ -1041,6 +1048,13 @@ public class CustomSpawners extends JavaPlugin {
 //							s.removeMob(spId);
 //							e.remove();
 //						}
+						
+						//This will untrack mobs if they are too far from the spawner.
+						if(s.isTrackNearby()) {
+							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getRadius(), 2)) {
+								s.removeMob(spId);
+							}
+						}
 
 					}
 
@@ -1048,8 +1062,7 @@ public class CustomSpawners extends JavaPlugin {
 					while (secMobs.hasNext()) {
 						UUID id = secMobs.next();
 
-						Entity e = getEntityFromWorld(id, s.getLoc()
-								.getWorld());
+						Entity e = getEntityFromWorld(id, s.getLoc().getWorld());
 
 						if (e == null) {
 							s.removeSecondaryMob(id);
@@ -1061,7 +1074,14 @@ public class CustomSpawners extends JavaPlugin {
 //							s.removeSecondaryMob(id);
 //							e.remove();
 //						}
-
+						
+						//This will untrack mobs if they are too far from the spawner.
+						if(s.isTrackNearby()) {
+							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getRadius(), 2)) {
+								s.removeMob(id);
+							}
+						}
+						
 					}
 
 				}

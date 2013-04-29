@@ -41,6 +41,22 @@ public abstract class EntityCommand extends SubCommand {
 		return needsObject;
 	}
 	
+	public boolean permissibleForObject(CommandSender sender, String perm, SpawnableEntity object) {
+		
+		if(perm == null)
+			perm = this.permission;
+		
+		if(perm.isEmpty())
+			perm = this.permission;
+		
+		if(permissible(sender, null))
+			return true;
+		
+		perm += "." + object.getId();
+		
+		return permissible(sender, perm);
+	}
+	
 	public abstract void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args);
 
 	public void setNeedsObject(boolean needsObject) {

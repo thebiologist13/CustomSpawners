@@ -6,7 +6,7 @@
 	<version>API</version>
 	<name>CustomSpawners API Implementation</name>
 	<packaging>jar</packaging>
-	<url>http://dev.bukkit.org/server-mods/thebiologist13</url>
+	<url>http://dev.bukkit.org/server-mods/customspawners</url>
 
 	<parent>
 		<groupId>com.github.thebiologist13</groupId>

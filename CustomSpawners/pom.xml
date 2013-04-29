@@ -5,7 +5,7 @@
 	<artifactId>customspawners-parent</artifactId>
 	<version>parent</version>
 	<name>CustomSpawners Parent</name>
-	<url>http://dev.bukkit.org/server-mods/thebiologist13</url>
+	<url>http://dev.bukkit.org/server-mods/customspawners</url>
 	<packaging>pom</packaging>
 
 	<modules>

@@ -69,6 +69,7 @@ permissions:
             customspawners.spawners.wand: true
             customspawners.spawners.spawntime: true
             customspawners.spawners.modifiers: true
+            customspawners.spawners.tracknearby: true
             customspawners.entities.effects: true
             customspawners.entities.setage: true
             customspawners.entities.setair: true
@@ -228,7 +229,10 @@ permissions:
         default: true
     customspawners.spawners.clone:
         description: Allows the user/group to clone spawners.
-        default: true
+        default: op
+    customspawners.spawners.tracknearby:
+        description: Allows the user/group to change whether only nearby mobs are tracked.
+        default: op
     customspawners.entities.setpassive:
         description: Allows the user/group to set the mobs passive.
         default: op
@@ -238,6 +242,12 @@ permissions:
     customspawners.spawners.modifiers:
         description: Allows the user/group to set spawn modifiers.
         default: op
+    customspawners.spawners.tracknearby:
+        description: Allows the user/group to set whether the spawner only tracks nearby mobs.
+        default: op
+    customspawners.spawners.spawnonenter:
+        description: Allows the user/group to set whether mobs should spawn as soon as a player enters the area.
+        default: op    
     customspawners.entities.create:
         description: Allows the user/group to create a spawnable entity.
         default: op

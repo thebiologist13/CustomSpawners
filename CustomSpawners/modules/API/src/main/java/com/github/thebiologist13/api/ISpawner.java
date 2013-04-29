@@ -78,6 +78,8 @@ public interface ISpawner {
 
 	public boolean isActive();
 
+	public boolean isCapped();
+	
 	public boolean isConverted();
 
 	public boolean isHidden();
@@ -86,7 +88,11 @@ public interface ISpawner {
 	
 	public boolean isRedstoneTriggered();
 	
+	public boolean isSpawnOnEnter();
+	
 	public boolean isSpawnOnRedstone();
+	
+	public boolean isTrackNearby();
 	
 	public boolean isUsingSpawnArea();
 	

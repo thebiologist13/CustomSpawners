@@ -523,8 +523,8 @@ public class SpawnManager implements ISpawnManager {
 
 		//Loop to spawn until the mobs per spawn is reached
 		for(int i = 0; i < spawner.getMobsPerSpawn(); i++) {
-
-			if(spawner.getMobsIds().size() + 1 > spawner.getMaxMobs())
+			
+			if(spawner.getMobsIds().size() == spawner.getMaxMobs())
 				return;
 
 			Location spLoc = spawner.getLoc();
@@ -580,7 +580,6 @@ public class SpawnManager implements ISpawnManager {
 			if(e != null) {
 				
 				assignMobProps(e, spawnType);
-
 				spawner.addMob(e.getUniqueId(), spawnType);
 
 			}

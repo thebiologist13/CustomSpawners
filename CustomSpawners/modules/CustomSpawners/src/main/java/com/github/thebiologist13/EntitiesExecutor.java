@@ -586,6 +586,11 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				params = makeParams(arg3, 1);
 			}
 			
+			if(!cmd.permissibleForObject(arg0, null, entityRef)) {
+				PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+				return true;
+			}
+			
 			try {
 				cmd.run(entityRef, arg0, sub, params);
 			} catch(ArrayIndexOutOfBoundsException e) {

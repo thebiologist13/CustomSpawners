@@ -40,6 +40,8 @@ public class Spawner implements Serializable, ISpawner {
 	private Map<String, String> modifiers;
 	//If the block was powered before
 	private boolean poweredBefore;
+	//If there was a player near it before.
+	private boolean playersBefore;
 	//Secondary Mobs (passenger, projectiles, etc.). Key is mobId, value is associated mob from "mobs".
 	private ConcurrentHashMap<UUID, UUID> secondaryMobs;
 	//Ticks left before next spawn
@@ -58,6 +60,7 @@ public class Spawner implements Serializable, ISpawner {
 		this.mobs = new ConcurrentHashMap<UUID, SpawnableEntity>();
 		this.modifiers = new HashMap<String, String>();
 		this.poweredBefore = false;
+		this.playersBefore = false;
 		this.secondaryMobs = new ConcurrentHashMap<UUID, UUID>();
 		this.ticksLeft = -1;
 		this.times = new ArrayList<Integer>();
@@ -348,7 +351,7 @@ public class Spawner implements Serializable, ISpawner {
 		
 		return value;
 	}
-
+	
 	@Override
 	public Map<UUID, UUID> getSecondaryMobs() {
 		
@@ -401,6 +404,11 @@ public class Spawner implements Serializable, ISpawner {
 	}
 
 	@Override
+	public boolean isCapped() {
+		return (this.data.containsKey("capped")) ? (Boolean) this.data.get("capped") : false;
+	}
+	
+	@Override
 	public boolean isConverted() {
 		return (Boolean) this.data.get("converted");
 	}
@@ -421,10 +429,20 @@ public class Spawner implements Serializable, ISpawner {
 	}
 
 	@Override
+	public boolean isSpawnOnEnter() {
+		return (this.data.containsKey("spawnOnEnter")) ? (Boolean) this.data.get("spawnOnEnter") : false;
+	}
+	
+	@Override
 	public boolean isSpawnOnRedstone() {
 		return (this.data.containsKey("spawnOnRedstone")) ? (Boolean) this.data.get("spawnOnRedstone") : false;
 	}
 
+	@Override
+	public boolean isTrackNearby() {
+		return (this.data.containsKey("trackNearby")) ? (Boolean) this.data.get("trackNearby") : false;
+	}
+	
 	@Override
 	public boolean isUsingSpawnArea() {
 		return (this.data.containsKey("useSpawnArea")) ? (Boolean) this.data.get("useSpawnArea") : false;
@@ -506,6 +524,10 @@ public class Spawner implements Serializable, ISpawner {
 		this.data.put("block", new SBlock(block));
 	}
 
+	public void setCapped(boolean capped) {
+		this.data.put("capped", capped);
+	}
+	
 	@Override
 	public void setConverted(boolean converted) {
 		this.data.put("converted", converted);
@@ -583,10 +605,6 @@ public class Spawner implements Serializable, ISpawner {
 		
 		this.data.put(key, value);
 	}
-	
-	/*
-	 * Methods for spawning, timing, etc.
-	 */
 
 	public void setRadius(double radius) {
 		this.data.put("radius", radius);
@@ -605,16 +623,22 @@ public class Spawner implements Serializable, ISpawner {
 		this.secondaryMobs = (ConcurrentHashMap<UUID, UUID>) secondaryMobs;
 	}
 	
+	//TODO Add to wiki
+	public void setSpawnOnEnter(boolean value) {
+		this.data.put("spawnOnEnter", value);
+	}
+	
 	public void setSpawnOnRedstone(boolean value) {
 		this.data.put("spawnOnRedstone", value);
 	}
 	
-	/*
-	 * Methods for choosing locations, checking things, etc.
-	 */
-	
 	public void setSpawnTimes(List<Integer> times) {
 		this.times = times;
+	}
+	
+	//TODO Finish this
+	public void setTrackNearby(boolean value) {
+		this.data.put("trackNearby", value);
 	}
 	
 	public void setTypeData(List<Integer> typeDataParam) {
@@ -661,6 +685,19 @@ public class Spawner implements Serializable, ISpawner {
 				return 0;
 			}
 		}
+		
+		boolean playersNow = (CustomSpawners.getNearbyPlayers(getLoc(), getMaxPlayerDistance()).size() > 0);
+		
+		if(isSpawnOnEnter() && playersNow && !playersBefore) {
+			ticksLeft = rate;
+			spawn(true);
+			return 0;
+		}
+		
+		if(playersNow)
+			playersBefore = true;
+		else
+			playersBefore = false;
 		
 		if(!(rate <= 0)) {
 			ticksLeft--;
