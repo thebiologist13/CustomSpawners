@@ -50,7 +50,8 @@ spawners:
     # have spawned at one time?
     maxMobs: 12
     
-    
+    # Should spawners be capped for mobs by default?
+    capped: false
     
     # Spawner limits
     # Limits of values for spawner properties. 
