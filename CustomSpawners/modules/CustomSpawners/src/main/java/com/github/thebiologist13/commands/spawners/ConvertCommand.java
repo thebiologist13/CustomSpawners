@@ -26,6 +26,10 @@ public class ConvertCommand extends SpawnerCommand {
 		String in = getValue(args, 0, "");
 		
 		if(in.equals("minecart")) {
+			
+			if(spawner.isConverted())
+				CustomSpawners.getConverter().convert(spawner);
+			
 			SpawnableEntity minecart = new SpawnableEntity(EntityType.MINECART, PLUGIN.getNextEntityId());
 			minecart.setSpawnerData(spawner);
 			minecart.setItemType(new ItemStack(Material.MOB_SPAWNER));
@@ -42,6 +46,10 @@ public class ConvertCommand extends SpawnerCommand {
 			
 			return;
 		} else if(in.equals("falling_block") || in.equals("fallingblock")) {
+			
+			if(spawner.isConverted())
+				CustomSpawners.getConverter().convert(spawner);
+			
 			SpawnableEntity falling = new SpawnableEntity(EntityType.FALLING_BLOCK, PLUGIN.getNextEntityId());
 			falling.setSpawnerData(spawner);
 			falling.setItemType(new ItemStack(Material.MOB_SPAWNER));

@@ -87,6 +87,13 @@
 			<type>jar</type>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>com.github.thebiologist13</groupId>
+			<artifactId>customspawners-v1_5_R3</artifactId>
+			<version>1_5_R3</version>
+			<type>jar</type>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 	
 	<build>

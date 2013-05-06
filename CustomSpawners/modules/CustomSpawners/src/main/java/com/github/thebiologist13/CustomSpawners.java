@@ -1,10 +1,14 @@
 package com.github.thebiologist13;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,10 +51,13 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * Licensed under GNU-GPLv3
  * 
  * @author thebiologist13
- * @version 0.3
+ * @version 0.3.4
  */
 public class CustomSpawners extends JavaPlugin {
 
+	//Donor List
+	public static String donors;
+	
 	// Selected entity by console.
 	public static int consoleEntity = -1;
 
@@ -194,8 +201,10 @@ public class CustomSpawners extends JavaPlugin {
 	public static ArrayList<Player> getNearbyPlayers(Location source, double max) {
 		ArrayList<Player> players = new ArrayList<Player>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			double distance = p.getLocation().distance(source);
-			if (distance <= max) {
+			if(!p.getWorld().equals(source.getWorld()))
+				continue;
+			double distanceSq = p.getLocation().distanceSquared(source);
+			if (distanceSq <= Math.pow(max, 2)) {
 				players.add(p);
 			}
 		}
@@ -887,6 +896,9 @@ public class CustomSpawners extends JavaPlugin {
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
+		
+		//Donors
+		donors = getDonors();
 
 		// Transparent Blocks
 		transparent.add((byte) 0);
@@ -1078,7 +1090,7 @@ public class CustomSpawners extends JavaPlugin {
 						//This will untrack mobs if they are too far from the spawner.
 						if(s.isTrackNearby()) {
 							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getRadius(), 2)) {
-								s.removeMob(id);
+								s.removeSecondaryMob(id);
 							}
 						}
 						
@@ -1602,6 +1614,53 @@ public class CustomSpawners extends JavaPlugin {
 
 	}
 
+	private String getDonors() {
+		
+		String donors = "";
+		
+		try {
+			URL url = new URL("http://dev.bukkit.org/server-mods/customspawners/pages/donors/");
+			URLConnection con = url.openConnection();
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String l;
+			boolean reachedContent = false;
+			while ((l=in.readLine())!=null) {
+				
+				if(l.contains("<div class=\"content-box\"><div class=\"content-box-inner\">" +
+						"<p>These are the current donors to CustomSpawners:<br>")) {
+					reachedContent = true;
+					continue;
+				}
+				
+				if(!reachedContent)
+					continue;
+				
+				if(l.contains("</div></div>") && reachedContent)
+					break;
+				
+				l = l.replaceAll("\"", "");
+				l = l.replaceAll("<br>", "");
+				l = l.replaceAll("<p>", "");
+				l = l.replaceAll("</p>", "");
+
+				l = ChatColor.translateAlternateColorCodes('&', l); //Allows me to color code
+				
+				if(donors.isEmpty()) {
+					donors += l;
+				} else {
+					donors += ", " + l;
+				}
+				
+			}
+		} catch (Exception e) {
+			printDebugTrace(e);
+			log.info("[CustomSpawners] Could not load donor list.");
+		}
+		
+		return donors;
+		
+	}
+	
 	private boolean setupCompat() {
 		String packageName = this.getServer().getClass().getPackage().getName();
 		String version = packageName.substring(packageName.lastIndexOf('.') + 1);

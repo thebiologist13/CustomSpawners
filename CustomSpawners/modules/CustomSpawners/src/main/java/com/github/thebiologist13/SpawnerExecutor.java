@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.github.thebiologist13.commands.spawners.ActivateAllCommand;
 import com.github.thebiologist13.commands.spawners.ActiveCommand;
 import com.github.thebiologist13.commands.spawners.AddTypeCommand;
+import com.github.thebiologist13.commands.spawners.CappedCommand;
 import com.github.thebiologist13.commands.spawners.CloneCommand;
 import com.github.thebiologist13.commands.spawners.ConvertCommand;
 import com.github.thebiologist13.commands.spawners.CreateCommand;
@@ -86,6 +87,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		SpawnerCommand modify = new ModifierCommand(plugin, "customspawners.spawners.modifiers");
 		SpawnerCommand trackNear = new TrackNearCommand(plugin, "customspawners.spawners.tracknearby"); //TODO Add to wiki + test
 		SpawnerCommand onEnter = new SpawnOnEnterCommand(plugin, "customspawners.spawners.spawnonenter"); //TODO Add to wiki + test
+		SpawnerCommand cap = new CappedCommand(plugin, "customspawners.spawners.capped"); //TODO Add to wiki + test
 		
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -386,6 +388,12 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				"enter",
 				"playersnearby",
 				"playernear"
+		});
+		addCommand("cap", cap, new String[] {
+				"capped",
+				"capmobs",
+				"removeatlimit",
+				"limited"
 		});
 	}
 	

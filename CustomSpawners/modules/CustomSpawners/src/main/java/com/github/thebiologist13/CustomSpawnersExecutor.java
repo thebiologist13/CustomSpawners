@@ -43,7 +43,7 @@ public class CustomSpawnersExecutor extends Executor implements CommandExecutor 
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		
-		final String DONORS = "";
+		final String DONORS = CustomSpawners.donors;
 		
 		final String[] PLUGIN_INFO = {
 				ChatColor.GREEN + "* * * " +  ChatColor.GOLD + " CustomSpawners " + PLUGIN.getDescription().getVersion() + ChatColor.GREEN + " by thebiologist13 * * *",

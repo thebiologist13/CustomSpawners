@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import com.github.thebiologist13.CustomSpawners;
+import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
 import com.github.thebiologist13.commands.SubCommand;
 
@@ -20,6 +21,21 @@ public abstract class SpawnerCommand extends SubCommand {
 	
 	public SpawnerCommand(CustomSpawners plugin, String mainPerm) {
 		super(plugin, mainPerm);
+	}
+	
+	public void checkRecursiveSpawns(SpawnableEntity type, CommandSender sender) {
+		if(type.getSpawnerData() != null) {
+			Spawner data = type.getSpawnerData();
+			for(Integer i : data.getTypeData()) {
+				SpawnableEntity s = CustomSpawners.getEntity(i.intValue());
+				if(s == null)
+					continue;
+				if(s.getSpawnerData() != null) {
+					PLUGIN.sendMessage(sender, ChatColor.GOLD + "Warning! This entity may recursively spawn mobs! " +
+							"Make sure you know what you are doing or the server might crash from mobs spawning too fast!");
+				}
+			}
+		}
 	}
 	
 	public  String getSuccessMessage(Spawner spawner, String value) {

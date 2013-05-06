@@ -38,6 +38,9 @@ public class ListNearCommand extends SpawnerCommand {
 		while(itr.hasNext()) {
 			Spawner sp = itr.next();
 			
+			if(!sp.getLoc().getWorld().equals(player.getWorld()))
+				continue;
+			
 			if(sp.getLoc().distance(player.getLocation()) <= near) {
 				
 				if(sp.isHidden() && player.hasPermission("customspawners.spawners.listnear.hidden")) {

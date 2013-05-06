@@ -904,7 +904,7 @@ public class SpawnManager implements ISpawnManager {
 		}
 		
 		net.minecraft.server.v1_5_R2.Entity entity0 = ((CraftEntity) e).getHandle();
-		entity0.yaw = (float) randomRotation(); //TODO For Rotation
+		entity0.yaw = (float) randomRotation();
 		
 		return e;
 

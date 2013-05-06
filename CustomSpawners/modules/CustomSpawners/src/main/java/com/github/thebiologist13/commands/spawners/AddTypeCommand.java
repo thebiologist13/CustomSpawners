@@ -29,6 +29,8 @@ public class AddTypeCommand extends SpawnerCommand {
 			return;
 		}
 		
+		checkRecursiveSpawns(type, sender);
+		
 		spawner.addTypeData(type);
 		
 		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Added spawnable entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(type)

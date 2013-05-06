@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
 import com.github.thebiologist13.Spawner;
@@ -29,6 +30,8 @@ public class SetTypeCommand extends SpawnerCommand {
 			PLUGIN.sendMessage(sender, NO_ID);
 			return;
 		}
+		
+		checkRecursiveSpawns(type, sender);
 		
 		List<Integer> typeList = new ArrayList<Integer>();
 		typeList.add(type.getId());

@@ -70,6 +70,8 @@ permissions:
             customspawners.spawners.spawntime: true
             customspawners.spawners.modifiers: true
             customspawners.spawners.tracknearby: true
+            customspawners.spawners.spawnonenter: true
+            customspawners.spawners.capped: true
             customspawners.entities.effects: true
             customspawners.entities.setage: true
             customspawners.entities.setair: true
@@ -247,7 +249,10 @@ permissions:
         default: op
     customspawners.spawners.spawnonenter:
         description: Allows the user/group to set whether mobs should spawn as soon as a player enters the area.
-        default: op    
+        default: op  
+    customspawners.spawners.capped:
+        description: Allows the user/group to set whether the spawner should have a mob cap and remove itself when that is reached.
+        default: op   
     customspawners.entities.create:
         description: Allows the user/group to create a spawnable entity.
         default: op

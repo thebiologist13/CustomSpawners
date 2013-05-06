@@ -636,7 +636,6 @@ public class Spawner implements Serializable, ISpawner {
 		this.times = times;
 	}
 	
-	//TODO Finish this
 	public void setTrackNearby(boolean value) {
 		this.data.put("trackNearby", value);
 	}
@@ -690,13 +689,12 @@ public class Spawner implements Serializable, ISpawner {
 		
 		if(isSpawnOnEnter() && playersNow && !playersBefore) {
 			ticksLeft = rate;
+			playersBefore = true;
 			spawn(true);
 			return 0;
 		}
 		
-		if(playersNow)
-			playersBefore = true;
-		else
+		if(!playersNow)
 			playersBefore = false;
 		
 		if(!(rate <= 0)) {
