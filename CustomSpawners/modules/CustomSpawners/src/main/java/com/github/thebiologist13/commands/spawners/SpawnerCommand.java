@@ -54,6 +54,9 @@ public abstract class SpawnerCommand extends SubCommand {
 	}
 	
 	public boolean permissibleForObject(CommandSender sender, String perm, Spawner object) {
+
+		if(object == null)
+			return permissible(sender, null);
 		
 		if(perm == null)
 			perm = this.permission;

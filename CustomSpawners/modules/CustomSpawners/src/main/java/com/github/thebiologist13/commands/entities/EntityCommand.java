@@ -43,6 +43,9 @@ public abstract class EntityCommand extends SubCommand {
 	
 	public boolean permissibleForObject(CommandSender sender, String perm, SpawnableEntity object) {
 		
+		if(object == null)
+			return permissible(sender, null);
+		
 		if(perm == null)
 			perm = this.permission;
 		
