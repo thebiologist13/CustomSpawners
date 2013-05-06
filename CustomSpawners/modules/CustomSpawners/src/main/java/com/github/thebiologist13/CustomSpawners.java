@@ -1063,7 +1063,7 @@ public class CustomSpawners extends JavaPlugin {
 						
 						//This will untrack mobs if they are too far from the spawner.
 						if(s.isTrackNearby()) {
-							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getRadius(), 2)) {
+							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getMaxPlayerDistance(), 2)) {
 								s.removeMob(spId);
 							}
 						}
@@ -1089,7 +1089,7 @@ public class CustomSpawners extends JavaPlugin {
 						
 						//This will untrack mobs if they are too far from the spawner.
 						if(s.isTrackNearby()) {
-							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getRadius(), 2)) {
+							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getMaxPlayerDistance(), 2)) {
 								s.removeSecondaryMob(id);
 							}
 						}
