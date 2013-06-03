@@ -20,14 +20,13 @@ public class EntityYieldCommand extends EntityCommand {
 		
 		String in = getValue(args, 0, "1.0");
 		
-		if(!CustomSpawners.isFloat(in)) {
+		try {
+			entity.setYield(handleDynamic(in, entity.getYield(null)));
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "yield", in));
+		} catch(IllegalArgumentException e) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "The yield must be a float.");
-			return;
 		}
-		
-		entity.setYield(Float.parseFloat(in));
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "yield", in));
 		
 	}
 

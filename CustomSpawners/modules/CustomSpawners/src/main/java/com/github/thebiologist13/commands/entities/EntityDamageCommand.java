@@ -24,18 +24,17 @@ public class EntityDamageCommand extends EntityCommand {
 			
 			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "use custom damage", in));
 		} else if(subCommand.equals("setdamageamount")) {
-			final String MUST_BE_INTEGER = ChatColor.RED + "The damage dealt must be an integer.";
 			
 			String in = getValue(args, 0, "2");
 			
-			if(!CustomSpawners.isInteger(in)) {
-				PLUGIN.sendMessage(sender, MUST_BE_INTEGER);
-				return;
+			try {
+				entity.setDamage(handleDynamic(in, entity.getDamage(null)));
+				
+				PLUGIN.sendMessage(sender, getSuccessMessage(entity, "damage dealt", in));
+			} catch(IllegalArgumentException e) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + "The damage dealt must be an integer.");
 			}
 			
-			entity.setDamage(Integer.parseInt(in));
-			
-			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "damage dealt", in));
 		}
 		
 	}

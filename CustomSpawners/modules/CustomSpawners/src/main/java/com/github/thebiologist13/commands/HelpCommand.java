@@ -134,7 +134,16 @@ public class HelpCommand extends CustomSpawnersCommand {
 				ChatColor.GOLD + "/entities setprofession [id] <profession>" + ChatColor.GREEN + " -> Sets the profession of a spawned villager.",
 				ChatColor.GOLD + "/entities setage [id] <age>" + ChatColor.GREEN + " -> Sets the age of a spawned entity.",
 				ChatColor.GOLD + "/entities setrider [id] <entity ID>" + ChatColor.GREEN + " -> Sets the spawnable entity riding this mob.",
-				ChatColor.GOLD + "/entities setminecartspeed [id] <speed>" + ChatColor.GREEN + " -> Sets the minecart speed."
+				ChatColor.GOLD + "/entities setminecartspeed [id] <speed>" + ChatColor.GREEN + " -> Sets the minecart speed.",
+				ChatColor.GOLD + "/groups addobject <id> <entity, spawner, or group> <id of object>" + ChatColor.GREEN + " -> Add an object to a group.",
+				ChatColor.GOLD + "/groups clear <id>" + ChatColor.GREEN + " -> Clear a group.",
+				ChatColor.GOLD + "/groups create <entity or spawner>" + ChatColor.GREEN + " -> Create a group.",
+				ChatColor.GOLD + "/groups find <entity, spawner, or group>" + ChatColor.GREEN + " -> Find the groups an object is in.",
+				ChatColor.GOLD + "/groups list" + ChatColor.GREEN + " -> List all the groups.",
+				ChatColor.GOLD + "/groups name <id> <name>" + ChatColor.GREEN + " -> Set the name of a group.",
+				ChatColor.GOLD + "/groups remove <id>" + ChatColor.GREEN + " -> Remove a group.",
+				ChatColor.GOLD + "/groups removeobject <id> <entity, spawner, or group> <id of object>" + ChatColor.GREEN + " -> Remove an object from a group.",
+				ChatColor.GOLD + "/groups type <id> <entity or spawner>" + ChatColor.GREEN + " -> Sets the type of a spawner."
 		};
 		
 		String pIn = getValue(args, 0, 0);

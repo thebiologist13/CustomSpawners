@@ -19,17 +19,15 @@ public class EntityFireTicksCommand extends EntityCommand {
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
 		String in = getValue(args, 0, "0");
-		int ticks = 0;
 		
-		if(!CustomSpawners.isInteger(in)) {
+		try {
+			int ticks = handleDynamic(in, entity.getFireTicks(null));
+			entity.setFireTicks(ticks);
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "fire ticks", PLUGIN.convertTicksToTime(ticks)));
+		} catch(IllegalArgumentException e) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "The fire ticks must be an integer.");
-			return;
 		}
-		
-		ticks = Integer.parseInt(in);
-		entity.setFireTicks(ticks);
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "fire ticks", PLUGIN.convertTicksToTime(ticks)));
 		
 	}
 

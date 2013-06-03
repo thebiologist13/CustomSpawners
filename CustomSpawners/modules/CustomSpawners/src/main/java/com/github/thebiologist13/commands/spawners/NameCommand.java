@@ -31,7 +31,7 @@ public class NameCommand extends SpawnerCommand {
 		}
 		
 		if(CustomSpawners.getSpawner(in) != null) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "That name is already taken for an spawner.");
+			PLUGIN.sendMessage(sender, ChatColor.RED + "That name is already taken for a spawner.");
 			return;
 		}
 		

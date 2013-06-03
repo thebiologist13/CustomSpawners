@@ -27,7 +27,7 @@ import com.github.thebiologist13.api.ISpawnableEntity;
 import com.github.thebiologist13.api.ISpawner;
 
 public class Converter implements IConverter {
-	
+
 	@Override
 	public void convert(ISpawner spawner) {
 		Block block = spawner.getBlock();
@@ -46,12 +46,12 @@ public class Converter implements IConverter {
 
 			if(!block.getType().equals(Material.MOB_SPAWNER))
 				block.setTypeIdAndData(52, (byte) 0, true);
-			
+
 			if (!isTileEntity(block)) {
 				throw new IllegalArgumentException(
 						"Parameter block is not a TileEntity.");
 			}
-			
+
 			setMobSpawnerNBT(block, compound);
 
 		}
@@ -62,29 +62,28 @@ public class Converter implements IConverter {
 
 	public <T extends Entity> NBTTagCompound getEntityNBT(T entity) {
 		NBTTagCompound compound = new NBTTagCompound();
-		
+
 		if(!(entity instanceof Entity))
 			return null;
-		
+
 		net.minecraft.server.v1_5_R2.Entity nms = ((CraftEntity) entity).getHandle();
 
 		nms.e(compound);
-		
+
 		return compound;
 	}
 
 	public NBTBase[] getPropertyArray(ISpawner spawner) {
 		List<NBTBase> props = new ArrayList<NBTBase>();
-		
+
 		Location spawnLocation = null;
 
-		//XXX This can be changed. Really just needs a single point to spawn to. Should add option to disable.
 		if (spawner.isUsingSpawnArea()) 
 			spawnLocation = spawner.getAreaPoints()[0]; 
-		
+
 		//Location to spawn to when getting NBT
 		Location pos = (spawnLocation == null) ? spawner.getLoc() : spawnLocation;
-		
+
 		List<ISpawnableEntity> typeData = spawner.getTypesEntities();
 		NBTTagCompound[] potentials = new NBTTagCompound[typeData.size()];
 
@@ -93,18 +92,18 @@ public class Converter implements IConverter {
 			ISpawnableEntity se = typeData.get(i);
 			Entity e = spawner.forceSpawnOnLoc(se, pos);
 			NBTTagCompound eData = new NBTTagCompound(); 
-			
+
 			//The following is related to removing passengers recursively
 			Entity curVehicle = e;
 			Entity curPassenger = e.getPassenger();
 			ArrayList<Entity> entityStack = new ArrayList<Entity>();
-			
+
 			while(curPassenger != null) {
 				entityStack.add(curPassenger);
 				curVehicle = curPassenger;
 				curPassenger = curVehicle.getPassenger();
 			}
-			
+
 			//I get the topmost entity data because the rider tag goes recursively from the top entity.
 			Entity top;
 			if(entityStack.size() == 0)
@@ -115,21 +114,21 @@ public class Converter implements IConverter {
 			eData = getEntityNBT(top); 
 			eData.setString("id", name);
 			props.add(new NBTTagString("EntityId", name));
-			
+
 			for(Entity rem : entityStack) {
 				rem.remove();
 			}
-			
+
 			e.remove();
-			
+
 			if (eData.isEmpty()) // If empty
 				return null;
 
 			if (eData.hasKey("Pos") && spawnLocation == null)
 				eData.remove("Pos");
 
-			eData.set("Motion", makeDoubleList(new double[] { se.getXVelocity(),
-					se.getYVelocity(), se.getZVelocity() }));
+			eData.set("Motion", makeDoubleList(new double[] { se.getXVelocity(e),
+					se.getYVelocity(e), se.getZVelocity(e) }));
 
 			potentialData.setCompound("Properties", eData);
 			potentialData.setInt("Weight", 1);
@@ -156,18 +155,18 @@ public class Converter implements IConverter {
 		props.add(new NBTTagShort("MaxSpawnDelay", (short) (spawner.getRate() + 1)));
 		props.add(new NBTTagShort("MaxNearbyEntities", (short) spawner.getMaxMobs()));
 		props.add(new NBTTagShort("RequiredPlayerRange", (short) spawner.getMaxPlayerDistance()));
-		
+
 		return props.toArray(new NBTBase[props.size()]);
 	}
 
 	public NBTTagCompound getSpawnerNBT(ISpawner s) {
 		NBTTagCompound sData = new NBTTagCompound();
-		
+
 		NBTBase[] dataArray = getPropertyArray(s);
 		for(NBTBase base : dataArray) {
 			sData.set(base.getName(), base);
 		}
-		
+
 		return sData;
 	}
 
@@ -180,7 +179,7 @@ public class Converter implements IConverter {
 
 		return false;
 	}
-	
+
 	public void setEntityNBT(Entity e, NBTTagCompound n) {
 		net.minecraft.server.v1_5_R2.Entity nms = ((CraftEntity) e).getHandle();
 		Class<?> entityClass = nms.getClass();
@@ -198,7 +197,7 @@ public class Converter implements IConverter {
 			}
 		}	
 	}
-	
+
 	private String getEntityName(EntityType type) {
 		String id = type.getName();
 
@@ -216,7 +215,7 @@ public class Converter implements IConverter {
 		}
 		return id;
 	}
-	
+
 	private NBTTagList makeDoubleList(double[] d0) {
 		NBTTagList list = new NBTTagList();
 		int i = d0.length;
@@ -242,6 +241,21 @@ public class Converter implements IConverter {
 				b.getX(), b.getY(), b.getZ());
 
 		te.a(n);
+	}
+
+	//The above worked in pre-1.5.2 versions...
+
+	@Override
+	public void addTileEntity(Block b, ISpawner data) {}
+
+	@Override
+	public Entity addSpawnerMinecart(Location loc, ISpawner data) {
+		return null;
+	}
+
+	@Override
+	public Entity addFallingSpawner(Location loc, ISpawner data) {
+		return null;
 	}
 
 }

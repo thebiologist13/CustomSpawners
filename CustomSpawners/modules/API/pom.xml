@@ -46,6 +46,12 @@
 			<version>${sk89q.wg}</version>
 			<type>jar</type>
 		</dependency>
+		<dependency>
+			<groupId>com.herocraftonline</groupId>
+			<artifactId>heroes</artifactId>
+			<version>${heroes.version}</version>
+			<type>jar</type>
+		</dependency>
 	</dependencies>
 
 </project>

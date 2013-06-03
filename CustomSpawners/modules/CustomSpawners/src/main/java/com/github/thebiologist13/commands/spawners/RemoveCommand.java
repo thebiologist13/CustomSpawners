@@ -24,7 +24,7 @@ public class RemoveCommand extends SpawnerCommand {
 			PLUGIN.removeMobs(spawner);
 		
 		PLUGIN.removeSpawner(spawner);
-		PLUGIN.getFileManager().removeDataFile(id, true);
+		PLUGIN.getFileManager().removeSpawnerDataFile(id);
 		
 		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Spawner " + ChatColor.GOLD + id + ChatColor.GREEN + " has been removed from the server.");
 		

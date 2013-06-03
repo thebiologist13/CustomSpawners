@@ -20,6 +20,8 @@
 	<properties>
 		<sk89q.we>5.5</sk89q.we>
 		<sk89q.wg>5.7.2-SNAPSHOT</sk89q.wg>
+		<heroes.version>1.5.2</heroes.version>
+		<libigot.version>1.5.2-R0.2</libigot.version>
 	</properties>
 
 	<repositories>
@@ -34,6 +36,10 @@
 		<repository>
 			<id>sk89q-repo</id>
 			<url>http://maven.sk89q.com/repo/</url>
+		</repository>
+		<repository>
+			<id>libigot</id>
+			<url>http://repo.libigot.org/</url>
 		</repository>
 	</repositories>
 

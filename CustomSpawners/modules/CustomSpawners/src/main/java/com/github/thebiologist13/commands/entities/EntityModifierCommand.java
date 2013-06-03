@@ -49,9 +49,9 @@ public class EntityModifierCommand extends EntityCommand {
 			moddedProp = in.split("=")[0].toLowerCase();
 			expression = in.split("=")[1].toLowerCase();
 			
-			entity.evaluate(expression);
+			entity.evaluate(expression, null);
 		} catch(Exception e) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "You entered an invalid expression, make sure " +
+			PLUGIN.sendMessage(sender, ChatColor.RED + "You've entered an invalid expression. Make sure " +
 					"you have valid opertors and the right format. The format is: <property>=<expression>");
 			return;
 		}

@@ -17,12 +17,12 @@ import com.github.thebiologist13.api.ISItemStack;
 public class SInventory implements Serializable, ISInventory {
 
 	private static final long serialVersionUID = 7492076966612850960L;
-	private SItemStack[] armor = new SItemStack[4];
-	private HashMap<Integer, SItemStack> content;
-	private SItemStack hand;
+	private ISItemStack[] armor = new SItemStack[4];
+	private HashMap<Integer, ISItemStack> content;
+	private ISItemStack hand;
 
 	public SInventory() {
-		this.content = new HashMap<Integer, SItemStack>();
+		this.content = new HashMap<Integer, ISItemStack>();
 		armor[0] = new SItemStack(0);
 		armor[1] = new SItemStack(0);
 		armor[2] = new SItemStack(0);
@@ -31,7 +31,7 @@ public class SInventory implements Serializable, ISInventory {
 
 	public SInventory(HashMap<Integer, ItemStack> content) {
 
-		HashMap<Integer, SItemStack> content1 = new HashMap<Integer, SItemStack>();
+		HashMap<Integer, ISItemStack> content1 = new HashMap<Integer, ISItemStack>();
 		for (Integer i : content.keySet()) {
 			content1.put(i, new SItemStack(content.get(i)));
 		}
@@ -40,19 +40,19 @@ public class SInventory implements Serializable, ISInventory {
 	}
 
 	@Override
-	public void addItem(int slot, ItemStack item) {
-		content.put(slot, new SItemStack(item));
+	public void addItem(int slot, ISItemStack item) {
+		content.put(slot, item);
 	}
 
 	@Override
-	public void addItem(ItemStack item) {
+	public void addItem(ISItemStack item) {
 		List<Integer> conIDs = new ArrayList<Integer>();
 		Iterator<Integer> conItr = content.keySet().iterator();
 		while (conItr.hasNext()) {
 			conIDs.add(conItr.next());
 		}
 
-		content.put(CustomSpawners.getNextID(conIDs), new SItemStack(item));
+		content.put(CustomSpawners.getNextID(conIDs), item);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class SInventory implements Serializable, ISInventory {
 
 	@Override
 	public void empty() {
-		content = new HashMap<Integer, SItemStack>();
+		content = new HashMap<Integer, ISItemStack>();
 		armor = new SItemStack[4];
 		hand = null;
 	}
@@ -86,11 +86,11 @@ public class SInventory implements Serializable, ISInventory {
 		return armor1;
 	}
 	
-	public SItemStack[] getArmorSItemStacks() {
+	public ISItemStack[] getArmorSItemStacks() {
 		return armor;
 	}
 
-	public Map<Integer, SItemStack> getContent() {
+	public Map<Integer, ISItemStack> getContent() {
 		return content;
 	}
 
@@ -108,7 +108,7 @@ public class SInventory implements Serializable, ISInventory {
 		return getHandSItemStack().toItemStack();
 	}
 	
-	public SItemStack getHandSItemStack() {
+	public ISItemStack getHandSItemStack() {
 		if(hasHand())
 			return hand;
 		else
@@ -166,7 +166,7 @@ public class SInventory implements Serializable, ISInventory {
 	}
 
 	@Override
-	public boolean hasItem(ItemStack item) {
+	public boolean hasItem(ISItemStack item) {
 		return content.values().contains(item);
 	}
 
@@ -210,40 +210,33 @@ public class SInventory implements Serializable, ISInventory {
 	}
 
 	@Override
-	public void setArmor(ItemStack[] armor) {
-
-		SItemStack[] armor1 = new SItemStack[4];
-
-		for (int i = 0; i < armor.length; i++) {
-			armor1[i] = new SItemStack(armor[i]);
-		}
-
-		this.armor = armor1;
+	public void setArmor(ISItemStack[] armor) {
+		this.armor = armor;
 	}
 
 	@Override
-	public void setBoot(ItemStack boot) {
-		armor[0] = new SItemStack(boot);
+	public void setBoot(ISItemStack boot) {
+		armor[0] = boot;
 	}
 
 	@Override
-	public void setChest(ItemStack chest) {
-		armor[2] = new SItemStack(chest);
+	public void setChest(ISItemStack chest) {
+		armor[2] = chest;
 	}
 
 	@Override
-	public void setHand(ItemStack hand) {
-		this.hand = new SItemStack(hand);
+	public void setHand(ISItemStack hand) {
+		this.hand = hand;
 	}
 
 	@Override
-	public void setHelmet(ItemStack helmet) {
-		armor[3] = new SItemStack(helmet);
+	public void setHelmet(ISItemStack helmet) {
+		armor[3] = helmet;
 	}
 
 	@Override
-	public void setLeg(ItemStack leg) {
-		armor[1] = new SItemStack(leg);
+	public void setLeg(ISItemStack leg) {
+		armor[1] = leg;
 	}
 	
 }

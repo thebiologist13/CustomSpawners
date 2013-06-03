@@ -20,26 +20,25 @@ public class MaxMobsCommand extends SpawnerCommand {
 		
 		String in = getValue(args, 0, "12");
 		
-		if(!CustomSpawners.isInteger(in)) {
+		try {
+			int maxMobs = handleDynamic(in, spawner.getMaxMobs());
+			
+			if(maxMobs < 0) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + "The maximum mobs must be greater than zero.");
+				return;
+			}
+			
+			if(maxMobs > CONFIG.getInt("spawners.maxMobsLimit", 256) && !permissible(sender, "customspawners.limitoverride")) {
+				PLUGIN.sendMessage(sender, NO_OVERRIDE);
+				return;
+			}
+			
+			spawner.setMaxMobs(maxMobs);
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "maximum mobs", in));
+		} catch(IllegalArgumentException e) {
 			PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
-			return;
 		}
-		
-		int maxMobs = Integer.parseInt(in);
-		
-		if(maxMobs < 0) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "The maximum mobs must be greater than zero.");
-			return;
-		}
-		
-		if(maxMobs > CONFIG.getInt("spawners.maxMobsLimit", 256) && !permissible(sender, "customspawners.limitoverride")) {
-			PLUGIN.sendMessage(sender, NO_OVERRIDE);
-			return;
-		}
-		
-		spawner.setMaxMobs(maxMobs);
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "maximum mobs", in));
 		
 	}
 	

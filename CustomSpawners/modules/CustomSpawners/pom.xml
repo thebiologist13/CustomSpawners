@@ -3,11 +3,19 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.thebiologist13</groupId>
 	<artifactId>customspawners</artifactId>
-	<version>0.3.4</version>
+	<version>0.4</version>
 	<name>CustomSpawners</name>
 	<packaging>jar</packaging>
 	<url>http://dev.bukkit.org/server-mods/customspawners</url>
-	
+
+	<!-- Update the version here each time. -->
+	<properties>
+		<sk89q.we>5.5</sk89q.we>
+		<sk89q.wg>5.7.2-SNAPSHOT</sk89q.wg>
+		<heroes.version>1.5.2</heroes.version>
+		<libigot.version>1.5.2-R0.2</libigot.version>
+	</properties>
+
 	<repositories>
 		<repository>
 			<id>bukkit-repo</id>
@@ -29,35 +37,36 @@
 			<artifactId>bukkit</artifactId>
 			<version>LATEST</version>
 			<type>jar</type>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
 			<version>LATEST</version>
 			<type>jar</type>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>net.astesana</groupId>
 			<artifactId>javaluator</artifactId>
 			<version>1.2.2</version>
 			<type>jar</type>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.sk89q</groupId>
 			<artifactId>worldedit</artifactId>
-			<version>5.5</version> <!-- Update the version here each time. -->
+			<version>${sk89q.we}</version>
 			<type>jar</type>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.sk89q</groupId>
 			<artifactId>worldguard</artifactId>
-			<version>5.7.2-SNAPSHOT</version> <!-- Update the version here each time. -->
+			<version>${sk89q.wg}</version>
 			<type>jar</type>
-			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.herocraftonline</groupId>
+			<artifactId>heroes</artifactId>
+			<version>${heroes.version}</version>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.github.thebiologist13</groupId>
@@ -95,13 +104,13 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
-	    <directory>../../target</directory>
-	    <finalName>CustomSpawners</finalName>
+		<directory>../../target</directory>
+		<finalName>CustomSpawners</finalName>
 		<resources>
 			<resource>
-			    <targetPath>.</targetPath>
+				<targetPath>.</targetPath>
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>plugin.yml</include>

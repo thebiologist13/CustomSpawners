@@ -188,7 +188,7 @@ public class SItemStack implements Serializable, ISItemStack {
 				
 				for(CardboardEnchantment ce : meta0.getStoredEnchantments().keySet()) {
 					Enchantment e = ce.unbox();
-					meta1.addStoredEnchant(e, meta0.getStoredEnchantments().get(e), true);
+					meta1.addStoredEnchant(e, meta0.getStoredEnchantments().get(ce), true);
 				}
 				
 				stack.setItemMeta(meta1);

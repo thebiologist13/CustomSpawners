@@ -19,21 +19,19 @@ public class EntityExpCommand extends EntityCommand {
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		
 		String in = getValue(args, 0, "-1");
-		int xp = 0;
 		
-		if(in.equals("random") || in.equals("normal") || in.equals("-1"))
-			xp = -1;
-		
-		if(!CustomSpawners.isInteger(in)) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "The dropped experience must be an integer.");
-			return;
+		if(in.equals("vanilla") || in.equals("random") || in.equals("normal") || in.equals("-1")) {
+			entity.setDroppedExp(-1);
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "dropped experience", "vanilla amount"));
 		}
 		
-		xp = Integer.parseInt(in);
-		
-		entity.setDroppedExp(xp);
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "dropped experience", in));
+		try {
+			entity.setDroppedExp(handleDynamic(in, entity.getDroppedExp(null)));
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "dropped experience", in));
+		} catch(IllegalArgumentException e) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "The dropped experience must be an integer.");
+		}
 		
 	}
 

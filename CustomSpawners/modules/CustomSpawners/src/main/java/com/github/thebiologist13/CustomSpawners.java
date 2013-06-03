@@ -33,15 +33,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
 import com.github.thebiologist13.api.IConverter;
+import com.github.thebiologist13.api.IObject;
+import com.github.thebiologist13.api.ISItemStack;
 import com.github.thebiologist13.api.ISpawnManager;
 import com.github.thebiologist13.api.ISpawnableEntity;
 import com.github.thebiologist13.api.ISpawner;
 import com.github.thebiologist13.listeners.*;
 import com.github.thebiologist13.serialization.SPotionEffect;
+import com.herocraftonline.heroes.Heroes;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 /**
@@ -51,13 +55,14 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * Licensed under GNU-GPLv3
  * 
  * @author thebiologist13
- * @version 0.3.4
+ * @version 0.3.5
  */
+//TODO FEATURE: Synchronize Spawners command
 public class CustomSpawners extends JavaPlugin {
 
 	//Donor List
 	public static String donors;
-	
+
 	// Selected entity by console.
 	public static int consoleEntity = -1;
 
@@ -72,6 +77,9 @@ public class CustomSpawners extends JavaPlugin {
 
 	// All of the entity types on the server.
 	public static ConcurrentHashMap<Integer, SpawnableEntity> entities = new ConcurrentHashMap<Integer, SpawnableEntity>();
+	
+	// All the groups in the server.
+	public static ConcurrentHashMap<Integer, Group> groups = new ConcurrentHashMap<Integer, Group>();
 
 	// Selected entities for players.
 	public static ConcurrentHashMap<Player, Integer> entitySelection = new ConcurrentHashMap<Player, Integer>();
@@ -91,9 +99,15 @@ public class CustomSpawners extends JavaPlugin {
 	// Selected spawners for players.
 	public static ConcurrentHashMap<Player, Integer> spawnerSelection = new ConcurrentHashMap<Player, Integer>();
 
+	//The server's spawner. Used to manage individual spawns.
+	public static Spawner serverSpawner = null;
+
 	// Transparent Blocks to go through when getting the target location for a
 	// spawner.
 	public static HashSet<Byte> transparent = new HashSet<Byte>();
+	
+	//Players waiting for confirmation on command.
+	public static ConcurrentHashMap<Player, Integer> warn = new ConcurrentHashMap<Player, Integer>();
 
 	// Autosave Task ID
 	public int autosaveId;
@@ -109,6 +123,9 @@ public class CustomSpawners extends JavaPlugin {
 
 	// FileManager
 	private FileManager fileManager = null;
+	
+	//Heroes
+	private static Heroes heroes = null;
 
 	// LogLevel
 	private byte logLevel;
@@ -117,7 +134,7 @@ public class CustomSpawners extends JavaPlugin {
 	private long saveInterval;
 
 	// WorldGuard
-	private WorldGuardPlugin worldGuard = null;
+	private static WorldGuardPlugin worldGuard = null;
 
 	public static double evaluate(String expr) throws IllegalArgumentException {
 		DoubleEvaluator eval = new DoubleEvaluator();
@@ -152,12 +169,14 @@ public class CustomSpawners extends JavaPlugin {
 	public static SpawnableEntity getEntity(String ref) {
 
 		ref = ChatColor.stripColor(ref);
-		
+
 		if (ref.isEmpty())
 			return null;
 
 		ref = ref.toLowerCase();
 
+		ref = ref.replaceAll("__", " ");
+		
 		if (isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 
@@ -195,6 +214,69 @@ public class CustomSpawners extends JavaPlugin {
 		}
 
 		return null;
+	}
+
+	// Gets a spawner
+	public static Group getGroup(int ref) {
+		return getGroup(String.valueOf(ref));
+	}
+
+	// Gets a group
+	public static Group getGroup(String ref) {
+
+		ref = ChatColor.stripColor(ref);
+
+		if (ref.isEmpty())
+			return null;
+
+		ref = ref.toLowerCase();
+
+		ref = ref.replaceAll("__", " ");
+		
+		if (isInteger(ref)) {
+			int id = Integer.parseInt(ref);
+			Iterator<Integer> groupItr = groups.keySet().iterator();
+
+			while (groupItr.hasNext()) {
+				int currentId = groupItr.next().intValue();
+
+				if (currentId == id) {
+					return groups.get(id);
+				}
+			}
+		} else {
+			Iterator<Integer> groupItr = groups.keySet().iterator();
+
+			while (groupItr.hasNext()) {
+				Integer id = groupItr.next().intValue();
+				Group g = groups.get(id);
+				String name = ChatColor.stripColor(g.getName());
+
+				if (name == null) {
+					return null;
+				}
+				
+				if (name.equalsIgnoreCase(ref)) {
+					return g;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	//Gets Heroes
+	public static Heroes getHeroes() {
+		
+		if(heroes != null)
+			return heroes;
+		
+		Plugin plugin = Bukkit.getPluginManager().getPlugin("Heroes");
+		
+		if(plugin == null && !(plugin instanceof Heroes))
+			return null;
+		
+		return (Heroes) plugin;
 	}
 
 	// Check if players are nearby
@@ -238,7 +320,7 @@ public class CustomSpawners extends JavaPlugin {
 
 		return returnID;
 	}
-
+	
 	// Gets a spawner
 	public static Spawner getSpawner(int ref) {
 		return getSpawner(String.valueOf(ref));
@@ -248,11 +330,13 @@ public class CustomSpawners extends JavaPlugin {
 	public static Spawner getSpawner(String ref) {
 
 		ref = ChatColor.stripColor(ref);
-		
+
 		if (ref.isEmpty())
 			return null;
 
 		ref = ref.toLowerCase();
+		
+		ref = ref.replaceAll("__", " ");
 
 		if (isInteger(ref)) {
 			int id = Integer.parseInt(ref);
@@ -317,9 +401,13 @@ public class CustomSpawners extends JavaPlugin {
 			return null;
 		}
 	}
-
+	
 	// Sets up WorldGuard
 	public static WorldGuardPlugin getWG() {
+		
+		if(worldGuard != null)
+			return worldGuard;
+		
 		Plugin wg = Bukkit.getPluginManager().getPlugin("WorldGuard");
 
 		if (wg == null || !(wg instanceof WorldGuardPlugin))
@@ -373,17 +461,6 @@ public class CustomSpawners extends JavaPlugin {
 		return true;
 	}
 
-	public Spawner cloneWithNewId(Spawner spawner) {
-		Spawner spawner1 = createSpawner(spawner.getMainEntity(),
-				spawner.getLoc());
-		spawner1.setTypeData(spawner.getTypeData());
-		spawner1.setModifiers(spawner.getModifiers());
-		spawner1.setSpawnTimes(spawner.getSpawnTimes());
-		spawner1.setData(spawner.getData());
-		spawner1.setActive(false);
-		return spawner1;
-	}
-	
 	public SpawnableEntity cloneWithNewId(SpawnableEntity entity) {
 		SpawnableEntity entity1 = createEntity(entity.getType());
 		entity1.setData(entity.getData());
@@ -394,6 +471,18 @@ public class CustomSpawners extends JavaPlugin {
 		entity1.setEffects(entity.getEffects());
 		entity1.setModifiers(entity.getModifiers());
 		return entity1;
+	}
+
+	public Spawner cloneWithNewId(Spawner spawner) {
+		Spawner spawner1 = createSpawner(spawner.getMainEntity(),
+				spawner.getLoc());
+		spawner1.setTypeData(spawner.getTypeData());
+		spawner1.setMobs(new ConcurrentHashMap<UUID, SpawnableEntity>());
+		spawner1.setModifiers(spawner.getModifiers());
+		spawner1.setSpawnTimes(spawner.getSpawnTimes());
+		spawner1.setData(spawner.getData());
+		spawner1.setActive(false);
+		return spawner1;
 	}
 
 	// Converts ticks to MM:SS
@@ -442,56 +531,49 @@ public class CustomSpawners extends JavaPlugin {
 		}
 	}
 
-	public SpawnableEntity createEntity(String type, boolean hasOverride) throws IllegalArgumentException {
-		
-		SpawnableEntity newEntity = new SpawnableEntity(EntityType.PIG, getNextEntityId());
-		
-		parseEntityType(type, newEntity, hasOverride); //Throws an error if invalid
-		
-		CustomSpawners.entities.put(newEntity.getId(), newEntity);
-		
-		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
-			fileManager.autosave(newEntity);
-		}
-		
-		return newEntity;
-		
-	}
-	
 	public SpawnableEntity createEntity(EntityType type) {
-		
+
 		SpawnableEntity newEntity = new SpawnableEntity(type, getNextEntityId());
-		
+
 		CustomSpawners.entities.put(newEntity.getId(), newEntity);
-		
+
 		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
 			fileManager.autosave(newEntity);
 		}
-		
+
 		return newEntity;
-		
 	}
-	
+
+	public SpawnableEntity createEntity(String type, boolean hasOverride) throws IllegalArgumentException {
+
+		SpawnableEntity newEntity = new SpawnableEntity(EntityType.PIG, getNextEntityId());
+
+		parseEntityType(type, newEntity, hasOverride); //Throws an error if invalid
+
+		CustomSpawners.entities.put(newEntity.getId(), newEntity);
+
+		if(config.getBoolean("data.autosave") && config.getBoolean("data.saveOnCreate")) {
+			fileManager.autosave(newEntity);
+		}
+
+		return newEntity;
+	}
+
 	public Spawner createSpawner(ISpawnableEntity e, Location loc) {
-		Spawner newSpawner = new Spawner((SpawnableEntity) e, loc,
-				getNextSpawnerId());
+		Spawner newSpawner = new Spawner((SpawnableEntity) e, loc, getNextSpawnerId());
 
 		newSpawner.setRadius(config.getDouble("spawners.radius", 8));
-		newSpawner.setRedstoneTriggered(config.getBoolean(
-				"spawners.redstoneTriggered", false));
-		newSpawner.setMaxPlayerDistance(config.getInt(
-				"spawners.maxPlayerDistance", 16));
-		newSpawner.setMinPlayerDistance(config.getInt(
-				"spawners.minPlayerDistance", 0));
+		newSpawner.setRedstoneTriggered(config.getBoolean("spawners.redstoneTriggered", false));
+		newSpawner.setMaxPlayerDistance(config.getInt("spawners.maxPlayerDistance", 16));
+		newSpawner.setMinPlayerDistance(config.getInt("spawners.minPlayerDistance", 0));
 		newSpawner.setActive(config.getBoolean("spawners.active", false));
-		newSpawner.setMaxLightLevel((byte) config.getInt(
-				"spawners.maxLightLevel", 7));
-		newSpawner.setMinLightLevel((byte) config.getInt(
-				"spawners.minLightLevel", 0));
+		newSpawner.setMaxLightLevel((byte) config.getInt("spawners.maxLightLevel", 7));
+		newSpawner.setMinLightLevel((byte) config.getInt("spawners.minLightLevel", 0));
 		newSpawner.setHidden(config.getBoolean("spawners.hidden", false));
 		newSpawner.setRate(config.getInt("spawners.rate", 120));
 		newSpawner.setMobsPerSpawn(config.getInt("spawners.mobsPerSpawn", 2));
 		newSpawner.setMaxMobs(config.getInt("spawners.maxMobs", 12));
+		newSpawner.setCapped(config.getBoolean("spawners.capped", false));
 
 		spawners.put(newSpawner.getId(), newSpawner);
 
@@ -501,7 +583,22 @@ public class CustomSpawners extends JavaPlugin {
 		}
 
 		return spawners.get(newSpawner.getId());
-
+	}
+	
+	public List<Group> findObjectInGroup(IObject obj) {
+		List<Group> inside = new ArrayList<Group>();
+		Iterator<Group> itr = CustomSpawners.groups.values().iterator();
+		while(itr.hasNext()) {
+			Group g = itr.next();
+			
+			for(IObject obj0 : g.getGroup().values()) {
+				if(obj0.getId() == obj.getId()) {
+					inside.add(g);
+					break;
+				}
+			}
+		}
+		return inside;
 	}
 
 	public FileConfiguration getCustomConfig() {
@@ -608,6 +705,20 @@ public class CustomSpawners extends JavaPlugin {
 		return fileManager;
 	}
 
+	// Gets a string to represent the name of the group (String version of ID
+	// or name)
+	public String getFriendlyName(Group g) {
+
+		if (g == null)
+			return "";
+
+		if (g.getName().isEmpty()) {
+			return String.valueOf(g.getId());
+		} else {
+			return g.getName();
+		}
+	}
+
 	// Gets a string to represent the name of the entity (String version of ID
 	// or name)
 	public String getFriendlyName(ISpawnableEntity e) {
@@ -621,7 +732,7 @@ public class CustomSpawners extends JavaPlugin {
 			return e.getName();
 		}
 	}
-
+	
 	// Gets a string to represent the name of the spawner (String version of ID
 	// or name)
 	public String getFriendlyName(ISpawner s) {
@@ -689,6 +800,32 @@ public class CustomSpawners extends JavaPlugin {
 		stack.setAmount(count);
 
 		return stack;
+	}
+
+	public String getItemName(ISItemStack item0) {
+		String name = "";
+
+		if (item0 == null) {
+			return "AIR (0)";
+		}
+
+		ItemStack item = item0.toItemStack();
+
+		if (item.getType() != null) {
+			name += item.getType().toString() + " (" + item.getTypeId() + ")";
+		} else {
+			name += item.getTypeId();
+		}
+
+		if (item.getDurability() != 0) {
+			name += ":" + item.getDurability();
+		}
+
+		if(item0.getDropChance() != 0.0F) {
+			name += " " + item0.getDropChance() + "% drop chance"; 
+		}
+
+		return name;
 	}
 
 	// Gets the proper name of an ItemStack
@@ -784,12 +921,21 @@ public class CustomSpawners extends JavaPlugin {
 		return getNextID(entityIDs);
 	}
 
+	// Next available group ID
+	public int getNextGroupId() {
+		List<Integer> groupIDs = new ArrayList<Integer>();
+
+		groupIDs.addAll(groups.keySet());
+
+		return getNextID(groupIDs);
+	}
+	
 	// Next available spawner ID
 	public int getNextSpawnerId() {
 		List<Integer> spawnerIDs = new ArrayList<Integer>();
 
 		spawnerIDs.addAll(spawners.keySet());
-		
+
 		return getNextID(spawnerIDs);
 	}
 
@@ -866,6 +1012,8 @@ public class CustomSpawners extends JavaPlugin {
 			fileManager.saveEntities();
 			// Saving spawners
 			fileManager.saveSpawners();
+			// Saving groups
+			fileManager.saveGroups();
 		}
 
 		// Stop Tasks
@@ -881,22 +1029,22 @@ public class CustomSpawners extends JavaPlugin {
 		//OK to put config stuff up here because it doesn't use CraftBukkit or NMS
 		// Config
 		config = getCustomConfig();
-		
+
 		// Debug
 		debug = config.getBoolean("data.debug", false);
 
 		// LogLevel
 		logLevel = (byte) config.getInt("data.logLevel", 2);
-		
+
 		// Compat
 		if (!setupCompat()) {
 			this.getLogger().severe("CustomSpawners " + this.getDescription().getVersion()
-							+ " does not support this version of Bukkit.");
+					+ " does not support this version of Bukkit.");
 			this.getLogger().severe("Please see http://dev.bukkit.org/server-mods/customspawners for supported versions.");
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
-		
+
 		//Donors
 		donors = getDonors();
 
@@ -939,44 +1087,63 @@ public class CustomSpawners extends JavaPlugin {
 
 			}
 		}
+		
+		if(config.getBoolean("spawners.ignoreHeroes", false)) {
+			if(logLevel > 0) {
+				log.info("[CustomSpawners] Ignoring Heroes connection.");
+			}
+		} else {
+			// Setup WG
+			heroes = getHeroes();
+
+			if (heroes == null) {
+
+				if (logLevel > 0) {
+					log.info("[CustomSpawners] Cannot hook into Heroes.");
+				}
+
+			} else {
+
+				if (logLevel > 0) {
+					log.info("[CustomSpawners] Hooked into Heroes.");
+				}
+
+			}
+		}
+
+		serverSpawner = new Spawner(defaultEntity, new Location(getServer().getWorlds().get(0), 0, 0, 0), -1);
+		serverSpawner.setHidden(true);
+		serverSpawner.setActive(false);
+		serverSpawner.setName("&cSOMEHOW YOU FOUND ME! DON'T CHANGE ME! I AM THE PROPERTY OF THE SERVER!");
 
 		try {
 			// Commands
 			SpawnerExecutor se = new SpawnerExecutor(this);
 			CustomSpawnersExecutor cse = new CustomSpawnersExecutor(this);
 			EntitiesExecutor ee = new EntitiesExecutor(this);
+			GroupsExecutor ge = new GroupsExecutor(this);
 			getCommand("customspawners").setExecutor(cse);
 			getCommand("spawners").setExecutor(se);
 			getCommand("entities").setExecutor(ee);
+			getCommand("groups").setExecutor(ge);
 
 			// Listeners
-			getServer().getPluginManager().registerEvents(new PlayerLogoutEvent(),
-					this);
-			getServer().getPluginManager().registerEvents(new MobDamageEvent(this),
-					this);
-			getServer().getPluginManager().registerEvents(new MobCombustEvent(),
-					this);
-			getServer().getPluginManager().registerEvents(
-					new PlayerTargetEvent(this), this);
-			getServer().getPluginManager().registerEvents(new MobDeathEvent(this),
-					this);
-			getServer().getPluginManager().registerEvents(new InteractEvent(this),
-					this);
-			getServer().getPluginManager().registerEvents(
-					new ExpBottleHitEvent(this), this);
-			getServer().getPluginManager().registerEvents(
-					new MobExplodeEvent(this), this);
-			getServer().getPluginManager().registerEvents(new PotionHitEvent(this),
-					this);
-			getServer().getPluginManager().registerEvents(
-					new ProjectileFireEvent(this), this);
-			getServer().getPluginManager().registerEvents(new BreakEvent(this),
-					this);
-			getServer().getPluginManager().registerEvents(new SpawnerPowerEvent(),
-					this);
-			getServer().getPluginManager().registerEvents(new ReloadEvent(this),
-					this);
-			//XXX Just a debug listener for entity ID + UUID
+			PluginManager pm = getServer().getPluginManager();
+			pm.registerEvents(new PlayerLogoutEvent(), this);
+			pm.registerEvents(new MobDamageEvent(this), this);
+			pm.registerEvents(new MobCombustEvent(), this);
+			pm.registerEvents(new PlayerTargetEvent(this), this);
+			pm.registerEvents(new MobDeathEvent(this), this);
+			pm.registerEvents(new InteractEvent(this), this);
+			pm.registerEvents(new ExpBottleHitEvent(this), this);
+			pm.registerEvents(new MobExplodeEvent(this), this);
+			pm.registerEvents(new PotionHitEvent(this), this);
+			pm.registerEvents(new ProjectileFireEvent(this), this);
+			pm.registerEvents(new BreakEvent(this), this);
+			pm.registerEvents(new SpawnerPowerEvent(), this);
+			pm.registerEvents(new ReloadEvent(this), this);
+			
+			//Just a debug listener for entity ID + UUID
 			//getServer().getPluginManager().registerEvents(new PlayerClickEntityEvent(this), this); 
 		} catch(Exception e) {
 			fileManager.saveCrash(getClass(), e);
@@ -993,13 +1160,16 @@ public class CustomSpawners extends JavaPlugin {
 
 			// Load spawners from files
 			fileManager.loadSpawners();
+			
+			//Load Groups from files
+			fileManager.loadGroups();
 		} catch (Exception e) {
 			fileManager.saveCrash(getClass(), e);
-			log.severe("Failed to load all Spawners and Entities from file. Are they all in the new .dat file format?"
+			log.severe("Failed to load all Spawners and Entities from file. Are they all in the new .dat file format? "
 					+ "Crash saved to " + getDataFolder().getPath() + File.separator + "CustomSpawners"
 					+ File.separator + "Crashes");
 		}
-		
+
 		/*
 		 * Spawning Thread
 		 */
@@ -1018,13 +1188,13 @@ public class CustomSpawners extends JavaPlugin {
 					}
 
 					s.tick();
-					
+
 					//Removes capped spawners
 					if(s.isCapped() && s.getMobsIds().size() == s.getMaxMobs()) {
 						removeSpawner(s);
-						fileManager.removeDataFile(s.getId(), true);
+						fileManager.removeSpawnerDataFile(s.getId());
 					}
-					
+
 				}
 
 			}
@@ -1032,8 +1202,7 @@ public class CustomSpawners extends JavaPlugin {
 		}, 20, 1);
 
 		/*
-		 * Removal Check Thread This thread verifies that all spawned mobs still
-		 * exist.
+		 * Clearing thread. Manages non-existent entity removal and removes timed-out commands.
 		 */
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
@@ -1055,12 +1224,12 @@ public class CustomSpawners extends JavaPlugin {
 							continue;
 						}
 
-						//XXX Shouldn't cause problems if this isn't here.
-//						if (e.getLocation().distance(s.getLoc()) > 192) {
-//							s.removeMob(spId);
-//							e.remove();
-//						}
-						
+						//Shouldn't cause problems if this isn't here.
+						/*if (e.getLocation().distance(s.getLoc()) > 192) {
+								s.removeMob(spId);
+								e.remove();
+						}*/
+
 						//This will untrack mobs if they are too far from the spawner.
 						if(s.isTrackNearby()) {
 							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getMaxPlayerDistance(), 2)) {
@@ -1081,21 +1250,30 @@ public class CustomSpawners extends JavaPlugin {
 							continue;
 						}
 
-						//XXX Shouldn't cause problems if this isn't here also.
-//						if (e.getLocation().distance(s.getLoc()) > 192) {
-//							s.removeSecondaryMob(id);
-//							e.remove();
-//						}
-						
+						//Shouldn't cause problems if this isn't here.
+						/*if (e.getLocation().distance(s.getLoc()) > 192) {
+							  s.removeSecondaryMob(id);
+							  e.remove();
+						}*/
+
 						//This will untrack mobs if they are too far from the spawner.
 						if(s.isTrackNearby()) {
 							if(e.getLocation().distanceSquared(s.getLoc()) >= Math.pow(s.getMaxPlayerDistance(), 2)) {
 								s.removeSecondaryMob(id);
 							}
 						}
-						
+
 					}
 
+				}
+				
+				Iterator<Player> timeItr = warn.keySet().iterator();
+				while(timeItr.hasNext()) {
+					Player p = timeItr.next();
+					
+					warn.replace(p, warn.get(p) - 1);
+					if(warn.get(p).intValue() == 0)
+						warn.remove(p);
 				}
 
 			}
@@ -1407,6 +1585,10 @@ public class CustomSpawners extends JavaPlugin {
 				s.removeTypeData(e);
 			}
 		}
+		List<Group> groups = findObjectInGroup(e);
+		for(Group g : groups) {
+			g.removeItem(e);
+		}
 	}
 
 	// Removes a spawner from a mob list when it dies
@@ -1488,6 +1670,10 @@ public class CustomSpawners extends JavaPlugin {
 			resetSpawnerSelections(s.getId());
 			spawners.remove(s.getId());
 		}
+		List<Group> groups = findObjectInGroup(s);
+		for(Group g : groups) {
+			g.removeItem(s);
+		}
 	}
 
 	// Resets selections if a SpawnableEntity has been removed
@@ -1542,16 +1728,16 @@ public class CustomSpawners extends JavaPlugin {
 		String worldDir = w.getWorldFolder() + ch + "cs_data" + ch;
 		String entityDir = worldDir + "entity";
 		String spawnerDir = worldDir + "spawner";
-		
+
 		File spawnerFilesDir = new File(spawnerDir);
 		File entityFilesDir = new File(entityDir);
-		
+
 		if(!spawnerFilesDir.exists())
 			spawnerFilesDir.mkdirs();
-		
+
 		if(!entityFilesDir.exists())
 			entityFilesDir.mkdirs();
-		
+
 		String spawnerPath = spawnerDir + ch + data.getId() + ".dat";
 
 		File spawnerFile = new File(spawnerPath);
@@ -1615,68 +1801,70 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	private String getDonors() {
-		
+
 		String donors = "";
-		
+
 		try {
 			URL url = new URL("http://dev.bukkit.org/server-mods/customspawners/pages/donors/");
 			URLConnection con = url.openConnection();
+			con.setReadTimeout(10000);
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String l;
 			boolean reachedContent = false;
 			while ((l=in.readLine())!=null) {
-				
+
 				if(l.contains("<div class=\"content-box\"><div class=\"content-box-inner\">" +
 						"<p>These are the current donors to CustomSpawners:<br>")) {
 					reachedContent = true;
 					continue;
 				}
-				
+
 				if(!reachedContent)
 					continue;
-				
+
 				if(l.contains("</div></div>") && reachedContent)
 					break;
-				
+
 				l = l.replaceAll("\"", "");
 				l = l.replaceAll("<br>", "");
 				l = l.replaceAll("<p>", "");
 				l = l.replaceAll("</p>", "");
 
 				l = ChatColor.translateAlternateColorCodes('&', l); //Allows me to color code
-				
+
 				if(donors.isEmpty()) {
 					donors += l;
 				} else {
 					donors += ", " + l;
 				}
-				
+
 			}
 		} catch (Exception e) {
 			printDebugTrace(e);
 			log.info("[CustomSpawners] Could not load donor list.");
 		}
-		
+
 		return donors;
-		
+
 	}
-	
+
 	private boolean setupCompat() {
 		String packageName = this.getServer().getClass().getPackage().getName();
 		String version = packageName.substring(packageName.lastIndexOf('.') + 1);
 		if (version.equals("craftbukkit")) {
 			version = "pre";
 		}
-		
+
 		try {
+			
 			String converter = "com.github.thebiologist13." + version + ".Converter";
 			String spawnManager = "com.github.thebiologist13." + version + ".SpawnManager";
-			
+
 			if(debug) {
 				printDebugMessage("Looking for Converter in: " + converter);
 				printDebugMessage("Looking for SpawnManager in: " + spawnManager);
 			}
-			
+
 			final Class<?> clazz = Class.forName(converter);
 			final Class<?> clazz0 = Class.forName(spawnManager);
 

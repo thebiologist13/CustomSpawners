@@ -26,23 +26,23 @@ public class EntityVelocityCommand extends EntityCommand {
 		int firstCommaIndex = in.indexOf(",");
 		int secondCommaIndex = in.indexOf(",", firstCommaIndex + 1);
 		
-		String xVal = in.substring(0, firstCommaIndex);
-		String yVal = in.substring(firstCommaIndex + 1, secondCommaIndex);
-		String zVal = in.substring(secondCommaIndex + 1, in.length());
+		try {
+			String xVal = in.substring(0, firstCommaIndex);
+			String yVal = in.substring(firstCommaIndex + 1, secondCommaIndex);
+			String zVal = in.substring(secondCommaIndex + 1, in.length());
 		
-		if(!CustomSpawners.isDouble(xVal) || !CustomSpawners.isDouble(yVal) || !CustomSpawners.isDouble(zVal)) {
+		
+			x = handleDynamic(xVal, entity.getXVelocity(null));
+			y = handleDynamic(yVal, entity.getYVelocity(null));
+			z = handleDynamic(zVal, entity.getZVelocity(null));
+			
+			entity.setVelocity(new SVector(x, y, z));
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "velocity", "(" + in + ")"));
+		} catch(Exception e) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "Invalid values for velocity. Please use the following format: " +
 					ChatColor.GOLD + "/entities setvelocity <x value>,<y value>,<z value>.");
-			return;
 		}
-		
-		x = Double.parseDouble(xVal);
-		y = Double.parseDouble(yVal);
-		z = Double.parseDouble(zVal);
-		
-		entity.setVelocity(new SVector(x, y, z));
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "velocity", "(" + in + ")"));
 		
 	}
 

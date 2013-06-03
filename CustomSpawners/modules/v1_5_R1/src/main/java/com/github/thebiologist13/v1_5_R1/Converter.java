@@ -36,10 +36,10 @@ public class Converter implements IConverter {
 			block.setTypeIdAndData(spawner.getBlockId(),
 					spawner.getBlockData(), true);
 		} else {
-			
+
 			if(!block.getType().equals(Material.MOB_SPAWNER))
 				block.setTypeIdAndData(52, (byte) 0, true);
-			
+
 			if (!isTileEntity(block)) {
 				throw new IllegalArgumentException(
 						"Parameter block is not a TileEntity.");
@@ -63,14 +63,14 @@ public class Converter implements IConverter {
 
 	public <T extends Entity> NBTTagCompound getEntityNBT(T entity) {
 		NBTTagCompound compound = new NBTTagCompound();
-		
+
 		if(!(entity instanceof Entity))
 			return null;
-		
+
 		net.minecraft.server.v1_5_R1.Entity nms = ((CraftEntity) entity).getHandle();
 
 		nms.e(compound);
-		
+
 		return compound;
 	}
 
@@ -78,15 +78,15 @@ public class Converter implements IConverter {
 		List<NBTBase> props = new ArrayList<NBTBase>();
 
 		props.add(new NBTTagString("EntityId", getEntityName(spawner.getMainEntity().getType())));
-		
+
 		Location spawnLocation = null;
 
 		if (spawner.isUsingSpawnArea()) 
 			spawnLocation = spawner.getAreaPoints()[0]; 
-		
+
 		//Location to spawn to when getting NBT
 		Location pos = (spawnLocation == null) ? spawner.getLoc() : spawnLocation;
-		
+
 		List<ISpawnableEntity> typeData = spawner.getTypesEntities();
 		NBTTagCompound[] potentials = new NBTTagCompound[typeData.size()];
 
@@ -102,8 +102,8 @@ public class Converter implements IConverter {
 			if (eData.hasKey("Pos") && spawnLocation == null)
 				eData.remove("Pos");
 
-			eData.set("Motion", makeDoubleList(new double[] { se.getXVelocity(),
-					se.getYVelocity(), se.getZVelocity() }));
+			eData.set("Motion", makeDoubleList(new double[] { se.getXVelocity(e),
+					se.getYVelocity(e), se.getZVelocity(e) }));
 
 			potentialData.setCompound("Properties", eData);
 			potentialData.setInt("Weight", 1);
@@ -130,18 +130,18 @@ public class Converter implements IConverter {
 		props.add(new NBTTagShort("MaxSpawnDelay", (short) (spawner.getRate() + 1)));
 		props.add(new NBTTagShort("MaxNearbyEntities", (short) spawner.getMaxMobs()));
 		props.add(new NBTTagShort("RequiredPlayerRange", (short) spawner.getMaxPlayerDistance()));
-		
+
 		return props.toArray(new NBTBase[props.size()]);
 	}
 
 	public NBTTagCompound getSpawnerNBT(ISpawner s) {
 		NBTTagCompound sData = new NBTTagCompound();
-		
+
 		NBTBase[] dataArray = getPropertyArray(s);
 		for(NBTBase base : dataArray) {
 			sData.set(base.getName(), base);
 		}
-		
+
 		return sData;
 	}
 
@@ -154,7 +154,7 @@ public class Converter implements IConverter {
 
 		return false;
 	}
-	
+
 	public void setEntityNBT(Entity e, NBTTagCompound n) {
 		net.minecraft.server.v1_5_R1.Entity nms = ((CraftEntity) e).getHandle();
 		Class<?> entityClass = nms.getClass();
@@ -172,7 +172,7 @@ public class Converter implements IConverter {
 			}
 		}	
 	}
-	
+
 	private String getEntityName(EntityType type) {
 		String id = type.getName();
 
@@ -190,7 +190,7 @@ public class Converter implements IConverter {
 		}
 		return id;
 	}
-	
+
 	private NBTTagList makeDoubleList(double[] d0) {
 		NBTTagList list = new NBTTagList();
 		int i = d0.length;
@@ -216,6 +216,21 @@ public class Converter implements IConverter {
 				b.getX(), b.getY(), b.getZ());
 
 		te.a(n);
+	}
+
+	//The above worked in pre-1.5.2 versions...
+
+	@Override
+	public void addTileEntity(Block b, ISpawner data) {}
+
+	@Override
+	public Entity addSpawnerMinecart(Location loc, ISpawner data) {
+		return null;
+	}
+
+	@Override
+	public Entity addFallingSpawner(Location loc, ISpawner data) {
+		return null;
 	}
 
 }

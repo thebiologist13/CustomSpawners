@@ -91,31 +91,31 @@ public class EntityInventoryCommand extends EntityCommand {
 		}
 		
 		if(subCommand.equals("addinventoryitem")) {
-			inv.addItem(stack);
+			inv.addItem(newStack);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully added item " + ChatColor.GOLD + 
-					PLUGIN.getItemName(stack) + ChatColor.GREEN + " to entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
+					PLUGIN.getItemName(newStack) + ChatColor.GREEN + " to entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
 					ChatColor.GREEN + "'s inventory!");
 		} else if(subCommand.equals("setinventory")) {
 			inv.getContent().clear();
-			inv.addItem(stack);
+			inv.addItem(newStack);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully set " + ChatColor.GOLD + 
-					PLUGIN.getItemName(stack) + ChatColor.GREEN + " as entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
+					PLUGIN.getItemName(newStack) + ChatColor.GREEN + " as entity " + ChatColor.GOLD + PLUGIN.getFriendlyName(entity) + 
 					ChatColor.GREEN + "'s inventory!");
 		} else if(subCommand.equals("sethand")) {
-			inv.setHand(stack);
-			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "item in hand", PLUGIN.getItemName(stack)));
+			inv.setHand(newStack);
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "item in hand", PLUGIN.getItemName(newStack)));
 		} else if(subCommand.equals("sethelmet")) {
-			inv.setHelmet(stack);
-			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "helmet", PLUGIN.getItemName(stack)));
+			inv.setHelmet(newStack);
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "helmet", PLUGIN.getItemName(newStack)));
 		} else if(subCommand.equals("setchest")) {
-			inv.setChest(stack);
-			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "chestplate", PLUGIN.getItemName(stack)));
+			inv.setChest(newStack);
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "chestplate", PLUGIN.getItemName(newStack)));
 		} else if(subCommand.equals("setleggings")) {
-			inv.setLeg(stack);
-			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "leggings", PLUGIN.getItemName(stack)));
+			inv.setLeg(newStack);
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "leggings", PLUGIN.getItemName(newStack)));
 		} else if(subCommand.equals("setboots")) {
-			inv.setBoot(stack);
-			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "boots", PLUGIN.getItemName(stack)));
+			inv.setBoot(newStack);
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "boots", PLUGIN.getItemName(newStack)));
 		}
 		
 		entity.setInventory(inv);

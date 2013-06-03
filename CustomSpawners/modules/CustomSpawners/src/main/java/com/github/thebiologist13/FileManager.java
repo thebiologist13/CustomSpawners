@@ -38,6 +38,8 @@ public class FileManager {
 
 	private final String ENTITY_PATH;
 
+	private final String GROUP_PATH;
+
 	private final Logger LOG;
 
 	private final byte LOG_LEVEL;
@@ -57,6 +59,7 @@ public class FileManager {
 		this.LOG_LEVEL = plugin.getLogLevel();
 		this.SPAWNER_PATH = plugin.getDataFolder() + File.separator + "Spawners";
 		this.ENTITY_PATH = plugin.getDataFolder() + File.separator + "Entities";
+		this.GROUP_PATH = plugin.getDataFolder() + File.separator + "Groups";
 		this.CRASH_PATH = plugin.getDataFolder() + File.separator + "Crashes";
 	}
 
@@ -80,6 +83,16 @@ public class FileManager {
 
 	}
 
+	//Autosaves a spawner
+	public synchronized void autosave(Group g) {
+
+		String path = GROUP_PATH + ch + g.getId() + ".dat";
+		File file = new File(path);
+
+		saveGroup(g, file);
+
+	}
+
 	//Autosaves everything
 	public synchronized void autosaveAll() {
 
@@ -98,6 +111,7 @@ public class FileManager {
 
 		Iterator<Integer> spawnerItr = CustomSpawners.spawners.keySet().iterator();
 		Iterator<Integer> entityItr = CustomSpawners.entities.keySet().iterator();
+		Iterator<Integer> groupItr = CustomSpawners.groups.keySet().iterator();
 
 		while(spawnerItr.hasNext()) {
 			int id = spawnerItr.next();
@@ -109,6 +123,12 @@ public class FileManager {
 			int id = entityItr.next();
 
 			autosave(CustomSpawners.getEntity(id));
+		}
+
+		while(groupItr.hasNext()) {
+			int id = groupItr.next();
+
+			autosave(CustomSpawners.getGroup(id));
 		}
 
 		if(CONFIG.getBoolean("data.broadcastAutosave")) {
@@ -137,6 +157,13 @@ public class FileManager {
 	public void clearSpawners() {
 		synchronized(this) {
 			CustomSpawners.spawners.clear();
+		}
+	}
+
+	//Clears the spawners list
+	public void clearGroups() {
+		synchronized(this) {
+			CustomSpawners.groups.clear();
 		}
 	}
 
@@ -172,12 +199,12 @@ public class FileManager {
 
 			if(e.getId() == CustomSpawners.defaultEntity.getId())
 				continue;
-			
+
 			if(CustomSpawners.entities.containsKey(e.getId())) {
 				PLUGIN.cloneWithNewId(e);
 				continue;
 			}
-			
+
 			CustomSpawners.entities.put(e.getId(), e);
 
 		}
@@ -203,7 +230,7 @@ public class FileManager {
 				if(e.getModifiers() == null) {
 					e.setModifiers(new HashMap<String, String>());
 				}
-				
+
 				return e;
 
 			} catch (Exception e) {
@@ -216,11 +243,80 @@ public class FileManager {
 
 			LOG.info(SWITCHED_FORMAT);
 			f.delete();
-			
+
 		}
 
 		return null;
 
+	}
+
+	//Loads a Group from a DAT file
+	public Group loadGroup(File f) {
+
+		if(isDat(f)) {
+
+			try {
+				FileInputStream fIn = new FileInputStream(f);
+				ObjectInputStream oIn = new ObjectInputStream(fIn);
+
+				Group g = (Group) oIn.readObject();
+
+				oIn.close();
+				fIn.close();
+
+				return g;
+
+			} catch (Exception e) {
+				PLUGIN.printDebugTrace(e);
+				saveCrash(this.getClass(), e);
+				LOG.severe("Failed to load spawner from" + f.getPath() + "!");
+			}
+
+		} else if(isYaml(f)) {
+
+			LOG.info(SWITCHED_FORMAT);
+			f.delete();
+
+		}
+
+		return null;
+
+	}
+
+	//Loads groups from file
+	public void loadGroups() {
+
+		if(LOG_LEVEL > 0)
+			LOG.info("Loading groups from directory " + GROUP_PATH);
+
+		File gDir = new File(GROUP_PATH);
+		if(!gDir.exists())
+			gDir.mkdirs();
+		File[] gFiles = gDir.listFiles();
+
+		if(LOG_LEVEL > 1) 
+			LOG.info(String.valueOf(gFiles.length) + " total groups.");
+
+		for(File f : gFiles) {
+
+			Group g = loadGroup(f);
+
+			if(g == null) {
+				LOG.info("Failed to load from " + f.getPath());
+				continue;
+			}
+
+			if(CustomSpawners.groups.containsKey(g.getId())) {
+				LOG.info("Skipping " + f.getPath() + ": Duplicate group.");
+				continue;
+			}
+
+			CustomSpawners.groups.put(g.getId(), g);
+
+		}
+
+		if(LOG_LEVEL > 0)
+			LOG.info("Load Complete!");
 	}
 
 	//Loads a Spawner from a YAML file
@@ -240,19 +336,19 @@ public class FileManager {
 				if(s.getMobs() == null) {
 					s.setMobs(new ConcurrentHashMap<UUID, SpawnableEntity>());
 				}
-				
+
 				if(s.getModifiers() == null) {
 					s.setModifiers(new HashMap<String, String>());
 				}
-				
+
 				if(s.getSecondaryMobs() == null) {
 					s.setSecondaryMobs(new ConcurrentHashMap<UUID, UUID>());
 				}
-				
+
 				if(s.getSpawnTimes() == null) {
 					s.setSpawnTimes(new ArrayList<Integer>());
 				}
-				
+
 				if(s.getTypeData() == null) {
 					s.setTypeData(new ArrayList<Integer>());
 					s.addTypeData(CustomSpawners.defaultEntity);
@@ -263,7 +359,7 @@ public class FileManager {
 			} catch (Exception e) {
 				PLUGIN.printDebugTrace(e);
 				saveCrash(this.getClass(), e);
-				LOG.severe("Failed to load spawner from" + f.getPath() + "!");
+				LOG.severe("Failed to load spawner from " + f.getPath() + "!");
 			}
 
 		} else if(isYaml(f)) {
@@ -299,11 +395,11 @@ public class FileManager {
 				LOG.info("Failed to load from " + f.getPath());
 				continue;
 			}
-
+			
 			if(CustomSpawners.spawners.containsKey(s.getId())) {
 				PLUGIN.cloneWithNewId(s);
 			}
-			
+
 			CustomSpawners.spawners.put(s.getId(), s);
 
 		}
@@ -314,10 +410,9 @@ public class FileManager {
 
 	//Reloads
 	public void reloadData() throws Exception {
-		saveEntities();
-		saveSpawners();
-		loadEntities();
-		loadSpawners();
+		reloadEntities();
+		reloadSpawners();
+		reloadGroups();
 	}
 
 	//Reload entities from file
@@ -332,54 +427,86 @@ public class FileManager {
 		loadSpawners();
 	}
 
-	//Removes a spawner or entity's data file
-	public void removeDataFile(int id, boolean isSpawner) {
+	//Saves then loads groups from file
+	public void reloadGroups() {
+		saveGroups();
+		loadGroups();
+	}
+
+	//Removes a data file
+	public void removeEntityDataFile(int id) {
 
 		File file = null;
 
-		if(isSpawner) {
+		String path = ENTITY_PATH + ch + id + ".dat";
+		file = new File(path);
 
-			String path = SPAWNER_PATH + ch + id + ".dat";
-			file = new File(path);
+		if(!file.exists()) {
+			PLUGIN.printDebugMessage("Entity File Does Not Exist. Path => " + path);
+			return;
+		}
 
-			if(!file.exists()) {
-				PLUGIN.printDebugMessage("Spawner File Does Not Exist. Path => " + path);
+		file.delete();
+
+		for(World w : PLUGIN.getServer().getWorlds()) {
+			File entity = new File(w.getWorldFolder() + ch + "cs_data" + ch + "entites" + ch + id + ".dat");
+
+			if(!entity.exists())
 				return;
-			}
 
-			file.delete();
+			entity.delete();
 
-			for(World w : PLUGIN.getServer().getWorlds()) {
-				File spawner = new File(w.getWorldFolder() + ch + "cs_data" + ch + "spawners" + ch + id + ".dat");
+		}
 
-				if(!spawner.exists())
-					return;
+	}
 
-				spawner.delete();
+	public void removeSpawnerDataFile(int id) {
 
-			}
+		File file = null;
 
-		} else {
+		String path = SPAWNER_PATH + ch + id + ".dat";
+		file = new File(path);
 
-			String path = ENTITY_PATH + ch + id + ".dat";
-			file = new File(path);
+		if(!file.exists()) {
+			PLUGIN.printDebugMessage("Spawner File Does Not Exist. Path => " + path);
+			return;
+		}
 
-			if(!file.exists()) {
-				PLUGIN.printDebugMessage("Entity File Does Not Exist. Path => " + path);
+		file.delete();
+
+		for(World w : PLUGIN.getServer().getWorlds()) {
+			File spawner = new File(w.getWorldFolder() + ch + "cs_data" + ch + "spawners" + ch + id + ".dat");
+
+			if(!spawner.exists())
 				return;
-			}
 
-			file.delete();
+			spawner.delete();
 
-			for(World w : PLUGIN.getServer().getWorlds()) {
-				File entity = new File(w.getWorldFolder() + ch + "cs_data" + ch + "entites" + ch + id + ".dat");
+		}
 
-				if(!entity.exists())
-					return;
+	}
 
-				entity.delete();
+	public void removeGroupDataFile(int id) {
 
-			}
+		File file = null;
+
+		String path = GROUP_PATH + ch + id + ".dat";
+		file = new File(path);
+
+		if(!file.exists()) {
+			PLUGIN.printDebugMessage("Group File Does Not Exist. Path => " + path);
+			return;
+		}
+
+		file.delete();
+
+		for(World w : PLUGIN.getServer().getWorlds()) {
+			File spawner = new File(w.getWorldFolder() + ch + "cs_data" + ch + "groups" + ch + id + ".dat");
+
+			if(!spawner.exists())
+				return;
+
+			spawner.delete();
 
 		}
 
@@ -465,7 +592,7 @@ public class FileManager {
 
 			if(e.getId() == CustomSpawners.defaultEntity.getId())
 				continue;
-			
+
 			String path = ENTITY_PATH + ch + String.valueOf(e.getId()) + ".dat";
 
 			if(LOG_LEVEL > 1)
@@ -484,18 +611,18 @@ public class FileManager {
 
 	//Saves a SpawnableEntity to YAML file
 	public void saveEntity(SpawnableEntity s, File f) {
-		
+
 		if(isDat(f)) {
 
 			try {
 				if(!f.exists())
 					f.createNewFile();
-				
+
 				FileOutputStream fOut = new FileOutputStream(f);
 				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 
 				s.removeNulls();
-				
+
 				oOut.writeObject(s);
 
 				oOut.close();
@@ -512,20 +639,78 @@ public class FileManager {
 
 	}
 
-	//Saves a Spawner to a YAML file
-	public void saveSpawner(Spawner s, File f) {
-		
+	//Save entities to file
+	public void saveGroups() {
+
+		if(LOG_LEVEL > 0)
+			LOG.info("Saving groups...");
+
+		if(LOG_LEVEL > 1)
+			LOG.info(String.valueOf(CustomSpawners.groups.size()) + " groups to save.");
+
+		Iterator<Group> groupItr = CustomSpawners.groups.values().iterator();
+
+		while(groupItr.hasNext()) {
+			Group g = groupItr.next();
+
+			String path = GROUP_PATH + ch + String.valueOf(g.getId()) + ".dat";
+
+			if(LOG_LEVEL > 1)
+				LOG.info("Saving group " + String.valueOf(g.getId()) + " to " + path);
+
+			File saveFile = new File(path);
+			saveGroup(g, saveFile);
+
+		}
+
+		clearEntities();
+
+		if(LOG_LEVEL > 0)
+			LOG.info("Save complete!");	
+	}
+
+	//Saves a Group to DAT file
+	public void saveGroup(Group g, File f) {
+
 		if(isDat(f)) {
 
 			try {
 				if(!f.exists())
 					f.createNewFile();
-				
+
+				FileOutputStream fOut = new FileOutputStream(f);
+				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
+
+				oOut.writeObject(g);
+
+				oOut.close();
+				fOut.close();
+
+			} catch (Exception e) {
+				PLUGIN.printDebugTrace(e);
+				saveCrash(this.getClass(), e);
+				LOG.severe("Failed to save entity " + String.valueOf(g.getId()) + "!");
+			}
+
+			return;
+		}
+
+	}
+
+	//Saves a Spawner to a YAML file
+	public void saveSpawner(Spawner s, File f) {
+
+		if(isDat(f)) {
+
+			try {
+				if(!f.exists())
+					f.createNewFile();
+
 				FileOutputStream fOut = new FileOutputStream(f);
 				ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 
 				s.removeNulls();
-				
+
 				oOut.writeObject(s);
 
 				oOut.close();

@@ -26,14 +26,13 @@ public class EntityAgeCommand extends EntityCommand {
 		} else if(aIn.equals("baby")) {
 			entity.setAge(-2);
 		} else {
-			if(!CustomSpawners.isInteger(aIn)) {
+			try {
+				int age = handleDynamic(aIn, entity.getAge(null));
+				entity.setAge(age);
+			} catch(IllegalArgumentException e) {
 				PLUGIN.sendMessage(sender, ChatColor.RED + "Age value must be an integer, \"adult\", or \"baby\".");
 				return;
 			}
-			
-			int age = Integer.parseInt(aIn);
-			
-			entity.setAge(age);
 		}
 		
 		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "age", aIn));

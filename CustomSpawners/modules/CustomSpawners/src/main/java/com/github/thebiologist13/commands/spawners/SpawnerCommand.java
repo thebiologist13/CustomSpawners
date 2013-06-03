@@ -13,8 +13,6 @@ public abstract class SpawnerCommand extends SubCommand {
 	public final String NO_SPAWNER = ChatColor.RED + "You must have a spawner selected, or define a spawner.";
 	public final String NO_OVERRIDE = ChatColor.RED + "Your entered values are not permissible.";
 	
-	private boolean needsObject = true;
-	
 	public SpawnerCommand(CustomSpawners plugin) {
 		super(plugin, "");
 	}
@@ -49,33 +47,8 @@ public abstract class SpawnerCommand extends SubCommand {
 				PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + "!";
 	}
 	
-	public boolean needsObject() {
-		return needsObject;
-	}
-	
-	public boolean permissibleForObject(CommandSender sender, String perm, Spawner object) {
-
-		if(object == null)
-			return permissible(sender, null);
-		
-		if(perm == null)
-			perm = this.permission;
-		
-		if(perm.isEmpty())
-			perm = this.permission;
-		
-		if(permissible(sender, null))
-			return true;
-		
-		perm += "." + object.getId();
-		
-		return permissible(sender, perm);
-	}
-	
 	public abstract void run(Spawner spawner, CommandSender sender, String subCommand, String[] args);
 
-	public void setNeedsObject(boolean needsObject) {
-		this.needsObject = needsObject;
-	}
+	
 
 }

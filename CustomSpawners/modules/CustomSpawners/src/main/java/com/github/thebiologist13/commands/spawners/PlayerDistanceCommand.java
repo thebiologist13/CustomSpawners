@@ -20,36 +20,50 @@ public class PlayerDistanceCommand extends SpawnerCommand {
 		
 		String in = getValue(args, 0, "0");
 		
-		if(!CustomSpawners.isDouble(in)) {
+		try {
+			if(subCommand.equals("setmaxdistance")) {
+				
+				double dis = handleDynamic(in, spawner.getMaxPlayerDistance());
+				
+				if(dis < 0) {
+					PLUGIN.sendMessage(sender, ChatColor.RED + "The distance must be greater than zero.");
+					return;
+				}
+				
+				if(dis > CONFIG.getDouble("spawners.playerDistanceLimit", 128) 
+						&& !permissible(sender, "customspawners.limitoverride")) {
+					PLUGIN.sendMessage(sender, NO_OVERRIDE);
+					return;
+				}
+				
+				spawner.setMaxPlayerDistance(dis);
+				
+				PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "max player distance", in));
+				
+			} else if(subCommand.equals("setmindistance")) {
+				
+				double dis = handleDynamic(in, spawner.getMinPlayerDistance());
+				
+				if(dis < 0) {
+					PLUGIN.sendMessage(sender, ChatColor.RED + "The distance must be greater than zero.");
+					return;
+				}
+				
+				if(dis > CONFIG.getDouble("spawners.playerDistanceLimit", 128) 
+						&& !permissible(sender, "customspawners.limitoverride")) {
+					PLUGIN.sendMessage(sender, NO_OVERRIDE);
+					return;
+				}
+				
+				spawner.setMinPlayerDistance(dis);
+				
+				PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "min player distance", in));
+				
+			}
+		} catch(IllegalArgumentException e) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "The distance must be a number.");
-			return;
-		}
-		
-		double dis = Double.parseDouble(in);
-		
-		if(dis < 0) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "The distance must be greater than zero.");
-			return;
-		}
-		
-		if(dis > CONFIG.getDouble("spawners.playerDistanceLimit", 128) && !permissible(sender, "customspawners.limitoverride")) {
-			PLUGIN.sendMessage(sender, NO_OVERRIDE);
-			return;
-		}
-		
-		if(subCommand.equals("setmaxdistance")) {
-			
-			spawner.setMaxPlayerDistance(dis);
-			
-			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "max player distance", in));
-			
-		} else if(subCommand.equals("setmindistance")) {
-			
-			spawner.setMinPlayerDistance(dis);
-			
-			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "min player distance", in));
-			
 		}
 		
 	}
+	
 }

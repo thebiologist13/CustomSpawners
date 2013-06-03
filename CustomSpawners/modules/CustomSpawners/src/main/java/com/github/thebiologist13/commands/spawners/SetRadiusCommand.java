@@ -20,26 +20,25 @@ public class SetRadiusCommand extends SpawnerCommand {
 		
 		String in = getValue(args, 0, "0");
 		
-		if(!CustomSpawners.isDouble(in)) {
+		try {
+			double radius = handleDynamic(in, spawner.getRadius());
+			
+			if(radius < 0) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + "The radius must be greater than zero.");
+				return;
+			}
+			
+			if(radius > CONFIG.getDouble("spawners.radiusLimit", 128) && !permissible(sender, "customspawners.limitoverride")) {
+				PLUGIN.sendMessage(sender, NO_OVERRIDE);
+				return;
+			}
+			
+			spawner.setRadius(radius);
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "radius", in));
+		} catch(IllegalArgumentException e) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "The radius must be a number.");
-			return;
 		}
-		
-		double radius = Double.parseDouble(in);
-		
-		if(radius < 0) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "The radius must be greater than zero.");
-			return;
-		}
-		
-		if(radius > CONFIG.getDouble("spawners.radiusLimit", 128) && !permissible(sender, "customspawners.limitoverride")) {
-			PLUGIN.sendMessage(sender, NO_OVERRIDE);
-			return;
-		}
-		
-		spawner.setRadius(radius);
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "radius", in));
 		
 	}
 	

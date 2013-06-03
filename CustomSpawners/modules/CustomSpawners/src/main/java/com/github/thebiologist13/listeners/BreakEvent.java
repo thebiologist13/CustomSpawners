@@ -38,7 +38,7 @@ public class BreakEvent implements Listener {
 				PLUGIN.removeMobs(s);
 			
 			PLUGIN.removeSpawner(s);
-			PLUGIN.getFileManager().removeDataFile(s.getId(), true);
+			PLUGIN.getFileManager().removeSpawnerDataFile(s.getId());
 		}
 		
 	}

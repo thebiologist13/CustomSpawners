@@ -8,7 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
-public interface ISpawner {
+public interface ISpawner extends IObject {
 	
 	public void addMob(UUID id, ISpawnableEntity type);
 	
@@ -29,8 +29,6 @@ public interface ISpawner {
 	public int getBlockId();
 	
 	public Map<String, Object> getData();
-	
-	public int getId();
 	
 	public Location getLoc();
 

@@ -29,7 +29,7 @@ public class SEnchantmentMeta extends SItemMeta implements Serializable {
 				EnchantmentStorageMeta enchMeta = (EnchantmentStorageMeta) meta;
 				for(Enchantment en : enchMeta.getStoredEnchants().keySet()) {
 					CardboardEnchantment c = new CardboardEnchantment(en);
-					storedEnchantments.put(c, enchMeta.getEnchantLevel(en));
+					storedEnchantments.put(c, enchMeta.getStoredEnchantLevel(en));
 				}
 			}
 		}

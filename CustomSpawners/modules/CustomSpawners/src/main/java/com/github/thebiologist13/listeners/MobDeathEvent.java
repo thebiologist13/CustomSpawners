@@ -11,6 +11,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
+import com.github.thebiologist13.api.ISItemStack;
 import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SItemStack;
 
@@ -44,14 +45,14 @@ public class MobDeathEvent implements Listener {
 			} else if(!e.getInventory().isEmpty()) {
 				ev.getDrops().clear();
 				SInventory inv = e.getInventory();
-				Collection<SItemStack> items = inv.getContent().values();
+				Collection<ISItemStack> items = inv.getContent().values();
 				
-				for(SItemStack s : items) {
+				for(ISItemStack s : items) {
 					if(drop(s))
 						ev.getDrops().add(s.toItemStack());
 				}
 				
-				for(SItemStack s : inv.getArmorSItemStacks()) {
+				for(ISItemStack s : inv.getArmorSItemStacks()) {
 					if(drop(s))
 						ev.getDrops().add(s.toItemStack());
 				}
@@ -62,7 +63,7 @@ public class MobDeathEvent implements Listener {
 			}
 			
 			//Exp
-			int xp = e.getDroppedExp();
+			int xp = e.getDroppedExp(entity);
 			
 			if(xp > 0) {
 				ev.setDroppedExp(xp);
@@ -74,7 +75,7 @@ public class MobDeathEvent implements Listener {
 		
 	}
 	
-	private boolean drop(SItemStack stack) {
+	private boolean drop(ISItemStack stack) {
 		Random rand = new Random();
 		float value = rand.nextFloat() * 100;
 		float chance = stack.getDropChance();

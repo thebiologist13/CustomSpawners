@@ -120,8 +120,8 @@ public class Converter implements IConverter {
 			if (eData.hasKey("Pos") && spawnLocation == null)
 				eData.remove("Pos");
 
-			eData.set("Motion", makeDoubleList(new double[] { mainEntity.getXVelocity(),
-					mainEntity.getYVelocity(), mainEntity.getZVelocity() }));
+			eData.set("Motion", makeDoubleList(new double[] { mainEntity.getXVelocity(null),
+					mainEntity.getYVelocity(null), mainEntity.getZVelocity(null) }));
 
 			sData.set("SpawnData", eData);
 			e.remove();
@@ -140,8 +140,8 @@ public class Converter implements IConverter {
 				if (eData0.hasKey("Pos") && spawnLocation == null)
 					eData0.remove("Pos");
 
-				eData0.set("Motion", makeDoubleList(new double[] { se.getXVelocity(),
-						se.getYVelocity(), se.getZVelocity() }));
+				eData0.set("Motion", makeDoubleList(new double[] { se.getXVelocity(null),
+						se.getYVelocity(null), se.getZVelocity(null) }));
 
 				potentialData.setCompound("Properties", eData0);
 				potentialData.setInt("Weight", 0);
@@ -236,6 +236,21 @@ public class Converter implements IConverter {
 				b.getX(), b.getY(), b.getZ());
 
 		te.a(n);
+	}
+
+	//The above worked in pre-1.5.2 versions...
+	
+	@Override
+	public void addTileEntity(Block b, ISpawner data) {}
+
+	@Override
+	public Entity addSpawnerMinecart(Location loc, ISpawner data) {
+		return null;
+	}
+
+	@Override
+	public Entity addFallingSpawner(Location loc, ISpawner data) {
+		return null;
 	}
 
 }

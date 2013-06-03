@@ -26,14 +26,13 @@ public class EntityAirCommand extends EntityCommand {
 		} else if(aIn.equals("minimum") || aIn.equals("min")) {
 			entity.setAir(-2);
 		} else {
-			if(!CustomSpawners.isInteger(aIn)) {
+			try {
+				int air = handleDynamic(aIn, entity.getAir(null));
+				entity.setAir(air);
+			} catch(IllegalArgumentException e) {
 				PLUGIN.sendMessage(sender, ChatColor.RED + "Air value must be an integer, \"maximum\", or \"minimum\".");
 				return;
 			}
-			
-			int air = Integer.parseInt(aIn);
-			
-			entity.setAir(air);
 		}
 		
 		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "air", aIn));

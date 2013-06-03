@@ -34,14 +34,17 @@ public class EntityRemoveCommand extends EntityCommand {
 				defaultEntity.add(CustomSpawners.defaultEntity.getId());
 				s.setTypeData(defaultEntity);
 				
-				PLUGIN.sendMessage(sender, ChatColor.GOLD + "The spawner " + PLUGIN.getFriendlyName(s) + " has been set to the default entity due to removal.");
+				PLUGIN.sendMessage(sender, ChatColor.GOLD + "The spawner " + 
+						PLUGIN.getFriendlyName(s) + " has been set to the " +
+						"default entity due to removal.");
 			}
 		}
 		
 		PLUGIN.removeEntity(entity);
-		PLUGIN.getFileManager().removeDataFile(id, false);
+		PLUGIN.getFileManager().removeEntityDataFile(id);
 		
-		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Entity " + ChatColor.GOLD + id + ChatColor.GREEN + " has been removed from the server.");
+		PLUGIN.sendMessage(sender, ChatColor.GREEN + "Entity " + ChatColor.GOLD + 
+				id + ChatColor.GREEN + " has been removed from the server.");
 		
 	}
 	

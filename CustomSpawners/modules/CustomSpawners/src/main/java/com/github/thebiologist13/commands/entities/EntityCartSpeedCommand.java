@@ -21,14 +21,13 @@ public class EntityCartSpeedCommand extends EntityCommand {
 		
 		String in = getValue(args, 0, "0.4");
 		
-		if(!CustomSpawners.isDouble(in)) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "The yield must be a double.");
-			return;
+		try {
+			entity.setProp("minecartSpeed", handleDynamic(in, (Double) (entity.getProp("minecartSpeed"))));
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(entity, "minecart speed", in));
+		} catch(IllegalArgumentException e) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + "Minecart speed must be a decimal number.");
 		}
-		
-		entity.setProp("minecartSpeed", Double.parseDouble(in));
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "minecart speed", in));
 		
 	}
 

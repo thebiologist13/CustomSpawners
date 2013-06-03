@@ -6,9 +6,9 @@ import java.util.Map;
 import org.bukkit.inventory.ItemStack;
 
 public interface ISInventory {
-	public void addItem(int slot, ItemStack item);
+	public void addItem(int slot, ISItemStack item);
 	
-	public void addItem(ItemStack item);
+	public void addItem(ISItemStack item);
 	
 	public void clearArmor();
 	
@@ -32,7 +32,7 @@ public interface ISInventory {
 	
 	public boolean hasHand();
 	
-	public boolean hasItem(ItemStack item);
+	public boolean hasItem(ISItemStack item);
 	
 	public boolean hasSlot(int slot);
 	
@@ -46,15 +46,15 @@ public interface ISInventory {
 	
 	public void removeLeg();
 	
-	public void setArmor(ItemStack[] armor);
+	public void setArmor(ISItemStack[] armor);
 	
-	public void setBoot(ItemStack boot);
+	public void setBoot(ISItemStack boot);
 	
-	public void setChest(ItemStack chest);
+	public void setChest(ISItemStack chest);
 	
-	public void setHand(ItemStack hand);
+	public void setHand(ISItemStack hand);
 	
-	public void setHelmet(ItemStack helmet);
+	public void setHelmet(ISItemStack helmet);
 	
-	public void setLeg(ItemStack leg);
+	public void setLeg(ISItemStack leg);
 }

@@ -20,26 +20,29 @@ public class PerSpawnCommand extends SpawnerCommand {
 		
 		String in = getValue(args, 0, "2");
 		
-		if(!CustomSpawners.isInteger(in)) {
+		try {
+			int mobs = handleDynamic(in, spawner.getMobsPerSpawn());
+			
+			if(mobs < 0) {
+				PLUGIN.sendMessage(sender, ChatColor.RED + "The mobs per spawn must be greater than zero.");
+				return;
+			}
+			
+			if(mobs > CONFIG.getInt("spawners.mobsPerSpawnLimit", 16)) {
+				if(warnLag(sender))
+					return;
+				if(!permissible(sender, "customspawners.limitoverride")) {
+					PLUGIN.sendMessage(sender, NO_OVERRIDE);
+					return;
+				}
+			}
+			
+			spawner.setMobsPerSpawn(mobs);
+			
+			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "mobs per spawn", in));
+		} catch(IllegalArgumentException e) {
 			PLUGIN.sendMessage(sender, NOT_INT_AMOUNT);
-			return;
 		}
-		
-		int mobs = Integer.parseInt(in);
-		
-		if(mobs < 0) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "The mobs per spawn must be greater than zero.");
-			return;
-		}
-		
-		if(mobs > CONFIG.getInt("spawners.mobsPerSpawnLimit", 16) && !permissible(sender, "customspawners.limitoverride")) {
-			PLUGIN.sendMessage(sender, NO_OVERRIDE);
-			return;
-		}
-		
-		spawner.setMobsPerSpawn(mobs);
-		
-		PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "mobs per spawn", in));
 		
 	}
 	

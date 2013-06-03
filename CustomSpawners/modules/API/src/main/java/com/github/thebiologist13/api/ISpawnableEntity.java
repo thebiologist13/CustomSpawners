@@ -11,19 +11,15 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
-public interface ISpawnableEntity {
-	
-	public int getAge();
+public interface ISpawnableEntity extends IObject {
 	
 	public int getAge(Entity en);
 	
-	public int getAir();
+	public int getAir(Entity en);
 	
 	public String getCatType();
 	
 	public String getColor();
-	
-	public int getDamage();
 	
 	public int getDamage(Entity en);
 	
@@ -31,7 +27,7 @@ public interface ISpawnableEntity {
 	
 	public List<String> getDamageWhitelist();
 	
-	public int getDroppedExp();
+	public int getDroppedExp(Entity en);
 	
 	public List<ItemStack> getDrops();
 	
@@ -45,15 +41,13 @@ public interface ISpawnableEntity {
 	
 	public MaterialData getEndermanBlock();
 	
-	public int getFireTicks();
+	public int getFireTicks(Entity en);
 
-	public int getFuseTicks();
+	public int getFuseTicks(Entity en);
 
-	public int getHealth();
+	public int getHealth(Entity en);
 
 	public float getHeight();
-
-	public int getId();
 
 	public List<ItemStack> getItemDamageList();
 
@@ -83,17 +77,17 @@ public interface ISpawnableEntity {
 
 	public EntityType getType();
 
-	public Vector getVelocity();
+	public Vector getVelocity(Entity en);
 
 	public float getWidth();
 
-	public double getXVelocity();
+	public double getXVelocity(Entity en);
 
-	public float getYield();
+	public float getYield(Entity en);
 
-	public double getYVelocity();
+	public double getYVelocity(Entity en);
 
-	public double getZVelocity();
+	public double getZVelocity(Entity en);
 
 	public boolean hasAllDimensions();
 	
@@ -135,6 +129,10 @@ public interface ISpawnableEntity {
 	public void setHeight(float height);
 	
 	public void setBlockBelow(boolean reqsBlockBelow);
+	
+	public void setMaxAir(int max);
+	
+	public void setMaxHealth(int maxHealth);
 	
 	public void setLength(float length);
 	

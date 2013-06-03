@@ -25,14 +25,14 @@ public class EntityHealthCommand extends EntityCommand {
 		} else if(in.equals("minimum") || in.equals("min")) {
 			entity.setHealth(-2);
 		} else {
-			if(!CustomSpawners.isInteger(in)) {
+			try {
+				int health = handleDynamic(in, entity.getHealth(null));
+				
+				entity.setHealth(health);
+			} catch(IllegalArgumentException e) {
 				PLUGIN.sendMessage(sender, ChatColor.RED + "Health value must be an integer, \"maximum\", or \"minimum\".");
 				return;
 			}
-			
-			int health = Integer.parseInt(in);
-			
-			entity.setHealth(health);
 		}
 		
 		PLUGIN.sendMessage(sender, getSuccessMessage(entity, "health", in));

@@ -23,6 +23,12 @@ commands:
         aliases: [cse, csentities]
         permission: customspawners.entities
         permission-message: You do not have permission to use the entities command.
+    groups:
+        description: This command executes spawner group related functions.
+        usage: This command is used by /groups [subcommand] [type]-[id] [arguments...] Refer to CustomSpawners' BukkitDev for more usage help.
+        aliases: [csg, csgroups]
+        permission: customspawners.groups
+        permission-message: You do not have permission to use the groups command.
 permissions:
     customspawners.*:
         description: Gives access to all of CustomSpawners' features.
@@ -31,6 +37,7 @@ permissions:
             customspawners.customspawners: true
             customspawners.spawners: true
             customspawners.entities: true
+            customspawners.groups: true
             customspawners.help: true
             customspawners.reload: true
             customspawners.io: true
@@ -72,6 +79,7 @@ permissions:
             customspawners.spawners.tracknearby: true
             customspawners.spawners.spawnonenter: true
             customspawners.spawners.capped: true
+            customspawners.spawners.teleport: true
             customspawners.entities.effects: true
             customspawners.entities.setage: true
             customspawners.entities.setair: true
@@ -115,6 +123,17 @@ permissions:
             customspawners.entities.modifiers: true
             customspawners.entities.rider: true
             customspawners.entities.minecartspeed: true
+            customspawners.entities.spawn: true
+            customspawners.groups.create: true
+            customspawners.groups.remove: true
+            customspawners.groups.addobject: true
+            customspawners.groups.removeobject: true
+            customspawners.groups.find: true
+            customspawners.groups.type: true
+            customspawners.groups.clear: true
+            customspawners.groups.list: true
+            customspawners.groups.info: true
+            customspawners.groups.name: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawners" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -235,9 +254,6 @@ permissions:
     customspawners.spawners.tracknearby:
         description: Allows the user/group to change whether only nearby mobs are tracked.
         default: op
-    customspawners.entities.setpassive:
-        description: Allows the user/group to set the mobs passive.
-        default: op
     customspawners.spawners.spawntime:
         description: Allows the user/group to set the spawn times of a spawner.
         default: op
@@ -252,7 +268,13 @@ permissions:
         default: op  
     customspawners.spawners.capped:
         description: Allows the user/group to set whether the spawner should have a mob cap and remove itself when that is reached.
+        default: op  
+    customspawners.spawners.teleport:
+        description: Allows the user/group to teleport to a spawner.
         default: op   
+    customspawners.entities.setpassive:
+        description: Allows the user/group to set the mobs passive.
+        default: op
     customspawners.entities.create:
         description: Allows the user/group to create a spawnable entity.
         default: op
@@ -384,4 +406,37 @@ permissions:
         default: op
     customspawners.entities.minecartspeed:
         description: Allows the user/group to set minecart max speed.
+        default: op
+    customspawners.entities.spawn:
+        description: Allows the user/group to spawn spawnable entities without a spawner.
+        default: op
+    customspawners.groups.create:
+        description: Allows the user/group to create a group.
+        default: op
+    customspawners.groups.remove:
+        description: Allows the user/group to remove a group.
+        default: op
+    customspawners.groups.addobject:
+        description: Allows the user/group to add an object to a group.
+        default: op
+    customspawners.groups.removeobject:
+        description: Allows the user/group to remove an object from a group.
+        default: op
+    customspawners.groups.find:
+        description: Allows the user/group to find an object in a group.
+        default: op
+    customspawners.groups.type:
+        description: Allows the user/group to set the type of a group.
+        default: op
+    customspawners.groups.clear:
+        description: Allows the user/group to clear a group.
+        default: op
+    customspawners.groups.list:
+        description: Allows the user/group to list all of the groups.
+        default: op
+    customspawners.groups.info:
+        description: Allows the user/group to see info on a group.
+        default: op
+    customspawners.groups.name:
+        description: Allows the user/group to set the group's name.
         default: op

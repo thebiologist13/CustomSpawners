@@ -6,6 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.github.thebiologist13.api.IObject;
+import com.github.thebiologist13.commands.SelectionParser;
 import com.github.thebiologist13.commands.spawners.ActivateAllCommand;
 import com.github.thebiologist13.commands.spawners.ActiveCommand;
 import com.github.thebiologist13.commands.spawners.AddTypeCommand;
@@ -40,6 +42,7 @@ import com.github.thebiologist13.commands.spawners.SpawnOnEnterCommand;
 import com.github.thebiologist13.commands.spawners.SpawnOnPowerCommand;
 import com.github.thebiologist13.commands.spawners.SpawnTimesCommand;
 import com.github.thebiologist13.commands.spawners.SpawnerCommand;
+import com.github.thebiologist13.commands.spawners.TeleportToCommand;
 import com.github.thebiologist13.commands.spawners.ToggleWandCommand;
 import com.github.thebiologist13.commands.spawners.TrackNearCommand;
 
@@ -49,10 +52,10 @@ import com.github.thebiologist13.commands.spawners.TrackNearCommand;
  * @author thebiologist13
  */
 public class SpawnerExecutor extends Executor implements CommandExecutor {
-	
+
 	public SpawnerExecutor(CustomSpawners plugin) {
 		super(plugin);
-		
+
 		SpawnerCommand hidden = new HiddenCommand(plugin, "customspawners.spawners.hidden");
 		SpawnerCommand activateAll = new ActivateAllCommand(plugin, "customspawners.spawners.activateall");
 		SpawnerCommand addType = new AddTypeCommand(plugin, "customspawners.spawners.addtype");
@@ -85,10 +88,11 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		SpawnerCommand clone = new CloneCommand(plugin, "customspawners.spawners.clone");
 		SpawnerCommand times = new SpawnTimesCommand(plugin, "customspawners.spawners.spawntime");
 		SpawnerCommand modify = new ModifierCommand(plugin, "customspawners.spawners.modifiers");
-		SpawnerCommand trackNear = new TrackNearCommand(plugin, "customspawners.spawners.tracknearby"); //TODO Add to wiki + test
-		SpawnerCommand onEnter = new SpawnOnEnterCommand(plugin, "customspawners.spawners.spawnonenter"); //TODO Add to wiki + test
-		SpawnerCommand cap = new CappedCommand(plugin, "customspawners.spawners.capped"); //TODO Add to wiki + test
-		
+		SpawnerCommand trackNear = new TrackNearCommand(plugin, "customspawners.spawners.tracknearby");
+		SpawnerCommand onEnter = new SpawnOnEnterCommand(plugin, "customspawners.spawners.spawnonenter");
+		SpawnerCommand cap = new CappedCommand(plugin, "customspawners.spawners.capped");
+		SpawnerCommand tp = new TeleportToCommand(plugin, "customspawners.spawners.teleport"); //TODO WIKI: TeleportTo command
+
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
 		listAll.setNeedsObject(false);
@@ -98,7 +102,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		position.setNeedsObject(false);
 		removeAllMobs.setNeedsObject(false);
 		wand.setNeedsObject(false);
-		
+
 		addCommand("activateallspawners", activateAll, new String[] {
 				"activateall",
 				"allactive",
@@ -395,26 +399,36 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				"removeatlimit",
 				"limited"
 		});
+		addCommand("tp", tp, new String[] {
+				"teleport",
+				"tele",
+				"tpto",
+				"teleto",
+				"teleportto",
+				"goto",
+				"gotospawner",
+				"tpspawner"
+		});
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-		
+
 		final String INVALID_PARAMS = ChatColor.RED + "You entered invalid parameters.";
-		
+
 		if(arg1.getName().equalsIgnoreCase("spawners")) {
-			
+
 			if(arg3.length < 1) {
 				PLUGIN.sendMessage(arg0, ChatColor.GREEN + "This is the command used for spawner " +
 						"modification. See the wiki for commands!");
 				return true;
 			}
-			
-			Spawner spawnerRef = null;
+
+			IObject spawnerRef = null;
 			String sub = arg3[0].toLowerCase();
 			String objId = "";
 			String[] params;
-			
+
 			if(arg3.length > 1)
 				objId = arg3[1];
 
@@ -422,60 +436,57 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				PLUGIN.sendMessage(arg0, ChatColor.RED + "You must enter a command.");
 				return true;
 			}
-			
+
 			SpawnerCommand cmd = (SpawnerCommand) super.getCommand(sub);
-			
+
 			if(cmd == null) {
 				PLUGIN.sendMessage(arg0, ChatColor.RED + "\"" + sub + "\" is not valid for the spawners command.");
 				return true;
 			}
-			
+
 			sub = cmd.getCommand(sub); //Aliases
-			
+
 			if(!cmd.permissible(arg0, null)) {
 				PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
 				return true;
 			}
-			
+
+			try {
+				spawnerRef = SelectionParser.getSpawnerSelection(objId, arg0);
+			} catch(IllegalArgumentException e) {
+				if(e.getMessage().equals("Containment")) {
+					PLUGIN.sendMessage(arg0, ChatColor.RED + "The group you entered has " +
+							"one or more children not in the parent group!");
+					return true;
+				} else if(e.getMessage().equals("Type")) {
+					PLUGIN.sendMessage(arg0, ChatColor.RED + "That group is not the right type!");
+					return true;
+				}
+			}
+
+			if(!cmd.permissibleForObject(arg0, null, spawnerRef)) {
+				PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+				return true;
+			}
+
 			if(cmd.needsObject()) {
 				
 				if(arg0 instanceof Player) {
 					Player p = (Player) arg0;
-					
-					if(!CustomSpawners.spawnerSelection.containsKey(p)) {
-						if(objId.startsWith("t:")) {
-							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
-							params = makeParams(arg3, 2);
-						} else {
-							spawnerRef = CustomSpawners.getSpawner(objId);
-							params = makeParams(arg3, 2);
-						}
+
+					if(!CustomSpawners.spawnerSelection.containsKey(p)
+							|| objId.startsWith("t:") || objId.startsWith("g:")) {
+						params = makeParams(arg3, 2);
 					} else {
-						if(objId.startsWith("t:")) { //If they want to target a specific object
-							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
-							params = makeParams(arg3, 2);
-						} else {
-							spawnerRef = CustomSpawners.getSpawner(CustomSpawners.spawnerSelection.get(p));
-							params = makeParams(arg3, 1);
-						}
+						params = makeParams(arg3, 1);
 					}
 				} else {
-					if(CustomSpawners.consoleEntity == -1) {
-						if(objId.startsWith("t:")) {
-							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
-							params = makeParams(arg3, 2);
-						} else {
-							spawnerRef = CustomSpawners.getSpawner(objId);
-							params = makeParams(arg3, 2);
-						}
+
+					if(CustomSpawners.consoleSpawner == -1
+							|| objId.startsWith("t:") || objId.startsWith("g:")) {
+						params = makeParams(arg3, 2);
 					} else {
-						if(objId.startsWith("t:")) { //If they want to target a specific object
-							spawnerRef = CustomSpawners.getSpawner(objId.substring(2));
-							params = makeParams(arg3, 2);
-						} else {
-							spawnerRef = CustomSpawners.getSpawner(CustomSpawners.consoleSpawner);
-							params = makeParams(arg3, 1);
-						}
+						params = makeParams(arg3, 1);
 					}
 				}
 				
@@ -483,37 +494,66 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 					PLUGIN.sendMessage(arg0, cmd.NO_SPAWNER);
 					return true;
 				}
+
 			} else {
 				params = makeParams(arg3, 1);
-			}
-			
-			if(!cmd.permissibleForObject(arg0, null, spawnerRef)) {
-				PLUGIN.sendMessage(arg0, cmd.NO_PERMISSION);
+
+				try {
+					cmd.run(null, arg0, sub, params);
+				} catch(Exception e) {
+					cmd.crash(e, arg0);
+				}
+				
 				return true;
 			}
-			
+
 			try {
-				cmd.run(spawnerRef, arg0, sub, params);
+				if(spawnerRef instanceof Spawner) {
+					Spawner spawner = (Spawner) spawnerRef;
+
+					cmd.run(spawner, arg0, sub, params);
+				} else if(spawnerRef instanceof Group) {
+
+					Group group = (Group) spawnerRef;
+
+					if(group.getGroup().size() >= 25) {
+						if(cmd.warnLag(arg0))
+							return true;
+					}
+
+					runGroup(cmd, group, arg0, sub, params);
+				}
 			} catch(ArrayIndexOutOfBoundsException e) {
 				PLUGIN.sendMessage(arg0, INVALID_PARAMS);
 				return true;
 			} catch(Exception e) {
-				PLUGIN.printDebugTrace(e);
-				PLUGIN.sendMessage(arg0, ChatColor.RED + "An error has occurred. Crash report saved to " + 
-						PLUGIN.getFileManager().saveCrash(cmd.getClass(), e));
-				PLUGIN.sendMessage(arg0, cmd.GENERAL_ERROR);
+				cmd.crash(e, arg0);
 				return true;
 			}
-			
+
 			if(CONFIG.getBoolean("data.autosave") && CONFIG.getBoolean("data.saveOnCommand")) {
 				PLUGIN.getFileManager().autosaveAll();
 			}
-			
+
 			return true;
 		}
-		
+
 		return false;
-		
+
 	}
-	
+
+	private void runGroup(SpawnerCommand cmd, Group g, CommandSender sender, String sub, String[] args) {
+		for(IObject obj : g.getGroup().values()) {
+			if(obj instanceof Spawner) {
+				Spawner spawner = (Spawner) obj;
+
+				cmd.run(spawner, sender, sub, args);
+			} else if(obj instanceof Group) {
+				Group g0 = (Group) obj;
+
+				runGroup(cmd, g0, sender, sub, args);
+			}
+		}
+	}
+
 }

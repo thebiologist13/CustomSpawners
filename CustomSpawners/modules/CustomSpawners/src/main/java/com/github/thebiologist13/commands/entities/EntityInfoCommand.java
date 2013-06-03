@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.github.thebiologist13.CustomSpawners;
 import com.github.thebiologist13.SpawnableEntity;
-import com.github.thebiologist13.serialization.SItemStack;
+import com.github.thebiologist13.api.ISItemStack;
 import com.github.thebiologist13.serialization.SPotionEffect;
 
 public class EntityInfoCommand extends EntityCommand {
@@ -107,10 +107,10 @@ public class EntityInfoCommand extends EntityCommand {
 		invMsg += "[BOOTS] -> " + PLUGIN.getItemName(s.getInventory().getArmor()[0]) + " ";
 		invMsg += "[HAND] -> " + PLUGIN.getItemName(s.getInventory().getHand()) + " ";
 		
-		Map<Integer, SItemStack> content = s.getInventory().getContent();
+		Map<Integer, ISItemStack> content = s.getInventory().getContent();
 		for(Integer i : content.keySet()) {
-			SItemStack stack = content.get(i);
-			invMsg += "[" + i + "] ->" + PLUGIN.getItemName(stack.toItemStack()) + " #" + stack.getCount() + " "; 
+			ISItemStack stack = content.get(i);
+			invMsg += "[" + i + "] ->" + PLUGIN.getItemName(stack) + " #" + stack.getCount() + " "; 
 		}
 		
 		SPotionEffect epe = s.getPotionEffect();
@@ -132,28 +132,42 @@ public class EntityInfoCommand extends EntityCommand {
 			minecartSpeed = (Double) s.getProp("minecartSpeed");
 		}
 		
-		String health = "" + s.getHealth();
+		String health = "" + s.getHealth(null);
 		if(s.hasModifier("health") || s.hasModifier("hp")) {
 			health += " (Dynamic)";
 		}
 		
-		String age = "" + s.getAge();
+		String modMessage = "";
+		int count = 0;
+		for(String str : s.getModifiers().keySet()) {
+			if(count == 0) {
+				modMessage += str + " = " + s.getModifier(str);
+			} else {
+				modMessage += ", " + str + " = " + s.getModifier(str);
+			}
+			count++;
+		}
+		
+		String age = "" + s.getAge(null);
 		age = (s.hasModifier("age")) ? age + " (Dynamic)" : age;
 		
-		String air = "" + s.getAir();
+		String air = "" + s.getAir(null);
 		air = (s.hasModifier("air")) ? air + " (Dynamic)" : air;
 		
-		String damage = "" + s.getDamage();
+		String damage = "" + s.getDamage(null);
 		damage = (s.hasModifier("damage")) ? damage + " (Dynamic)" : damage;
 		
-		String x = "" + s.getXVelocity();
+		String x = "" + s.getXVelocity(null);
 		x = (s.hasModifier("x")) ? x + " (Dynamic)" : x;
 		
-		String y = "" + s.getYVelocity();
+		String y = "" + s.getYVelocity(null);
 		y = (s.hasModifier("y")) ? y + " (Dynamic)" : y;
 		
-		String z = "" + s.getZVelocity();
+		String z = "" + s.getZVelocity(null);
 		z = (s.hasModifier("z")) ? z + " (Dynamic)" : z;
+		
+		String xp = "" + s.getDroppedExp(null);
+		xp = (s.hasModifier("xp")) ? z + " (Dynamic)" : xp;
 		
 		//Send info
 		String[] message = {
@@ -183,7 +197,7 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Slime Size: " + s.getSlimeSize(),
 				ChatColor.GOLD + "Color: " + s.getColor(),
 				ChatColor.GOLD + "Passive: " + String.valueOf(s.isPassive()),
-				ChatColor.GOLD + "Fire Ticks: " + s.getFireTicks(),
+				ChatColor.GOLD + "Fire Ticks: " + s.getFireTicks(null),
 				ChatColor.GOLD + "Using Blacklist: " + s.isUsingBlacklist(),
 				ChatColor.GOLD + "Using Whitelist: " + s.isUsingWhitelist(),
 				ChatColor.GOLD + "Damage Blacklist: " + blackListMsg,
@@ -192,9 +206,9 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Using Custom Damage: " + s.isUsingCustomDamage(),
 				ChatColor.GOLD + "Damage Dealt: " + damage,
 				ChatColor.GOLD + "Potion Type: " + epe.getType().getName() + " " + epe.getAmplifier() + " - " + PLUGIN.convertTicksToTime(epe.getDuration()),
-				ChatColor.GOLD + typeOfExpDrop + s.getDroppedExp(),
-				ChatColor.GOLD + "Fuse Ticks: " + s.getFuseTicks(),
-				ChatColor.GOLD + "Explosive Yield: " + s.getYield(),
+				ChatColor.GOLD + typeOfExpDrop + xp,
+				ChatColor.GOLD + "Fuse Ticks: " + s.getFuseTicks(null),
+				ChatColor.GOLD + "Explosive Yield: " + s.getYield(null),
 				ChatColor.GOLD + "Incendiary: " + s.isIncendiary(),
 				ChatColor.GOLD + "Item Type: " + PLUGIN.getItemName(s.getItemType()),
 				ChatColor.GOLD + "Using Custom Drops: " + s.isUsingCustomDrops(),
@@ -205,6 +219,7 @@ public class EntityInfoCommand extends EntityCommand {
 				ChatColor.GOLD + "Villager: " + String.valueOf(isVillager),
 				ChatColor.GOLD + "Spawner: " + PLUGIN.getFriendlyName(s.getSpawnerData()),
 				ChatColor.GOLD + "Minecart Speed: " + minecartSpeed,
+				ChatColor.GOLD + "Modifiers: " + modMessage,
 				ChatColor.GREEN + "Scroll Up for More Properties."
 		};
 		

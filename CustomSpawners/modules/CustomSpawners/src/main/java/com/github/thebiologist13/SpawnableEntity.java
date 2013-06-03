@@ -24,6 +24,8 @@ import com.github.thebiologist13.serialization.SInventory;
 import com.github.thebiologist13.serialization.SItemStack;
 import com.github.thebiologist13.serialization.SPotionEffect;
 import com.github.thebiologist13.serialization.SVector;
+import com.herocraftonline.heroes.Heroes;
+import com.herocraftonline.heroes.characters.Monster;
 
 /**
  * Represents an entity that can be spawned by CustomSpawners.
@@ -39,12 +41,13 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	private static final long serialVersionUID = -60000847475741355L;
 
+	//Data
+	private Map<String, Object> data;
 	// Damage Blacklist
 	private List<String> blacklist;
-	private Map<String, Object> data;
 	// Drops
 	private List<SItemStack> drops;
-	// Basic Data
+	// Effects
 	private List<SPotionEffect> effects;
 	// Items that do or do not inflict damage
 	private List<SItemStack> itemDamage;
@@ -55,6 +58,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	// Initialize a SpawnableEntity
 	public SpawnableEntity(EntityType type, int id) {
+		this.data = new HashMap<String, Object>();
 		this.blacklist = new ArrayList<String>();
 		this.data = new HashMap<String, Object>();
 		this.drops = new ArrayList<SItemStack>();
@@ -87,7 +91,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	public void addInventoryItem(ItemStack stack) {
 		SInventory newInv = getInventory();
-		newInv.addItem(stack);
+		newInv.addItem(new SItemStack(stack));
 		setInventory(newInv);
 	}
 
@@ -113,80 +117,41 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		return e;
 	}
 
-	public double evaluate(String expr) {
-
-		int hp = (this.data.containsKey("health")) ? (Integer) this.data
-				.get("health") : -1;
-		double x = (this.data.containsKey("xVelo")) ? Double
-				.parseDouble(this.data.get("xVelo").toString()) : 0d;
-		double y = (this.data.containsKey("yVelo")) ? Double
-				.parseDouble(this.data.get("yVelo").toString()) : 0d;
-		double z = (this.data.containsKey("zVelo")) ? Double
-				.parseDouble(this.data.get("zVelo").toString()) : 0d;
-
-		expr = expr.replaceAll("@hp", "" + hp);
-		expr = expr.replaceAll("@health", "" + hp);
-		expr = expr.replaceAll(
-				"@age",
-				""
-						+ ((this.data.containsKey("age")) ? (Integer) this.data
-								.get("age") : -1));
-		expr = expr.replaceAll(
-				"@air",
-				""
-						+ ((this.data.containsKey("air")) ? (Integer) this.data
-								.get("air") : -1));
-		expr = expr
-				.replaceAll(
-						"@damage",
-						""
-								+ ((this.data.containsKey("damage")) ? (Integer) this.data
-										.get("damage") : 1));
-		expr.replaceAll("@x", "" + x);
-		expr.replaceAll("@y", "" + y);
-		expr.replaceAll("@z", "" + z);
-		expr.replaceAll(
-				"@fire",
-				""
-						+ ((this.data.containsKey("fireTicks")) ? (Integer) this.data
-								.get("fireTicks") : 0));
-		expr.replaceAll(
-				"@fuse",
-				""
-						+ ((this.data.containsKey("fuse")) ? (Integer) this.data
-								.get("fuse") : 0));
-		expr.replaceAll(
-				"@yield",
-				""
-						+ ((this.data.containsKey("yield")) ? (Double) this.data
-								.get("yield") : 4.0f));
-		expr = expr.replaceAll("@players", ""
-				+ Bukkit.getServer().getOnlinePlayers().length);
-
-		return CustomSpawners.evaluate(expr);
-	}
-
-	public double evaluateForEntity(String expr, Entity entity) {
-		int hp = (this.data.containsKey("health")) ? (Integer) this.data
-				.get("health") : -1;
-		double x = (this.data.containsKey("xVelo")) ? Double
-				.parseDouble(this.data.get("xVelo").toString()) : 0d;
-		double y = (this.data.containsKey("yVelo")) ? Double
-				.parseDouble(this.data.get("yVelo").toString()) : 0d;
-		double z = (this.data.containsKey("zVelo")) ? Double
-				.parseDouble(this.data.get("zVelo").toString()) : 0d;
-		int age = (this.data.containsKey("age")) ? (Integer) this.data
-				.get("age") : -1;
-		int air = (this.data.containsKey("air")) ? (Integer) this.data
-				.get("air") : -1;
-
-		if (entity instanceof LivingEntity) {
-			LivingEntity le = (LivingEntity) entity;
-			hp = le.getHealth();
-			air = le.getRemainingAir();
-			if (le instanceof Ageable) {
-				age = ((Ageable) le).getAge();
+	public double evaluate(String expr, Entity entity) {
+		
+		Heroes h = CustomSpawners.getHeroes();
+		int damage = ((this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 1);
+		int exp = ((this.data.containsKey("exp")) ? (Integer) this.data.get("exp") : 1);
+		if(h != null) {
+			if(entity instanceof LivingEntity) {
+				Monster m = h.getCharacterManager().getMonster((LivingEntity) entity);
+				if(m != null) {
+					damage = m.getDamage();
+					exp = m.getExperience();
+				}
 			}
+		}
+		
+		int hp = (this.data.containsKey("health")) ? (Integer) this.data.get("health") : getMaxHealth();
+		double x = (this.data.containsKey("xVelo")) ? Double.parseDouble(this.data.get("xVelo").toString()) : 0d;
+		double y = (this.data.containsKey("yVelo")) ? Double.parseDouble(this.data.get("yVelo").toString()) : 0d;
+		double z = (this.data.containsKey("zVelo")) ? Double.parseDouble(this.data.get("zVelo").toString()) : 0d;
+		int age = (this.data.containsKey("age")) ? (Integer) this.data.get("age") : getMaxAir();
+		int air = (this.data.containsKey("air")) ? (Integer) this.data.get("air") : 0;
+
+		if (entity != null) {
+			expr = expr.replaceAll("@nearplayers", "" + 
+					CustomSpawners.getNearbyPlayers(entity.getLocation(), 16).size());
+			if (entity instanceof LivingEntity) {
+				LivingEntity le = (LivingEntity) entity;
+				hp = le.getHealth();
+				air = le.getRemainingAir();
+				if (le instanceof Ageable) {
+					age = ((Ageable) le).getAge();
+				}
+			}
+		} else {
+			expr = expr.replaceAll("@nearplayers", "" + 0);
 		}
 
 		expr = expr.replaceAll("@hp", "" + hp);
@@ -194,66 +159,50 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		expr = expr.replaceAll("@age", "" + age);
 		expr = expr.replaceAll("@air", "" + air);
 		expr = expr.replaceAll("@damage", ""+ ((this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 1));
-		expr.replaceAll("@x", "" + x);
-		expr.replaceAll("@y", "" + y);
-		expr.replaceAll("@z", "" + z);
-		expr.replaceAll("@fire", "" + ((this.data.containsKey("fireTicks")) ? (Integer) this.data.get("fireTicks") : 0));
-		expr.replaceAll("@fuse", "" + ((this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 0));
-		expr.replaceAll("@yield","" + ((this.data.containsKey("yield")) ? (Double) this.data.get("yield") : 4.0f));
-		expr = expr.replaceAll("@players", ""
-				+ Bukkit.getServer().getOnlinePlayers().length);
-		expr = expr.replaceAll("@nearplayers", ""
-				+ CustomSpawners.getNearbyPlayers(entity.getLocation(), 16)
-						.size());
+		expr = expr.replaceAll("@x", "" + x);
+		expr = expr.replaceAll("@y", "" + y);
+		expr = expr.replaceAll("@z", "" + z);
+		expr = expr.replaceAll("@fire", "" + ((this.data.containsKey("fireTicks")) ? (Integer) this.data.get("fireTicks") : 0));
+		expr = expr.replaceAll("@fuse", "" + ((this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 0));
+		expr = expr.replaceAll("@yield","" + ((this.data.containsKey("yield")) ? (Double) this.data.get("yield") : 4.0f));
+		expr = expr.replaceAll("@xp", "" + ((this.data.containsKey("exp")) ? (Integer) this.data.get("exp") : 1));
+		expr = expr.replaceAll("@players", "" + Bukkit.getServer().getOnlinePlayers().length);
+		expr = expr.replaceAll("@heroes_damage", "" + damage);
+		expr = expr.replaceAll("@heroes_experience", "" + exp);
+		expr = expr.replaceAll("@h_damage", "" + damage);
+		expr = expr.replaceAll("@heroes_dmg", "" + damage);
+		expr = expr.replaceAll("@h_dmg", "" + damage);
+		expr = expr.replaceAll("@h_experience", "" + exp);
+		expr = expr.replaceAll("@h_exp", "" + exp);
+		expr = expr.replaceAll("@heroes_xp", "" + exp);
+		expr = expr.replaceAll("@h_xp", "" + exp);
 
 		return CustomSpawners.evaluate(expr);
 	}
 
 	@Override
-	public int getAge() {
-		int value = (this.data.containsKey("age")) ? (Integer) this.data
-				.get("age") : -1;
-		String expr = "";
-		if (hasModifier("age")) {
-			expr = getModifier("age");
-			try {
-				return (int) Math.round(evaluate(expr));
-			} catch (IllegalArgumentException e) {
-			}
-
-		}
-
-		return value;
-	}
-
-	@Override
 	public int getAge(Entity en) {
-		int value = (this.data.containsKey("age")) ? (Integer) this.data
-				.get("age") : -1;
+		int value = (this.data.containsKey("age")) ? (Integer) this.data.get("age") : 0;
 		String expr = "";
 		if (hasModifier("age")) {
 			expr = getModifier("age");
 			try {
-				return (int) Math.round(evaluateForEntity(expr, en));
-			} catch (IllegalArgumentException e) {
-			}
-
+				return (int) Math.round(evaluate(expr, en));
+			} catch (IllegalArgumentException e) {}
 		}
 
 		return value;
 	}
 
 	@Override
-	public int getAir() {
-		int value = (this.data.containsKey("air")) ? (Integer) this.data
-				.get("air") : -1;
+	public int getAir(Entity en) {
+		int value = (this.data.containsKey("air")) ? (Integer) this.data.get("air") : 0;
 		String expr = "";
 		if (hasModifier("air")) {
 			expr = getModifier("air");
 			try {
-				return (int) Math.abs(Math.round(evaluate(expr)));
-			} catch (IllegalArgumentException e) {
-			}
+				return (int) Math.abs(Math.round(evaluate(expr, en)));
+			} catch (IllegalArgumentException e) {}
 
 		}
 
@@ -277,31 +226,13 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public int getDamage() {
-		int value = (this.data.containsKey("damage")) ? (Integer) this.data
-				.get("damage") : 1;
-		String expr = "";
-		if (hasModifier("damage")) {
-			expr = getModifier("damage");
-			try {
-				return (int) Math.abs(Math.round(evaluate(expr)));
-			} catch (IllegalArgumentException e) {
-			}
-
-		}
-
-		return value;
-	}
-
-	@Override
 	public int getDamage(Entity en) {
-		int value = (this.data.containsKey("damage")) ? (Integer) this.data
-				.get("damage") : 1;
+		int value = (this.data.containsKey("damage")) ? (Integer) this.data.get("damage") : 1;
 		String expr = "";
 		if (hasModifier("damage")) {
 			expr = getModifier("damage");
 			try {
-				return (int) Math.abs(Math.round(evaluateForEntity(expr, en)));
+				return (int) Math.abs(Math.round(evaluate(expr, en)));
 			} catch (IllegalArgumentException e) {
 			}
 
@@ -325,9 +256,19 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public int getDroppedExp() {
-		return (this.data.containsKey("exp")) ? (Integer) this.data.get("exp")
-				: 0;
+	public int getDroppedExp(Entity en) {
+		int value = (this.data.containsKey("exp")) ? (Integer) this.data.get("exp"): 0;
+		String expr = "";
+		if (hasModifier("xp")) {
+			expr = getModifier("xp");
+			try {
+				return (int) Math.abs(Math.round(evaluate(expr, en)));
+			} catch (IllegalArgumentException e) {
+			}
+
+		}
+
+		return value;
 	}
 
 	@Override
@@ -366,13 +307,13 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public int getFireTicks() {
+	public int getFireTicks(Entity en) {
 		int value = (this.data.containsKey("fireTicks")) ? (Integer) this.data
 				.get("fireTicks") : 0;
 		if (hasModifier("fire")) {
 			String expr = getModifier("fire");
 			try {
-				value = (int) Math.abs(Math.round(evaluate(expr)));
+				value = (int) Math.abs(Math.round(evaluate(expr, en)));
 			} catch (IllegalArgumentException e) {
 			}
 		}
@@ -381,13 +322,12 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public int getFuseTicks() {
-		int value = (this.data.containsKey("fuse")) ? (Integer) this.data
-				.get("fuse") : 80;
+	public int getFuseTicks(Entity en) {
+		int value = (this.data.containsKey("fuse")) ? (Integer) this.data.get("fuse") : 80;
 		if (hasModifier("fuse")) {
 			String expr = getModifier("fuse");
 			try {
-				value = (int) Math.abs(Math.round(evaluate(expr)));
+				value = (int) Math.abs(Math.round(evaluate(expr, en)));
 			} catch (IllegalArgumentException e) {
 			}
 		}
@@ -396,9 +336,8 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public int getHealth() {
-		int hp = (this.data.containsKey("health")) ? (Integer) this.data
-				.get("health") : -1;
+	public int getHealth(Entity en) {
+		int hp = (this.data.containsKey("health")) ? (Integer) this.data.get("health") : -1;
 		String expr = "";
 		if (hasModifier("health")) {
 			expr = getModifier("health");
@@ -411,7 +350,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		}
 
 		try {
-			return (int) Math.abs(Math.round(evaluate(expr)));
+			return (int) Math.abs(Math.round(evaluate(expr, en)));
 		} catch (IllegalArgumentException e) {
 		}
 
@@ -420,8 +359,7 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	@Override
 	public float getHeight() {
-		return (this.data.containsKey("height")) ? (Float) this.data
-				.get("height") : -1f;
+		return (this.data.containsKey("height")) ? (Float) this.data.get("height") : -1f;
 	}
 
 	@Override
@@ -468,20 +406,17 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	@Override
 	public float getLength() {
-		return (this.data.containsKey("length")) ? (Float) this.data
-				.get("length") : -1f;
+		return (this.data.containsKey("length")) ? (Float) this.data.get("length") : -1f;
 	}
 
 	@Override
 	public int getMaxAir() {
-		return (this.data.containsKey("maxAir")) ? (Integer) this.data
-				.get("maxAir") : 200;
+		return (this.data.containsKey("maxAir")) ? (Integer) this.data.get("maxAir") : 200;
 	}
 
 	@Override
 	public int getMaxHealth() {
-		return (this.data.containsKey("maxHealth")) ? (Integer) this.data
-				.get("maxHealth") : 20;
+		return (this.data.containsKey("maxHealth")) ? (Integer) this.data.get("maxHealth") : 20;
 	}
 
 	@Override
@@ -566,8 +501,8 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public Vector getVelocity() {
-		return new Vector(getXVelocity(), getYVelocity(), getZVelocity());
+	public Vector getVelocity(Entity en) {
+		return new Vector(getXVelocity(en), getYVelocity(en), getZVelocity(en));
 		// return (this.data.containsKey("velocity")) ? ((SVector)
 		// this.data.get("velocity")).toVector() : new Vector(0, 0, 0);
 	}
@@ -583,13 +518,12 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public double getXVelocity() {
-		double value = (this.data.containsKey("xVelo")) ? Double
-				.parseDouble(this.data.get("xVelo").toString()) : 0d;
+	public double getXVelocity(Entity en) {
+		double value = (this.data.containsKey("xVelo")) ? Double.parseDouble(this.data.get("xVelo").toString()) : 0d;
 		if (hasModifier("x")) {
 			String expr = getModifier("x");
 			try {
-				value = evaluate(expr);
+				value = evaluate(expr, en);
 			} catch (IllegalArgumentException e) {
 			}
 
@@ -598,14 +532,13 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public float getYield() {
-		double value = (this.data.containsKey("yield")) ? (Double) this.data
-				.get("yield") : 4.0f;
+	public float getYield(Entity en) {
+		double value = (this.data.containsKey("yield")) ? (Double) this.data.get("yield") : 4.0f;
 
 		if (hasModifier("yield")) {
 			String expr = getModifier("yield");
 			try {
-				value = evaluate(expr);
+				value = evaluate(expr, en);
 			} catch (IllegalArgumentException e) {
 			}
 		}
@@ -614,13 +547,12 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public double getYVelocity() {
-		double value = (this.data.containsKey("yVelo")) ? Double
-				.parseDouble(this.data.get("yVelo").toString()) : 0d;
+	public double getYVelocity(Entity en) {
+		double value = (this.data.containsKey("yVelo")) ? Double.parseDouble(this.data.get("yVelo").toString()) : 0d;
 		if (hasModifier("y")) {
 			String expr = getModifier("y");
 			try {
-				value = evaluate(expr);
+				value = evaluate(expr, en);
 			} catch (IllegalArgumentException e) {
 			}
 
@@ -629,13 +561,12 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 	}
 
 	@Override
-	public double getZVelocity() {
-		double value = (this.data.containsKey("zVelo")) ? Double
-				.parseDouble(this.data.get("zVelo").toString()) : 0d;
+	public double getZVelocity(Entity en) {
+		double value = (this.data.containsKey("zVelo")) ? Double.parseDouble(this.data.get("zVelo").toString()) : 0d;
 		if (hasModifier("z")) {
 			String expr = getModifier("z");
 			try {
-				value = evaluate(expr);
+				value = evaluate(expr, en);
 			} catch (IllegalArgumentException e) {
 			}
 
@@ -917,10 +848,12 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		this.data.put("length", length);
 	}
 
+	@Override
 	public void setMaxAir(int maxAir) {
 		this.data.put("maxAir", maxAir);
 	}
 
+	@Override
 	public void setMaxHealth(int maxHealth) {
 		this.data.put("maxHealth", maxHealth);
 	}
@@ -931,6 +864,9 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 
 	public void setName(String name) {
 		name = ChatColor.translateAlternateColorCodes('&', name);
+		
+		name = name.replaceAll("__", " ");
+		
 		this.data.put("name", name);
 	}
 

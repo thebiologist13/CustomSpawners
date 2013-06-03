@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -101,6 +102,12 @@ public class DamageController implements IDamageController {
 					angryMobs.put(mobId, e.getId());
 				}
 				
+				if(damager instanceof Projectile) {
+					Projectile p = (Projectile) damager;
+					if(p.getShooter() instanceof Player) 
+						angryMobs.put(mobId, e.getId());
+				}
+				
 				SpawnableEntity e1 = plugin.getEntityFromSpawner(id);
 				
 				if(e1 != null && cause.equals(DamageCause.ENTITY_EXPLOSION)) {
@@ -137,7 +144,7 @@ public class DamageController implements IDamageController {
 						
 						negatedFireImmunity.replace(mobId, newTicks);
 					} else {
-						negatedFireImmunity.put(mobId, e.getFireTicks());
+						negatedFireImmunity.put(mobId, e.getFireTicks(entity));
 					}
 					
 					ev.setCancelled(true);

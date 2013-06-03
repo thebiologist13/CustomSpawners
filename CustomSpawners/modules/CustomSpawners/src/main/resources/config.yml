@@ -98,6 +98,9 @@ spawners:
     # Should CustomSpawners ignore WorldGuard?
     ignoreWorldGuard: false
     
+    # Should CustomSpawners ignore Heroes?
+    ignoreHeroes: false
+    
 mobs:
 
     # Which mob types for entities should be 
@@ -123,6 +126,15 @@ players:
 
     # Item ID to use for selecting spawn area positions.
     selectionId: 269
+    
+    # Do you want to be warned and asked for confirmation before
+    # running potentially extreme lag causing or dangerous commands?
+    # CustomSpawners will wait for confirmation for the amount of time specified in "timeout" 
+    # then cancel if the command is not entered again.
+    warnLag: true
+    
+    # Amount of time (in seconds) to wait when warned.
+    timeout: 5
 
 data:
     

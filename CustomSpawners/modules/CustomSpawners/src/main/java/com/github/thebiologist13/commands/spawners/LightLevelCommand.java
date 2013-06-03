@@ -20,30 +20,38 @@ public class LightLevelCommand extends SpawnerCommand {
 		
 		String in = getValue(args, 0, "0");
 		
-		if(!CustomSpawners.isInteger(in)) {
+		try {
+			
+			if(subCommand.equals("setmaxlight")) {
+				
+				byte level = (byte) handleDynamic(in, spawner.getMaxLightLevel());
+				
+				if(!(level <= 15 && level >= 0)) {
+					PLUGIN.sendMessage(sender, ChatColor.RED + "The light level must be between 0 and 15.");
+					return;
+				}
+				
+				spawner.setMaxLightLevel(level);
+				
+				PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "maximum light level", in));
+				
+			} else if(subCommand.equals("setminlight")) {
+				
+				byte level = (byte) handleDynamic(in, spawner.getMinLightLevel());
+				
+				if(!(level <= 15 && level >= 0)) {
+					PLUGIN.sendMessage(sender, ChatColor.RED + "The light level must be between 0 and 15.");
+					return;
+				}
+				
+				spawner.setMinLightLevel(level);
+				
+				PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "minimum light level", in));
+				
+			}
+			
+		} catch(IllegalArgumentException e) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "The light level must be an integer.");
-			return;
-		}
-		
-		byte level = (byte) Integer.parseInt(in);
-		
-		if(!(level <= 15 && level >= 0)) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + "The light level must be between 0 and 15.");
-			return;
-		}
-		
-		if(subCommand.equals("setmaxlight")) {
-			
-			spawner.setMaxLightLevel(level);
-			
-			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "maximum light level", in));
-			
-		} else if(subCommand.equals("setminlight")) {
-			
-			spawner.setMinLightLevel(level);
-			
-			PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "minimum light level", in));
-			
 		}
 		
 	}

@@ -32,7 +32,8 @@ import com.sk89q.worldguard.protection.flags.DefaultFlag;
 public class Spawner implements Serializable, ISpawner {
 	
 	private static final long serialVersionUID = -153105685313343476L;
-	//Main Data
+	
+	//Data
 	private Map<String, Object> data;
 	//Integer is mob ID. This holds the entities that have been spawned so when one dies, it can be removed from maxMobs.
 	private ConcurrentHashMap<UUID, SpawnableEntity> mobs;
@@ -71,14 +72,14 @@ public class Spawner implements Serializable, ISpawner {
 		areaPoints[0] = new SLocation(loc);
 		areaPoints[1] = new SLocation(loc);
 		
-		data.put("id", id);
-		data.put("loc", new SLocation(loc));
-		data.put("block", new SBlock(loc.getBlock()));
-		data.put("areaPoints", areaPoints);
-		typeData.add(type.getId());
-		data.put("converted", false);
-		data.put("useSpawnArea", false);
-		data.put("name", name);
+		this.data.put("id", id);
+		this.data.put("loc", new SLocation(loc));
+		this.data.put("block", new SBlock(loc.getBlock()));
+		this.data.put("areaPoints", areaPoints);
+		this.typeData.add(type.getId());
+		this.data.put("converted", false);
+		this.data.put("useSpawnArea", false);
+		this.data.put("name", name);
 	}
 	
 	@Override
@@ -577,8 +578,8 @@ public class Spawner implements Serializable, ISpawner {
 		this.data.put("minDistance", minPlayerDistance);
 	}
 	
-	public void setMobs(Map<UUID, SpawnableEntity> mobParam) {
-		this.mobs = (ConcurrentHashMap<UUID, SpawnableEntity>) mobParam;
+	public void setMobs(ConcurrentHashMap<UUID, SpawnableEntity> mobParam) {
+		this.mobs = mobParam;
 	}
 	
 	public void setMobsPerSpawn(int mobsPerSpawn) {
@@ -591,6 +592,9 @@ public class Spawner implements Serializable, ISpawner {
 
 	public void setName(String name) {
 		name = ChatColor.translateAlternateColorCodes('&', name);
+		
+		name = name.replaceAll("__", " ");
+		
 		this.data.put("name", name);
 	}
 
@@ -623,7 +627,6 @@ public class Spawner implements Serializable, ISpawner {
 		this.secondaryMobs = (ConcurrentHashMap<UUID, UUID>) secondaryMobs;
 	}
 	
-	//TODO Add to wiki
 	public void setSpawnOnEnter(boolean value) {
 		this.data.put("spawnOnEnter", value);
 	}

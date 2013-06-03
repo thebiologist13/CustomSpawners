@@ -47,6 +47,12 @@
 			<type>jar</type>
 		</dependency>
 		<dependency>
+			<groupId>com.herocraftonline</groupId>
+			<artifactId>heroes</artifactId>
+			<version>${heroes.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
 			<groupId>com.github.thebiologist13</groupId>
 			<artifactId>customspawners-api</artifactId>
 			<version>API</version>
