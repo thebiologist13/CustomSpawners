@@ -63,7 +63,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand modify = new EntityModifierCommand(plugin, "customspawners.entities.modifiers");
 		EntityCommand rider = new EntityRiderCommand(plugin, "customspawners.entities.rider");
 		EntityCommand minecart = new EntityCartSpeedCommand(plugin, "customspawners.entities.minecartspeed");
-		EntityCommand spawn = new EntitySpawnCommand(plugin, "customspawners.entities.spawn"); //TODO WIKI: Entity Spawn Command
+		EntityCommand spawn = new EntitySpawnCommand(plugin, "customspawners.entities.spawn");
 
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);

@@ -146,8 +146,6 @@ public class SubCommand {
 		this.permission = permission;
 	}
 	
-	//TODO WIKI: Lag warning.
-	//TODO WIKI: New Config Items
 	public boolean warnLag(CommandSender sender) {
 		
 		if(CONFIG.getBoolean("players.warnLag", true)) {

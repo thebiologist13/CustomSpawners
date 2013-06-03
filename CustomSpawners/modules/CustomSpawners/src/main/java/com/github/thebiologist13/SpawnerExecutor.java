@@ -91,7 +91,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 		SpawnerCommand trackNear = new TrackNearCommand(plugin, "customspawners.spawners.tracknearby");
 		SpawnerCommand onEnter = new SpawnOnEnterCommand(plugin, "customspawners.spawners.spawnonenter");
 		SpawnerCommand cap = new CappedCommand(plugin, "customspawners.spawners.capped");
-		SpawnerCommand tp = new TeleportToCommand(plugin, "customspawners.spawners.teleport"); //TODO WIKI: TeleportTo command
+		SpawnerCommand tp = new TeleportToCommand(plugin, "customspawners.spawners.teleport");
 
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
