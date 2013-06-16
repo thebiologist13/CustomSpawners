@@ -79,13 +79,8 @@ public class MobDeathEvent implements Listener {
 		Random rand = new Random();
 		float value = rand.nextFloat() * 100;
 		float chance = stack.getDropChance();
-		if(chance != 0.0) {
-			if(value < chance) {
-				return true;
-			}
-		} else {
+		if(value < chance)
 			return true;
-		}
 		return false;
 	}
 	

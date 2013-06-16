@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 
 import com.github.thebiologist13.api.IObject;
 import com.github.thebiologist13.commands.SelectionParser;
+import com.github.thebiologist13.commands.groups.ParentChildException;
+import com.github.thebiologist13.commands.groups.TypeException;
 import com.github.thebiologist13.commands.spawners.ActivateAllCommand;
 import com.github.thebiologist13.commands.spawners.ActiveCommand;
 import com.github.thebiologist13.commands.spawners.AddTypeCommand;
@@ -453,15 +455,12 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 
 			try {
 				spawnerRef = SelectionParser.getSpawnerSelection(objId, arg0);
-			} catch(IllegalArgumentException e) {
-				if(e.getMessage().equals("Containment")) {
-					PLUGIN.sendMessage(arg0, ChatColor.RED + "The group you entered has " +
-							"one or more children not in the parent group!");
-					return true;
-				} else if(e.getMessage().equals("Type")) {
-					PLUGIN.sendMessage(arg0, ChatColor.RED + "That group is not the right type!");
-					return true;
-				}
+			} catch (ParentChildException e) {
+				PLUGIN.sendMessage(arg0, cmd.PARENT_CHILD);
+				return true;
+			} catch (TypeException e) {
+				PLUGIN.sendMessage(arg0, cmd.NOT_SAME_TYPE);
+				return true;
 			}
 
 			if(!cmd.permissibleForObject(arg0, null, spawnerRef)) {
@@ -508,6 +507,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 			}
 
 			try {
+				
 				if(spawnerRef instanceof Spawner) {
 					Spawner spawner = (Spawner) spawnerRef;
 
@@ -515,7 +515,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 				} else if(spawnerRef instanceof Group) {
 
 					Group group = (Group) spawnerRef;
-
+					
 					if(group.getGroup().size() >= 25) {
 						if(cmd.warnLag(arg0))
 							return true;
@@ -543,7 +543,7 @@ public class SpawnerExecutor extends Executor implements CommandExecutor {
 	}
 
 	private void runGroup(SpawnerCommand cmd, Group g, CommandSender sender, String sub, String[] args) {
-		for(IObject obj : g.getGroup().values()) {
+		for(IObject obj : g.getGroup().keySet()) {
 			if(obj instanceof Spawner) {
 				Spawner spawner = (Spawner) obj;
 

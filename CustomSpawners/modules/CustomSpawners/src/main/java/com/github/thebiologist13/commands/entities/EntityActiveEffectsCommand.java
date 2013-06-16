@@ -71,6 +71,10 @@ public class EntityActiveEffectsCommand extends EntityCommand {
 		
 		duration = Integer.parseInt(dIn);
 		
+		//Basically infinite.
+		if(duration == -1)
+			duration = 1000000;
+		
 		if(duration < 0) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "The potion effect duration must be greater than 0.");
 			return;

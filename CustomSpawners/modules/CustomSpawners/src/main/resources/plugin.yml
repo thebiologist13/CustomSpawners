@@ -124,6 +124,7 @@ permissions:
             customspawners.entities.rider: true
             customspawners.entities.minecartspeed: true
             customspawners.entities.spawn: true
+            customspawners.entities.clone: true
             customspawners.groups.create: true
             customspawners.groups.remove: true
             customspawners.groups.addobject: true
@@ -134,6 +135,7 @@ permissions:
             customspawners.groups.list: true
             customspawners.groups.info: true
             customspawners.groups.name: true
+            customspawners.groups.select: true
     customspawners.customspawners:
         description: Allows the user/group to use the "/customspawners" command. Does not cover all sub-commands. Use customspawners.* for that.
         default: true
@@ -410,6 +412,9 @@ permissions:
     customspawners.entities.spawn:
         description: Allows the user/group to spawn spawnable entities without a spawner.
         default: op
+    customspawners.entities.clone:
+        description: Allows the user/group to clone spawnable entities.
+        default: op
     customspawners.groups.create:
         description: Allows the user/group to create a group.
         default: op
@@ -439,4 +444,7 @@ permissions:
         default: op
     customspawners.groups.name:
         description: Allows the user/group to set the group's name.
+        default: op
+    customspawners.groups.select:
+        description: Allows the user/group to select a group.
         default: op

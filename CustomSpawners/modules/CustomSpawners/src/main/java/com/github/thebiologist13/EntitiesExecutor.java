@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import com.github.thebiologist13.api.IObject;
 import com.github.thebiologist13.commands.SelectionParser;
 import com.github.thebiologist13.commands.entities.*;
+import com.github.thebiologist13.commands.groups.ParentChildException;
+import com.github.thebiologist13.commands.groups.TypeException;
 
 /**
  * This executes commands related to the /entities command.
@@ -64,6 +66,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		EntityCommand rider = new EntityRiderCommand(plugin, "customspawners.entities.rider");
 		EntityCommand minecart = new EntityCartSpeedCommand(plugin, "customspawners.entities.minecartspeed");
 		EntityCommand spawn = new EntitySpawnCommand(plugin, "customspawners.entities.spawn");
+		EntityCommand clone = new EntityCloneCommand(plugin, "customspawners.entities.clone"); //TODO WIKI: Add entity clone.
 
 		create.setNeedsObject(false);
 		select.setNeedsObject(false);
@@ -506,6 +509,11 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 				"conjure",
 				"summon"
 		});
+		addCommand("clone", clone, new String[] {
+				"cloneentity",
+				"copy",
+				"copyentity"
+		});
 	}
 
 	@Override
@@ -550,15 +558,12 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 
 			try {
 				entityRef = SelectionParser.getEntitySelection(objId, arg0);
-			} catch(IllegalArgumentException e) {
-				if(e.getMessage().equals("Containment")) {
-					PLUGIN.sendMessage(arg0, ChatColor.RED + "The group you entered has " +
-							"one or more children not in the parent group!");
-					return true;
-				} else if(e.getMessage().equals("Type")) {
-					PLUGIN.sendMessage(arg0, ChatColor.RED + "That group is not the right type!");
-					return true;
-				}
+			} catch (ParentChildException e) {
+				PLUGIN.sendMessage(arg0, cmd.PARENT_CHILD);
+				return true;
+			} catch (TypeException e) {
+				PLUGIN.sendMessage(arg0, cmd.NOT_SAME_TYPE);
+				return true;
 			}
 
 			if(!cmd.permissibleForObject(arg0, null, entityRef)) {
@@ -637,7 +642,7 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 	}
 
 	private void runGroup(EntityCommand cmd, Group g, CommandSender sender, String sub, String[] args) {
-		for(IObject obj : g.getGroup().values()) {
+		for(IObject obj : g.getGroup().keySet()) {
 			if(obj instanceof SpawnableEntity) {
 				SpawnableEntity entity = (SpawnableEntity) obj;
 

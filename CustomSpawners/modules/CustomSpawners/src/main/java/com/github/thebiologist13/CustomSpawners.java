@@ -68,6 +68,9 @@ public class CustomSpawners extends JavaPlugin {
 
 	// Selected spawner by console.
 	public static int consoleSpawner = -1;
+	
+	// Selected group by console.
+	public static int consoleGroup = -1;
 
 	// Debug
 	public static boolean debug = false;
@@ -77,9 +80,12 @@ public class CustomSpawners extends JavaPlugin {
 
 	// All of the entity types on the server.
 	public static ConcurrentHashMap<Integer, SpawnableEntity> entities = new ConcurrentHashMap<Integer, SpawnableEntity>();
-	
+
 	// All the groups in the server.
 	public static ConcurrentHashMap<Integer, Group> groups = new ConcurrentHashMap<Integer, Group>();
+
+	//Selected groups for players
+	public static ConcurrentHashMap<Player, Integer> groupSelection = new ConcurrentHashMap<Player, Integer>();
 
 	// Selected entities for players.
 	public static ConcurrentHashMap<Player, Integer> entitySelection = new ConcurrentHashMap<Player, Integer>();
@@ -105,7 +111,7 @@ public class CustomSpawners extends JavaPlugin {
 	// Transparent Blocks to go through when getting the target location for a
 	// spawner.
 	public static HashSet<Byte> transparent = new HashSet<Byte>();
-	
+
 	//Players waiting for confirmation on command.
 	public static ConcurrentHashMap<Player, Integer> warn = new ConcurrentHashMap<Player, Integer>();
 
@@ -123,7 +129,7 @@ public class CustomSpawners extends JavaPlugin {
 
 	// FileManager
 	private FileManager fileManager = null;
-	
+
 	//Heroes
 	private static Heroes heroes = null;
 
@@ -176,7 +182,7 @@ public class CustomSpawners extends JavaPlugin {
 		ref = ref.toLowerCase();
 
 		ref = ref.replaceAll("__", " ");
-		
+
 		if (isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 
@@ -232,7 +238,7 @@ public class CustomSpawners extends JavaPlugin {
 		ref = ref.toLowerCase();
 
 		ref = ref.replaceAll("__", " ");
-		
+
 		if (isInteger(ref)) {
 			int id = Integer.parseInt(ref);
 			Iterator<Integer> groupItr = groups.keySet().iterator();
@@ -255,7 +261,7 @@ public class CustomSpawners extends JavaPlugin {
 				if (name == null) {
 					return null;
 				}
-				
+
 				if (name.equalsIgnoreCase(ref)) {
 					return g;
 				}
@@ -267,15 +273,15 @@ public class CustomSpawners extends JavaPlugin {
 
 	//Gets Heroes
 	public static Heroes getHeroes() {
-		
+
 		if(heroes != null)
 			return heroes;
-		
+
 		Plugin plugin = Bukkit.getPluginManager().getPlugin("Heroes");
-		
+
 		if(plugin == null && !(plugin instanceof Heroes))
 			return null;
-		
+
 		return (Heroes) plugin;
 	}
 
@@ -320,7 +326,7 @@ public class CustomSpawners extends JavaPlugin {
 
 		return returnID;
 	}
-	
+
 	// Gets a spawner
 	public static Spawner getSpawner(int ref) {
 		return getSpawner(String.valueOf(ref));
@@ -335,7 +341,7 @@ public class CustomSpawners extends JavaPlugin {
 			return null;
 
 		ref = ref.toLowerCase();
-		
+
 		ref = ref.replaceAll("__", " ");
 
 		if (isInteger(ref)) {
@@ -388,10 +394,8 @@ public class CustomSpawners extends JavaPlugin {
 	}
 
 	public static ISpawnManager getSpawnManager(Spawner spawner) {
-		String packageName = Bukkit.getServer().getClass().getPackage()
-				.getName();
-		String version = packageName
-				.substring(packageName.lastIndexOf('.') + 1);
+		String packageName = Bukkit.getServer().getClass().getPackage().getName();
+		String version = packageName.substring(packageName.lastIndexOf('.') + 1);
 		try {
 			final Class<?> clazz = Class.forName("com.github.thebiologist13."
 					+ version + ".SpawnManager");
@@ -401,13 +405,13 @@ public class CustomSpawners extends JavaPlugin {
 			return null;
 		}
 	}
-	
+
 	// Sets up WorldGuard
 	public static WorldGuardPlugin getWG() {
-		
+
 		if(worldGuard != null)
 			return worldGuard;
-		
+
 		Plugin wg = Bukkit.getPluginManager().getPlugin("WorldGuard");
 
 		if (wg == null || !(wg instanceof WorldGuardPlugin))
@@ -464,6 +468,7 @@ public class CustomSpawners extends JavaPlugin {
 	public SpawnableEntity cloneWithNewId(SpawnableEntity entity) {
 		SpawnableEntity entity1 = createEntity(entity.getType());
 		entity1.setData(entity.getData());
+		entity1.setName("");
 		entity1.setWhitelist(entity.getWhitelist());
 		entity1.setBlacklist(entity.getBlacklist());
 		entity1.setDropsSItemStack(entity.getSItemStackDrops());
@@ -541,7 +546,7 @@ public class CustomSpawners extends JavaPlugin {
 			fileManager.autosave(newEntity);
 		}
 
-		return newEntity;
+		return entities.get(newEntity.getId());
 	}
 
 	public SpawnableEntity createEntity(String type, boolean hasOverride) throws IllegalArgumentException {
@@ -556,7 +561,7 @@ public class CustomSpawners extends JavaPlugin {
 			fileManager.autosave(newEntity);
 		}
 
-		return newEntity;
+		return entities.get(newEntity.getId());
 	}
 
 	public Spawner createSpawner(ISpawnableEntity e, Location loc) {
@@ -584,15 +589,15 @@ public class CustomSpawners extends JavaPlugin {
 
 		return spawners.get(newSpawner.getId());
 	}
-	
-	public List<Group> findObjectInGroup(IObject obj) {
+
+	public List<Group> findObjectInGroups(IObject obj) {
 		List<Group> inside = new ArrayList<Group>();
 		Iterator<Group> itr = CustomSpawners.groups.values().iterator();
 		while(itr.hasNext()) {
 			Group g = itr.next();
-			
-			for(IObject obj0 : g.getGroup().values()) {
-				if(obj0.getId() == obj.getId()) {
+
+			for(IObject obj0 : g.getGroup().keySet()) {
+				if(obj0.equals(obj)) {
 					inside.add(g);
 					break;
 				}
@@ -712,10 +717,12 @@ public class CustomSpawners extends JavaPlugin {
 		if (g == null)
 			return "";
 
+		String returnMe = "(" + g.getType() + ") ";
+		
 		if (g.getName().isEmpty()) {
-			return String.valueOf(g.getId());
+			return returnMe + String.valueOf(g.getId());
 		} else {
-			return g.getName();
+			return returnMe + g.getName();
 		}
 	}
 
@@ -732,7 +739,7 @@ public class CustomSpawners extends JavaPlugin {
 			return e.getName();
 		}
 	}
-	
+
 	// Gets a string to represent the name of the spawner (String version of ID
 	// or name)
 	public String getFriendlyName(ISpawner s) {
@@ -793,9 +800,8 @@ public class CustomSpawners extends JavaPlugin {
 	public ItemStack getItem(String item, int count) {
 		ItemStack stack = getItemStack(item);
 
-		if (stack == null) {
+		if (stack == null)
 			return null;
-		}
 
 		stack.setAmount(count);
 
@@ -929,7 +935,7 @@ public class CustomSpawners extends JavaPlugin {
 
 		return getNextID(groupIDs);
 	}
-	
+
 	// Next available spawner ID
 	public int getNextSpawnerId() {
 		List<Integer> spawnerIDs = new ArrayList<Integer>();
@@ -1087,7 +1093,7 @@ public class CustomSpawners extends JavaPlugin {
 
 			}
 		}
-		
+
 		if(config.getBoolean("spawners.ignoreHeroes", false)) {
 			if(logLevel > 0) {
 				log.info("[CustomSpawners] Ignoring Heroes connection.");
@@ -1142,7 +1148,7 @@ public class CustomSpawners extends JavaPlugin {
 			pm.registerEvents(new BreakEvent(this), this);
 			pm.registerEvents(new SpawnerPowerEvent(), this);
 			pm.registerEvents(new ReloadEvent(this), this);
-			
+
 			//Just a debug listener for entity ID + UUID
 			//getServer().getPluginManager().registerEvents(new PlayerClickEntityEvent(this), this); 
 		} catch(Exception e) {
@@ -1160,7 +1166,7 @@ public class CustomSpawners extends JavaPlugin {
 
 			// Load spawners from files
 			fileManager.loadSpawners();
-			
+
 			//Load Groups from files
 			fileManager.loadGroups();
 		} catch (Exception e) {
@@ -1266,11 +1272,11 @@ public class CustomSpawners extends JavaPlugin {
 					}
 
 				}
-				
+
 				Iterator<Player> timeItr = warn.keySet().iterator();
 				while(timeItr.hasNext()) {
 					Player p = timeItr.next();
-					
+
 					warn.replace(p, warn.get(p) - 1);
 					if(warn.get(p).intValue() == 0)
 						warn.remove(p);
@@ -1585,9 +1591,17 @@ public class CustomSpawners extends JavaPlugin {
 				s.removeTypeData(e);
 			}
 		}
-		List<Group> groups = findObjectInGroup(e);
+		List<Group> groups = findObjectInGroups(e);
 		for(Group g : groups) {
 			g.removeItem(e);
+		}
+	}
+
+	// Remove a spawner
+	public void removeGroup(Group g) {
+		if (groups.containsValue(g)) {
+			resetGroupSelections(g.getId());
+			groups.remove(g.getId());
 		}
 	}
 
@@ -1670,7 +1684,7 @@ public class CustomSpawners extends JavaPlugin {
 			resetSpawnerSelections(s.getId());
 			spawners.remove(s.getId());
 		}
-		List<Group> groups = findObjectInGroup(s);
+		List<Group> groups = findObjectInGroups(s);
 		for(Group g : groups) {
 			g.removeItem(s);
 		}
@@ -1687,6 +1701,22 @@ public class CustomSpawners extends JavaPlugin {
 				p.sendMessage(ChatColor.RED
 						+ "Your selected entity has been removed.");
 				entitySelection.remove(p);
+			}
+		}
+
+	}
+
+	//Resets selections if a group is removed
+	public void resetGroupSelections(int id) {
+		Iterator<Player> pItr = groupSelection.keySet().iterator();
+
+		while (pItr.hasNext()) {
+			Player p = pItr.next();
+
+			if (groupSelection.get(p) == id) {
+				p.sendMessage(ChatColor.RED
+						+ "Your selected spawner has been removed.");
+				groupSelection.remove(p);
 			}
 		}
 
@@ -1856,7 +1886,7 @@ public class CustomSpawners extends JavaPlugin {
 		}
 
 		try {
-			
+
 			String converter = "com.github.thebiologist13." + version + ".Converter";
 			String spawnManager = "com.github.thebiologist13." + version + ".SpawnManager";
 

@@ -744,15 +744,13 @@ public class SpawnableEntity implements Serializable, ISpawnableEntity {
 		if (data == null)
 			return;
 
-		if (this.data.containsKey("id")) {
-			data.put("id", this.data.get("id"));
+		for(String s : data.keySet()) {
+			
+			if(s.equals("id") || s.equals("name"))
+				continue;
+			
+			this.data.put(s, data.get(s));
 		}
-
-		if (this.data.containsKey("name")) {
-			data.put("name", this.data.get("name"));
-		}
-
-		this.data = data;
 	}
 
 	public void setDimensions(float height, float width, float length) {

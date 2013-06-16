@@ -27,7 +27,7 @@ public class SetRateCommand extends SpawnerCommand {
 				return;
 			}
 
-			if(rate < CONFIG.getInt("spawners.rateLimit", 16)) {
+			if(rate < CONFIG.getInt("spawners.rateLimit", 10)) {
 				if(warnLag(sender))
 					return;
 				if(!permissible(sender, "customspawners.limitoverride")) {

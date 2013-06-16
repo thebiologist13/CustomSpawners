@@ -77,6 +77,11 @@ public class EntityDropsCommand extends EntityCommand {
 			stack = PLUGIN.getItem(item, Integer.parseInt(count));
 		}
 		
+		if(stack == null) {
+			PLUGIN.sendMessage(sender, ChatColor.RED + item + " is not a valid item.");
+			return;
+		}
+		
 		SItemStack newStack = new SItemStack(stack);
 		float toDrop = 100.0f;
 		
@@ -96,11 +101,6 @@ public class EntityDropsCommand extends EntityCommand {
 			newStack.setDropChance(toDrop);
 		} else if(chance.isEmpty() && split.length == 2) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "You must input a number for the drop chance.");
-			return;
-		}
-		
-		if(stack == null) {
-			PLUGIN.sendMessage(sender, ChatColor.RED + item + " is not a valid item.");
 			return;
 		}
 		

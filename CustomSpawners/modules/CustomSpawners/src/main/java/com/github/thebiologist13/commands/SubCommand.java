@@ -27,6 +27,9 @@ public class SubCommand {
 	public final String NOT_INT_AMOUNT = ChatColor.RED + "You must input an integer for the amount.";
 	public final String WARN_LAG = ChatColor.GOLD + "WARNING! Running this command could cause a lot of lag or crashes " +
 			"very fast if used improperly. Enter the command again to confirm.";
+	public final String PARENT_CHILD = ChatColor.RED + "The group you entered has " +
+			"one or more children not in the parent group!";
+	public final String NOT_SAME_TYPE = ChatColor.RED + "That group is not the right type!";
 	
 	public final FileConfiguration CONFIG;
 	public final Logger LOG;
@@ -156,6 +159,8 @@ public class SubCommand {
 				if(p.hasPermission("customspawners.spawners.limitoverride"))
 					return false;
 				CustomSpawners.warn.put((Player) sender, CONFIG.getInt("players.timeout", 5));
+			} else {
+				return false;
 			}
 			PLUGIN.sendMessage(sender, WARN_LAG);
 			return true;
