@@ -55,7 +55,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * Licensed under GNU-GPLv3
  * 
  * @author thebiologist13
- * @version 0.3.5
+ * @version 0.4.3
  */
 //TODO FEATURE: Synchronize Spawners command
 public class CustomSpawners extends JavaPlugin {
@@ -114,6 +114,9 @@ public class CustomSpawners extends JavaPlugin {
 
 	//Players waiting for confirmation on command.
 	public static ConcurrentHashMap<Player, Integer> warn = new ConcurrentHashMap<Player, Integer>();
+	
+	//Spawners that need to be listened on for redstone
+	public static ConcurrentHashMap<Location, Integer> redstoneSpawners = new ConcurrentHashMap<Location, Integer>();
 
 	// Autosave Task ID
 	public int autosaveId;
@@ -162,6 +165,8 @@ public class CustomSpawners extends JavaPlugin {
 
 			return (IConverter) clazz.getConstructor().newInstance();
 		} catch (final Exception e) {
+			if(debug)
+				e.printStackTrace();
 			return null;
 		}
 	}
@@ -402,6 +407,8 @@ public class CustomSpawners extends JavaPlugin {
 
 			return (ISpawnManager) clazz.getConstructor(ISpawner.class).newInstance(spawner);
 		} catch (final Exception e) {
+			if(debug)
+				e.printStackTrace();
 			return null;
 		}
 	}
@@ -1684,6 +1691,11 @@ public class CustomSpawners extends JavaPlugin {
 			resetSpawnerSelections(s.getId());
 			spawners.remove(s.getId());
 		}
+		
+		Location loc = s.getLoc();
+		if(redstoneSpawners.containsKey(loc))
+			redstoneSpawners.remove(loc);
+		
 		List<Group> groups = findObjectInGroups(s);
 		for(Group g : groups) {
 			g.removeItem(s);

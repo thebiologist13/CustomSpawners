@@ -43,6 +43,10 @@ public class SetLocationCommand extends SpawnerCommand {
 		
 		spawner.setLoc(target.getLocation());
 		
+		//Refresh redstone spawners
+		if(spawner.isSpawnOnRedstone())
+			CustomSpawners.redstoneSpawners.replace(spawner.getLoc(), spawner.getId());
+		
 		PLUGIN.sendMessage(player, ChatColor.GREEN + "Set the location of spawner " + 
 				ChatColor.GOLD + PLUGIN.getFriendlyName(spawner) + ChatColor.GREEN + 
 				" to " + ChatColor.GOLD + "(" + spawner.getLoc().getBlockX() + ", " + 

@@ -1,6 +1,6 @@
 package com.github.thebiologist13.commands.spawners;
 
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.bukkit.ChatColor;
@@ -23,19 +23,27 @@ public class ListAllCommand extends SpawnerCommand {
 	@Override
 	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
-		Collection<Spawner> spawners = CustomSpawners.spawners.values();
+		int[] ids = new int[CustomSpawners.spawners.size()];
+		int current = 0;
 		
-		if(spawners.size() == 0) {
+		if(ids.length == 0) {
 			PLUGIN.sendMessage(sender, ChatColor.RED + "No spawners have been created yet.");
 			return;
 		}
 		
 		PLUGIN.sendMessage(sender, ChatColor.GOLD + "Created Spawners:");
 		
-		Iterator<Spawner> itr = spawners.iterator();
+		Iterator<Spawner> itr = CustomSpawners.spawners.values().iterator();
 		while(itr.hasNext()) {
+			int id = itr.next().getId();
+			ids[current] = id;
+			current++;
+		}
+
+		Arrays.sort(ids);
 			
-			Spawner sp = itr.next();
+		for(int i : ids) {
+			Spawner sp = CustomSpawners.getSpawner(i);
 			
 			Location loc = sp.getLoc();
 			
@@ -43,12 +51,10 @@ public class ListAllCommand extends SpawnerCommand {
 					" -> Main Entity (" + PLUGIN.getFriendlyName(sp.getMainEntity()) + ChatColor.GOLD + ") at (" +
 					loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")"; 
 			
-			if(!sp.getName().isEmpty()) {
-				PLUGIN.sendMessage(sender, baseMessage + ChatColor.GREEN + " with name " + ChatColor.GOLD + sp.getName());
-			} else {
-				PLUGIN.sendMessage(sender, baseMessage);
-			}
+			if(!sp.getName().isEmpty()) 
+				baseMessage += ChatColor.GREEN + " with name " + ChatColor.GOLD + sp.getName();
 			
+			PLUGIN.sendMessage(sender, baseMessage);
 		}
 		
 	}

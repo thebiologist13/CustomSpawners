@@ -64,6 +64,7 @@ public class SItemStack implements Serializable, ISItemStack {
 		this.data = newStack.getDurability();
 		this.count = newStack.getAmount();
 		this.meta = generateSItemMeta(i);
+		this.dropChance = 100.0F;
 	}
 	
 	public SItemMeta generateSItemMeta(ItemStack stack) {

@@ -399,8 +399,11 @@ public class FileManager {
 			if(CustomSpawners.spawners.containsKey(s.getId())) {
 				PLUGIN.cloneWithNewId(s);
 			}
-
+			
 			CustomSpawners.spawners.put(s.getId(), s);
+			
+			if(s.isSpawnOnRedstone())
+				CustomSpawners.redstoneSpawners.put(s.getLoc(), s.getId());
 
 		}
 

@@ -22,6 +22,11 @@ public class SpawnOnPowerCommand extends SpawnerCommand {
 		spawner.setSpawnOnRedstone(value);
 		spawner.setRedstoneTriggered(value);
 		
+		if(value)
+			CustomSpawners.redstoneSpawners.put(spawner.getLoc(), spawner.getId());
+		else
+			CustomSpawners.redstoneSpawners.remove(spawner.getLoc());
+		
 		PLUGIN.sendMessage(sender, getSuccessMessage(spawner, "spawn on redstone trigger", in));
 	}
 
