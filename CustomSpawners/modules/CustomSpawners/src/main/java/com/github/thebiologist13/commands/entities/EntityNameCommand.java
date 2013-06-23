@@ -15,6 +15,7 @@ public class EntityNameCommand extends EntityCommand {
 		super(plugin, mainPerm);
 	}
 
+	//FIXME Not showing up?
 	@Override
 	public void run(SpawnableEntity entity, CommandSender sender, String subCommand, String[] args) {
 		

@@ -15,6 +15,7 @@ public class RemoveCommand extends SpawnerCommand {
 		super(plugin, mainPerm);
 	}
 
+	//FIXME Error in when removed from group.
 	@Override
 	public void run(Spawner spawner, CommandSender sender, String subCommand, String[] args) {
 		
