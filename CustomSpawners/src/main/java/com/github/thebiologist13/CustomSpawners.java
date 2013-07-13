@@ -179,6 +179,9 @@ public class CustomSpawners extends JavaPlugin {
 		if(plugin == null && !(plugin instanceof Citizens))
 			return null;
 
+		if(!plugin.isEnabled())
+			return null;
+		
 		return (Citizens) plugin;
 	}
 	
@@ -301,6 +304,9 @@ public class CustomSpawners extends JavaPlugin {
 
 		if(plugin == null && !(plugin instanceof Heroes))
 			return null;
+		
+		if(!plugin.isEnabled())
+			return null;
 
 		return (Heroes) plugin;
 	}
@@ -421,6 +427,9 @@ public class CustomSpawners extends JavaPlugin {
 		Plugin wg = Bukkit.getPluginManager().getPlugin("WorldGuard");
 
 		if (wg == null || !(wg instanceof WorldGuardPlugin))
+			return null;
+		
+		if(!wg.isEnabled())
 			return null;
 
 		return (WorldGuardPlugin) wg;
@@ -1888,7 +1897,7 @@ public class CustomSpawners extends JavaPlugin {
 
 			if (groupSelection.get(p) == id) {
 				p.sendMessage(ChatColor.RED
-						+ "Your selected spawner has been removed.");
+						+ "Your selected group has been removed.");
 				groupSelection.remove(p);
 			}
 		}

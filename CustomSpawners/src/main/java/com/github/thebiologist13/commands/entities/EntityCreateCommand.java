@@ -110,7 +110,7 @@ public class EntityCreateCommand extends EntityCommand {
 
 		if(addTo != null && CONFIG.getBoolean("players.groupAutoAdd", false) 
 				&& addTo.getType().equals(Group.Type.ENTITY)) {
-			addTo.addItem(addTo);
+			addTo.addItem(newEntity);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully created a new " + ChatColor.GOLD + 
 					in + ChatColor.GREEN + " entity with ID number " + ChatColor.GOLD + newEntity.getId() + 
 					ChatColor.GREEN + "! This entity was added to group " + ChatColor.GOLD + PLUGIN.getFriendlyName(addTo)

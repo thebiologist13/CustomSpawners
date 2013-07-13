@@ -26,10 +26,11 @@ public class ReloadDataCommand extends CustomSpawnersCommand {
 
 		try {
 			PLUGIN.getFileManager().reloadData();
-			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Data reloaded.");
+			PLUGIN.reloadCustomConfig();
+			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Data and config reloaded.");
 		} catch (Exception e) {
 			PLUGIN.printDebugMessage(e.getMessage(), this.getClass());
-			PLUGIN.sendMessage(sender, ChatColor.RED + "Failed to reload entities.");
+			PLUGIN.sendMessage(sender, ChatColor.RED + "Failed to reload data and config.");
 		}
 		
 	}

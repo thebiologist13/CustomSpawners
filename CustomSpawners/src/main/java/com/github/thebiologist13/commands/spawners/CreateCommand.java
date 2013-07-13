@@ -82,7 +82,7 @@ public class CreateCommand extends SpawnerCommand {
 
 		if(addTo != null && CONFIG.getBoolean("players.groupAutoAdd", false) 
 				&& addTo.getType().equals(Group.Type.SPAWNER)) {
-			addTo.addItem(addTo);
+			addTo.addItem(newSpawner);
 			PLUGIN.sendMessage(sender, ChatColor.GREEN + "Successfully created a new " + ChatColor.GOLD + 
 					in + ChatColor.GREEN + " spawner with ID number " + ChatColor.GOLD + newSpawner.getId() + 
 					ChatColor.GREEN + "! This spawner was added to group " + ChatColor.GOLD + PLUGIN.getFriendlyName(addTo)
