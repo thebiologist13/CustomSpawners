@@ -545,7 +545,6 @@ public class EntitiesExecutor extends Executor implements CommandExecutor {
 		});
 		addCommand("chests", horse, new String[] {
 				"horsechests",
-				"chest",
 				"donkeychests",
 				"horsechest",
 				"donkeychest"
